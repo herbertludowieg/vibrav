@@ -8,13 +8,10 @@ vibrav
 A tool to perform vibrational averaging of molecular properties on molecules.
 
 ## Installation
-Currently, this is only available through this github page and does not have an installation
-script. Therefore, to use this globally either add the lines to each script
-```python
-import sys
-sys.path.append(0, '/path/to/git/repo/va/')
-```
-or, add it to your `$PYTHONPATH` variable.
+To use this code package you must download the development version and execute
+
+`pip intsall -e .`
+
 ### Requirements
  - numpy
  - pandas
