@@ -42,10 +42,20 @@ install:
 
 
 script:
+  - export PYTHONDONTWRITEBYTECODE=1
   - pytest -v --cov=vibrav vibrav/tests/
+  - if [[ $TRAVIS_OS_NAME == "linux" ]] && [[ $PYTHONVER == 3.6 ]]; then
+        rm -rf docs/*.txt;
+        SPINX_APIDOC_OPTIONS=members,undoc-members,show-inheritance sphinx-apidoc -eM -s txt -o docs/ molecool *test*;
+        travis-sphinx build --source docs/;
+    fi
 
 notifications:
     email: false
 
 after_success:
   - codecov
+  - if [[ $TRAVIS_OS_NAME == "linux" ]] && [[ $PYTHONVER == 3.6 ]]; then
+        travis-sphinx deploy;
+    fi
+

@@ -2,15 +2,21 @@ name: test
 channels:
 dependencies:
     # Base depends
-  - python
-  - pip
+    - python
+    - pip
 
     # Testing
-  - pytest
-  - pytest-cov
-  - codecov
+    - pytest
+    - pytest-cov
+    - codecov
+
+    # dependencies
+    - numpy
+    - numba
+    - sphinx_rtd_theme
 
     # Pip-only installs
-  #- pip:
-  #  - codecov
+    - pip:
+        - travis-sphinx
+        - exa
 
