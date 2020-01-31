@@ -19,7 +19,7 @@ or, add it to your `$PYTHONPATH` variable.
  - numpy
  - pandas
  - numba
- - [[exa](https://github.com/exa-analytics/exa)](https://github.com/exa-analytics/exa)
+ - [exa](https://github.com/exa-analytics/exa)
 
 ## Calculations available
 ### Vibronic Coupling:
@@ -38,5 +38,5 @@ to reference (1). We currently support the calculation of the following properti
 Copyright (c) 2020, Herbert D Ludowieg
 
 ## References:
-1. J. Phys. Chem. Lett. 2018, 9, 4, 887-894 (doi:https://doi.org/10.1021/acs.jpclett.7b03441)
+1. [J. Phys. Chem. Lett. 2018, 9, 4, 887-894](https://doi.org/10.1021/acs.jpclett.7b03441)
 
