@@ -11,9 +11,8 @@ Welcome to vibrav's documentation!
    :caption: Contents:
 
    getting_started
-   api
 
-
+.. include:: modules.txt
 
 Indices and tables
 ==================
