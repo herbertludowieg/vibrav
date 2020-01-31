@@ -1,5 +1,0 @@
-numpy==1.17.3
-numba==0.46.0
-pandas==0.25.1
-exa==0.4.2
-exatomic==0.4.1
