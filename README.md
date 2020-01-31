@@ -15,6 +15,11 @@ import sys
 sys.path.append(0, '/path/to/git/repo/va/')
 ```
 or, add it to your `$PYTHONPATH` variable.
+### Requirements
+ - numpy
+ - pandas
+ - numba
+ - [[exa](https://github.com/exa-analytics/exa)](https://github.com/exa-analytics/exa)
 
 ## Calculations available
 ### Vibronic Coupling:
