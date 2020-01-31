@@ -14,6 +14,7 @@ dependencies:
     - numpy
     - numba
     - sphinx_rtd_theme
+    - pandas
 
     # Pip-only installs
     - pip:
