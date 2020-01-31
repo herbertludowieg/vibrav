@@ -34,6 +34,9 @@ to reference (1). We currently support the calculation of the following properti
 
 Copyright (c) 2020, Herbert D Ludowieg
 
+This program is distributed under the [LGPLv3](https://www.gnu.org/licenses/lgpl-3.0.en.html)
+open-source license
+
 ## References:
 1. [J. Phys. Chem. Lett. 2018, 9, 4, 887-894](https://doi.org/10.1021/acs.jpclett.7b03441)
 
