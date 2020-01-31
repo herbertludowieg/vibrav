@@ -1,22 +1,33 @@
-# -*- coding: utf-8 -*-
-# Copyright 2019-2020 Herbert D. Ludowieg
-# Distributed under the terms of the Apache License 2.0
+# This file is part of vibrav.
+#
+# vibrav is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# vibrav is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with vibrav.  If not, see <https://www.gnu.org/licenses/>.
 import pandas as pd
 import numpy as np
 import os
 import warnings
 from datetime import datetime, timedelta
 from time import time
-from va.molcas import Output
+from vibrav.molcas import Output
 from exa.util.units import Time, Mass, Energy, Length
 from exa.util.constants import (speed_of_light_in_vacuum as speed_of_light,
                                 Planck_constant as planck_constant,
                                 Boltzmann_constant as boltz_constant)
-from va.numerical.vibronic_func import *
-from va.core.config import Config
+from vibrav.numerical.vibronic_func import *
+from vibrav.core.config import Config
 from glob import glob
-from va.util.open_files import open_txt
-from va.util.math import get_triu, ishermitian
+from vibrav.util.open_files import open_txt
+from vibrav.util.math import get_triu, ishermitian
 
 class Vibronic:
     _required_inputs = {'number_of_multiplicity': int, 'spin_multiplicity': (tuple, int),
