@@ -1,9 +1,9 @@
 vibrav
 ==============================
 [//]: # (Badges)
-[![Travis Build Status](https://travis-ci.com/REPLACE_WITH_OWNER_ACCOUNT/vibrav.svg?branch=master)](https://travis-ci.com/REPLACE_WITH_OWNER_ACCOUNT/vibrav)
+[![Travis Build Status](https://travis-ci.com/herbertludowieg/vibrav.svg?token=tigC5BybifGYsSzkkDS8&branch=master)](https://travis-ci.com/herbertludowieg/vibrav)
 [![AppVeyor Build status](https://ci.appveyor.com/api/projects/status/REPLACE_WITH_APPVEYOR_LINK/branch/master?svg=true)](https://ci.appveyor.com/project/REPLACE_WITH_OWNER_ACCOUNT/vibrav/branch/master)
-[![codecov](https://codecov.io/gh/REPLACE_WITH_OWNER_ACCOUNT/vibrav/branch/master/graph/badge.svg)](https://codecov.io/gh/REPLACE_WITH_OWNER_ACCOUNT/vibrav/branch/master)
+[![codecov](https://codecov.io/gh/herbertludowieg/vibrav/branch/master/graph/badge.svg?token=VbOgm57FCn)](https://codecov.io/gh/herbertludowieg/vibrav)
 
 A tool to perform vibrational averaging of molecular properties on molecules.
 

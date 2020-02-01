@@ -100,8 +100,11 @@ def sf_to_so(nstates_sf, nstates, multiplicity, dprop_dq_sf, dprop_dq_so):
 def compute_d_dq(nstates, eigvectors, prop_so, dprop_dq):
     '''
     Perform complex transformation with the eigen vectors to convert the spin-free derivatives to
-    spin-orbit derivatives of the property of interest. This follows equation S11 in the referenced
-    paper (doi:https://doi.org/10.1021/acs.jpclett.7b03441).
+    spin-orbit derivatives of the property of interest. The equation is as follows,
+    
+    .. math::
+        
+
 
     Args:
         nstates (int, input): Number of spin-orbit states.
