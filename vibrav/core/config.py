@@ -34,11 +34,11 @@ class Config(Series):
             config (dict): Dictionary with all of the elements in the config as keys
 
         Raises:
-            AttributeError: When there is more than one value for a default argument, having more than 
-                            one value when the input dictionaries say it should be one value, or when
-                            there is a missing required parameter.
-            Exception: Default catch when the required parameter is not interpreted correctly and does
-                       not fall within any of the coded parameters.
+            AttributeError: When there is more than one value for a default argument, having more
+                            than  one value when the input dictionaries say it should be one value,
+                            or when there is a missing required parameter.
+            Exception: Default catch when the required parameter is not interpreted correctly and
+                       does not fall within any of the coded parameters.
         '''
         with open(fp, 'r') as fn:
             # get the lines and replace all newline characters
