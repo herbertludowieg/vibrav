@@ -69,32 +69,38 @@ def sf_to_so(nstates_sf, nstates, multiplicity, dprop_dq_sf, dprop_dq_so):
 
     Given a spin-free derivative matrix made up of 2 doublets and 3 singlets
 
-    [[d_11, d_12, d_13, d_14, d_15],
-     [d_21, d_22, d_23, d_24, d_25],
-     [d_31, d_32, d_33, d_34, d_35],
-     [d_41, d_42, d_43, d_44, d_45],
-     [d_51, d_52, d_53, d_54, d_55]]
+    .. code-block:: python
+        [[d_11, d_12, d_13, d_14, d_15],
+         [d_21, d_22, d_23, d_24, d_25],
+         [d_31, d_32, d_33, d_34, d_35],
+         [d_41, d_42, d_43, d_44, d_45],
+         [d_51, d_52, d_53, d_54, d_55]]
+
 
     Here, d_mn are the individual matrix elements. Now we extend each by its respective multiplicity,
     assuming that states of different multiplicity do not interact.
 
-    [[d_11,    0, d_12,    0,    0,    0,    0],
-     [   0, d_11,    0, d_12,    0,    0,    0],
-     [d_21,    0, d_22,    0,    0,    0,    0],
-     [   0, d_21,    0, d_22,    0,    0,    0],
-     [   0,    0,    0,    0, d_33, d_34, d_35],
-     [   0,    0,    0,    0, d_43, d_44, d_45],
-     [   0,    0,    0,    0, d_53, d_54, d_55]]
+    .. code-block:: python
+        [[d_11,    0, d_12,    0,    0,    0,    0],
+         [   0, d_11,    0, d_12,    0,    0,    0],
+         [d_21,    0, d_22,    0,    0,    0,    0],
+         [   0, d_21,    0, d_22,    0,    0,    0],
+         [   0,    0,    0,    0, d_33, d_34, d_35],
+         [   0,    0,    0,    0, d_43, d_44, d_45],
+         [   0,    0,    0,    0, d_53, d_54, d_55]]
+
 
     Now we have a matrix made of the spin-free elements with the dimension of the spin-orbit states.
     Note, this is not the spin-orbit matrix. This is only to prepare the matrix for the complex
     transformation with the eigenvectors gotten from Molcas in the eigectors.txt file. That is taken
-    care of with equation S11 in the referenced paper (doi:https://doi.org/10.1021/acs.jpclett.7b03441).
+    care of with equation S11 in the referenced paper 
+    (doi:https://doi.org/10.1021/acs.jpclett.7b03441).
 
     Args:
         nstates_sf (int, input): Number of spin-free states.
         nstates (int, input): Number of spin-orbit states.
-        multiplicity (np.array, input): 1D array detailing which spin-free states have which multiplicity.
+        multiplicity (np.array, input): 1D array detailing which spin-free states have which
+                                        multiplicity.
         dprop_dq_sf (np.array, input): Array of the spin-free derivative elements.
         dprop_dq_so (np.array, output): Array of the spin-free derivatives extended to the size of
                                         spin-orbit states.
@@ -117,7 +123,7 @@ def compute_d_dq(nstates, eigvectors, prop_so, dprop_dq):
     spin-orbit derivatives of the property of interest. The equation is as follows,
     
     .. math::
-        
+        \\left<\\psi_1^{SO}|\\mu^e|\\psi_2^{SO}\\right> = \\sum_{k,m}U_{k1}^{0*}U_{m2}^{0}\\left\\phi_k|\\mu_{1,2}^{e,SF}\\left(Q\\right)|\\phi_m\right>
 
 
     Args:
