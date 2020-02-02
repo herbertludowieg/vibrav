@@ -125,7 +125,7 @@ def compute_d_dq(nstates, eigvectors, prop_so, dprop_dq):
     spin-orbit derivatives of the property of interest. The equation is as follows,
 
     .. math::
-        \\left<\\psi_1^{SO}|\\mu^e|\\psi_2^{SO}\\right> = \\sum_{k,m}U_{k1}^{0*}U_{m2}^{0}\\left\\phi_k|\\mu_{1,2}^{e,SF}\\left(Q\\right)|\\phi_m\\right>
+        \\left<\\psi_1^{SO}|\\mu^e|\\psi_2^{SO}\\right> = \\sum_{k,m}U_{k1}^{0*}U_{m2}^{0}\\left<\\psi_k|\\mu_{1,2}^{e,SF}\\left(Q\\right)|\\psi_m\\right>
 
 
     Args:
