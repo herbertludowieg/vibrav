@@ -26,13 +26,18 @@ def compute_oscil_str(absorption, energy):
 @jit(nopython=True, parallel=False)
 def compute_d_dq_sf(nstates_sf, dham_dq, eq_sf, energies_sf, dprop_dq_sf):
     '''
-    Compute the spin-free derivative of the chosen property according to equation S10 in the
-    referenced paper (doi:https://doi.org/10.1021/acs.jpclett.7b03441).
+    Compute the spin-free derivative of the chosen property given by the following equation,
+
+    .. math::
+        \\frac{\\partial\\mu_{1,2}^{e}\\left(Q\\right)}{\\partial Q_p} =
+            \\sum_{k\\neq}\\left<\\psi_k^0|\\mu^e|\\psi_2^0\\right>
 
     Args:
         nstates_sf (int, input): Number of spin free states.
-        dham_dq (np.array, input): Derivative of the Hamiltonian with respect to the normal coordinate.
-        eq_sf (np.array, input): Spin-free values of the property parsed from the equilibrium geometry.
+        dham_dq (np.array, input): Derivative of the Hamiltonian with respect to the normal
+                                   coordinate.
+        eq_sf (np.array, input): Spin-free values of the property parsed from the equilibrium
+                                 geometry.
         energies_sf (np.array, input): Spin-free energies parsed from the equilibrium geometry.
         dprop_dq_sf (np.array, output): Spin-free derivative of the property of interest.
     '''
