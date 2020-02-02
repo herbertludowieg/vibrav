@@ -106,3 +106,4 @@ venv.bak/
 
 # user added
 *.swp
+docs/*.txt
