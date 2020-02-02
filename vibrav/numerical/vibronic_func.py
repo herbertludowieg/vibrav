@@ -30,14 +30,13 @@ def compute_d_dq_sf(nstates_sf, dham_dq, eq_sf, energies_sf, dprop_dq_sf):
     Compute the spin-free derivative of the chosen property given by the following equation,
 
     .. math::
-        :nowrap:
+        A = \\sum_{k\\neq 1}\\left<\\psi_k^0|\\mu^e|\\psi_2^0\\right> \\frac{\\partial\\left<\\psi_1^0|H|\\psi_k^0\\right>  / \\partial Q_p}{E_1^0 - E_k^0} \\
 
-        \\begin{eqnarray}
-            A &= \\sum_{k\\neq 1}\\left<\\psi_k^0|\\mu^e|\\psi_2^0\\right> \\frac{\\partial\\left<\\psi_1^0|H|\\psi_k^0\\right>  / \\partial Q_p}{E_1^0 - E_k^0} \\
-            B &= \\sum_{k\\neq 2}\\left<\\psi_1^0|\\mu^e|\\psi_k^0\\right> \\frac{\\partial\\left<\\psi_1^0|H|\\psi_k^0\\right> / \\partial Q_p}{E_1^0 - E_k^0} \\
-            \\frac{\\partial\\mu_{1,2}^{e}\\left(Q\\right)}{\\partial Q_p} &= A + B
-            \\frac{\\partial\\mu_{1,2}^{e}\\left(Q\\right)}{\\partial Q_p} &= \\sum_{k\\neq 1}\\left<\\psi_k^0|\\mu^e|\\psi_2^0\\right> \\frac{\\partial\\left<\\psi_1^0|H|\\psi_k^0\\right>  / \\partial Q_p}{E_1^0 - E_k^0} + \\sum_{k\\neq 2}\\left<\\psi_1^0|\\mu^e|\\psi_k^0\\right> \\frac{\\partial\\left<\\psi_1^0|H|\\psi_k^0\\right> / \\partial Q_p}{E_1^0 - E_k^0}
-        \\end{eqnarray}
+    .. math::
+        B = \\sum_{k\\neq 2}\\left<\\psi_1^0|\\mu^e|\\psi_k^0\\right> \\frac{\\partial\\left<\\psi_1^0|H|\\psi_k^0\\right> / \\partial Q_p}{E_1^0 - E_k^0} \\
+
+    .. math::
+        \\frac{\\partial\\mu_{1,2}^{e}\\left(Q\\right)}{\\partial Q_p} = A + B
 
 
     Args:
