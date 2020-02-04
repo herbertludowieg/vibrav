@@ -17,15 +17,16 @@ from numba import jit, prange, vectorize, float64, complex128
 
 @vectorize([float64(complex128)])
 def abs2(x):
+    '''Get the square of a complex number'''
     return np.square(np.real(x)) + np.square(np.imag(x))
 
 @vectorize([float64(float64, float64)])
 def compute_oscil_str(absorption, energy):
+    '''Multiply the absorptin and energy'''
     return absorption * energy
 
 @jit(nopython=True, parallel=False)
 def compute_d_dq_sf(nstates_sf, dham_dq, eq_sf, energies_sf, dprop_dq_sf):
-                #\\frac{\\partial\\left<\\psi_k^0|H|\\psi_2^0\\right> \\partial Q_p}{E_2^0 - E_k^0}
     '''
     Compute the spin-free derivative of the chosen property given by the following equation,
 
@@ -35,7 +36,8 @@ def compute_d_dq_sf(nstates_sf, dham_dq, eq_sf, energies_sf, dprop_dq_sf):
 
 
     .. math::
-        B = \\sum_{k\\neq 2}\\left<\\psi_1^0|\\mu^e|\\psi_k^0\\right> \\frac{\\partial\\left<\\psi_1^0|H|\\psi_k^0\\right> / \\partial Q_p}{E_1^0 - E_k^0}
+        B = \\sum_{k\\neq 2}\\left<\\psi_1^0|\\mu^e|\\psi_k^0\\right>
+            \\frac{\\partial\\left<\\psi_1^0|H|\\psi_k^0\\right> / \\partial Q_p}{E_1^0 - E_k^0}
 
 
     .. math::
@@ -64,9 +66,10 @@ def compute_d_dq_sf(nstates_sf, dham_dq, eq_sf, energies_sf, dprop_dq_sf):
 @jit(nopython=True, parallel=False)
 def sf_to_so(nstates_sf, nstates, multiplicity, dprop_dq_sf, dprop_dq_so):
     '''
-    Extend the spin-free derivative from the number of spin-free states into the number of spin-orbit 
-    states. It does not change any of the values, rather it will only duplicate each of the spin-free
-    values by its respective multiplicity. In principle it can be thought of as follows,
+    Extend the spin-free derivative from the number of spin-free states into the number of
+    spin-orbit states. It does not change any of the values, rather it will only duplicate each of
+    the spin-free values by its respective multiplicity. In principle it can be thought of as
+    follows:
 
     Given a spin-free derivative matrix made up of 2 doublets and 3 singlets
 
@@ -96,8 +99,12 @@ def sf_to_so(nstates_sf, nstates, multiplicity, dprop_dq_sf, dprop_dq_so):
     Now we have a matrix made of the spin-free elements with the dimension of the spin-orbit states.
     Note, this is not the spin-orbit matrix. This is only to prepare the matrix for the complex
     transformation with the eigenvectors gotten from Molcas in the eigectors.txt file. That is taken
-    care of with equation S11 in the referenced paper 
-    (doi:https://doi.org/10.1021/acs.jpclett.7b03441).
+    care of by the following equation,
+
+    .. math::
+        \\left<\\psi_1^{SO}|\\mu^e|\\psi_2^{SO}\\right> = \\sum_{k,m}U_{k1}^{0*}U_{m2}^{0}
+                                    \\left<\\psi_k|\\mu_{1,2}^{e,SF}\\left(Q\\right)|\\psi_m\\right>
+
 
     Args:
         nstates_sf (int, input): Number of spin-free states.
@@ -126,7 +133,8 @@ def compute_d_dq(nstates, eigvectors, prop_so, dprop_dq):
     spin-orbit derivatives of the property of interest. The equation is as follows,
 
     .. math::
-        \\left<\\psi_1^{SO}|\\mu^e|\\psi_2^{SO}\\right> = \\sum_{k,m}U_{k1}^{0*}U_{m2}^{0}\\left<\\psi_k|\\mu_{1,2}^{e,SF}\\left(Q\\right)|\\psi_m\\right>
+        \\left<\\psi_1^{SO}|\\mu^e|\\psi_2^{SO}\\right> = \\sum_{k,m}U_{k1}^{0*}U_{m2}^{0}
+                                    \\left<\\psi_k|\\mu_{1,2}^{e,SF}\\left(Q\\right)|\\psi_m\\right>
 
 
     Args:
@@ -146,23 +154,4 @@ def compute_d_dq(nstates, eigvectors, prop_so, dprop_dq):
         for jdx in range(nstates):
             for kdx in range(nstates):
                 dprop_dq[idx][jdx] += tmp[idx][kdx] * eigvectors[kdx][jdx]
-
-#@jit(nopython=True, parallel=False)
-#def compute_vibronic_oscil_str(nstates, energies_so, evib, osc_prefac, prop_x, prop_y, prop_z,
-#                               oscil, dE):
-#    absorption = abs2(prop_x) + abs2(prop_y) + abs2(prop_z)
-#    for idx in range(nstates):
-#        for jdx in range(idx+1, nstates):
-#            for edx, val in enumerate([-1, 0, 1]):
-#                dE[edx][idx][jdx] = energies_so[jdx] - energies_so[idx] + val*evib
-#                oscil[edx][idx][jdx] = dE[edx][idx][jdx] * osc_prefac * absorption[idx][jdx]
-#
-#@jit(nopyton=True, parallel=False)
-#def compute_oscil_str(nstates, energies_so, evib, osc_prefac, prop_x, prop_y, prop_z,
-#                      oscil, dE):
-#    absorption = abs2(prop_x) + abs2(prop_y) + abs2(prop_z)
-#    for idx in range(nstates):
-#        for jdx in range(idx+1, nstates):
-#            dE[idx][jdx] = energies_so[jdx] - energies_so[idx] + evib
-#            oscil[idx][jdx] = dE[idx][jdx] * osc_prefac * absorption[idx][jdx]
 

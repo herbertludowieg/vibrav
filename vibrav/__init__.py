@@ -1,4 +1,5 @@
 from .vibronic import *
+from .base import resource, list_resource
 
 from ._version import get_versions
 versions = get_versions()
