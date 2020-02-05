@@ -54,8 +54,8 @@ notifications:
     email: false
 
 after_success:
-  - codecov
   - if [[ $TRAVIS_OS_NAME == "linux" ]] && [[ $PYTHON_VER == 3.6 ]]; then
+        codecov
         travis-sphinx deploy;
     fi
 
