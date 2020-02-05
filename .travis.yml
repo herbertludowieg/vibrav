@@ -55,7 +55,7 @@ notifications:
 
 after_success:
   - if [[ $TRAVIS_OS_NAME == "linux" ]] && [[ $PYTHON_VER == 3.6 ]]; then
-        codecov
+        codecov;
         travis-sphinx deploy;
     fi
 
