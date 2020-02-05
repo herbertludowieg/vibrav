@@ -64,8 +64,8 @@ def test_sf_angmom(editor):
             assert False
 
 def test_sf_quadrupole(editor):
-    data = pd.read_csv(resource('molcas-rassi-nien-sf-quadrupole.csv.xz'), compression='xz', header=0,
-                       index_col=False)
+    data = pd.read_csv(resource('molcas-rassi-nien-sf-quadrupole.csv.xz'), compression='xz',
+                       header=0, index_col=False)
     editor.parse_sf_quadrupole_moment()
     arr = []
     cols = []
@@ -83,4 +83,12 @@ def test_sf_quadrupole(editor):
         if not notnull:
             raise ValueError("Null values were found in quadrupole data for column {}".format(col))
             assert False
+
+def test_energies(editor):
+    data = pd.read_csv(resource('molcas-rassi-nien-energy.csv.xz'), compression='xz', header=0,
+                       index_col=False)
+    editor.parse_sf_energy()
+    editor.parse_so_energy()
+    assert np.allclose(data['so'].values, editor.so_energy['energy'].values)
+    assert np.allclose(data['sf'].dropna().values, editor.sf_energy['energy'].values)
 
