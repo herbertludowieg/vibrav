@@ -1,0 +1,15 @@
+FREQ_DATA_FILE          ADF_FREQ_FILE 
+NUMBER_OF_MULTIPLICITY  2
+SPIN_MULTIPLICITY       3 1
+NUMBER_OF_STATES        42 49
+NUMBER_OF_NUCLEI        7
+NUMBER_OF_MODES         15
+DELTA_ALGORITHM         0
+DELTA_VALUE             0.04
+OSCILLATOR_SPIN_STATES  91
+DELTA_FILE              delta.dat
+REDUCED_MASS_FILE       redmass.dat
+FREQUENCY_FILE          freq.dat
+SF_ENERGIES_FILE        energies-SF.txt
+SO_ENERGIES_FILE        energies.txt
+ZERO_ORDER_FILE         ucl-rassi.out
