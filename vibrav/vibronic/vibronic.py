@@ -127,7 +127,8 @@ class Vibronic:
         self.mag_oscil = df
 
     def vibronic_coupling(self, property, write_property=True, write_energy=True, write_oscil=True,
-                          print_stdout=True, temp=298, eq_cont=True, verbose=False, sparse=True):
+                          print_stdout=True, temp=298, eq_cont=True, verbose=False, sparse=True,
+                          use_sqrt_rmass=True):
         '''
         Vibronic coupling method to calculate the vibronic coupling by the equations as given
         in reference J. Phys. Chem. Lett. 2018, 9, 887-894. This code follows a similar structure
@@ -180,7 +181,6 @@ class Vibronic:
         planck_constant_au = 2*np.pi
         # TODO: these hardcoded values need to be generalized
         # this was used in the old script but needs to be fixed
-        use_sqrt_rmass = True
         fc = 1
         # read all of the data files
         delta = pd.read_csv(config.delta_file, header=None)
