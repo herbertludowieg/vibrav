@@ -415,7 +415,14 @@ class Vibronic:
                     print("-----------------------------------")
                 # finally get the oscillator strengths from equation S12
                 to_drop = ['component', 'freqdx', 'sign', 'prop']
+                boltz_denom = 1+np.exp(-freq[fdx]/(boltz_constant*Energy['J', 'cm^-1']*temp))
+                boltz_plus = 1/boltz_denom
+                boltz_minus = np.exp(-freq[fdx]/(boltz_constant*Energy['J', 'cm^-1']*temp))/boltz_denom
                 for idx, val in enumerate([-1, 1]):
+                    if val == -1:
+                        boltz = boltz_minus
+                    else:
+                        boltz = boltz_plus
                     absorption = np.zeros(nstates*nstates, dtype=np.float64)
                     for component in vibronic_prop[fdx][idx]:
                         absorption += abs2(component)
@@ -423,7 +430,7 @@ class Vibronic:
                     energy = energy.flatten()
                     self._check_size(energy, (nstates*nstates,), 'energy')
                     self._check_size(absorption, (nstates*nstates,), 'absorption')
-                    oscil[fdx][idx] = 2./3. * compute_oscil_str(absorption, energy)
+                    oscil[fdx][idx] = boltz * 2./3. * compute_oscil_str(absorption, energy)
                     delta_E[fdx][idx] = energy
             else:
                 write_oscil = False
