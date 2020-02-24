@@ -203,28 +203,36 @@ class Vibronic:
         nmodes = int(config.number_of_modes)
         plus_matrix = []
         minus_matrix = []
+        found_modes = []
         for idx in range(1, nmodes+1):
             try:
-                plus_matrix.append(open_txt(os.path.join('confg'+str(idx).zfill(padding),
-                                                              'ham-sf.txt')))
+                plus = open_txt(os.path.join('confg'+str(idx).zfill(padding), 'ham-sf.txt'))
+                try:
+                    minus = open_txt(os.path.join('confg'+str(idx+nmodes).zfill(padding),
+                                                  'ham-sf.txt'))
+                except FileNotFoundError:
+                    print("Could not find ham-sf.txt file for in directory " \
+                         +'confg'+str(idx+nmodes).zfill(padding) \
+                         +"\nIgnoring frequency index {}".format(idx))
+                    continue
             except FileNotFoundError:
                 print("Could not find ham-sf.txt file for in directory " \
-                     +'confg'+str(idx).zfill(padding))
-            try:
-                minus_matrix.append(open_txt(os.path.join('confg'+str(idx+nmodes).zfill(padding),
-                                                               'ham-sf.txt')))
-            except FileNotFoundError:
-                print("Could not find ham-sf.txt file for in directory " \
-                     +'confg'+str(idx+nmodes).zfill(padding))
+                     +'confg'+str(idx).zfill(padding) \
+                     +"\nIgnoring frequency index {}".format(idx))
+                continue
+            plus_matrix.append(plus)
+            minus_matrix.append(minus)
+            found_modes.append(idx-1)
         ham_plus = pd.concat(plus_matrix, ignore_index=True)
         ham_minus = pd.concat(minus_matrix, ignore_index=True)
         dham_dq = ham_plus - ham_minus
         self._check_size(dham_dq, (nstates_sf*nmodes, nstates_sf), 'dham_dq')
         # TODO: this division by the sqrt of the mass needs to be verified
         #       left as is for the time being as it was in the original code
-        sf_sqrt_rmass = np.repeat(np.sqrt(rmass.values*Mass['u', 'au_mass']),
+        sf_sqrt_rmass = np.repeat(np.sqrt(rmass.loc[found_modes].values \
+                                  *Mass['u', 'au_mass']),
                                   nstates_sf).reshape(-1, 1)
-        sf_delta = np.repeat(delta.values, nstates_sf).reshape(-1, 1)
+        sf_delta = np.repeat(delta.loc[found_modes].values, nstates_sf).reshape(-1, 1)
         if use_sqrt_rmass:
             to_dq = 2 * sf_sqrt_rmass * sf_delta
         else:
@@ -232,7 +240,7 @@ class Vibronic:
         # convert to normal coordinates
         dham_dq = dham_dq / to_dq
         # add a frequency index reference
-        dham_dq['freqdx'] = np.repeat(range(nmodes), nstates_sf)
+        dham_dq['freqdx'] = np.repeat(found_modes, nstates_sf)
         # TODO
         # TODO: it would be really cool if we could just input a list of properties to compute
         #       and the program will take care of the rest
@@ -306,7 +314,7 @@ class Vibronic:
         vib_times = []
         grouped = dham_dq.groupby('freqdx')
         iter_times = []
-        for fdx in range(nmodes):
+        for fdx in found_modes:
             vib_prop = np.zeros((2, ncomp, nstates, nstates), dtype=np.complex128)
             vib_start = time()
             if print_stdout:
