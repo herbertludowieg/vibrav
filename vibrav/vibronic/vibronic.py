@@ -204,10 +204,18 @@ class Vibronic:
         plus_matrix = []
         minus_matrix = []
         for idx in range(1, nmodes+1):
-            plus_matrix.append(open_txt(os.path.join('confg'+str(idx).zfill(padding),
-                                                          'ham-sf.txt')))
-            minus_matrix.append(open_txt(os.path.join('confg'+str(idx+nmodes).zfill(padding),
-                                                           'ham-sf.txt')))
+            try:
+                plus_matrix.append(open_txt(os.path.join('confg'+str(idx).zfill(padding),
+                                                              'ham-sf.txt')))
+            except FileNotFoundError:
+                print("Could not find ham-sf.txt file for in directory " \
+                     +'confg'+str(idx).zfill(padding))
+            try:
+                minus_matrix.append(open_txt(os.path.join('confg'+str(idx+nmodes).zfill(padding),
+                                                               'ham-sf.txt')))
+            except FileNotFoundError:
+                print("Could not find ham-sf.txt file for in directory " \
+                     +'confg'+str(idx+nmodes).zfill(padding))
         ham_plus = pd.concat(plus_matrix, ignore_index=True)
         ham_minus = pd.concat(minus_matrix, ignore_index=True)
         dham_dq = ham_plus - ham_minus
