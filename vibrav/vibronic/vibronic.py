@@ -35,7 +35,8 @@ class Vibronic:
                         'number_of_modes': int, 'zero_order_file': str,
                         'oscillator_spin_states': int}
     _default_inputs = {'sf_energies_file': None, 'so_energies_file': None, 'angmom_file': 'angmom',
-                       'dipole_file': 'dipole', 'spin_file': 'spin', 'quadrupole_file': 'quadrupole'}
+                       'dipole_file': 'dipole', 'spin_file': 'spin', 'quadrupole_file': 'quadrupole',
+                       'degen_delta': 1e-5}
     @staticmethod
     def _check_size(data, size, var_name, dataframe=False):
         '''
@@ -149,7 +150,7 @@ class Vibronic:
 
     def vibronic_coupling(self, property, write_property=True, write_energy=True, write_oscil=True,
                           print_stdout=True, temp=298, eq_cont=True, verbose=False, sparse=True,
-                          use_sqrt_rmass=True):
+                          use_sqrt_rmass=True, store_gs_degen=True):
         '''
         Vibronic coupling method to calculate the vibronic coupling by the equations as given
         in reference J. Phys. Chem. Lett. 2018, 9, 887-894. This code follows a similar structure
@@ -269,14 +270,28 @@ class Vibronic:
         ed = Output(config.zero_order_file)
         # parse the energies from the output is the energy files are not available
         if config.sf_energies_file is not None:
-            energies_sf = pd.read_csv(config.sf_energies_file, header=None,
-                                      comment='#').values.reshape(-1,)
+            try:
+                energies_sf = pd.read_csv(config.sf_energies_file, header=None,
+                                          comment='#').values.reshape(-1,)
+            except FileNotFoundError:
+                print("The file {} was not found. Reading ".format(config.sf_energies_file) \
+                     +"spin-free energies direclty from the " \
+                     +"zero order output file {}".format(config.zero_order_file))
+                ed.parse_sf_energy()
+                energies_sf = ed.sf_energy['energy'].values
         else:
             ed.parse_sf_energy()
             energies_sf = ed.sf_energy['energy'].values
         if config.so_energies_file is not None:
-            energies_so = pd.read_csv(config.so_energies_file, header=None,
-                                      comment='#').values.reshape(-1,)
+            try:
+                energies_so = pd.read_csv(config.so_energies_file, header=None,
+                                          comment='#').values.reshape(-1,)
+            except FileNotFoundError:
+                print("The file {} was not found. Reading ".format(config.so_energies_file) \
+                     +"spin-orbit energies direclty from the " \
+                     +"zero order output file {}".format(config.zero_order_file))
+                ed.parse_so_energy()
+                energies_so = ed.so_energy['energy'].values
         else:
             ed.parse_so_energy()
             energies_so = ed.so_energy['energy'].values
@@ -335,6 +350,9 @@ class Vibronic:
         vib_times = []
         grouped = dham_dq.groupby('freqdx')
         iter_times = []
+        degeneracy = self.determine_degeneracy(energies_so, config.degen_delta)
+        gs_degeneracy = degeneracy.loc[0, 'degen']
+        if store_gs_degen: self.gs_degeneracy = gs_degeneracy
         for fdx in found_modes:
             vib_prop = np.zeros((2, ncomp, nstates, nstates), dtype=np.complex128)
             vib_start = time()
@@ -433,8 +451,6 @@ class Vibronic:
                         for i in range(nstates*nstates):
                             fn.write(template(initial[i], final[i], real[i], imag[i]))
                 dir_name = os.path.join('vib'+str(fdx+1).zfill(3), 'minus')
-                degeneracy = self.determine_degeneracy(energies_so, config.degen_delta)
-                gs_degeneracy = degeneracy.loc[0, 'degen']
                 with open(os.path.join(dir_name, 'energies.txt'), 'w') as fn:
                     fn.write('# {} (atomic units)\n'.format(nstates))
                     energies = energies_so + (1./2.)*evib - energies_so[0]
