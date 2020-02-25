@@ -156,7 +156,7 @@ class Vibronic:
 
     def vibronic_coupling(self, property, write_property=True, write_energy=True, write_oscil=True,
                           print_stdout=True, temp=298, eq_cont=True, verbose=False, sparse=True,
-                          use_sqrt_rmass=True, store_gs_degen=True):
+                          use_sqrt_rmass=True, store_gs_degen=True, select_fdx=-1):
         '''
         Vibronic coupling method to calculate the vibronic coupling by the equations as given
         in reference J. Phys. Chem. Lett. 2018, 9, 887-894. This code follows a similar structure
@@ -228,11 +228,18 @@ class Vibronic:
         # read the hamiltonian files in each of the confg??? directories
         # it is assumed that the directories are named confg with a 3-fold padded number (000)
         padding = 3
-        nmodes = int(config.number_of_modes)
         plus_matrix = []
         minus_matrix = []
         found_modes = []
-        for idx in range(1, nmodes+1):
+        if select_fdx == -1:
+            nmodes = config.number_of_modes
+            freq_range = list(range(1, nmodes+1))
+        else:
+            if isinstance(select_fdx, int): select_fdx = [select_fdx]
+            freq_range = np.array(select_fdx) + 1
+            nmodes = config.number_of_modes
+        nselected = len(freq_range)
+        for idx in freq_range:
             try:
                 plus = open_txt(os.path.join('confg'+str(idx).zfill(padding), 'ham-sf.txt'))
                 try:
@@ -254,7 +261,7 @@ class Vibronic:
         ham_plus = pd.concat(plus_matrix, ignore_index=True)
         ham_minus = pd.concat(minus_matrix, ignore_index=True)
         dham_dq = ham_plus - ham_minus
-        self._check_size(dham_dq, (nstates_sf*nmodes, nstates_sf), 'dham_dq')
+        self._check_size(dham_dq, (nstates_sf*nselected, nstates_sf), 'dham_dq')
         # TODO: this division by the sqrt of the mass needs to be verified
         #       left as is for the time being as it was in the original code
         sf_sqrt_rmass = np.repeat(np.sqrt(rmass.loc[found_modes].values \
@@ -344,9 +351,9 @@ class Vibronic:
         # number of elements in upper triangular matrices for each vibronic block including the diagonal
         upper_nelem = int(nstates*(nstates+1)/2)
         # allocate memory for arrays
-        oscil = np.zeros((nmodes, 2, nstates*nstates), dtype=np.float64)
-        delta_E = np.zeros((nmodes, 2, nstates*nstates), dtype=np.float64)
-        vibronic_prop = np.zeros((nmodes, 2, ncomp, nstates*nstates), dtype=np.complex128)
+        oscil = np.zeros((nselected, 2, nstates*nstates), dtype=np.float64)
+        delta_E = np.zeros((nselected, 2, nstates*nstates), dtype=np.float64)
+        vibronic_prop = np.zeros((nselected, 2, ncomp, nstates*nstates), dtype=np.complex128)
         #oscil = np.zeros((nmodes, 2, upper_nelem), dtype=np.float64)
         #delta_E = np.zeros((nmodes, 2, upper_nelem), dtype=np.float64)
         #vibronic_prop = np.zeros((nmodes, 2, ncomp, upper_nelem), dtype=np.complex128)
@@ -422,7 +429,7 @@ class Vibronic:
                 iter_times.append(end)
                 # make an estimate of how much longer this will run for
                 # does not take into account anything beyond the construction of the derivatives
-                eta = timedelta(seconds=round(np.mean(iter_times)*(nmodes*ncomp-len(iter_times)), 0))
+                eta = timedelta(seconds=round(np.mean(iter_times)*(nselected*ncomp-len(iter_times)), 0))
                 if print_stdout and verbose:
                     print(" Computed {:3s} component in {:8.1f} s".format(key, end))
                     print(" ETA:{:.>32s}".format(str(eta)))
@@ -503,9 +510,7 @@ class Vibronic:
                     delta_E[fdx][idx] = energy
         # write the values of the vibronic property
         out_dir = 'vibronic-outputs'
-        nstates_vib = 2*nmodes*nstates
-        #print(vibronic_prop[0][0][0][:20])
-        #print(vibronic_prop[0][1][0][:20])
+        nstates_vib = 2*nselected*nstates
         if False:
             write_energy = True
             template = "{:6d}  {:6d}  {:+.9E}  {:+.9E}\n"
@@ -673,7 +678,7 @@ class Vibronic:
                 # outside of for loops as this will go from 0 to the number of vibronic states
                 initial = 0
                 # iterate over the normal modes
-                for fdx in range(nmodes):
+                for fdx in found_modes:
                     # iterate over the plus and minus vibronic states around the
                     # electronic excitation
                     for idx, val in enumerate(['minus', 'plus']):
@@ -694,7 +699,7 @@ class Vibronic:
                             initial += 1
                 if print_stdout:
                     time_taken = timedelta(seconds=round(time()-start, 0))
-                    print("Wrote {} lines to {} in {}".format(int(2*nmodes*nstates*(nstates+1)/2),
+                    print("Wrote {} lines to {} in {}".format(int(2*nselected*nstates*nstates),
                                                               filename, str(time_taken)))
             if print_stdout:
                 print('='*68)
