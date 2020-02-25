@@ -387,43 +387,44 @@ class Vibronic:
             initial = np.repeat(range(nstates), nstates)+1
             final = np.tile(range(nstates), nstates)+1
             template = "{:6d}  {:6d}  {:>18.9E}  {:>18.9E}\n".format
-            for idx, (plus, minus) in enumerate(zip(*vibronic_prop[fdx])):
-                plus_T = plus.T.flatten()
-                real = np.real(plus_T)
-                imag = np.imag(plus_T)
-                dir_name = os.path.join('vib'+str(fdx+1).zfill(3), 'plus')
-                if not os.path.exists(dir_name):
-                    os.makedirs(dir_name, 0o755, exist_ok=True)
-                filename = os.path.join(dir_name, out_file+'-{}.txt'.format(idx+1))
-                with open(filename, 'w') as fn:
-                    fn.write('#{:>5s}  {:>6s}  {:>18s}  {:>18s}\n'.format('NROW', 'NCOL', 'REAL', 'IMAG'))
-                    for i in range(nstates*nstates):
-                        fn.write(template(initial[i], final[i], real[i], imag[i]))
-                minus_T = minus.T.flatten()
-                real = np.real(minus_T)
-                imag = np.imag(minus_T)
+            if write_property:
+                for idx, (plus, minus) in enumerate(zip(*vibronic_prop[fdx])):
+                    plus_T = plus.T.flatten()
+                    real = np.real(plus_T)
+                    imag = np.imag(plus_T)
+                    dir_name = os.path.join('vib'+str(fdx+1).zfill(3), 'plus')
+                    if not os.path.exists(dir_name):
+                        os.makedirs(dir_name, 0o755, exist_ok=True)
+                    filename = os.path.join(dir_name, out_file+'-{}.txt'.format(idx+1))
+                    with open(filename, 'w') as fn:
+                        fn.write('#{:>5s}  {:>6s}  {:>18s}  {:>18s}\n'.format('NROW', 'NCOL', 'REAL', 'IMAG'))
+                        for i in range(nstates*nstates):
+                            fn.write(template(initial[i], final[i], real[i], imag[i]))
+                    minus_T = minus.T.flatten()
+                    real = np.real(minus_T)
+                    imag = np.imag(minus_T)
+                    dir_name = os.path.join('vib'+str(fdx+1).zfill(3), 'minus')
+                    if not os.path.exists(dir_name):
+                        os.makedirs(dir_name, 0o755)
+                    filename = os.path.join(dir_name, out_file+'-{}.txt'.format(idx+1))
+                    with open(filename, 'w') as fn:
+                        fn.write('#{:>5s}  {:>6s}  {:>10s}  {:>10s}\n'.format('NROW', 'NCOL', 'REAL', 'IMAG'))
+                        for i in range(nstates*nstates):
+                            fn.write(template(initial[i], final[i], real[i], imag[i]))
                 dir_name = os.path.join('vib'+str(fdx+1).zfill(3), 'minus')
-                if not os.path.exists(dir_name):
-                    os.makedirs(dir_name, 0o755)
-                filename = os.path.join(dir_name, out_file+'-{}.txt'.format(idx+1))
-                with open(filename, 'w') as fn:
-                    fn.write('#{:>5s}  {:>6s}  {:>10s}  {:>10s}\n'.format('NROW', 'NCOL', 'REAL', 'IMAG'))
-                    for i in range(nstates*nstates):
-                        fn.write(template(initial[i], final[i], real[i], imag[i]))
-            dir_name = os.path.join('vib'+str(fdx+1).zfill(3), 'minus')
-            with open(os.path.join(dir_name, 'energies.txt'), 'w') as fn:
-                fn.write('# {} (atomic units)\n'.format(nstates))
-                energies = energies_so + (1./2.)*evib - energies_so[0]
-                energies[0] = (3./2.)*evib
-                for energy in energies:
-                    fn.write('{:.9E}\n'.format(energy))
-            dir_name = os.path.join('vib'+str(fdx+1).zfill(3), 'plus')
-            with open(os.path.join(dir_name, 'energies.txt'), 'w') as fn:
-                fn.write('# {} (atomic units)\n'.format(nstates))
-                energies = energies_so + (3./2.)*evib - energies_so[0]
-                energies[0] = (1./2.)*evib
-                for energy in energies:
-                    fn.write('{:.9E}\n'.format(energy))
+                with open(os.path.join(dir_name, 'energies.txt'), 'w') as fn:
+                    fn.write('# {} (atomic units)\n'.format(nstates))
+                    energies = energies_so + (1./2.)*evib - energies_so[0]
+                    energies[0] = (3./2.)*evib
+                    for energy in energies:
+                        fn.write('{:.9E}\n'.format(energy))
+                dir_name = os.path.join('vib'+str(fdx+1).zfill(3), 'plus')
+                with open(os.path.join(dir_name, 'energies.txt'), 'w') as fn:
+                    fn.write('# {} (atomic units)\n'.format(nstates))
+                    energies = energies_so + (3./2.)*evib - energies_so[0]
+                    energies[0] = (1./2.)*evib
+                    for energy in energies:
+                        fn.write('{:.9E}\n'.format(energy))
             signs = ['minus', 'none', 'plus']
             if (property == 'electric_dipole' or property == 'magnetic_dipole') and write_oscil:
                 if print_stdout and verbose:
@@ -460,7 +461,7 @@ class Vibronic:
         nstates_vib = 2*nmodes*nstates
         #print(vibronic_prop[0][0][0][:20])
         #print(vibronic_prop[0][1][0][:20])
-        if write_property:
+        if False:
             write_energy = True
             template = "{:6d}  {:6d}  {:+.9E}  {:+.9E}\n"
             if print_stdout:
