@@ -74,6 +74,27 @@ class Vibronic:
     def boltz_factor(energies_so):
         raise NotImplementedError("Coming Soon!!")
 
+    @staticmethod
+    def determine_degeneracy(data_df, degen_delta, rtol=1e-12):
+        degen_states = []
+        idx = 0
+        sorted = data_df.sort_values()
+        index = sorted.index.values
+        data = sorted.values
+        while idx < data.shape[0]:
+            degen = np.isclose(data[idx], data, atol=degen_delta, rtol=rtol)
+            ddx = np.where(degen)[0]
+            degen_vals = data[ddx]
+            degen_index = index[ddx]
+            mean = np.mean(degen_vals)
+            idx += ddx.shape[0]
+            df = pd.DataFrame.from_dict({'values': [mean], 'degen': [ddx.shape[0]]})
+            found = np.transpose(degen_index)
+            df['index'] = [found]
+            degen_states.append(df)
+        degeneracy = pd.concat(degen_states, ignore_index=True)
+        return degeneracy
+
     def magnetic_oscillator(self):
         raise NotImplementedError("Needs to be fixed!!!")
         config = self.config
@@ -412,17 +433,19 @@ class Vibronic:
                         for i in range(nstates*nstates):
                             fn.write(template(initial[i], final[i], real[i], imag[i]))
                 dir_name = os.path.join('vib'+str(fdx+1).zfill(3), 'minus')
+                degeneracy = self.determine_degeneracy(energies_so, config.degen_delta)
+                gs_degeneracy = degeneracy.loc[0, 'degen']
                 with open(os.path.join(dir_name, 'energies.txt'), 'w') as fn:
                     fn.write('# {} (atomic units)\n'.format(nstates))
                     energies = energies_so + (1./2.)*evib - energies_so[0]
-                    energies[0] = (3./2.)*evib
+                    energies[range(gs_degeneracy)] = (3./2.)*evib
                     for energy in energies:
                         fn.write('{:.9E}\n'.format(energy))
                 dir_name = os.path.join('vib'+str(fdx+1).zfill(3), 'plus')
                 with open(os.path.join(dir_name, 'energies.txt'), 'w') as fn:
                     fn.write('# {} (atomic units)\n'.format(nstates))
                     energies = energies_so + (3./2.)*evib - energies_so[0]
-                    energies[0] = (1./2.)*evib
+                    energies[range(gs_degeneracy)] = (1./2.)*evib
                     for energy in energies:
                         fn.write('{:.9E}\n'.format(energy))
             signs = ['minus', 'none', 'plus']
