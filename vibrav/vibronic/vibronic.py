@@ -76,12 +76,18 @@ class Vibronic:
         raise NotImplementedError("Coming Soon!!")
 
     @staticmethod
-    def determine_degeneracy(data_df, degen_delta, rtol=1e-12):
+    def determine_degeneracy(data_df, degen_delta, rtol=1e-12, numpy=True):
         degen_states = []
         idx = 0
-        sorted = data_df.sort_values()
-        index = sorted.index.values
-        data = sorted.values
+        if not numpy:
+            sorted = data_df.sort_values()
+            index = sorted.index.values
+            data = sorted.values
+        else:
+            df = pd.Series(data_df)
+            sorted = df.sort_values()
+            index = sorted.index.values
+            data = sorted.values
         while idx < data.shape[0]:
             degen = np.isclose(data[idx], data, atol=degen_delta, rtol=rtol)
             ddx = np.where(degen)[0]
