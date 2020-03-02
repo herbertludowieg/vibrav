@@ -56,9 +56,8 @@ class Vibronic:
             #       makes sense to a LengthError
             #       might be a good idea to create a custom LengthError as it is
             #       very important in this class
-            raise ValueError("'{var}' is not of proper size, " \
-                            +"currently {curr} expected {ex}".format(var=var_name, curr=data.shape,
-                                                                     ex=size))
+            raise ValueError("'{var}' is not of proper size, ".format(var=var_name) \
+                            +"currently {curr} expected {ex}".format(curr=data.shape, ex=size))
         try:
             _ = np.any(np.isnan(data))
             numpy = True
