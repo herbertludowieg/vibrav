@@ -363,9 +363,9 @@ class Vibronic:
         # number of elements in upper triangular matrices for each vibronic block including the diagonal
         upper_nelem = int(nstates*(nstates+1)/2)
         # allocate memory for arrays
-        oscil = np.zeros((nselected, 2, nstates*nstates), dtype=np.float64)
-        delta_E = np.zeros((nselected, 2, nstates*nstates), dtype=np.float64)
-        vibronic_prop = np.zeros((nselected, 2, ncomp, nstates*nstates), dtype=np.complex128)
+        oscil = np.zeros((nselected, 3, nstates*nstates), dtype=np.float64)
+        delta_E = np.zeros((nselected, 3, nstates*nstates), dtype=np.float64)
+        vibronic_prop = np.zeros((nselected, 3, ncomp, nstates*nstates), dtype=np.complex128)
         #oscil = np.zeros((nmodes, 2, upper_nelem), dtype=np.float64)
         #delta_E = np.zeros((nmodes, 2, upper_nelem), dtype=np.float64)
         #vibronic_prop = np.zeros((nmodes, 2, ncomp, upper_nelem), dtype=np.complex128)
@@ -428,14 +428,18 @@ class Vibronic:
                 if eq_cont:
                     vib_prop_plus = fc*(so_prop + dprop_dq)
                     vib_prop_minus = fc*(so_prop - dprop_dq)
+                    vib_prop_none = fc*(so_prop)
                 else:
                     vib_prop_plus = fc*dprop_dq
                     vib_prop_minus = fc*-dprop_dq
+                    vib_prop_none = np.zeros((nstates, nstates), dtype=np.float64)
                 # store in array
                 vibronic_prop[fdx][0][idx_map_rev[key]-1] = vib_prop_minus.flatten()
-                vibronic_prop[fdx][1][idx_map_rev[key]-1] = vib_prop_plus.flatten()
+                vibronic_prop[fdx][1][idx_map_rev[key]-1] = vib_prop_none.flatten()
+                vibronic_prop[fdx][2][idx_map_rev[key]-1] = vib_prop_plus.flatten()
                 vib_prop[0][idx_map_rev[key]-1] = vib_prop_minus
-                vib_prop[1][idx_map_rev[key]-1] = vib_prop_plus
+                vib_prop[1][idx_map_rev[key]-1] = vib_prop_none
+                vib_prop[2][idx_map_rev[key]-1] = vib_prop_plus
                 # fancy timing stuff
                 end = time() - start
                 iter_times.append(end)
@@ -452,7 +456,7 @@ class Vibronic:
             final = np.tile(range(nstates), nstates)+1
             template = "{:6d}  {:6d}  {:>18.9E}  {:>18.9E}\n".format
             if write_property:
-                for idx, (plus, minus) in enumerate(zip(*vibronic_prop[fdx])):
+                for idx, (plus, none, minus) in enumerate(zip(*vib_prop)):
                     plus_T = plus.T.flatten()
                     real = np.real(plus_T)
                     imag = np.imag(plus_T)
@@ -499,6 +503,7 @@ class Vibronic:
                 boltz_denom = 1+np.exp(-freq[founddx]/(boltz_constant*Energy['J', 'cm^-1']*temp))
                 boltz_plus = 1/boltz_denom
                 boltz_minus = np.exp(-freq[founddx]/(boltz_constant*Energy['J', 'cm^-1']*temp))/boltz_denom
+                for idx, val in enumerate([-1, 0, 1]):
                     if val == -1:
                         boltz = boltz_minus
                     else:
@@ -692,7 +697,7 @@ class Vibronic:
                 for fdx, founddx in enumerate(found_modes):
                     # iterate over the plus and minus vibronic states around the
                     # electronic excitation
-                    for idx, val in enumerate(['minus', 'plus']):
+                    for idx, val in enumerate(['minus', 'none', 'plus']):
                         index = 0
                         # iterate over the rows
                         for i in range(nstates):
