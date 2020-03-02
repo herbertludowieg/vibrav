@@ -26,6 +26,9 @@ def test_vibronic_coupling(freqdx):
     cols = ['nrow', 'ncol', 'oscil', 'energy']
     if freqdx[0] == -1:
         freqdx = range(15)
-    assert np.allclose(base_oscil.groupby('freqdx').filter(lambda x: x['freqdx'].unique() in freqdx)[cols].values,
-                       test_oscil[cols].values)
+    base = base_oscil.groupby('freqdx').filter(lambda x: x['freqdx'].unique()
+                                                         in freqdx)[cols].values
+    test = test_oscil.groupby('sign').filter(lambda x: x['sign'].unique()
+                                                       in ['minus', 'plus'])[cols].values
+    assert np.allclose(base, test)
 
