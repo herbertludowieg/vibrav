@@ -689,6 +689,12 @@ class Vibronic:
                 os.mkdir(out_dir, 0o755)
             start = time()
             filename = os.path.join(out_dir, 'oscillators.txt')
+            if os.path.exists(filename):
+                warnings.warn("{} exists will make a backup of the original file".format(filename),
+                              Warning)
+                idx = 1
+                while os.path.exists(filename+'.bak.{}'.format(idx)): idx += 1
+                os.rename(filename, filename+'.bak.{}'.format(idx))
             with open(filename, 'w') as fn:
                 # we also write the energies as they are needed when plotting the oscillators
                 template = "{:6d}  {:6d}  {:+.16E}  {:+.16E}  {:4d}  {:7s}\n"
