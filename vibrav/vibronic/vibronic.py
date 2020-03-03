@@ -402,7 +402,8 @@ class Vibronic:
                                                                                    # spin-orbit states
                 dprop_dq = np.zeros((nstates, nstates), dtype=np.complex128)       # spin-orbit deriv
                 # calculate everything
-                compute_d_dq_sf(nstates_sf, dham_dq_mode, prop, energies_sf, dprop_dq_sf)
+                compute_d_dq_sf(nstates_sf, dham_dq_mode, prop, energies_sf, dprop_dq_sf,
+                                1e-5)
                 sf_to_so(nstates_sf, nstates, multiplicity, dprop_dq_sf, dprop_dq_so)
                 compute_d_dq(nstates, eigvectors, dprop_dq_so, dprop_dq)
                 # check if the array is hermitian

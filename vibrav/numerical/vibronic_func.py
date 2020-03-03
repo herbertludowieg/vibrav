@@ -26,7 +26,7 @@ def compute_oscil_str(absorption, energy):
     return absorption * energy
 
 @jit(nopython=True, parallel=False)
-def compute_d_dq_sf(nstates_sf, dham_dq, eq_sf, energies_sf, dprop_dq_sf):
+def compute_d_dq_sf(nstates_sf, dham_dq, eq_sf, energies_sf, dprop_dq_sf, tol=1e-5):
     '''
     Compute the spin-free derivative of the chosen property given by the following equation,
 
@@ -56,10 +56,10 @@ def compute_d_dq_sf(nstates_sf, dham_dq, eq_sf, energies_sf, dprop_dq_sf):
     for idx in range(nstates_sf):
         for jdx in range(nstates_sf):
             for kdx in range(nstates_sf):
-                if not np.abs(energies_sf[idx] - energies_sf[kdx]) < 1e-7:
+                if not np.abs(energies_sf[idx] - energies_sf[kdx]) < tol:
                     dprop_dq_sf[idx][jdx] += dham_dq[idx][kdx]*eq_sf[kdx][jdx] \
                                                 / (energies_sf[idx] - energies_sf[kdx])
-                if not np.abs(energies_sf[jdx] - energies_sf[kdx]) < 1e-7:
+                if not np.abs(energies_sf[jdx] - energies_sf[kdx]) < tol:
                     dprop_dq_sf[idx][jdx] += dham_dq[kdx][jdx]*eq_sf[idx][kdx] \
                                                 / (energies_sf[jdx] - energies_sf[kdx])
 
