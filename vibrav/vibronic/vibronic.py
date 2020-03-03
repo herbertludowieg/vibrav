@@ -34,9 +34,10 @@ class Vibronic:
                         'number_of_states': (tuple, int), 'number_of_nuclei': int,
                         'number_of_modes': int, 'zero_order_file': str,
                         'oscillator_spin_states': int}
-    _default_inputs = {'sf_energies_file': None, 'so_energies_file': None, 'angmom_file': 'angmom',
-                       'dipole_file': 'dipole', 'spin_file': 'spin', 'quadrupole_file': 'quadrupole',
-                       'degen_delta': 1e-5}
+    _default_inputs = {'sf_energies_file': ('', str), 'so_energies_file': ('', str),
+                       'angmom_file': ('angmom', str), 'dipole_file': ('dipole', str),
+                       'spin_file': ('spin', str), 'quadrupole_file': ('quadrupole', str),
+                       'degen_delta': (1e-7, float)}
     @staticmethod
     def _check_size(data, size, var_name, dataframe=False):
         '''
@@ -294,7 +295,7 @@ class Vibronic:
         # TODO
         ed = Output(config.zero_order_file)
         # parse the energies from the output is the energy files are not available
-        if config.sf_energies_file is not None:
+        if config.sf_energies_file != '':
             try:
                 energies_sf = pd.read_csv(config.sf_energies_file, header=None,
                                           comment='#').values.reshape(-1,)
@@ -307,7 +308,7 @@ class Vibronic:
         else:
             ed.parse_sf_energy()
             energies_sf = ed.sf_energy['energy'].values
-        if config.so_energies_file is not None:
+        if config.so_energies_file != '':
             try:
                 energies_so = pd.read_csv(config.so_energies_file, header=None,
                                           comment='#').values.reshape(-1,)
@@ -403,7 +404,7 @@ class Vibronic:
                 dprop_dq = np.zeros((nstates, nstates), dtype=np.complex128)       # spin-orbit deriv
                 # calculate everything
                 compute_d_dq_sf(nstates_sf, dham_dq_mode, prop, energies_sf, dprop_dq_sf,
-                                1e-5)
+                                config.degen_delta)
                 sf_to_so(nstates_sf, nstates, multiplicity, dprop_dq_sf, dprop_dq_so)
                 compute_d_dq(nstates, eigvectors, dprop_dq_so, dprop_dq)
                 # check if the array is hermitian

@@ -19,8 +19,9 @@ from exa import Series
 class Config(Series):
     _sname = 'config_file'
     _iname = 'config_elem'
-    _default = {'delta_file': 'delta.dat', 'reduced_mass_file': 'redmass.dat', 'delta_disp': None,
-                'frequency_file': 'freq.dat', 'delta_algorithm': None, 'delta_value': 0.04}
+    _default = {'delta_file': ('delta.dat', str), 'reduced_mass_file': ('redmass.dat', str),
+                'delta_disp': (0, float), 'frequency_file': ('freq.dat', str),
+                'delta_algorithm': (2, int), 'delta_value': (0.04, float)}
 
     @classmethod
     def open_config(cls, fp, required, defaults=None):
@@ -66,7 +67,12 @@ class Config(Series):
                 if len(d[1:]) != 1:
                     raise AttributeError("Got the wrong number of entries in {}".format(key))
                 else:
-                    config[key] = d[1]
+                    # try to set the type of default value
+                    try:
+                        config[key] = defaults[key][1](d[1])
+                    except ValueError as e:
+                        raise ValueError(str(e) \
+                                         + ' when reading {} in configuration file'.format(key))
             # check for the required inputs given as a parameter
             # this allows us to use this script in the different ways we need it and we just
             # pass it the parameters that are required for that specific calculation
@@ -106,6 +112,6 @@ class Config(Series):
         # check for missing default arguments and fill in the default values
         missing_default = list(filter(lambda x: x not in found_defaults, defaults.keys()))
         for missing in missing_default:
-            config[missing] = defaults[missing]
+            config[missing] = defaults[missing][0]
         return cls(config)
 
