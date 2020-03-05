@@ -155,7 +155,7 @@ class Vibronic:
         self.mag_oscil = df
 
     def vibronic_coupling(self, property, write_property=True, write_energy=True, write_oscil=True,
-                          print_stdout=True, temp=298, eq_cont=True, verbose=False, sparse=True,
+                          print_stdout=True, temp=298, eq_cont=False, verbose=False, sparse=True,
                           use_sqrt_rmass=True, store_gs_degen=True, select_fdx=-1):
         '''
         Vibronic coupling method to calculate the vibronic coupling by the equations as given
@@ -434,7 +434,7 @@ class Vibronic:
                 else:
                     vib_prop_plus = fc*dprop_dq
                     vib_prop_minus = fc*-dprop_dq
-                    vib_prop_none = np.zeros((nstates, nstates), dtype=np.float64)
+                    vib_prop_none = fc*(so_prop)
                 # store in array
                 vibronic_prop[fdx][0][idx_map_rev[key]-1] = vib_prop_minus.flatten()
                 vibronic_prop[fdx][1][idx_map_rev[key]-1] = vib_prop_none.flatten()
