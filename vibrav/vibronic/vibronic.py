@@ -239,13 +239,12 @@ class Vibronic:
             else:
                 raise ValueError("The all condition for selecting frequencies (-1) was passed " \
                                 +"along with other frequencies.")
+        nmodes = config.number_of_modes
         if select_fdx == -1:
-            nmodes = config.number_of_modes
             freq_range = list(range(1, nmodes+1))
         else:
             if isinstance(select_fdx, int): select_fdx = [select_fdx]
             freq_range = np.array(select_fdx) + 1
-            nmodes = config.number_of_modes
         nselected = len(freq_range)
         for idx in freq_range:
             try:
@@ -284,6 +283,9 @@ class Vibronic:
         if use_sqrt_rmass:
             to_dq = 2 * sf_sqrt_rmass * sf_delta
         else:
+            warnings.warn("We assume that you used non-mass-weighted displacements to generate " \
+                          +"the displaced structures. We cannot ensure that this actually works.",
+                          Warning)
             to_dq = 2 * sf_delta
         # convert to normal coordinates
         dham_dq = dham_dq / to_dq
@@ -364,9 +366,9 @@ class Vibronic:
         # number of elements in upper triangular matrices for each vibronic block including the diagonal
         upper_nelem = int(nstates*(nstates+1)/2)
         # allocate memory for arrays
-        oscil = np.zeros((nselected, 3, nstates*nstates), dtype=np.float64)
-        delta_E = np.zeros((nselected, 3, nstates*nstates), dtype=np.float64)
-        vibronic_prop = np.zeros((nselected, 3, ncomp, nstates*nstates), dtype=np.complex128)
+        oscil = np.zeros((nselected, 2, nstates*nstates), dtype=np.float64)
+        delta_E = np.zeros((nselected, 2, nstates*nstates), dtype=np.float64)
+        vibronic_prop = np.zeros((nselected, 2, ncomp, nstates*nstates), dtype=np.complex128)
         #oscil = np.zeros((nmodes, 2, upper_nelem), dtype=np.float64)
         #delta_E = np.zeros((nmodes, 2, upper_nelem), dtype=np.float64)
         #vibronic_prop = np.zeros((nmodes, 2, ncomp, upper_nelem), dtype=np.complex128)
@@ -430,18 +432,18 @@ class Vibronic:
                 if eq_cont:
                     vib_prop_plus = fc*(so_prop + dprop_dq)
                     vib_prop_minus = fc*(so_prop - dprop_dq)
-                    vib_prop_none = fc*(so_prop)
+                    #vib_prop_none = fc*(so_prop)
                 else:
                     vib_prop_plus = fc*dprop_dq
                     vib_prop_minus = fc*-dprop_dq
-                    vib_prop_none = fc*(so_prop)
+                    #vib_prop_none = fc*(so_prop)
                 # store in array
                 vibronic_prop[fdx][0][idx_map_rev[key]-1] = vib_prop_minus.flatten()
-                vibronic_prop[fdx][1][idx_map_rev[key]-1] = vib_prop_none.flatten()
-                vibronic_prop[fdx][2][idx_map_rev[key]-1] = vib_prop_plus.flatten()
+                #vibronic_prop[fdx][1][idx_map_rev[key]-1] = vib_prop_none.flatten()
+                vibronic_prop[fdx][1][idx_map_rev[key]-1] = vib_prop_plus.flatten()
                 vib_prop[0][idx_map_rev[key]-1] = vib_prop_minus
-                vib_prop[1][idx_map_rev[key]-1] = vib_prop_none
-                vib_prop[2][idx_map_rev[key]-1] = vib_prop_plus
+                #vib_prop[1][idx_map_rev[key]-1] = vib_prop_none
+                vib_prop[1][idx_map_rev[key]-1] = vib_prop_plus
                 # fancy timing stuff
                 end = time() - start
                 iter_times.append(end)
@@ -458,7 +460,7 @@ class Vibronic:
             final = np.tile(range(nstates), nstates)+1
             template = "{:6d}  {:6d}  {:>18.9E}  {:>18.9E}\n".format
             if write_property:
-                for idx, (plus, none, minus) in enumerate(zip(*vib_prop)):
+                for idx, (plus, minus) in enumerate(zip(*vib_prop)):
                     plus_T = plus.T.flatten()
                     real = np.real(plus_T)
                     imag = np.imag(plus_T)
@@ -505,7 +507,7 @@ class Vibronic:
                 boltz_denom = 1+np.exp(-freq[founddx]/(boltz_constant*Energy['J', 'cm^-1']*temp))
                 boltz_plus = 1/boltz_denom
                 boltz_minus = np.exp(-freq[founddx]/(boltz_constant*Energy['J', 'cm^-1']*temp))/boltz_denom
-                for idx, val in enumerate([-1, 0, 1]):
+                for idx, val in enumerate([-1, 1]):
                     if val == -1:
                         boltz = boltz_minus
                     else:
@@ -705,7 +707,7 @@ class Vibronic:
                 for fdx, founddx in enumerate(found_modes):
                     # iterate over the plus and minus vibronic states around the
                     # electronic excitation
-                    for idx, val in enumerate(['minus', 'none', 'plus']):
+                    for idx, val in enumerate(['minus', 'plus']):
                         index = 0
                         # iterate over the rows
                         for i in range(nstates):
@@ -745,14 +747,19 @@ class Vibronic:
         #    print("***************************************")
 
     def __init__(self, config_file, *args, **kwargs):
-        config = Config.open_config(config_file, self._required_inputs, defaults=self._default_inputs)
+        config = Config.open_config(config_file, self._required_inputs,
+                                    defaults=self._default_inputs)
         # check that the number of multiplicities and states are the same
         if len(config.spin_multiplicity) != len(config.number_of_states):
             print(config.spin_multiplicity, config.number_of_states)
-            raise ValueError("Length mismatch of SPIN_MULTIPLICITY and NUMBER_OF_STATES")
+            raise ValueError("Length mismatch of SPIN_MULTIPLICITY " \
+                             +"({}) ".format(len(config.spin_multiplicity)) \
+                             +"and NUMBER_OF_STATES ({})".format(len(config.number_of_states)))
         if len(config.spin_multiplicity) != int(config.number_of_multiplicity):
             print(config.spin_multiplicity, config.number_of_multiplicity)
-            raise ValueError("Length of SPIN_MULTIPLICITY does not equal the NUMBER_OF_MULTIPLICITY")
+            raise ValueError("Length of SPIN_MULTIPLICITY ({}) ".format(config.spin_multiplicity) \
+                             +"does not equal the NUMBER_OF_MULTIPLICITY " \
+                             +"({})".format(config.number_of_multiplicity))
         nstates = 0
         nstates_sf = 0
         for mult, state in zip(config.spin_multiplicity, config.number_of_states):
