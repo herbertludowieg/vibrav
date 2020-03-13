@@ -53,12 +53,12 @@ def gen_delta(freq, delta_type, disp=None, norm=0.04):
     delta = pd.DataFrame.from_dict({'delta': delta, 'freqdx': freqdx})
     return delta
 
-class GenMeta(TypedMeta):
+class DispMeta(TypedMeta):
     disp = Atom
     delta = pd.DataFrame
     atom = Atom
 
-class GenInput(metaclass=GenMeta):
+class Displace(metaclass=DispMeta):
     """
     Supporting class for Vibrational Averaging that will generate input files
     for a selected program under a certain displacement parameter.
