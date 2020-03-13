@@ -4,6 +4,7 @@ import os
 from exatomic.core import Atom
 from exa import TypedMeta
 from exa.util.utility import mkp
+from exa.util.units import Length
 
 def gen_delta(freq, delta_type, disp=None, norm=0.04):
     """
@@ -88,7 +89,7 @@ class Displace(metaclass=DispMeta):
 
     _tol = 1e-6
 
-    def _gen_displaced(self, freq, atom, fdx):
+    def _gen_displaced(self, freq, atom_df, fdx):
         """
         Function to generate displaced coordinates for each selected normal mode.
         We scale the displacements by the selected delta value in the positive and negative
@@ -114,6 +115,7 @@ class Displace(metaclass=DispMeta):
         """
         # get needed data from dataframes
         # atom coordinates should be in Bohr
+        atom = atom_df.last_frame
         eqcoord = atom[['x', 'y', 'z']].values
         symbols = atom['symbol'].values
         # gaussian Fchk class uses Zeff where the Output class uses Z
@@ -127,12 +129,13 @@ class Displace(metaclass=DispMeta):
         else:
             freq_g = freq.groupby('freqdx').filter(lambda x: fdx in
                                                     x['freqdx'].drop_duplicates().values+1).copy()
+        unique_index = freq_g['freqdx'].drop_duplicates().index
         disp = freq_g[['dx','dy','dz']].values
-        modes = freq_g['frequency'].drop_duplicates().values
-        nat = len(eqcoord)
-        freqdx = freq_g['freqdx'].drop_duplicates().values
-        tnmodes = len(freq['freqdx'].drop_duplicates())
-        nmodes = len(freqdx)
+        modes = freq_g.loc[unique_index, 'frequency'].values
+        nat = eqcoord.shape[0]
+        freqdx = freq_g['freqdx'].unique()
+        tnmodes = freq['freqdx'].unique().shape[0]
+        nmodes = freqdx.shape[0]
         # chop all values less than tolerance
         eqcoord[abs(eqcoord) < self._tol] = 0.0
         # get delta values for wanted frequencies
@@ -170,6 +173,7 @@ class Displace(metaclass=DispMeta):
         # create dataframe
         # coordinates are in units of Bohr as we use the coordinates from the atom dataframe
         df = pd.DataFrame(full, columns=['x', 'y', 'z'])
+        print(modes.shape, symbols.shape, znums.shape, df.shape, eqcoord.shape, nat)
         df['freqdx'] = freqdx
         df['Z'] = znums
         df['symbol'] = symbols
@@ -183,7 +187,7 @@ class Displace(metaclass=DispMeta):
             for item in array:
                 f.write("{}\n".format(item))
 
-    def _create_data_files(self, uni, delta, path=None):
+    def _create_data_files(self, uni, path=None):
         if path is None: path = os.getcwd()
         freq = uni.frequency.copy()
         atom = uni.atom.last_frame.copy()
@@ -201,7 +205,7 @@ class Displace(metaclass=DispMeta):
         fdxs = uni.frequency['freqdx'].drop_duplicates().index
         # construct delta data file
         fn = "delta.dat"
-        delta = delta['delta'].values
+        delta = self.delta['delta'].values
         self._write_data_file(path=path, array=delta, fn=fn)
         # construct smatrix data file
         fn = "smatrix.dat"
