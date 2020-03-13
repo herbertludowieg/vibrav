@@ -1,17 +1,19 @@
 import pandas as pd
 import numpy as np
+import os
 from exatomic.core import Atom
 from exa import TypedMeta
+from exa.util.utility import mkp
 
 def gen_delta(freq, delta_type, disp=None, norm=0.04):
     """
     Function to compute the delta parameter to be used for the maximum distortion
     of the molecule along the normal mode.
 
-    When delta_type = 0 we normalize the displacments to have a maximum of 0.04 Bohr
+    When delta_type = 1 we normalize the displacments to have a maximum of 0.04 Bohr
     on each normal mode.
 
-    When delta_type = 1 we normalize all atomic displacements along all normal modes
+    When delta_type = 0 we normalize all atomic displacements along all normal modes
     to have a global average displacement of 0.04 Bohr.
 
     When delta_type = 2 we normalize each displacement so the maximum displacement
@@ -27,18 +29,18 @@ def gen_delta(freq, delta_type, disp=None, norm=0.04):
     nat = freq['label'].drop_duplicates().shape[0]
     freqdx = freq['freqdx'].unique()
     nmode = freqdx.shape[0]
-    # average displacement of 0.04 bohr for each normal mode
-    if delta_type == 0:
-        d = freq.groupby(['freqdx', 'frame']).apply(
-            lambda x: np.sum(np.linalg.norm(
-                x[['dx', 'dy', 'dz']].values, axis=1))).values
-        delta = norm * nat / d
     # global avrage displacement of 0.04 bohr for all atom displacements
-    elif delta_type == 1:
+    if delta_type == 0:
         d = np.sum(np.linalg.norm(
             freq[['dx', 'dy', 'dz']].values, axis=1))
         delta = norm * nat * nmode / (np.sqrt(3) * d)
         delta = np.repeat(delta, nmode)
+    # average displacement of 0.04 bohr for each normal mode
+    elif delta_type == 1:
+        d = freq.groupby(['freqdx', 'frame']).apply(
+            lambda x: np.sum(np.linalg.norm(
+                x[['dx', 'dy', 'dz']].values, axis=1))).values
+        delta = norm * nat / d
     # maximum displacement of 0.04 bohr for any atom in each normal mode
     elif delta_type == 2:
         d = freq.groupby(['freqdx', 'frame']).apply(lambda x:
@@ -175,6 +177,68 @@ class Displace(metaclass=DispMeta):
         df['frame'] = freqdx
         return df
 
+    @staticmethod
+    def _write_data_file(path, array, fn):
+        with open(mkp(path, fn), 'w') as f:
+            for item in array:
+                f.write("{}\n".format(item))
+
+    def _create_data_files(self, uni, delta, path=None):
+        if path is None: path = os.getcwd()
+        freq = uni.frequency.copy()
+        atom = uni.atom.last_frame.copy()
+        nat = atom.shape[0]
+        try:
+            freq_ext = uni.frequency_ext.copy()
+            redmass = freq_ext['r_mass'].values
+        except AttributeError:
+            try:
+                if freq['r_mass'].shape[0] > 0:
+                    redmass = freq['r_mass'].values
+            except KeyError:
+                raise AttributeError("Could not find the reduced masses in either the frequency " \
+                                     +"dataframe and could not find the frequency_ext dataframe.")
+        fdxs = uni.frequency['freqdx'].drop_duplicates().index
+        # construct delta data file
+        fn = "delta.dat"
+        delta = delta['delta'].values
+        self._write_data_file(path=path, array=delta, fn=fn)
+        # construct smatrix data file
+        fn = "smatrix.dat"
+        smatrix = freq[['dx', 'dy', 'dz']].stack().values
+        self._write_data_file(path=path, array=smatrix, fn=fn)
+        # construct atom order data file
+        fn = "atom_order.dat"
+        atom_order = atom['symbol'].values
+        self._write_data_file(path=path, array=atom_order, fn=fn)
+        # construct reduced mass data file
+        fn = "redmass.dat"
+        redmass = freq_ext.loc[fdxs, 'r_mass'].values
+        self._write_data_file(path=path, array=redmass, fn=fn)
+        # construct eqcoord data file
+        fn = "eqcoord.dat"
+        eqcoord = atom[['x', 'y', 'z']].stack().values
+        eqcoord *= Length['au', 'Angstrom']
+        self._write_data_file(path=path, array=eqcoord, fn=fn)
+        # construct frequency data file
+        fn = "freq.dat"
+        frequency = freq.loc[fdxs, 'frequency'].values
+        self._write_data_file(path=path, array=frequency, fn=fn)
+        # construct actual displacement data file
+        fn = "displac_a.dat"
+        rdelta = np.repeat(delta, nat)
+        disp = np.multiply(np.linalg.norm(np.transpose(freq[['dx','dy','dz']].values), axis=0),
+                                                        rdelta)
+        disp *= Length['au', 'Angstrom']
+        freqdx = freq['freqdx'].drop_duplicates().values
+        n = len(atom_order)
+        with open(mkp(path, fn), 'w') as f:
+            f.write("actual displacement in angstroms\n")
+            f.write("atom normal_mode distance_atom_moves\n")
+            for fdx in range(len(freqdx)):
+                for idx in range(n):
+                    f.write("{} {}\t{}\n".format(idx+1, fdx+1, disp[fdx*nat+idx]))
+
 #    def gen_inputs(self, comm, soft):
 #        """
 #        Method to write the displaced coordinates as an input for the quantum code program
@@ -289,5 +353,5 @@ class Displace(metaclass=DispMeta):
         atom = uni.atom.copy()
         self.delta = gen_delta(freq, delta_type, disp, norm)
         self.disp = self._gen_displaced(freq, atom, fdx)
-
+        self._create_data_files(uni)
         
