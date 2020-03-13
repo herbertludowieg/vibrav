@@ -382,7 +382,7 @@ class Vibronic:
         gs_degeneracy = degeneracy.loc[0, 'degen']
         if store_gs_degen: self.gs_degeneracy = gs_degeneracy
         for fdx, founddx in enumerate(found_modes):
-            vib_prop = np.zeros((3, ncomp, nstates, nstates), dtype=np.complex128)
+            vib_prop = np.zeros((2, ncomp, nstates, nstates), dtype=np.complex128)
             vib_start = time()
             if print_stdout:
                 print("*******************************************")
