@@ -346,7 +346,7 @@ class Displace(metaclass=DispMeta):
         delta_type = kwargs.pop("delta_type", 0)
         fdx = kwargs.pop("fdx", -1)
         disp = kwargs.pop("disp", None)
-        norm = kwargs.pop("norm", 0.04
+        norm = kwargs.pop("norm", 0.04)
         if isinstance(fdx, int):
             fdx = [fdx]
         freq = uni.frequency.copy()
