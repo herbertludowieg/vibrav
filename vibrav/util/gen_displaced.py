@@ -173,7 +173,6 @@ class Displace(metaclass=DispMeta):
         # create dataframe
         # coordinates are in units of Bohr as we use the coordinates from the atom dataframe
         df = pd.DataFrame(full, columns=['x', 'y', 'z'])
-        print(modes.shape, symbols.shape, znums.shape, df.shape, eqcoord.shape, nat)
         df['freqdx'] = freqdx
         df['Z'] = znums
         df['symbol'] = symbols
@@ -192,17 +191,7 @@ class Displace(metaclass=DispMeta):
         freq = uni.frequency.copy()
         atom = uni.atom.last_frame.copy()
         nat = atom.shape[0]
-        try:
-            freq_ext = uni.frequency_ext.copy()
-            redmass = freq_ext['r_mass'].values
-        except AttributeError:
-            try:
-                if freq['r_mass'].shape[0] > 0:
-                    redmass = freq['r_mass'].values
-            except KeyError:
-                raise AttributeError("Could not find the reduced masses in either the frequency " \
-                                     +"dataframe and could not find the frequency_ext dataframe.")
-        fdxs = uni.frequency['freqdx'].drop_duplicates().index
+        fdxs = uni.frequency['freqdx'].drop_duplicates().index.values
         # construct delta data file
         fn = "delta.dat"
         delta = self.delta['delta'].values
@@ -217,7 +206,16 @@ class Displace(metaclass=DispMeta):
         self._write_data_file(path=path, array=atom_order, fn=fn)
         # construct reduced mass data file
         fn = "redmass.dat"
-        redmass = freq_ext.loc[fdxs, 'r_mass'].values
+        try:
+            freq_ext = uni.frequency_ext.copy()
+            redmass = freq_ext['r_mass'].values
+        except AttributeError:
+            try:
+                if freq['r_mass'].shape[0] > 0:
+                    redmass = freq.loc[fdxs, 'r_mass'].values
+            except KeyError:
+                raise AttributeError("Could not find the reduced masses in either the frequency " \
+                                     +"dataframe and could not find the frequency_ext dataframe.")
         self._write_data_file(path=path, array=redmass, fn=fn)
         # construct eqcoord data file
         fn = "eqcoord.dat"
