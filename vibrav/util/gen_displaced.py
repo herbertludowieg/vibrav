@@ -186,7 +186,7 @@ class Displace(metaclass=DispMeta):
             for item in array:
                 f.write("{}\n".format(item))
 
-    def _create_data_files(self, uni, path=None):
+    def _create_data_files(self, uni, path=None, config=None):
         if path is None: path = os.getcwd()
         freq = uni.frequency.copy()
         atom = uni.atom.last_frame.copy()
@@ -240,6 +240,21 @@ class Displace(metaclass=DispMeta):
             for fdx in range(len(freqdx)):
                 for idx in range(n):
                     f.write("{} {}\t{}\n".format(idx+1, fdx+1, disp[fdx*nat+idx]))
+        # construct initial configuration file
+        template = "{:<20s}          {}\n".format
+        text = ''
+        text += template("DELTA_FILE", "delta.dat")
+        text += template("SMATRIX_FILE", "smatrix.dat")
+        text += template("ATOM_ORDER_FILE", "atom_order.dat")
+        text += template("REDUCED_MASS_FILE", "redmass.dat")
+        text += template("FREQUENCY_FILE", "freq.dat")
+        text += template("DISPLAC_A_FILE", "displac_a.dat")
+        if config is None:
+            with open(mkp(path, 'va.conf'), 'w') as fn:
+                fn.write(text)
+        else:
+            with open(mkp(path, config), 'a') as fn:
+                fn.write(text)
 
 #    def gen_inputs(self, comm, soft):
 #        """
@@ -349,11 +364,12 @@ class Displace(metaclass=DispMeta):
         fdx = kwargs.pop("fdx", -1)
         disp = kwargs.pop("disp", None)
         norm = kwargs.pop("norm", 0.04)
+        config = kwargs.pop("config", None)
         if isinstance(fdx, int):
             fdx = [fdx]
         freq = uni.frequency.copy()
         atom = uni.atom.copy()
         self.delta = gen_delta(freq, delta_type, disp, norm)
         self.disp = self._gen_displaced(freq, atom, fdx)
-        self._create_data_files(uni)
-        
+        self._create_data_files(uni, config=config)
+
