@@ -92,3 +92,22 @@ def test_energies(editor):
     assert np.allclose(data['so'].values, editor.so_energy['energy'].values)
     assert np.allclose(data['sf'].dropna().values, editor.sf_energy['energy'].values)
 
+def test_oscillator(editor):
+    data = pd.read_csv(resource('molcas-rassi-nien-oscillators.csv.xz'), compression='xz', header=0,
+                                index_col=False)
+    data[['nrow', 'ncol']] -= [1, 1]
+    editor.parse_sf_oscillator()
+    editor.parse_so_oscillator()
+    sf_oscil = data.groupby('theory').get_group('sf')
+    sf_oscil = sf_oscil.drop('theory', axis=1).values
+    so_oscil = data.groupby('theory').get_group('so')
+    so_oscil = so_oscil.drop('theory', axis=1).values
+    test_sf = editor.sf_oscillator.copy()
+    test_sf[['nrow', 'ncol']] = test_sf[['nrow', 'ncol']].astype(np.uint16)
+    test_sf = test_sf.values
+    test_so = editor.so_oscillator.copy()
+    test_so[['nrow', 'ncol']] = test_so[['nrow', 'ncol']].astype(np.uint16)
+    test_so = test_so.values
+    assert np.allclose(sf_oscil, test_sf)
+    assert np.allclose(so_oscil, test_so)
+
