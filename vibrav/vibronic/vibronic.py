@@ -37,7 +37,7 @@ class Vibronic:
     _default_inputs = {'sf_energies_file': ('', str), 'so_energies_file': ('', str),
                        'angmom_file': ('angmom', str), 'dipole_file': ('dipole', str),
                        'spin_file': ('spin', str), 'quadrupole_file': ('quadrupole', str),
-                       'degen_delta': (1e-7, float)}
+                       'degen_delta': (1e-7, float), 'eigvectors_file': ('eigvectors.txt', str)}
     @staticmethod
     def _check_size(data, size, var_name, dataframe=False):
         '''
@@ -66,10 +66,10 @@ class Vibronic:
             numpy = False
         if numpy:
             if np.any(np.isnan(data)):
-                raise TypeError("NaN values were found in the data for '{var}'".format(var_name))
+                raise TypeError("NaN values were found in the data for '{}'".format(var_name))
         else:
             if np.any(pd.isnull(data)):
-                raise TypeError("NaN values were found in the data for '{var}'".format(var_name))
+                raise TypeError("NaN values were found in the data for '{}'".format(var_name))
 
     @staticmethod
     def boltz_factor(energies_so):
@@ -223,7 +223,7 @@ class Vibronic:
         multiplicity = np.concatenate(tuple(multiplicity))
         self._check_size(multiplicity, (nstates_sf,), 'multiplicity')
         # read the eigvectors data
-        eigvectors = open_txt('eigvectors.txt').values
+        eigvectors = open_txt(config.eigvectors_file).values
         self._check_size(eigvectors, (nstates, nstates), 'eigvectors')
         # read the hamiltonian files in each of the confg??? directories
         # it is assumed that the directories are named confg with a 3-fold padded number (000)
@@ -358,7 +358,7 @@ class Vibronic:
             df = open_txt(file)
             df['component'] = idx_map[idx]
             dfs.append(df)
-        so_props = pd.concat(dfs, ignore_index=True)
+        #so_props = pd.concat(dfs, ignore_index=True)
         # number of components
         ncomp = len(idx_map.keys())
         # for easier access
@@ -389,7 +389,8 @@ class Vibronic:
                 print("*     RUNNING VIBRATIONAL MODE: {:5d}     *".format(founddx+1))
                 print("*******************************************")
             # assume that the hamiltonian values are real which they should be anyway
-            dham_dq_mode = np.real(grouped.get_group(founddx).values[:,:-1])
+            dham_dq_mode = np.real(grouped.get_group(founddx).drop('freqdx', axis=1).values)
+            self._check_size(dham_dq_mode, (nstates_sf, nstates_sf), 'dham_dq_mode')
             tdm_prefac = np.sqrt(planck_constant_au \
                                  /(2*speed_of_light_au*freq[founddx]/Length['cm', 'au']))/(2*np.pi)
             # iterate over all of the available components
@@ -412,14 +413,14 @@ class Vibronic:
                 # check if the array is hermitian
                 # this one should be
                 dprop_dq *= tdm_prefac
-                if not ishermitian(dprop_dq) and property == 'electric_dipole':
-                    print("Falied at component {} in prop {}".format(key[0], property))
-                    raise ValueError("dprop_dq array is not Hermitian when it is expected to be")
+                #if not ishermitian(dprop_dq) and property == 'electric_dipole':
+                #    print("Falied at component {} in prop {}".format(key[0], property))
+                #    raise ValueError("dprop_dq array is not Hermitian when it is expected to be")
                 ## reduce to the upper triangular elements
                 #dprop_dq = get_triu(dprop_dq)
                 #dprop_dq = dprop_dq.flatten()
                 # get the spin-orbit data for the specific component
-                so_prop = so_props.groupby('component').get_group(key).drop('component', axis=1).values
+                #so_prop = so_props.groupby('component').get_group(key).drop('component', axis=1).values
                 #so_prop = so_prop.flatten()
                 #_ = so_props.groupby('component').get_group(key).drop('component', axis=1).values
                 #so_prop = get_triu(_)
@@ -430,6 +431,7 @@ class Vibronic:
                 #boltz_minus = np.exp(-freq[fdx]/(boltz_constant*Energy['J', 'cm^-1']*temp))/boltz_denom
                 # generate the full property vibronic states following equation S3 for the reference
                 if eq_cont:
+                    raise NotImplementedError
                     vib_prop_plus = fc*(so_prop + dprop_dq)
                     vib_prop_minus = fc*(so_prop - dprop_dq)
                     #vib_prop_none = fc*(so_prop)
