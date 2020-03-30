@@ -21,6 +21,7 @@ class Output(Editor):
     This output editor is supposed to work for OpenMolcas.
     Currently it is only designed to parse the data required for this script.
     '''
+    @staticmethod
     def _property_parsing(props, data_length):
         all_dfs = []
         # this is a bit of a mess but since we have three components
@@ -57,6 +58,22 @@ class Output(Editor):
             all_dfs.append(pd.concat(dfs, axis=1))
             all_dfs[-1]['component'] = idx
         df = pd.concat(all_dfs, ignore_index=True)
+        return df
+
+    @staticmethod
+    def _oscillator_parsing(cls, start_idx):
+        ldx = start_idx + 6
+        oscillators = []
+        while '-----' not in cls[ldx]:
+            oscillators.append(cls[ldx].split())
+            ldx += 1
+        df = pd.DataFrame(oscillators)
+        df.columns = ['nrow', 'ncol', 'oscil', 'a_x', 'a_y', 'a_z', 'a_tot']
+        df[['nrow', 'ncol']] = df[['nrow', 'ncol']].astype(np.uint16)
+        df[['nrow', 'ncol']] -= [1, 1]
+        df[['nrow', 'ncol']] = df[['nrow', 'ncol']].astype('category')
+        cols = ['oscil', 'a_x', 'a_y', 'a_z', 'a_tot']
+        df[cols] = df[cols].astype(np.float64)
         return df
 
     # TODO: the parsing algorithm is the same so we can simplify this significantly
@@ -233,4 +250,50 @@ class Output(Editor):
         rel_energy = list(map(lambda x: x - energies[0], energies))
         df = pd.DataFrame.from_dict({'energy': energies, 'rel_energy': rel_energy})
         self.so_energy = df
+
+    def parse_sf_oscillator(self):
+        _reosc = "++ Dipole transition strengths (spin-free states):"
+        found = self.find(_reosc, keys_only=True)
+        if not found:
+            return
+        if len(found) > 1:
+            raise NotImplementedError("We have found more than one key for the spin-free " \
+                                      +"oscillators.")
+        df = self._oscillator_parsing(self, found[0])
+        self.sf_oscillator = df
+
+    def parse_so_oscillator(self):
+        _reosc = "++ Dipole transition strengths (SO states):"
+        found = self.find(_reosc, keys_only=True)
+        if not found:
+            return
+        if len(found) > 1:
+            raise NotImplementedError("We have found more than one key for the spin-orbit " \
+                                      +"oscillators.")
+        df = self._oscillator_parsing(self, found[0])
+        self.so_oscillator = df
+
+    def parse_contribution(self):
+        _recont = "Weights of the five most important spin-orbit-free states for each spin-orbit state."
+        found = self.find(_recont, keys_only=True)
+        if not found:
+            return
+        if len(found) > 1:
+            raise NotImplementedError("Who do I look like Edward Snowden?")
+        start = found[0] + 4
+        end = found[0] + 4
+        while '-----' not in self[end]: end += 1
+        df = self.pandas_dataframe(start, end, ncol=17)
+        so_state = df[0].values
+        energy = df[1].values
+        df = pd.DataFrame(df[range(2,17)].values.reshape(df.shape[0]*5, 3))
+        df.columns = ['sf_state', 'spin', 'weight']
+        so_state = np.repeat(so_state, 5)
+        energy = np.repeat(energy, 5)
+        df['so_state'] = pd.Categorical(so_state)
+        df['energy'] = energy.astype(np.double)
+        df['sf_state'] = pd.Categorical(df['sf_state'].astype(int))
+        df['spin'] = df['spin'].astype(np.half)
+        df['weight'] = df['weight'].astype(np.single)
+        self.contribution = df
 

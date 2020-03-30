@@ -50,6 +50,7 @@ def open_txt(fp, rearrange=True, **kwargs):
         kwargs['index_col'] = False
     df = pd.read_csv(fp, **kwargs)
     if pd.isnull(df).values.any():
+        print(np.where(pd.isnull(df)))
         raise TypeError("Null values where found while reading {fp} ".format(fp=fp) \
                        +"a common issue is if the ncol and nrow values have merged")
     # this is an assumption that only works in the context of this program as the
