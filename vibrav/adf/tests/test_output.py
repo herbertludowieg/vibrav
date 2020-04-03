@@ -1,6 +1,10 @@
 from vibrav import adf
+from vibrav.base import resource
+import lzma
+import os
 import pytest
 import numpy as np
+import pandas as pd
 
 @pytest.fixture(scope="module")
 def editor():
@@ -15,10 +19,15 @@ def editor():
 
 def test_atom(editor):
     data = pd.read_csv(resource('adf-ch4-atoms.csv.xz'), compression='xz', header=0,
-                       index_col=0)
+                       index_col=False)
     editor.parse_atom()
-    cols = ['x', 'y', 'z', 'Z', 'isomass']
+    cols = ['x', 'y', 'z', 'Z']
     assert np.allclose(data[cols].values, editor.atom[cols].values)
 
 def test_frequency(editor):
-    pass
+    data = pd.read_csv(resource('adf-ch4-frequencies.csv.xz'), compression='xz', header=0,
+                       index_col=False)
+    editor.parse_frequency()
+    cols = ['dx', 'dy', 'dz', 'frequency']
+    assert np.allclose(data[cols].values, editor.frequency[cols].values)
+
