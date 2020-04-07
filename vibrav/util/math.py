@@ -19,12 +19,12 @@ def get_triu(arr, k=0):
     Get the upper triangular indeces of the input matrix
 
     Args:
-        arr (np.array or list-like object): Array to parse the upper triangular elements
-        k (int): k parameter that goes into the `np.triu_indices_from` function. Refer to numpy
-                 documentation for more information.
+        arr (:obj:`numpy.array`): Array to parse the upper triangular elements
+        k (:obj:`int`): k parameter that goes into the `np.triu_indices_from` function. Refer to numpy
+                        documentation for more information.
 
     Returns:
-        triu_arr (np.array): 1D array with the upper triangular elements
+        triu_arr (:obj:`numpy.array`): 1D array with the upper triangular elements
     '''
     # get the elements in the upper triangular
     triu = np.triu_indices_from(arr, k=k)
@@ -41,10 +41,10 @@ def ishermitian(data):
         It assumes that you are feeding an array of floats, ints, etc.
 
     Args:
-        data (np.array or list-like object): Array to be evaluated
+        data (:obj:`numpy.array`): Array to be evaluated
 
     Return:
-        isherm (bool): Is the array hermitian
+        isherm (:obj:`bool`): Is the array hermitian
     '''
     herm = np.conjugate(np.transpose(data))
     isherm = np.allclose(herm, data)

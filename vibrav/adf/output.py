@@ -12,6 +12,10 @@ class Tape21Meta(TypedMeta):
     frequency = Frequency
 
 class Tape21(six.with_metaclass(Tape21Meta, Editor)):
+    '''
+    Parser for ADF Tape21 that have been converted to an ASCII file with
+    their dmpkf utility.
+    '''
     def _intme(self, fitem, idx=0):
         return int(self[fitem[idx]].split()[-1])
 
@@ -22,6 +26,16 @@ class Tape21(six.with_metaclass(Tape21Meta, Editor)):
         return self.pandas_dataframe(start, stop, col).stack().values
 
     def parse_frequency(self):
+        '''
+        ADF frequency parser.
+
+        Note:
+            This will toss a warning if it cannot find the mass-weighted normal modes
+            which must be used to generate the displaced structures for vibrational
+            averaging. Also, it will be unable to calculate the reduced masses as it will
+            have normalized cartesian coordinates where it expects normalized
+            mass-weighted cartesian normal modes.
+        '''
         # search flags
         _renorm = "NormalModes_RAW"
         _recartmodes = "Normalmodes"
@@ -49,6 +63,7 @@ class Tape21(six.with_metaclass(Tape21Meta, Editor)):
             # get the mass-weighted normal modes
             ndisps = int(self[found[_renorm][0]+1].split()[0])
             normalmodes = self._dfme(np.array(found[_renorm]), ndisps, idx=0)
+            calc_rmass = True
         elif found[_recartnorm] and not found[_renorm]:
             # get the non-mass-weighted normal modes and toss warning
             text = "Mass-weighted normal modes could not be found. If you are " \
@@ -57,6 +72,7 @@ class Tape21(six.with_metaclass(Tape21Meta, Editor)):
             warnings.warn(text, Warning)
             ndisps = int(self[found[_recartmodes][0]+1].split()[0])
             normalmodes = self._dfme(np.array(found[_recartmodes]), ndisps, idx=0)
+            calc_rmass = False
         # get the vibrational modes in the three cartesian directions
         # the loop is neede in case there are any negative modes
         # because then the normal mode displacements for the negative mode
@@ -85,10 +101,11 @@ class Tape21(six.with_metaclass(Tape21Meta, Editor)):
                            'freqdx': freqdx})
         cols = ['dx', 'dy', 'dz']
         # calculate the reduced masses
-        r_mass = df.groupby(['freqdx']).apply(lambda x: 1 \
-                                                    / np.sum(np.square(x[cols].values.flatten()) \
-                                                    * 1/mass)).values
-        df['r_mass'] = np.repeat(r_mass, nat)
+        if calc_rmass:
+            r_mass = df.groupby(['freqdx']).apply(lambda x: 1 \
+                                                        / np.sum(np.square(x[cols].values.flatten()) \
+                                                        * 1/mass)).values
+            df['r_mass'] = np.repeat(r_mass, nat)
         df['symbol'] = symbol
         df['label'] = label
         df['ir_int'] = 0

@@ -23,6 +23,7 @@ class Output(Editor):
     '''
     _resta = "STATE"
     def _property_parsing(self, props, data_length):
+        ''' Helper method for parsing the spin-free properties sections. '''
         all_dfs = []
         # this is a bit of a mess but since we have three components
         # we can take a nested for loop of three elements without too
@@ -60,12 +61,12 @@ class Output(Editor):
         df = pd.concat(all_dfs, ignore_index=True)
         return df
 
-    @staticmethod
-    def _oscillator_parsing(cls, start_idx):
+    def _oscillator_parsing(self, start_idx):
+        ''' Helper method to parse the oscillators. '''
         ldx = start_idx + 6
         oscillators = []
-        while '-----' not in cls[ldx]:
-            oscillators.append(cls[ldx].split())
+        while '-----' not in self[ldx]:
+            oscillators.append(self[ldx].split())
             ldx += 1
         df = pd.DataFrame(oscillators)
         df.columns = ['nrow', 'ncol', 'oscil', 'a_x', 'a_y', 'a_z', 'a_tot']
@@ -76,8 +77,14 @@ class Output(Editor):
         df[cols] = df[cols].astype(np.float64)
         return df
 
-    # TODO: the parsing algorithm is the same so we can simplify this significantly
     def parse_sf_dipole_moment(self):
+        '''
+        Get the Spin-Free electric dipole moment.
+
+        Raises:
+            AttributeError: If it cannot find the angular momentum property. This is
+                            applicable to this package as it expects it to be present.
+        '''
         # define the search string
         _retdm = "PROPERTY: MLTPL  1"
         _resta = "STATE"
@@ -96,6 +103,13 @@ class Output(Editor):
         self.sf_dipole_moment = stdm
 
     def parse_sf_quadrupole_moment(self):
+        '''
+        Get the Spin-Free electric quadrupole moment.
+
+        Raises:
+            AttributeError: If it cannot find the angular momentum property. This is
+                            applicable to this package as it expects it to be present.
+        '''
         _requad = "PROPERTY: MLTPL  2"
         _resta = "STATE"
         component_map = {0: 'xx', 1: 'xy', 2: 'xz', 3: 'yy', 4: 'yz', 5: 'zz'}
@@ -112,6 +126,13 @@ class Output(Editor):
         self.sf_quadrupole_moment = sqdm
 
     def parse_sf_angmom(self):
+        '''
+        Get the Spin-Free angular momentum.
+
+        Raises:
+            AttributeError: If it cannot find the angular momentum property. This is
+                            applicable to this package as it expects it to be present.
+        '''
         _reangm = "PROPERTY: ANGMOM"
         _resta = "STATE"
         component_map = {0: 'x', 1: 'y', 2: 'z'}
@@ -128,6 +149,9 @@ class Output(Editor):
         self.sf_angmom = sangm
 
     def parse_sf_energy(self):
+        '''
+        Get the Spin-Free energies.
+        '''
         _reenerg = " RASSI State "
         found = self.find(_reenerg)
         if not found:
@@ -141,6 +165,9 @@ class Output(Editor):
         self.sf_energy = df
 
     def parse_so_energy(self):
+        '''
+        Get the Spin-Orbit energies.
+        '''
         _reenerg = " SO-RASSI State "
         found = self.find(_reenerg)
         if not found:
@@ -154,6 +181,9 @@ class Output(Editor):
         self.so_energy = df
 
     def parse_sf_oscillator(self):
+        '''
+        Get the printed Spin-Free oscillators.
+        '''
         _reosc = "++ Dipole transition strengths (spin-free states):"
         found = self.find(_reosc, keys_only=True)
         if not found:
@@ -165,6 +195,9 @@ class Output(Editor):
         self.sf_oscillator = df
 
     def parse_so_oscillator(self):
+        '''
+        Get the printed Spin-Orbit oscillators.
+        '''
         _reosc = "++ Dipole transition strengths (SO states):"
         found = self.find(_reosc, keys_only=True)
         if not found:
@@ -176,6 +209,10 @@ class Output(Editor):
         self.so_oscillator = df
 
     def parse_contribution(self):
+        '''
+        Parse the Spin-Free contibutions to each Spin-Orbit state from a regular molcas
+        Spin-Orbit RASSI calculation.
+        '''
         _recont = "Weights of the five most important spin-orbit-free states for each spin-orbit state."
         found = self.find(_recont, keys_only=True)
         if not found:

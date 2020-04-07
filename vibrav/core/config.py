@@ -26,13 +26,16 @@ class Config(Series):
     @classmethod
     def open_config(cls, fp, required, defaults=None):
         '''
-        Open and read the config file that is given in the generation of the class instance.
+        Open and read the config file that is given.
     
         Args:
-            fp (str): Filepath to the config file
+            fp (:obj:`str`): Filepath to the config file
+            required (:obj:`list`): Required arguments that must be present in the config file
+            defaults (:obj:`list`, optional): Default arguments for the config file that are
+                                                  not necessary. Defaults to :code:`None`
     
         Returns:
-            config (dict): Dictionary with all of the elements in the config as keys
+            config (:obj:`dict`): Dictionary with all of the elements in the config as keys
 
         Raises:
             AttributeError: When there is more than one value for a default argument, having more
@@ -40,10 +43,13 @@ class Config(Series):
                             or when there is a missing required parameter.
             Exception: Default catch when the required parameter is not interpreted correctly and
                        does not fall within any of the coded parameters.
+            ValueError: When it cannot set the type that has been given as an input. I.e. converting
+                        string character into a number.
         '''
         with open(fp, 'r') as fn:
             # get the lines and replace all newline characters
             lines = list(map(lambda x: x.replace('\n', ''), fn.readlines()))
+        # update the defaults dict with the given defaults
         if defaults is not None:
             defaults.update(cls._default)
         else:
@@ -82,8 +88,6 @@ class Config(Series):
                 # make sure if the entry will need to be iterated over
                 # this must be specified by giving a two element required param. value in the dict
                 if isinstance(required[key], (list, tuple)):
-                    # TODO: would like to check the type of the dat that is given but may not really
-                    #       have a choice in the matter
                     config[key] = tuple(map(lambda x: required[key][1](x), d[1:]))
                 # when the requirement value passed is not two elements but the data on the
                 # config file has more than one element
@@ -99,7 +103,7 @@ class Config(Series):
                     raise Exception("Something strange is going on here")
             # all other inputs
             # TODO: make some extras input thing that will take care of these
-            # we do not want to throw them out as it may be useful at some point
+            #       we do not want to throw them out as it may be useful at some point
             else:
                 config[key] = d[1:]
         # check for missing required arguments
@@ -109,7 +113,8 @@ class Config(Series):
                                 +"\nThe required parameters in the config file for this " \
                                 +"calculation are:" \
                                 +"{}".format('\n - '.join(['']+list(required.keys()))))
-        # check for missing default arguments and fill in the default values
+        # check for missing default arguments and fill in with the default values
+        # availabel in the defaults dict
         missing_default = list(filter(lambda x: x not in found_defaults, defaults.keys()))
         for missing in missing_default:
             config[missing] = defaults[missing][0]

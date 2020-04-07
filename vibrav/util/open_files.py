@@ -31,7 +31,9 @@ def open_txt(fp, rearrange=True, **kwargs):
         sep (str, optional): Delimiter value.
         skipinitialspace (bool, optional): Pandas skipinitialspace argument in the `pandas.read_csv`
                                            method.
-        rearrange (bool, optional): If you want to rearrange the data into a square complex matrix
+        rearrange (bool, optional): If you want to rearrange the data into a square complex matrix.
+                                    Defaults to `True`.
+        **kwargs (optional): Arguments that will be passed into :code:`pandas.read_csv`
 
     Returns:
         matrix (pandas.DataFrame): Re-sized complex square matrix with the appropriate size.
@@ -42,6 +44,7 @@ def open_txt(fp, rearrange=True, **kwargs):
                    This was found to happen when there were over 1000 spin-orbit states.
     '''
     keys = kwargs.keys()
+    # make sure certain defaults keys are kwargs
     if 'skipinitialspace' not in keys:
         kwargs['skipinitialspace'] = True
     if 'sep' not in keys:

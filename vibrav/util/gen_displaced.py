@@ -11,21 +11,30 @@ def gen_delta(freq, delta_type, disp=None, norm=0.04):
     Function to compute the delta parameter to be used for the maximum distortion
     of the molecule along the normal mode.
 
-    When delta_type = 1 we normalize the displacments to have a maximum of 0.04 Bohr
-    on each normal mode.
-
     When delta_type = 0 we normalize all atomic displacements along all normal modes
-    to have a global average displacement of 0.04 Bohr.
+    to have a global average displacement given by the `norm` parameter.
+
+    When delta_type = 1 we normalize the displacments to have a maximum given by the
+    `norm` parameter on each normal mode.
 
     When delta_type = 2 we normalize each displacement so the maximum displacement
-    of any atom in the normal mode is 0.04 Bohr.
+    vector of any atom in the normal mode is set to the `norm` parameter.
 
-    When delta_typ = 3 the user can select a delta parameter to use with the disp
-    keyword this will displace all normal modes by that delta parameter.
+    When delta_typ = 3 the user can select a constant delta parameter to use with the
+    disp keyword this will displace all normal modes by that delta parameter.
 
     Args:
-        freq (:class:`exatomic.atom.Frequency`): Frequency dataframe
-        delta_type (int): Integer value to define the type of delta parameter to use
+        freq (:class:`exatomic.atom.Frequency`): Frequency dataframe.
+        delta_type (:obj:`int`): Integer value to define the type of delta parameter to use.
+        disp (:obj:`float`, optional): Constant displacement parameter to use with
+                                       `delta_type=3`. Defaults to :code:`None`
+        norm (:obj:`float`, optional): Normalization parameter to use. Defaults to 0.04 au.
+
+    Returns:
+        delta (:obj:`pandas.DataFrame`): Delta parameters to multiply into each normal mode.
+
+    Raises:
+        ValueError: When `delta_type=3` and `disp=None`.
     """
     nat = freq['label'].drop_duplicates().shape[0]
     freqdx = freq['freqdx'].unique()
@@ -89,7 +98,7 @@ class Displace(metaclass=DispMeta):
 
     _tol = 1e-6
 
-    def _gen_displaced(self, freq, atom_df, fdx):
+    def gen_displaced(self, freq, atom_df, fdx):
         """
         Function to generate displaced coordinates for each selected normal mode.
         We scale the displacements by the selected delta value in the positive and negative
@@ -186,7 +195,17 @@ class Displace(metaclass=DispMeta):
             for item in array:
                 f.write("{}\n".format(item))
 
-    def _create_data_files(self, uni, path=None, config=None):
+    def create_data_files(self, uni, path=None, config=None):
+        '''
+        Method to create the .dat files that are needed to perform the calculations for
+        vibrational averaging.
+
+        Args:
+            uni (:class:`exatomic.Universe`): Universe object that has the frequency and atom
+                                              dataframes.
+            path (:obj:`str`, optional): Path to save the files to. Defaults to `None`.
+            config (:obj:`str`, optional): Path to base config file. Defaults to `None`.
+        '''
         if path is None: path = os.getcwd()
         freq = uni.frequency.copy()
         atom = uni.atom.last_frame.copy()
@@ -269,6 +288,6 @@ class Displace(metaclass=DispMeta):
         freq = uni.frequency.copy()
         atom = uni.atom.copy()
         self.delta = gen_delta(freq, delta_type, disp, norm)
-        self.disp = self._gen_displaced(freq, atom, fdx)
-        self._create_data_files(uni, config=config)
+        self.disp = self.gen_displaced(freq, atom, fdx)
+        self.create_data_files(uni, config=config)
 

@@ -39,7 +39,7 @@ class Vibronic:
                        'spin_file': ('spin', str), 'quadrupole_file': ('quadrupole', str),
                        'degen_delta': (1e-7, float), 'eigvectors_file': ('eigvectors.txt', str)}
     @staticmethod
-    def _check_size(data, size, var_name, dataframe=False):
+    def check_size(data, size, var_name, dataframe=False):
         '''
         Simple method to check the size of the input array.
 
@@ -113,18 +113,18 @@ class Vibronic:
                                   comment='#').values.reshape(-1,)
         # read in all of the angular momentum data and check size
         ang_x = open_txt('angmom-1.txt').values
-        self._check_size(ang_x, (nstates, nstates), 'ang_x')
+        self.check_size(ang_x, (nstates, nstates), 'ang_x')
         ang_y = open_txt('angmom-2.txt').values
-        self._check_size(ang_y, (nstates, nstates), 'ang_y')
+        self.check_size(ang_y, (nstates, nstates), 'ang_y')
         ang_z = open_txt('angmom-3.txt').values
-        self._check_size(ang_z, (nstates, nstates), 'ang_z')
+        self.check_size(ang_z, (nstates, nstates), 'ang_z')
         # read in all of the spin data and check size
         spin_x = open_txt('spin-1.txt').values
-        self._check_size(spin_x, (nstates, nstates), 'spin_x')
+        self.check_size(spin_x, (nstates, nstates), 'spin_x')
         spin_y = open_txt('spin-2.txt').values
-        self._check_size(spin_y, (nstates, nstates), 'spin_y')
+        self.check_size(spin_y, (nstates, nstates), 'spin_y')
         spin_z = open_txt('spin-3.txt').values
-        self._check_size(spin_z, (nstates, nstates), 'spin_z')
+        self.check_size(spin_z, (nstates, nstates), 'spin_z')
         # allocate data for x y and z components of magnetic dipoles
         mx = np.zeros((nstates, nstates), dtype=np.complex128)
         my = np.zeros((nstates, nstates), dtype=np.complex128)
@@ -155,8 +155,8 @@ class Vibronic:
         self.mag_oscil = df
 
     def vibronic_coupling(self, property, write_property=True, write_energy=True, write_oscil=True,
-                          print_stdout=True, temp=298, eq_cont=False, verbose=False, sparse=True,
-                          use_sqrt_rmass=True, store_gs_degen=True, select_fdx=-1):
+                          print_stdout=True, temp=298, eq_cont=False, verbose=False,
+                          use_sqrt_rmass=True, select_fdx=-1):
         '''
         Vibronic coupling method to calculate the vibronic coupling by the equations as given
         in reference J. Phys. Chem. Lett. 2018, 9, 887-894. This code follows a similar structure
@@ -167,29 +167,33 @@ class Vibronic:
         magnetic_dipole and electric_quadrupole, currently. For more properties please reach out
         through github or via email.
 
-        Note:
-            Any files that are written are part of a sparse hermitian matrix as we only store the upper
-            triangular part of any matrices. Meaning, if you want to read the '.txt' files written you
-            must take both of these into consideration.
-
         Args:
-            property (str): Property of interest to calculate.
-            write_property (bool): Write the calculated vibronic property values to file.
-                                   Default: `True`.
-            write_energy (bool): Write the vibronic energies to file. Default: `True`.
-            write_oscil (bool): Write the vibronic oscillators to file. Default: `True`.
-            print_stdout (bool): Print the progress of the script to stdout. Default: `True`.
-            temp (float): Temperature for the boltzmann statistics. Default: 298.
-            no_vibronic (bool): Not yet implemented. Debug.
-            verbose (bool): Send all availble print statements listing where the program is in the
-                            calculation to stdout and timings. Recommended if you have a system with
-                            many spin-orbit states. Default: `False`.
+            property (:obj:`str`): Property of interest to calculate.
+            write_property (:obj:`bool`, optional): Write the calculated vibronic property values to file.
+                                                    Defaults to `True`.
+            write_energy (:obj:`bool`, optional): Write the vibronic energies to file.
+                                                  Defaults to `True`.
+            write_oscil (:obj:`bool`, optional): Write the vibronic oscillators to file.
+                                                 Defaults to `True`.
+            print_stdout (:obj:`bool`, optional): Print the progress of the script to stdout.
+                                                  Defaults to `True`.
+            temp (:obj:`float`, optional): Temperature for the boltzmann statistics. Defaults to 298.
+            verbose (:obj:`bool`, optional): Send all availble print statements listing where the
+                            program is in the calculation to stdout and timings. Recommended if
+                            you have a system with many spin-orbit states. Defaults to `False`.
+            use_sqrt_rmass (:obj:`bool`, optional): The calculations used mass-weighted normal modes
+                                                    for the displaced structures. This should always
+                                                    be the case. Defaults to `True`.
+            select_fdx (:obj:`list`, optional): Only use select normal modes in the vibronic coupling
+                                                calculation. Defaults to `-1` (all normal modes).
 
         Raises:
             NotImplementedError: When the property requested with the `property` parameter does not
                                  have any output parser or just has not been coded yet.
             ValueError: If the array that is expected to be Hermitian actually is not.
         '''
+        sparse = True
+        store_gs_degen = True
         # for program running ststistics
         program_start = time()
         # to reduce typing
@@ -221,10 +225,10 @@ class Vibronic:
         for idx, mult in enumerate(config.spin_multiplicity):
             multiplicity.append(np.repeat(int(mult), int(config.number_of_states[idx])))
         multiplicity = np.concatenate(tuple(multiplicity))
-        self._check_size(multiplicity, (nstates_sf,), 'multiplicity')
+        self.check_size(multiplicity, (nstates_sf,), 'multiplicity')
         # read the eigvectors data
         eigvectors = open_txt(config.eigvectors_file).values
-        self._check_size(eigvectors, (nstates, nstates), 'eigvectors')
+        self.check_size(eigvectors, (nstates, nstates), 'eigvectors')
         # read the hamiltonian files in each of the confg??? directories
         # it is assumed that the directories are named confg with a 3-fold padded number (000)
         padding = 3
@@ -253,14 +257,14 @@ class Vibronic:
                     minus = open_txt(os.path.join('confg'+str(idx+nmodes).zfill(padding),
                                                   'ham-sf.txt'))
                 except FileNotFoundError:
-                    print("Could not find ham-sf.txt file for in directory " \
-                         +'confg'+str(idx+nmodes).zfill(padding) \
-                         +"\nIgnoring frequency index {}".format(idx))
+                    warnings.warn("Could not find ham-sf.txt file for in directory " \
+                                  +'confg'+str(idx+nmodes).zfill(padding) \
+                                  +"\nIgnoring frequency index {}".format(idx), Warning)
                     continue
             except FileNotFoundError:
-                print("Could not find ham-sf.txt file for in directory " \
-                     +'confg'+str(idx).zfill(padding) \
-                     +"\nIgnoring frequency index {}".format(idx))
+                warnings.warn("Could not find ham-sf.txt file for in directory " \
+                              +'confg'+str(idx).zfill(padding) \
+                              +"\nIgnoring frequency index {}".format(idx), Warning)
                 continue
             plus_matrix.append(plus)
             minus_matrix.append(minus)
@@ -274,7 +278,7 @@ class Vibronic:
                          +"Overwriting the number of selceted normal modes by the number "\
                          +"of found modes.", Warning)
             nselected = len(found_modes)
-        self._check_size(dham_dq, (nstates_sf*nselected, nstates_sf), 'dham_dq')
+        self.check_size(dham_dq, (nstates_sf*nselected, nstates_sf), 'dham_dq')
         # TODO: this division by the sqrt of the mass needs to be verified
         #       left as is for the time being as it was in the original code
         sf_sqrt_rmass = np.repeat(np.sqrt(rmass.loc[found_modes].values*Mass['u', 'au_mass']),
@@ -291,10 +295,8 @@ class Vibronic:
         dham_dq = dham_dq / to_dq
         # add a frequency index reference
         dham_dq['freqdx'] = np.repeat(found_modes, nstates_sf)
-        # TODO
         # TODO: it would be really cool if we could just input a list of properties to compute
         #       and the program will take care of the rest
-        # TODO
         ed = Output(config.zero_order_file)
         # parse the energies from the output is the energy files are not available
         if config.sf_energies_file != '':
@@ -302,9 +304,9 @@ class Vibronic:
                 energies_sf = pd.read_csv(config.sf_energies_file, header=None,
                                           comment='#').values.reshape(-1,)
             except FileNotFoundError:
-                print("The file {} was not found. Reading ".format(config.sf_energies_file) \
-                     +"spin-free energies direclty from the " \
-                     +"zero order output file {}".format(config.zero_order_file))
+                warnings.warn("The file {} was not found. Reading ".format(config.sf_energies_file) \
+                              +"spin-free energies direclty from the " \
+                              +"zero order output file {}".format(config.zero_order_file), Warning)
                 ed.parse_sf_energy()
                 energies_sf = ed.sf_energy['energy'].values
         else:
@@ -315,9 +317,9 @@ class Vibronic:
                 energies_so = pd.read_csv(config.so_energies_file, header=None,
                                           comment='#').values.reshape(-1,)
             except FileNotFoundError:
-                print("The file {} was not found. Reading ".format(config.so_energies_file) \
-                     +"spin-orbit energies direclty from the " \
-                     +"zero order output file {}".format(config.zero_order_file))
+                warnings.warn("The file {} was not found. Reading ".format(config.so_energies_file) \
+                              +"spin-orbit energies direclty from the " \
+                              +"zero order output file {}".format(config.zero_order_file), Warning)
                 ed.parse_so_energy()
                 energies_so = ed.so_energy['energy'].values
         else:
@@ -328,14 +330,14 @@ class Vibronic:
         # in the molcas output parser
         if property == 'electric_dipole':
             ed.parse_sf_dipole_moment()
-            self._check_size(ed.sf_dipole_moment, (nstates_sf*3, nstates_sf+1), 'sf_dipole_moment')
+            self.check_size(ed.sf_dipole_moment, (nstates_sf*3, nstates_sf+1), 'sf_dipole_moment')
             grouped_data = ed.sf_dipole_moment.groupby('component')
             out_file = 'dipole'
             so_file = config.dipole_file
             idx_map = {1: 'x', 2: 'y', 3: 'z'}
         elif property == 'electric_quadrupole':
             ed.parse_sf_quadrupole_moment()
-            self._check_size(ed.sf_quadrupole_moment, (nstates_sf*6, nstates_sf+1),
+            self.check_size(ed.sf_quadrupole_moment, (nstates_sf*6, nstates_sf+1),
                              'sf_quadrupole_moment')
             grouped_data = ed.sf_quadrupole_moment.groupby('component')
             out_file = 'quadrupole'
@@ -343,7 +345,7 @@ class Vibronic:
             idx_map = {1: 'xx', 2: 'xy', 3: 'xz', 4: 'yy', 5: 'yz', 6: 'zz'}
         elif property == 'magnetic_dipole':
             ed.parse_sf_angmom()
-            self._check_size(ed.sf_angmom, (nstates_sf*3, nstates_sf+1), 'sf_angmom')
+            self.check_size(ed.sf_angmom, (nstates_sf*3, nstates_sf+1), 'sf_angmom')
             grouped_data = ed.sf_angmom.groupby('component')
             out_file = 'angmom'
             so_file = config.angmom_file
@@ -390,7 +392,7 @@ class Vibronic:
                 print("*******************************************")
             # assume that the hamiltonian values are real which they should be anyway
             dham_dq_mode = np.real(grouped.get_group(founddx).drop('freqdx', axis=1).values)
-            self._check_size(dham_dq_mode, (nstates_sf, nstates_sf), 'dham_dq_mode')
+            self.check_size(dham_dq_mode, (nstates_sf, nstates_sf), 'dham_dq_mode')
             tdm_prefac = np.sqrt(planck_constant_au \
                                  /(2*speed_of_light_au*freq[founddx]/Length['cm', 'au']))/(2*np.pi)
             # iterate over all of the available components
@@ -398,7 +400,7 @@ class Vibronic:
                 start = time()
                 # get the values of the specific component
                 prop = val.drop('component', axis=1).values
-                self._check_size(prop, (nstates_sf, nstates_sf), 'prop_{}'.format(key))
+                self.check_size(prop, (nstates_sf, nstates_sf), 'prop_{}'.format(key))
                 # initialize arrays
                 dprop_dq_sf = np.zeros((nstates_sf, nstates_sf), dtype=np.float64) # spin-free deriv
                 dprop_dq_so = np.zeros((nstates, nstates), dtype=np.float64)       # spin-free deriv
@@ -413,38 +415,18 @@ class Vibronic:
                 # check if the array is hermitian
                 # this one should be
                 dprop_dq *= tdm_prefac
-                #if not ishermitian(dprop_dq) and property == 'electric_dipole':
-                #    print("Falied at component {} in prop {}".format(key[0], property))
-                #    raise ValueError("dprop_dq array is not Hermitian when it is expected to be")
-                ## reduce to the upper triangular elements
-                #dprop_dq = get_triu(dprop_dq)
-                #dprop_dq = dprop_dq.flatten()
-                # get the spin-orbit data for the specific component
-                #so_prop = so_props.groupby('component').get_group(key).drop('component', axis=1).values
-                #so_prop = so_prop.flatten()
-                #_ = so_props.groupby('component').get_group(key).drop('component', axis=1).values
-                #so_prop = get_triu(_)
-                # apply a 2 state boltzmann distribution
-                # TODO: this needs to be carefully checked
-                #boltz_denom = 1+np.exp(-freq[fdx]/(boltz_constant*Energy['J', 'cm^-1']*temp))
-                #boltz_plus = 1/boltz_denom
-                #boltz_minus = np.exp(-freq[fdx]/(boltz_constant*Energy['J', 'cm^-1']*temp))/boltz_denom
                 # generate the full property vibronic states following equation S3 for the reference
                 if eq_cont:
                     raise NotImplementedError
                     vib_prop_plus = fc*(so_prop + dprop_dq)
                     vib_prop_minus = fc*(so_prop - dprop_dq)
-                    #vib_prop_none = fc*(so_prop)
                 else:
                     vib_prop_plus = fc*dprop_dq
                     vib_prop_minus = fc*-dprop_dq
-                    #vib_prop_none = fc*(so_prop)
                 # store in array
                 vibronic_prop[fdx][0][idx_map_rev[key]-1] = vib_prop_minus.flatten()
-                #vibronic_prop[fdx][1][idx_map_rev[key]-1] = vib_prop_none.flatten()
                 vibronic_prop[fdx][1][idx_map_rev[key]-1] = vib_prop_plus.flatten()
                 vib_prop[0][idx_map_rev[key]-1] = vib_prop_minus
-                #vib_prop[1][idx_map_rev[key]-1] = vib_prop_none
                 vib_prop[1][idx_map_rev[key]-1] = vib_prop_plus
                 # fancy timing stuff
                 end = time() - start
@@ -517,10 +499,11 @@ class Vibronic:
                     absorption = np.zeros(nstates*nstates, dtype=np.float64)
                     for component in vibronic_prop[fdx][idx]:
                         absorption += abs2(component)
+                    # get the transition energies
                     energy = energies_so.reshape(-1,) - energies_so.reshape(-1,1) + val*evib
                     energy = energy.flatten()
-                    self._check_size(energy, (nstates*nstates,), 'energy')
-                    self._check_size(absorption, (nstates*nstates,), 'absorption')
+                    self.check_size(energy, (nstates*nstates,), 'energy')
+                    self.check_size(absorption, (nstates*nstates,), 'absorption')
                     oscil[fdx][idx] = boltz * 2./3. * compute_oscil_str(absorption, energy)
                     delta_E[fdx][idx] = energy
             else:
@@ -528,7 +511,7 @@ class Vibronic:
                 for idx, val in enumerate([-1, 1]):
                     energy = energies_so.reshape(-1,) - energies_so.reshape(-1,1) + val*evib
                     energy = energy.flatten()
-                    self._check_size(energy, (nstates*nstates,), 'energy')
+                    self.check_size(energy, (nstates*nstates,), 'energy')
                     delta_E[fdx][idx] = energy
         # write the values of the vibronic property
         out_dir = 'vibronic-outputs'

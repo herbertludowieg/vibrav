@@ -45,13 +45,15 @@ def compute_d_dq_sf(nstates_sf, dham_dq, eq_sf, energies_sf, dprop_dq_sf, tol=1e
 
 
     Args:
-        nstates_sf (int, input): Number of spin free states.
-        dham_dq (np.array, input): Derivative of the Hamiltonian with respect to the normal
-                                   coordinate.
-        eq_sf (np.array, input): Spin-free values of the property parsed from the equilibrium
-                                 geometry.
-        energies_sf (np.array, input): Spin-free energies parsed from the equilibrium geometry.
-        dprop_dq_sf (np.array, output): Spin-free derivative of the property of interest.
+        nstates_sf (:obj:`int`, input): Number of spin free states.
+        dham_dq (:obj:`numpy.array`, input): Derivative of the Hamiltonian with respect to the normal
+                                             coordinate.
+        eq_sf (:obj:`numpy.array`, input): Spin-free values of the property parsed from the equilibrium
+                                           geometry.
+        energies_sf (:obj:`numpy.array`, input): Spin-free energies parsed from the equilibrium geometry.
+        dprop_dq_sf (:obj:`numpy.array`, output): Spin-free derivative of the property of interest.
+        tol (:obj:`float`, optional, input): Tolerance value for the energy differences.
+                                             Defaults to 1e-5.
     '''
     for idx in range(nstates_sf):
         for jdx in range(nstates_sf):
@@ -107,13 +109,13 @@ def sf_to_so(nstates_sf, nstates, multiplicity, dprop_dq_sf, dprop_dq_so):
 
 
     Args:
-        nstates_sf (int, input): Number of spin-free states.
-        nstates (int, input): Number of spin-orbit states.
-        multiplicity (np.array, input): 1D array detailing which spin-free states have which
-                                        multiplicity.
-        dprop_dq_sf (np.array, input): Array of the spin-free derivative elements.
-        dprop_dq_so (np.array, output): Array of the spin-free derivatives extended to the size of
-                                        spin-orbit states.
+        nstates_sf (:obj:`int`, input): Number of spin-free states.
+        nstates (:obj:`int`, input): Number of spin-orbit states.
+        multiplicity (:obj:`numpy.array`, input): 1D array detailing which spin-free states have which
+                                                  multiplicity.
+        dprop_dq_sf (:obj:`numpy.array`, input): Array of the spin-free derivative elements.
+        dprop_dq_so (:obj:`numpy.array`, output): Array of the spin-free derivatives extended to the size of
+                                                  spin-orbit states.
     '''
     sti = 0
     for idx in range(nstates_sf):
@@ -138,12 +140,12 @@ def compute_d_dq(nstates, eigvectors, prop_so, dprop_dq):
 
 
     Args:
-        nstates (int, input): Number of spin-orbit states.
-        eigvectors (np.array, input): Array containing the eigen vectors read from the eigvectors.txt
-                                      file produced by Molcas.
-        prop_so (np.array, input): Extended spin-free derivatives with the proper size. Output from
-                                   `va.numerical.vibronic_func.sf_to_so` function.
-        dprop_so (np.array, output): Spin-orbit derivatives of the property of interest.
+        nstates (:obj:`int`, input): Number of spin-orbit states.
+        eigvectors (:obj:`numpy.array`, input): Array containing the eigen vectors read from the eigvectors.txt
+                                                file produced by Molcas.
+        prop_so (:obj:`numpy.array`, input): Extended spin-free derivatives with the proper size. Output from
+                                             `vibrav.numerical.vibronic_func.sf_to_so` function.
+        dprop_so (:obj:`numpy.array`, output): Spin-orbit derivatives of the property of interest.
     '''
     tmp = np.zeros((nstates, nstates), dtype=np.complex128)
     for idx in range(nstates):

@@ -12,14 +12,32 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with vibrav.  If not, see <https://www.gnu.org/licenses/>.
+'''
+Base module
+###########
+Handles the resource files.
+'''
 import os
 import vibrav
 import numpy as np
 
-def get_static_path():
+def _get_static_path():
     return os.sep.join(vibrav.__file__.split(os.sep)[:-1]+['static'])
 
 def resource(file):
+    '''
+    Get the requested resource file from the static directory.
+
+    Args:
+        file (:obj:`str`): Name of resource file.
+
+    Returns:
+        resource_path (:obj:`str`): Absolute path to the resource file.
+
+    Raises:
+        ValueError: When there is more than one resource file found with that same name.
+        FileNotFoundError: When the resource file cannot be found in the static directory.
+    '''
     abspath, files = list_resource(full_path=True, return_both=True)
     index = []
     for idx, f in enumerate(files):
@@ -32,28 +50,44 @@ def resource(file):
                         +"existing files, regardless of whether they are in different directories.")
     elif len(index) == 0:
         raise FileNotFoundError("The specified resource file was not found")
-    return abspath[index[0]]
+    resource_path = abspath[index[0]]
+    return resource_path
 
 def list_resource(full_path=False, return_both=False, search_string=''):
+    '''
+    Get all of the available resource files in the static directory.
+
+    Args:
+        full_path (:obj:`bool`, optional): Return the absolute path of the resource files.
+                                           Defaults to :code:`False`.
+        return_both (:obj:`bool`, optional): Return both the absolute paths and resource files.
+                                             Defaults to :code:`False`.
+        search_string (:obj:`str`, optional): Regex string to limit the number of entries to return.
+                                              Defaults to :code:`''`.
+
+    Returns:
+        resource_files (:obj:`list`): Resource file list depending on the input parameters.
+    '''
     fp = []
     if full_path:
         abspaths = []
     else:
         abspaths = None
-    for (dirpath, _, files) in os.walk(get_static_path()):
+    for (dirpath, _, files) in os.walk(_get_static_path()):
         paths = list(map(lambda x: os.path.abspath(os.path.join(dirpath, x)), files))
         for path, file in zip(paths, files):
             if os.path.isfile(path) and search_string in path:
                 if not abspaths is None:
                     abspaths.append(path)
                 fp.append(file)
-    if full_path and not return_both:
-        return abspaths
+    if return_both:
+        resource_files = [abspaths, fp]
+    elif full_path and not return_both:
+        resource_files = abspaths
     elif not (full_path and return_both):
-        return fp
-    elif return_both:
-        return abspaths, fp
+        resource_files = fp
     else:
         raise RuntimeError("Um.....this is embarrasing. " \
                           +"The input for list_resource was not understood")
+    return resource_files
 
