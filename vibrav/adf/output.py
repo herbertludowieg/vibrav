@@ -5,6 +5,7 @@ from exatomic.base import z2sym, sym2isomass
 import numpy as np
 import pandas as pd
 import six
+import warnings
 
 class Tape21Meta(TypedMeta):
     atom = Atom
@@ -23,36 +24,67 @@ class Tape21(six.with_metaclass(Tape21Meta, Editor)):
     def parse_frequency(self):
         # search flags
         _renorm = "NormalModes_RAW"
+        _recartmodes = "Normalmodes"
         _refreq = "Frequencies"
-        found = self.find(_refreq, keys_only=True)
-        if not found:
+        found = self.find(_refreq, _renorm, _recartmodes, keys_only=True)
+        if not found[_refreq]:
             return
-        found = self.find(_refreq, _renorm, keys_only=True)
         if not hasattr(self, 'atom'):
             self.parse_atom()
-        nat = self.atom.shape[0]
+        # get the number of atoms
+        nat = self.atom.last_frame.shape[0]
+        # get the frequencies
         freq = self._dfme(found[_refreq], nat*3)
-        low = np.where(freq == 0)[0]
+        # find where the frequencies are zero
+        # these should be the ones that ADF determines to be translations and rotations
+        # TODO: need a test case with one imaginary frequency
+        low = freq != 0
         nlow = low.shape[0]
-        freq = freq[nlow:]
+        # get only the ones that are non-zero
+        freq = freq[low]
+        print(freq)
         nmodes = freq.shape[0]
         freq = np.repeat(freq, nat)
-        ndisps = int(self[found[_renorm][0]+1].split()[0])
-        normalmodes = self._dfme(np.array(found[_renorm]), ndisps, idx=0)
-        dx = normalmodes[nlow*nat*3::3]
-        dy = normalmodes[nlow*nat*3+1::3]
-        dz = normalmodes[nlow*nat*3+2::3]
+        if found[_renorm]:
+            # get the mass-weighted normal modes
+            ndisps = int(self[found[_renorm][0]+1].split()[0])
+            normalmodes = self._dfme(np.array(found[_renorm]), ndisps, idx=0)
+        elif found[_recartnorm] and not found[_renorm]:
+            # get the non-mass-weighted normal modes and toss warning
+            text = "Mass-weighted normal modes could not be found. If you are " \
+                  +"performing vibrational analysis they must be mass-weighted " \
+                  +"normal modes."
+            warnings.warn(text, Warning)
+            ndisps = int(self[found[_recartmodes][0]+1].split()[0])
+            normalmodes = self._dfme(np.array(found[_recartmodes]), ndisps, idx=0)
+        # get the vibrational modes in the three cartesian directions
+        # the loop is neede in case there are any negative modes
+        # because then the normal mode displacements for the negative mode
+        # are listed first and we need those
+        dx = []
+        dy = []
+        dz = []
+        for idx in np.where(low)[0]:
+            dx.append(normalmodes[idx*nat*3+0:(idx+1)*nat*3+0:3])
+            dy.append(normalmodes[idx*nat*3+1:(idx+1)*nat*3+1:3])
+            dz.append(normalmodes[idx*nat*3+2:(idx+1)*nat*3+2:3])
+        # flatten arrays to vectors
+        dx = np.array(dx).flatten()
+        dy = np.array(dy).flatten()
+        dz = np.array(dz).flatten()
         freqdx = np.repeat(range(nmodes), nat)
         label = np.tile(self.atom['label'], nmodes)
         symbol = self.atom['symbol']
+        # get the isotopic masses
         mapper = sym2isomass(symbol)
         mass = symbol.map(mapper).astype(float).values
         symbol = np.tile(self.atom['symbol'], nmodes)
-        #mass = sym2isomass(self.atom['symbol'].values)
         mass = np.repeat(mass, 3)
+        # put the data together
         df = pd.DataFrame({'dx': dx, 'dy': dy, 'dz': dz, 'frequency': freq,
                            'freqdx': freqdx})
         cols = ['dx', 'dy', 'dz']
+        # calculate the reduced masses
         r_mass = df.groupby(['freqdx']).apply(lambda x: 1 \
                                                     / np.sum(np.square(x[cols].values.flatten()) \
                                                     * 1/mass)).values
@@ -64,6 +96,7 @@ class Tape21(six.with_metaclass(Tape21Meta, Editor)):
         self.frequency = df
 
     def parse_atom(self):
+        # search flags
         _reatom = "xyz InputOrder"
         _reqtch = "qtch"
         _rentyp = "ntyp"
