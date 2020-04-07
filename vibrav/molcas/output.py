@@ -21,8 +21,8 @@ class Output(Editor):
     This output editor is supposed to work for OpenMolcas.
     Currently it is only designed to parse the data required for this script.
     '''
-    @staticmethod
-    def _property_parsing(props, data_length):
+    _resta = "STATE"
+    def _property_parsing(self, props, data_length):
         all_dfs = []
         # this is a bit of a mess but since we have three components
         # we can take a nested for loop of three elements without too
@@ -31,7 +31,7 @@ class Output(Editor):
             # keep track of columns parsed so far
             counter = 0
             # find where the data blocks are printed
-            starts = np.array(self.find(_resta, start=prop, keys_only=True)) + prop + 2
+            starts = np.array(self.find(self._resta, start=prop, keys_only=True)) + prop + 2
             # data_length should always be the same
             # we could determine it for each data block but that would
             # be a large number of while loops
@@ -90,38 +90,8 @@ class Output(Editor):
         stop = props[0] + 5
         while self[stop].strip(): stop += 1
         data_length = stop - props[0] - 5
-        tdm = []
-        # this is a bit of a mess but since we have three components
-        # we can take a nested for loop of three elements without too
-        # much of a hit on performance
-        for idx, prop in enumerate(props):
-            # keep track of columns parsed so far
-            counter = 0
-            # find where the data blocks are printed
-            starts = np.array(self.find(_resta, start=prop, keys_only=True)) + prop + 2
-            # data_length should always be the same
-            # we could determine it for each data block but that would
-            # be a large number of while loops
-            stops = starts + data_length
-            # hardcoding but should apply in all of our cases
-            n = int(np.ceil(data_length/4))
-            dfs = []
-            # grab all of the data
-            for ndx, (start, stop) in enumerate(zip(starts[:n], stops[:n])):
-                ncols = len(self[start-2].split())
-                df = self.pandas_dataframe(start, stop, ncol=ncols)
-                df[0] -= 1
-                # set the indexes as they may be different and drop the column
-                df.index = df[0]
-                df.drop(0, axis=1, inplace=True)
-                # set the columns as they should be
-                df.columns = list(range(counter, counter+ncols-1))
-                dfs.append(df)
-                counter += ncols - 1
-            # put the component together
-            tdm.append(pd.concat(dfs, axis=1))
-        # merge the data from all of the components
-        stdm = pd.concat(tdm, ignore_index=True)
+        # get the data
+        stdm = self._property_parsing(props, data_length)
         stdm['component'] = np.repeat(['x', 'y', 'z'], data_length)
         self.sf_dipole_moment = stdm
 
@@ -136,42 +106,8 @@ class Output(Editor):
         stop = props[0] + 5
         while self[stop].strip(): stop += 1
         data_length = stop - props[0] - 5
-        qdm = []
-        # this is a bit of a mess but since we have three components
-        # we can take a nested for loop of three elements without too
-        # much of a hit on performance
-        for idx, prop in enumerate(props):
-            # keep track of columns parsed so far
-            counter = 0
-            # find where the data blocks are printed
-            starts = np.array(self.find(_resta, start=prop, keys_only=True)) + prop + 2
-            # data_length should always be the same
-            # we could determine it for each data block but that would
-            # be a large number of while loops
-            stops = starts + data_length
-            # hardcoding but should apply in all of our cases
-            # there should be a max of 4 columns of data in each of the 'STATE'
-            # data blocks so we get the maximum number of hits that there should be
-            # assuming a square matrix of data_length x data_length
-            n = int(np.ceil(data_length/4))
-            dfs = []
-            # grab all of the data
-            for ndx, (start, stop) in enumerate(zip(starts[:n], stops[:n])):
-                ncols = len(self[start-2].split())
-                df = self.pandas_dataframe(start, stop, ncol=ncols)
-                df[0] -= 1
-                # set the indexes as they may be different and drop the column
-                df.index = df[0]
-                df.drop(0, axis=1, inplace=True)
-                # set the columns as they should be
-                df.columns = list(range(counter, counter+ncols-1))
-                dfs.append(df)
-                counter += ncols - 1
-            # put the component together
-            qdm.append(pd.concat(dfs, axis=1))
-            qdm[-1]['component'] = idx
-        # merge the data from all of the components
-        sqdm = pd.concat(qdm, ignore_index=True)
+        # get the data
+        sqdm = self._property_parsing(props, data_length)
         sqdm['component'] = sqdm['component'].map(component_map)
         self.sf_quadrupole_moment = sqdm
 
@@ -186,42 +122,8 @@ class Output(Editor):
         stop = props[0] + 5
         while self[stop].strip(): stop += 1
         data_length = stop - props[0] - 5
-        angm = []
-        # this is a bit of a mess but since we have three components
-        # we can take a nested for loop of three elements without too
-        # much of a hit on performance
-        for idx, prop in enumerate(props):
-            # keep track of columns parsed so far
-            counter = 0
-            # find where the data blocks are printed
-            starts = np.array(self.find(_resta, start=prop, keys_only=True)) + prop + 2
-            # data_length should always be the same
-            # we could determine it for each data block but that would
-            # be a large number of while loops
-            stops = starts + data_length
-            # hardcoding but should apply in all of our cases
-            # there should be a max of 4 columns of data in each of the 'STATE'
-            # data blocks so we get the maximum number of hits that there should be
-            # assuming a square matrix of data_length x data_length
-            n = int(np.ceil(data_length/4))
-            dfs = []
-            # grab all of the data
-            for ndx, (start, stop) in enumerate(zip(starts[:n], stops[:n])):
-                ncols = len(self[start-2].split())
-                df = self.pandas_dataframe(start, stop, ncol=ncols)
-                df[0] -= 1
-                # set the indexes as they may be different and drop the column
-                df.index = df[0]
-                df.drop(0, axis=1, inplace=True)
-                # set the columns as they should be
-                df.columns = list(range(counter, counter+ncols-1))
-                dfs.append(df)
-                counter += ncols - 1
-            # put the component together
-            angm.append(pd.concat(dfs, axis=1))
-            angm[-1]['component'] = idx
-        # merge the data from all of the components
-        sangm = pd.concat(angm, ignore_index=True)
+        # get the data
+        sangm = self._property_parsing(props, data_length)
         sangm['component'] = sangm['component'].map(component_map)
         self.sf_angmom = sangm
 
