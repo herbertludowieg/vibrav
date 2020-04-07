@@ -4,17 +4,22 @@ language: python
 
 matrix:
   include:
-    # Extra includes for OSX since python language is not available by default on OSX
+    # OSX support
+    - os: osx
+      language: generic
+      env: PYTHON_VER=3.5
     - os: osx
       language: generic
       env: PYTHON_VER=3.6
     - os: osx
       language: generic
       env: PYTHON_VER=3.7
-
-
+    # Linux suport
     - os: linux
-      language: generic  # No need to set Python version since its conda
+      language: generic
+      env: PYTHON_VER=3.5
+    - os: linux
+      language: generic
       env: PYTHON_VER=3.6
     - os: linux
       language: generic
@@ -44,9 +49,9 @@ install:
 script:
   - export PYTHONDONTWRITEBYTECODE=1
   - pytest -v --cov
-  - if [[ $TRAVIS_OS_NAME == "linux" ]] && [[ $PYTHON_VER == 3.6 ]]; then
+  - if [[ $TRAVIS_OS_NAME == "linux" ]] && [[ $PYTHON_VER == 3.7 ]]; then
         rm -rf docs/*.txt;
-        SPINX_APIDOC_OPTIONS=members,undoc-members,show-inheritance sphinx-apidoc -eM -s txt -o docs/ vibrav *test*;
+        SPINX_APIDOC_OPTIONS=members,undoc-members,show-inheritance sphinx-apidoc -eM -s txt -o docs/source vibrav *test*;
         travis-sphinx build --source docs/;
     fi
 
@@ -54,7 +59,7 @@ notifications:
     email: false
 
 after_success:
-  - if [[ $TRAVIS_OS_NAME == "linux" ]] && [[ $PYTHON_VER == 3.6 ]]; then
+  - if [[ $TRAVIS_OS_NAME == "linux" ]] && [[ $PYTHON_VER == 3.7 ]]; then
         codecov;
         coveralls;
         travis-sphinx deploy;
