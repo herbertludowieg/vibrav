@@ -44,5 +44,5 @@ build: false
 test_script:
   - pytest -v --cov=vibrav vibrav\\tests
 
-on_success:
-  - codecov
+#on_success:
+#  - codecov

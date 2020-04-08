@@ -13,11 +13,15 @@ describes how to merge code changes into this vibrav.
 
 ## Making Changes
 
-* Add some really awesome code to your local fork.  It's usually a [good
+* Make an issue in the main repository with some awesome changes that
+  you would like to make.
+* Add changes to code on your local fork.  It's usually a [good
   idea](http://blog.jasonmeridth.com/posts/do-not-issue-pull-requests-from-your-master-branch/)
   to make changes on a
   [branch](https://help.github.com/articles/creating-and-deleting-branches-within-your-repository/)
   with the branch name relating to the feature you are going to add.
+* Before opening a pull request make sure that you run the test suite locally
+  for at least one of the currently supported versions of python.
 * When you are ready for others to examine and comment on your new feature,
   navigate to your fork of vibrav on GitHub and open a [pull
   request](https://help.github.com/articles/using-pull-requests/) (PR). Note that

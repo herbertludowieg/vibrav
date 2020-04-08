@@ -13,15 +13,21 @@ The docs are built with the sphinx-apidoc module. It will generate .txt
 files with the contents of the docstrings in the python code.
 
 To build the documentation,
-```
+``` bash
 cd docs/
 make html
 ```
 
 To view the built documentation (assuming already in docs directory),
-```
-cd _build/html
+``` bash
+cd build/html
 xdg-open index.html
+```
+
+Or, on the Windows Subsystem Linux,
+``` bash
+cd build/html
+cmd.exe /C start index.html
 ```
 
 ### Requirements
@@ -45,9 +51,6 @@ to reference (1). We currently support the calculation of the following properti
 ### Copyright
 
 Copyright (c) 2020, Herbert D Ludowieg
-
-This program is distributed under the [LGPLv3](https://www.gnu.org/licenses/lgpl-3.0.en.html)
-open-source license
 
 ## References:
 1. [J. Phys. Chem. Lett. 2018, 9, 4, 887-894](https://doi.org/10.1021/acs.jpclett.7b03441)
