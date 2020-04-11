@@ -328,14 +328,14 @@ class Vibronic:
         # get the property of choice from the zero order file given in the config file
         # the extra column in each of the parsed properties comes from the component column
         # in the molcas output parser
-        if property == 'electric_dipole':
+        if property.replace('_', '-') == 'electric-dipole':
             ed.parse_sf_dipole_moment()
             self.check_size(ed.sf_dipole_moment, (nstates_sf*3, nstates_sf+1), 'sf_dipole_moment')
             grouped_data = ed.sf_dipole_moment.groupby('component')
             out_file = 'dipole'
             so_file = config.dipole_file
             idx_map = {1: 'x', 2: 'y', 3: 'z'}
-        elif property == 'electric_quadrupole':
+        elif property.replace('_', '-') == 'electric-quadrupole':
             ed.parse_sf_quadrupole_moment()
             self.check_size(ed.sf_quadrupole_moment, (nstates_sf*6, nstates_sf+1),
                              'sf_quadrupole_moment')
@@ -343,7 +343,7 @@ class Vibronic:
             out_file = 'quadrupole'
             so_file = config.quadrupole_file
             idx_map = {1: 'xx', 2: 'xy', 3: 'xz', 4: 'yy', 5: 'yz', 6: 'zz'}
-        elif property == 'magnetic_dipole':
+        elif property.replace('_', '-') == 'magnetic-dipole':
             ed.parse_sf_angmom()
             self.check_size(ed.sf_angmom, (nstates_sf*3, nstates_sf+1), 'sf_angmom')
             grouped_data = ed.sf_angmom.groupby('component')
