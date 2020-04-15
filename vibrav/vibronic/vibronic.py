@@ -25,6 +25,8 @@ from exa.util.constants import (speed_of_light_in_vacuum as speed_of_light,
                                 Boltzmann_constant as boltz_constant)
 from vibrav.numerical.vibronic_func import *
 from vibrav.core.config import Config
+from vibrav.numerical.degeneracy import energetic_degeneracy
+from vibrav.numerical.boltzmann import boltz_dist
 from glob import glob
 from vibrav.util.open_files import open_txt
 from vibrav.util.math import get_triu, ishermitian
@@ -70,37 +72,6 @@ class Vibronic:
         else:
             if np.any(pd.isnull(data)):
                 raise TypeError("NaN values were found in the data for '{}'".format(var_name))
-
-    @staticmethod
-    def boltz_factor(energies_so):
-        raise NotImplementedError("Coming Soon!!")
-
-    @staticmethod
-    def determine_degeneracy(data_df, degen_delta, rtol=1e-12, numpy=True):
-        degen_states = []
-        idx = 0
-        if not numpy:
-            sorted = data_df.sort_values()
-            index = sorted.index.values
-            data = sorted.values
-        else:
-            df = pd.Series(data_df)
-            sorted = df.sort_values()
-            index = sorted.index.values
-            data = sorted.values
-        while idx < data.shape[0]:
-            degen = np.isclose(data[idx], data, atol=degen_delta, rtol=rtol)
-            ddx = np.where(degen)[0]
-            degen_vals = data[ddx]
-            degen_index = index[ddx]
-            mean = np.mean(degen_vals)
-            idx += ddx.shape[0]
-            df = pd.DataFrame.from_dict({'values': [mean], 'degen': [ddx.shape[0]]})
-            found = np.transpose(degen_index)
-            df['index'] = [found]
-            degen_states.append(df)
-        degeneracy = pd.concat(degen_states, ignore_index=True)
-        return degeneracy
 
     def magnetic_oscillator(self):
         raise NotImplementedError("Needs to be fixed!!!")
@@ -156,7 +127,7 @@ class Vibronic:
 
     def vibronic_coupling(self, property, write_property=True, write_energy=True, write_oscil=True,
                           print_stdout=True, temp=298, eq_cont=False, verbose=False,
-                          use_sqrt_rmass=True, select_fdx=-1):
+                          use_sqrt_rmass=True, select_fdx=-1, boltz_states=None, boltz_tol=1e-6):
         '''
         Vibronic coupling method to calculate the vibronic coupling by the equations as given
         in reference J. Phys. Chem. Lett. 2018, 9, 887-894. This code follows a similar structure
@@ -186,6 +157,12 @@ class Vibronic:
                                                     be the case. Defaults to `True`.
             select_fdx (:obj:`list`, optional): Only use select normal modes in the vibronic coupling
                                                 calculation. Defaults to `-1` (all normal modes).
+            boltz_states (:obj:`int`, optional): Boltzmann states to calculate in the distribution.
+                                                 Defaults to `None` (all states with a distribution
+                                                 less than the `boltz_tol` value for the lowest
+                                                 frequency).
+            boltz_tol (:obj:`float`, optional): Tolerance value for the Boltzmann distribution cutoff.
+                                                Defaults to `1e-5`.
 
         Raises:
             NotImplementedError: When the property requested with the `property` parameter does not
@@ -371,18 +348,37 @@ class Vibronic:
         oscil = np.zeros((nselected, 2, nstates*nstates), dtype=np.float64)
         delta_E = np.zeros((nselected, 2, nstates*nstates), dtype=np.float64)
         vibronic_prop = np.zeros((nselected, 2, ncomp, nstates*nstates), dtype=np.complex128)
-        #oscil = np.zeros((nmodes, 2, upper_nelem), dtype=np.float64)
-        #delta_E = np.zeros((nmodes, 2, upper_nelem), dtype=np.float64)
-        #vibronic_prop = np.zeros((nmodes, 2, ncomp, upper_nelem), dtype=np.complex128)
         # timing things
         time_setup = time() - program_start
         # counter just for timing statistics
         vib_times = []
         grouped = dham_dq.groupby('freqdx')
         iter_times = []
-        degeneracy = self.determine_degeneracy(energies_so, config.degen_delta)
+        degeneracy = energetic_degeneracy(energies_so, config.degen_delta)
         gs_degeneracy = degeneracy.loc[0, 'degen']
+        if print_stdout:
+            print("--------------------------------------------")
+            print("Spin orbit ground state was found to be: {:3d}".format(gs_degeneracy))
+            print("--------------------------------------------")
         if store_gs_degen: self.gs_degeneracy = gs_degeneracy
+        # calculate the boltzmann factors
+        boltz_states = None
+        boltz_factor = boltz_dist(freq, temp, boltz_tol, boltz_states)
+        cols = boltz_factor.columns.tolist()[:-2]
+        boltz = np.zeros((boltz_factor.shape[0], 2))
+        for freqdx, data in boltz_factor.groupby('freqdx'):
+            boltz[freqdx][0] = np.sum([val*(idx) for idx, val in enumerate(data[cols].values[0])])
+            boltz[freqdx][1] = np.sum([val*(idx+1) for idx, val in enumerate(data[cols[:-1]].values[0])])
+        boltz = pd.DataFrame(boltz, columns=['minus', 'plus'])
+        boltz['freqdx'] = boltz_factor['freqdx']
+        boltz['partition'] = boltz_factor['partition']
+        if print_stdout:
+            print('-'*80)
+            print("Printing the boltzmann distribution for all")
+            print("of the available frequencies")
+            formatters = ['{:.7f}'.format, '{:.7f}'.format, '{:d}'.format, '{:.7f}'.format]
+            print(boltz.to_string(index=False, formatters=formatters))
+            print('-'*80)
         for fdx, founddx in enumerate(found_modes):
             vib_prop = np.zeros((2, ncomp, nstates, nstates), dtype=np.complex128)
             vib_start = time()
@@ -488,14 +484,8 @@ class Vibronic:
                     print("-----------------------------------")
                 # finally get the oscillator strengths from equation S12
                 to_drop = ['component', 'freqdx', 'sign', 'prop']
-                boltz_denom = 1+np.exp(-freq[founddx]/(boltz_constant*Energy['J', 'cm^-1']*temp))
-                boltz_plus = 1/boltz_denom
-                boltz_minus = np.exp(-freq[founddx]/(boltz_constant*Energy['J', 'cm^-1']*temp))/boltz_denom
-                for idx, val in enumerate([-1, 1]):
-                    if val == -1:
-                        boltz = boltz_minus
-                    else:
-                        boltz = boltz_plus
+                for idx, (val, sign) in enumerate(zip([-1, 1], ['minus', 'plus'])):
+                    boltz_factor = boltz.loc[founddx, sign]
                     absorption = np.zeros(nstates*nstates, dtype=np.float64)
                     for component in vibronic_prop[fdx][idx]:
                         absorption += abs2(component)
@@ -504,7 +494,7 @@ class Vibronic:
                     energy = energy.flatten()
                     self.check_size(energy, (nstates*nstates,), 'energy')
                     self.check_size(absorption, (nstates*nstates,), 'absorption')
-                    oscil[fdx][idx] = boltz * 2./3. * compute_oscil_str(absorption, energy)
+                    oscil[fdx][idx] = boltz_factor * 2./3. * compute_oscil_str(absorption, energy)
                     delta_E[fdx][idx] = energy
             else:
                 write_oscil = False
@@ -676,12 +666,12 @@ class Vibronic:
                 os.mkdir(out_dir, 0o755)
             start = time()
             filename = os.path.join(out_dir, 'oscillators.txt')
-            if os.path.exists(filename):
-                warnings.warn("{} exists will make a backup of the original file".format(filename),
-                              Warning)
-                idx = 1
-                while os.path.exists(filename+'.bak.{}'.format(idx)): idx += 1
-                os.rename(filename, filename+'.bak.{}'.format(idx))
+            #if os.path.exists(filename):
+            #    warnings.warn("{} exists will make a backup of the original file".format(filename),
+            #                  Warning)
+            #    idx = 1
+            #    while os.path.exists(filename+'.bak.{}'.format(idx)): idx += 1
+            #    os.rename(filename, filename+'.bak.{}'.format(idx))
             with open(filename, 'w') as fn:
                 # we also write the energies as they are needed when plotting the oscillators
                 template = "{:6d}  {:6d}  {:+.16E}  {:+.16E}  {:4d}  {:7s}\n"
