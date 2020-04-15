@@ -10,7 +10,9 @@ To use this code package you must download the development version and execute
 
 ## Building the documentation
 The docs are built with the sphinx-apidoc module. It will generate .txt
-files with the contents of the docstrings in the python code.
+files with the contents of the docstrings in the python code. We use
+the [sphinx_bootstrap_theme](https://github.com/ryan-roemer/sphinx-bootstrap-theme)
+for our documentation. To install it run `pip install sphinx_bootstrap_theme`.
 
 To build the documentation,
 ``` bash
