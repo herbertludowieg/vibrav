@@ -14,11 +14,11 @@ dependencies:
     # dependencies
     - numpy
     - numba
-    - sphinx_rtd_theme
     - pandas
 
     # Pip-only installs
     - pip:
         - travis-sphinx
         - exa
+        - sphinx_bootstrap_theme
 
