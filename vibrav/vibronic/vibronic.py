@@ -362,9 +362,8 @@ class Vibronic:
             print("--------------------------------------------")
         if store_gs_degen: self.gs_degeneracy = gs_degeneracy
         # calculate the boltzmann factors
-        boltz_states = None
         boltz_factor = boltz_dist(freq, temp, boltz_tol, boltz_states)
-        cols = boltz_factor.columns.tolist()[:-2]
+        cols = boltz_factor.columns.tolist()[:-3]
         boltz = np.zeros((boltz_factor.shape[0], 2))
         for freqdx, data in boltz_factor.groupby('freqdx'):
             boltz[freqdx][0] = np.sum([val*(idx) for idx, val in enumerate(data[cols].values[0])])
@@ -375,7 +374,7 @@ class Vibronic:
         if print_stdout:
             print('-'*80)
             print("Printing the boltzmann distribution for all")
-            print("of the available frequencies")
+            print("of the available frequencies at a temperature: {:.2f}".format(temp))
             formatters = ['{:.7f}'.format, '{:.7f}'.format, '{:d}'.format, '{:.7f}'.format]
             print(boltz.to_string(index=False, formatters=formatters))
             print('-'*80)
