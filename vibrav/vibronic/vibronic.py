@@ -39,7 +39,8 @@ class Vibronic:
     _default_inputs = {'sf_energies_file': ('', str), 'so_energies_file': ('', str),
                        'angmom_file': ('angmom', str), 'dipole_file': ('dipole', str),
                        'spin_file': ('spin', str), 'quadrupole_file': ('quadrupole', str),
-                       'degen_delta': (1e-7, float), 'eigvectors_file': ('eigvectors.txt', str)}
+                       'degen_delta': (1e-7, float), 'eigvectors_file': ('eigvectors.txt', str),
+                       'so_cont_tol': (1e-12, float)}
     @staticmethod
     def check_size(data, size, var_name, dataframe=False):
         '''
@@ -130,13 +131,21 @@ class Vibronic:
                           use_sqrt_rmass=True, select_fdx=-1, boltz_states=None, boltz_tol=1e-6):
         '''
         Vibronic coupling method to calculate the vibronic coupling by the equations as given
-        in reference J. Phys. Chem. Lett. 2018, 9, 887-894. This code follows a similar structure
+        in reference *J. Phys. Chem. Lett.* **2018**, 9, 887-894. This code follows a similar structure
         as that from a perl script written by Yonaton Heit and Jochen Autschbach, authors of the
         cited paper.
 
-        The script is able to calculate the vibronic contributions to the electric_dipole,
-        magnetic_dipole and electric_quadrupole, currently. For more properties please reach out
-        through github or via email.
+        Note:
+            The script is able to calculate the vibronic contributions to the electric_dipole,
+            magnetic_dipole and electric_quadrupole, currently. For more properties please reach out
+            through github or via email.
+
+        Warning:
+            The value of the energy difference parameter (`degen_delta` in the configuration file)
+            and the spin-free contribution to the spin-orbit states cutoff (`so_cont_tol` in the
+            configuration file) can be very important in giving "reasonable"
+            vibronic intensities. These values should be adjusted and tested accordingly on a
+            per-system basis. **We make no guarantees everything will work out of the box**.
 
         Args:
             property (:obj:`str`): Property of interest to calculate.
