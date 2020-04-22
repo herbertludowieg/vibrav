@@ -13,6 +13,7 @@
 # You should have received a copy of the GNU General Public License
 # along with vibrav.  If not, see <https://www.gnu.org/licenses/>.
 import numpy as np
+from numba import vectorize, float64, complex128
 
 def get_triu(arr, k=0):
     '''
@@ -49,4 +50,9 @@ def ishermitian(data):
     herm = np.conjugate(np.transpose(data))
     isherm = np.allclose(herm, data)
     return isherm
+
+@vectorize([float64(complex128)])
+def abs2(x):
+    '''Get the square of a complex number'''
+    return np.square(np.real(x)) + np.square(np.imag(x))
 

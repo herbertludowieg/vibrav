@@ -14,11 +14,7 @@
 # along with vibrav.  If not, see <https://www.gnu.org/licenses/>.
 import numpy as np
 from numba import jit, prange, vectorize, float64, complex128
-
-@vectorize([float64(complex128)])
-def abs2(x):
-    '''Get the square of a complex number'''
-    return np.square(np.real(x)) + np.square(np.imag(x))
+from vibrav.util.math import abs2
 
 @vectorize([float64(float64, float64)])
 def compute_oscil_str(absorption, energy):

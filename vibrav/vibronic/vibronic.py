@@ -228,6 +228,8 @@ class Vibronic:
             freq_range = np.array(select_fdx) + 1
         nselected = len(freq_range)
         for idx in freq_range:
+            # error catching serves the purpose to know which
+            # of the hamiltonian files are missing
             try:
                 plus = open_txt(os.path.join('confg'+str(idx).zfill(padding), 'ham-sf.txt'))
                 try:
@@ -243,6 +245,8 @@ class Vibronic:
                               +'confg'+str(idx).zfill(padding) \
                               +"\nIgnoring frequency index {}".format(idx), Warning)
                 continue
+            # put it all together only if both plus and minus
+            # ham-sf.txt files are found
             plus_matrix.append(plus)
             minus_matrix.append(minus)
             found_modes.append(idx-1)
