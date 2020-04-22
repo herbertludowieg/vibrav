@@ -214,6 +214,27 @@ class Vibronic:
         self.check_size(multiplicity, (nstates_sf,), 'multiplicity')
         # read the eigvectors data
         eigvectors = open_txt(config.eigvectors_file).values
+        if config.so_cont_tol is not None:
+            conts = abs2(eigvectors)
+            so_cont_limit = conts < config.so_cont_tol
+            eigvectors[so_cont_limit] = 0.0
+            conts = abs2(eigvectors)
+            if print_stdout:
+                print("*"*50)
+                print("Printing out sum of the percent contribution\n" \
+                      +"of each spin-orbit state after removing those\n" \
+                      +"less than {}".format(config.so_cont_tol))
+                print("*"*50)
+                print("Printing sorted and unsorted contributions.")
+                print("*"*50)
+                unsorted_ser = pd.Series(np.sum(conts, axis=1))
+                sorted_ser = unsorted_ser.copy().sort_values()
+                df_dict = {'so-index-sorted': sorted_ser.index,
+                           'sorted-contributions': sorted_ser.values,
+                           'so-index-unsorted': unsorted_ser.index,
+                           'unsorted-contributions': unsorted_ser.values}
+                df = pd.DataFrame.from_dict(df_dict)
+                print(df.to_string(index=False))
         self.check_size(eigvectors, (nstates, nstates), 'eigvectors')
         # read the hamiltonian files in each of the confg??? directories
         # it is assumed that the directories are named confg with a 3-fold padded number (000)
