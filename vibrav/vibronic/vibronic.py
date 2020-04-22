@@ -29,9 +29,63 @@ from vibrav.numerical.degeneracy import energetic_degeneracy
 from vibrav.numerical.boltzmann import boltz_dist
 from glob import glob
 from vibrav.util.open_files import open_txt
-from vibrav.util.math import get_triu, ishermitian
+from vibrav.util.math import get_triu, ishermitian, abs2
 
 class Vibronic:
+    '''
+    Main class to run vibronic coupling calculations.
+
+    Required arguments in configuration file.
+
+    +------------------------+--------------------------------------------------+----------------------------+
+    | Argument               | Description                                      | Data Type                  |
+    +========================+==================================================+============================+
+    | number_of_multiplicity | Number of multiplicities from calculation.       | :obj:`int`                 |
+    +------------------------+--------------------------------------------------+----------------------------+
+    | spin_multiplicity      | List of the ordering of the spin multiplicities. | :obj:`tuple` of :obj:`int` |
+    |                        | Must be in the same order as was done in the     |                            |
+    |                        | calculation.                                     |                            |
+    +------------------------+--------------------------------------------------+----------------------------+
+    | number_of_states       | Number of states in each multiplicity.           | :obj:`tuple` of :obj:`int` |
+    +------------------------+--------------------------------------------------+----------------------------+
+    | number_of_nuclei       | Number of nuclei in the system.                  | :obj:`int`                 |
+    +------------------------+--------------------------------------------------+----------------------------+
+    | number_of_modes        | Number of normal modes in the molecule.          | :obj:`int`                 |
+    +------------------------+--------------------------------------------------+----------------------------+
+    | zero_order_file        | Filepath of the calculation at the equilibrium   | :obj:`str`                 |
+    |                        | coordinate. Must contain the spin-free property  |                            |
+    |                        | of interest.                                     |                            |
+    +------------------------+--------------------------------------------------+----------------------------+
+    | oscillator_spin_states | Number of oscillators to calculate from the      | :obj:`int`                 |
+    |                        | ground state.                                    |                            |
+    +------------------------+--------------------------------------------------+----------------------------+
+
+    Default arguments in configuration file.
+
+    +------------------+------------------------------------------------------------+----------------+
+    | Argument         | Description                                                | Default Value  |
+    +==================+============================================================+================+
+    | sf_energies_file | Filepath of the spin-free energies.                        | ''             |
+    +------------------+------------------------------------------------------------+----------------+
+    | so_energies_file | Filepath of the spin-orbit energies.                       | ''             |
+    +------------------+------------------------------------------------------------+----------------+
+    | angmom_file      | Starting string of the angular momentum spin-orbit files.  | angmom         |
+    +------------------+------------------------------------------------------------+----------------+
+    | dipole_file      | Starting string of the transition dipole moment spin-orbit | dipole         |
+    |                  | files.                                                     |                |
+    +------------------+------------------------------------------------------------+----------------+
+    | quadrupole_file  | Starting string of the transition quadrupole moment        | quadrupole     |
+    |                  | spin-orbit files.                                          |                |
+    +------------------+------------------------------------------------------------+----------------+
+    | degen_delta      | Cut-off parameter for the energy difference in the         | 1e-7 Ha        |
+    |                  | denominator for the pertubation theory.                    |                |
+    +------------------+------------------------------------------------------------+----------------+
+    | eigvectors_file  | Filepath of the spin-orbit eigenvectors.                   | eigvectors.txt |
+    +------------------+------------------------------------------------------------+----------------+
+    | so_cont_tol      | Cut-off parameter for the minimum spin-free contribution   | 1e-12          |
+    |                  | to each spin-orbit state.                                  |                |
+    +------------------+------------------------------------------------------------+----------------+
+    '''
     _required_inputs = {'number_of_multiplicity': int, 'spin_multiplicity': (tuple, int),
                         'number_of_states': (tuple, int), 'number_of_nuclei': int,
                         'number_of_modes': int, 'zero_order_file': str,
