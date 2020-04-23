@@ -49,7 +49,7 @@ def compute_d_dq_sf(nstates_sf, dham_dq, eq_sf, energies_sf, dprop_dq_sf, tol=1e
         energies_sf (:obj:`numpy.array`, input): Spin-free energies parsed from the equilibrium geometry.
         dprop_dq_sf (:obj:`numpy.array`, output): Spin-free derivative of the property of interest.
         tol (:obj:`float`, optional, input): Tolerance value for the energy differences.
-                                             Defaults to 1e-5.
+                                             Defaults to :code:`1e-5`.
     '''
     for idx in range(nstates_sf):
         for jdx in range(nstates_sf):

@@ -17,6 +17,41 @@ import numpy as np
 from exa import Series
 
 class Config(Series):
+    '''
+    Base class to read the configuration file given at the start of the different Vibrational
+    Averaging modules.
+
+    Global default values.
+
+    +-------------------+---------------------------------------------------+---------------+
+    | Attribute         | Description                                       | Default Value |
+    +===================+===================================================+===============+
+    | delta_file        | Filepath of the delta displacement parameters     | delta.dat     |
+    |                   | used to generate the different displaced          |               |
+    |                   | structures.                                       |               |
+    +-------------------+---------------------------------------------------+---------------+
+    | reduced_mass_file | Filepath to the reduced masses of the vibrational | redmass.dat   |
+    |                   | modes.                                            |               |
+    +-------------------+---------------------------------------------------+---------------+
+    | frequency_file    | Filepath of the energies of the normal modes.     | freq.dat      |
+    +-------------------+---------------------------------------------------+---------------+
+    | delta_disp        | Constant displacement parameter to generate the   | 0.0           |
+    |                   | displaced structures. Only matters for the        |               |
+    |                   | `delta_type` parameter for                        |               |
+    |                   | :func:`vibrav.util.gen_displaced.gen_delta` is 3. |               |
+    +-------------------+---------------------------------------------------+---------------+
+    | delta_algorithm   | Delta algorithm used to generate the displaced    | 2             |
+    |                   | structures. This is passed as the `delta_type`    |               |
+    |                   | parameter in                                      |               |
+    |                   | :func:`vibrav.util.gen_displaced.gen_delta`       |               |
+    +-------------------+---------------------------------------------------+---------------+
+    | delta_value       | Normalization parameter used to generate the      | 0.04          |
+    |                   | displaced structures. This is passed as the norm  |               |
+    |                   | parameter in                                      |               |
+    |                   | :func:`vibrav.util.gen_displaced.gen_delta`       |               |
+    +-------------------+---------------------------------------------------+---------------+
+
+    '''
     _sname = 'config_file'
     _iname = 'config_elem'
     _default = {'delta_file': ('delta.dat', str), 'reduced_mass_file': ('redmass.dat', str),

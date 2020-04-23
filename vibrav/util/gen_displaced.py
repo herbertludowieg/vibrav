@@ -11,16 +11,16 @@ def gen_delta(freq, delta_type, disp=None, norm=0.04):
     Function to compute the delta parameter to be used for the maximum distortion
     of the molecule along the normal mode.
 
-    When delta_type = 0 we normalize all atomic displacements along all normal modes
-    to have a global average displacement given by the `norm` parameter.
+    When :code:`delta_type = 0` we normalize all atomic displacements along all normal modes
+    to have a global average displacement given by the :code:`norm` parameter.
 
-    When delta_type = 1 we normalize the displacments to have a maximum given by the
-    `norm` parameter on each normal mode.
+    When :code:`delta_type = 1` we normalize the displacments to have a maximum given by the
+    :code:`norm` parameter on each normal mode.
 
-    When delta_type = 2 we normalize each displacement so the maximum displacement
-    vector of any atom in the normal mode is set to the `norm` parameter.
+    When :code:`delta_type = 2` we normalize each displacement so the maximum displacement
+    vector of any atom in the normal mode is set to the :code:`norm` parameter.
 
-    When delta_typ = 3 the user can select a constant delta parameter to use with the
+    When :code:`delta_type = 3` the user can select a constant delta parameter to use with the
     disp keyword this will displace all normal modes by that delta parameter.
 
     Args:
@@ -34,7 +34,9 @@ def gen_delta(freq, delta_type, disp=None, norm=0.04):
         delta (:obj:`pandas.DataFrame`): Delta parameters to multiply into each normal mode.
 
     Raises:
-        ValueError: When `delta_type=3` and `disp=None`.
+        ValueError: When :code:`delta_type=3` and :code:`disp=None`.
+
+    Examples:
     """
     nat = freq['label'].drop_duplicates().shape[0]
     freqdx = freq['freqdx'].unique()

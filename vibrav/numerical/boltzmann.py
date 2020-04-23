@@ -16,21 +16,22 @@ def boltz_dist(energies, temp, tol=1e-6, states=None, ignore_max=False):
         of vibrational states.
 
     Args:
-        energies (:obj:`numpy.array` or :obj:`list`): Array of energies in wavenumbers.
+        energies (:class:`numpy.ndarray` or :obj:`list`): Array of energies in wavenumbers.
         temp (:obj:`float`): Temperature to calculate the distribution.
         tol (:obj:`float`, optional): Tolerance threshold to cutoff the calculation
-                                      of the distribution factors. Defaults to `1e-5`.
+                                      of the distribution factors. Defaults to :code:`1e-5`.
         states (:obj:`int`, optional): Number of states to calculate. Defaults to
-                                       `None` (all states with a distribution
-                                       less than the `boltz_tol` value for the lowest 
+                                       :code:`None` (all states with a distribution
+                                       less than the :code:`tol` value for the lowest
                                        frequency).
         ignore_max (:obj:`bool`, optional): Ignore the default matimum number of max states
                                             to be calculated. This is very dangerous use at
                                             your own risk. There is a possibility of hitting
-                                            the recursion limit in python. Defaults to `False`.
+                                            the recursion limit in python. Defaults to
+                                            :code:`False`.
 
     Returns:
-        boltz (pd.DataFrame): Data frame of the boltzmann factors for each energy.
+        boltz (:class:`pandas.DataFrame`): Data frame of the boltzmann factors for each energy.
 
     Raises:
         ValueError: If the `states` parameter given is more than 1000 as we consider this
@@ -41,7 +42,7 @@ def boltz_dist(energies, temp, tol=1e-6, states=None, ignore_max=False):
 
     Examples:
         Calculating the boltzmann distribution of a two state system at room temperature
-        (298 K) with the energies 10, 20 and 80 wavenumbers (cm^{-1}).
+        (298 K) with the energies 10, 20 and 80 wavenumbers (cm :math:`^{-1}`).
 
         >>> temp = 298
         >>> freq = [10, 20, 80]
@@ -52,7 +53,7 @@ def boltz_dist(energies, temp, tol=1e-6, states=None, ignore_max=False):
         2  0.595379  0.404621       2   1.679601      80
 
         It is not necessary that the input energies be ordered as shown by the next example.
-        The only thing that will change is that the output :obj:`pandas.DataFrame` will have a
+        The only thing that will change is that the output :class:`pandas.DataFrame` will have a
         `freqdx` column that will reflect the ordeting of the input energies.
 
         >>> temp = 298
@@ -64,9 +65,9 @@ def boltz_dist(energies, temp, tol=1e-6, states=None, ignore_max=False):
         2  0.595379  0.404621       1   1.679601      80
 
         These examples have truncated the number of states to actually calculate by a user
-        defined values. If the user is interested in getting all of the available states above
-        a given threshold, 1e-6 by default, this can be done by passing the `states` parameter as
-        `None`.
+        defined value. If the user is interested in getting all of the available states above
+        a given threshold, :code:`1e-6` by default, this can be done by passing the `states`
+        parameter as :code:`None`.
 
         >>> temp = 40
         >>> freq = [100, 200, 300]
@@ -79,8 +80,8 @@ def boltz_dist(energies, temp, tol=1e-6, states=None, ignore_max=False):
         Notice, that in the example above, the threshold is only applied to the lowest energy
         and all higher energies calculate the same number of states even when the threshold is
         already met. This is purely done for the sake of simplifying data storage in a later
-        step with the `numpy.stack` function. It is not believed that this will affect memory
-        usage or performance greatly.
+        step with the :func:`numpy.stack` function. It is not believed that this will affect
+        memory usage or performance greatly.
 
         The program is designed to detect if there are more than 1000 states calculated and
         automatically throw an error as this is an unphysical number of states to calculate.

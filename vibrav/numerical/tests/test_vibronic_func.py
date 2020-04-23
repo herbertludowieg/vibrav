@@ -52,8 +52,6 @@ def test_compute_d_dq():
                              header=0, index_col=False).values.reshape(nstates_sf, nstates_sf)
     so_dipoles = open_txt(resource('molcas-ucl6-2minus-so-dipole-1.txt.xz'), compression='xz').values
     eigvectors = open_txt(resource('molcas-ucl6-2minus-eigvectors.txt.xz'), compression='xz').values
-    print(sf_dipoles.dtype, so_dipoles.dtype, eigvectors.dtype, multiplicity.dtype)
-    print(type(nstates), type(nstates_sf))
     # allocate numpy arrays
     extended = np.zeros((nstates, nstates), dtype=np.float64)
     test_dipoles = np.zeros((nstates, nstates), dtype=np.complex128)

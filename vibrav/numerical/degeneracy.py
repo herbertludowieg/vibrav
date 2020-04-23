@@ -25,17 +25,17 @@ def energetic_degeneracy(data_df, degen_delta, rtol=1e-12, numpy=True):
     Args:
         data_df (:obj:`pandas.DataFrame` or :obj:`numpy.ndarray`):
                     Data frame or array of the energies. If it is a numpy array
-                    must set the `numpy` parameter to `True`.
+                    must set the `numpy` parameter to :code:`True`.
         degen_delta (:obj:`float`): Absolute value for determining two levels
                                     are degenerate. Must be in the same units
                                     as the input energies.
         rtol (:obj:`float`, optional): Relative tolerance value for the
                                        differences in energy. Defaults to
-                                       `1e-12` so the it is more dependent on
+                                       :code:`1e-12` so the it is more dependent on
                                        the `degen_delta` parameter.
         numpy (:obj:`bool`, optional): Tell the program that the input data is
                                        a numpy array instead of a pandas data
-                                       frame. Defaults to `True`.
+                                       frame. Defaults to :code:`True`.
     Returns:
         degeneracy (:obj:`pandas.DataFrame`): Data frame containing the
                                               degenerate energies.
