@@ -7,6 +7,34 @@ import numpy as np
 import pandas as pd
 
 class ZPVC:
+    '''
+    Class to calculate the Zero-point vibrational corrections of a certain property.
+
+    Required inputs in configuration file.
+
+    +------------------+-----------------------------------------+------------+
+    | Attribute        | Description                             | Data Type  |
+    +==================+=========================================+============+
+    | number_of_modes  | Number of normal modes in the molecule. | :obj:`int` |
+    +------------------+-----------------------------------------+------------+
+    | number_of_nuclei | Number of nuclei in the molecule.       | :obj:`int` |
+    +------------------+-----------------------------------------+------------+
+
+    Default inputs in the configuration file.
+
+    +-----------------+-----------------------------------------------------+----------------+
+    | Attribute       | Description                                         | Default Value  |
+    +=================+=====================================================+================+
+    | smatrix_file    | Filepath containing all of the information of the   | smatrix.dat    |
+    |                 | normal mode displacements.                          |                |
+    +-----------------+-----------------------------------------------------+----------------+
+    | eqcoord_file    | Filepath containing the coordinates of the          | eqcoord.dat    |
+    |                 | equilibrium structure.                              |                |
+    +-----------------+-----------------------------------------------------+----------------+
+    | atom_order_file | Filepath containing the atomic symbols and ordering | atom_order.dat |
+    |                 | of the nuclei.                                      |                |
+    +-----------------+-----------------------------------------------------+----------------+
+    '''
     _required_inputs = {'number_of_modes': int, 'number_of_nuclei': int}
     _default_inputs = {'smatrix_file': ('smatrix.dat', str), 'eqcoord_file': ('eqcoord.dat', str),
                        'atom_order_file': ('atom_order.dat', str)}
@@ -64,7 +92,6 @@ class ZPVC:
         #nmodes = len(smat)
         # get gradient of the equilibrium coordinates
         grad_0 = grouped.get_group(0)
-        print(grad_0.shape)
         # get gradients of the displaced coordinates in the positive direction
         grad_plus = grouped.filter(lambda x: x['file'].drop_duplicates().values in
                                                                         range(1,nmodes+1))
@@ -77,7 +104,6 @@ class ZPVC:
                                     np.sum(np.multiply(grad_0[['fx', 'fy', 'fz']].values, x.values))).values
         # we extend the size of this 1d array as we will perform some matrix summations with the
         # other outputs from this method
-        print(delfq_zero.shape, snmodes)
         delfq_zero = np.tile(delfq_zero, snmodes).reshape(snmodes, nmodes)
 
         delfq_plus = grad_plus.groupby('file')[['fx', 'fy', 'fz']].apply(lambda x:
@@ -151,7 +177,7 @@ class ZPVC:
     def zpvc(self, gradient, property, temperature=None, geometry=True, print_results=False):
         """
         Method to compute the Zero-Point Vibrational Corrections. We implement the equations as
-        outlined in the paper J. Phys. Chem. A 2005, 109, 8617-8623 (doi:10.1021/jp051685y).
+        outlined in the paper *J. Phys. Chem. A* 2005, **109**, 8617-8623 (doi:10.1021/jp051685y).
         Here we compute the effect of vibrations on a specified property given as a n x 2 array
         where one of the columns are the file indexes and the other is the property.
         We use a two and three point difference method to calculate the first and second derivatives
@@ -165,11 +191,190 @@ class ZPVC:
             labeled file corresponding to the file indexes.
 
         Args:
-            uni (:class:`exatomic.Universe`): Universe containing all pertinent data
-            delta (numpy.array): Array of the delta displacement parameters
-            temperature (list): List object containing all of the temperatures of interest
-            geometry (bool): Bool value that tells the program to also calculate the effective geometry
-            print_results(bool): Bool value to print the results from the zpvc calcualtion to stdout
+            gradient (:class:`pandas.DataFrame`): Data frame of the gradients from the calculations.
+            property (:class:`pandas.DataFrame`): Data frame of the properties that were calculated.
+            temperature (:obj:`list`, optional): List object containing all of the temperatures of
+                                                 interest. Defaults to :code:`None` (sets temperature
+                                                 to 0).
+            geometry (:obj:`bool`, optional): Bool value that tells the program to also calculate the
+                                              effective geometry. Defaults to :code:`True`.
+            print_results(:obj:`bool`, optional): Bool value to print the results from the zpvc
+                                                  calcualtion to stdout. Defaults to :code:`False`.
+
+        Examples:
+            This example will use some of the resource files that are used in the tests. This is
+            supposed to be a minimalistic example to explain the different objects that are
+            generated by this method. For a full example starting from generating the displaced
+            structures to extraction and analysis of the data refer to **insert link to example**.
+
+            We will start by importing all of the necessary packages.
+
+            >>> from vibrav.base import resource
+            >>> import pandas as pd
+            >>> import numpy as np
+            >>> import tarfile
+            >>> import glob
+            >>> import os
+
+            Now extract all of the :code:`'*.dat'` files in the resource tarball.
+
+            >>> with tarfile.open(resource('nitromalinamide-zpvc-dat-files.tar.xz'),
+            ...                   'r:xz') as tar:
+            ...     tar.extractall()
+            ... 
+            >>> 
+
+            Now we have all of the data files that are needed by the configuration script to run
+            the :meth:`vibrav.zpvc.ZPVC.zpvc` method. Now we define some constants for easier
+            typing.
+
+            >>> nat = 15
+            >>> nmodes = 3*15 - 6
+            >>> disp = nmodes*2 + 1
+
+            Next we get the gradient and property data from the resource files. Note, the gradient
+            resource file is a single column array. The code is expecting a data frame with four
+            columns with the column names :code:`['fx', 'fy', 'fz', 'file']`. This can also be a
+            :class:`exatomic.core.atom.Gradient` object. The property data must be a two column
+            data frame where one of the columns has the column label :code:`'label'`. The other
+            column is not required to have a specific name.
+
+            >>> df = pd.read_csv(resource('nitromalonamide-zpvc-grad.dat.xz'), header=None
+            ...                  compression='xz')
+            >>> tmp = df.values.reshape(nat*disp, 3)
+            >>> grad = pd.DataFrame(tmp, columns=['fx', 'fy', 'fz'])
+            >>> grad['file'] = np.repeat(range(disp), nat)
+            >>> prop = pd.read_csv(resource('nitromalonamide-zpvc-prop.dat.xz'), header=None,
+            ...                    compression='xz')
+            >>> prop['file'] = prop.index
+
+            Now we have all of the pieces together to be able to run the ZPVC code. All that is
+            left is to initiate the class instance.
+
+            >>> zpvc = ZPVC(config_file=resource('nitromalonamide-zpvc-config.conf'))
+
+            Now we run the ZPVC code.
+
+            >>> zpvc.zpvc(gradient=grad, property=prop, temperature=[0])
+
+            For now we only run this for one temperature to simplify the output. We now have the
+            class attributes :attr:`zpvc_results` and :attr:`vib_average`. Let us print out the
+            :attr:`vib_average` class attribute.
+
+            >>> print(zpvc.vib_average.to_string())
+                     freq  freqdx    anharm     curva       sum  temp
+            0     85.0284       0  0.000000  0.007649  0.007649     0
+            1     89.3751       1 -0.000000 -0.001816 -0.001816     0
+            2    146.1814       2 -0.000000  0.022266  0.022266     0
+            3    217.6824       3 -0.000000  0.001199  0.001199     0
+            4    320.8656       4 -1.079300  0.076429 -1.002872     0
+            5    354.5547       5 -0.171530  0.010393 -0.161137     0
+            6    401.8652       6  0.000964  0.002991  0.003955     0
+            7    418.5204       7  0.000000 -0.012716 -0.012716     0
+            8    425.1060       8 -0.102758  0.009911 -0.092847     0
+            9    433.7701       9  0.000000 -0.022071 -0.022071     0
+            10   461.1199      10 -0.314054  0.074176 -0.239878     0
+            11   485.3209      11  0.000522  0.003446  0.003968     0
+            12   609.5199      12 -0.090530  0.009844 -0.080687     0
+            13   666.6248      13  0.000000 -0.002926 -0.002926     0
+            14   685.1025      14 -0.000000 -0.006440 -0.006440     0
+            15   703.9068      15 -0.362860  0.028033 -0.334827     0
+            16   714.8914      16  0.000000  0.002550  0.002550     0
+            17   725.8531      17  0.000000 -0.005967 -0.005967     0
+            18   762.7554      18 -0.000000 -0.005501 -0.005501     0
+            19   846.2045      19 -0.003575 -0.000841 -0.004416     0
+            20  1075.3188      20 -0.018814  0.004701 -0.014112     0
+            21  1094.5938      21 -0.032282  0.005943 -0.026339     0
+            22  1107.2629      22  0.000000  0.046784  0.046784     0
+            23  1161.5631      23 -0.011198  0.002291 -0.008907     0
+            24  1174.0458      24 -0.020984  0.009741 -0.011243     0
+            25  1265.5979      25 -0.531411  0.183772 -0.347639     0
+            26  1316.6681      26 -0.003551  0.002776 -0.000775     0
+            27  1395.3206      27 -0.001487  0.003657  0.002170     0
+            28  1452.1272      28 -0.002516 -0.001166 -0.003682     0
+            29  1555.7496      29  0.000756 -0.000758 -0.000002     0
+            30  1575.8570      30  0.003893 -0.001330  0.002563     0
+            31  1598.3631      31 -0.003270 -0.012490 -0.015761     0
+            32  1631.1443      32 -0.039127  0.011868 -0.027259     0
+            33  1710.9460      33 -0.054030  0.009701 -0.044329     0
+            34  2255.7412      34 -0.906408  0.403475 -0.502933     0
+            35  3520.1806      35 -0.000387  0.000993  0.000606     0
+            36  3541.9146      36 -0.002419 -0.000220 -0.002639     0
+            37  3686.9440      37 -0.001406  0.000354 -0.001052     0
+            38  3696.3968      38 -0.000614 -0.000124 -0.000738     0
+
+            The information in the columns of the table shown above is as follows:
+
+            - freq: Frequencies of the normal modes. By default these are the same as the input
+              frequencies from the data in the :code:`'frequency_file'`.
+            - freqdx: Frequency indeces in a zero-based python format indexing.
+            - anharm: The anharmonicity of the potential energy surface given by,
+            .. math::
+                    \\Delta P_1 = -\\frac{1}{4} \\sum_{i=1}^{m} \\frac{1}{\\omega_i^2\\sqrt{\\mu_i}}
+                                  \\left(\\frac{\\partial P}{\\partial Q_i}\\right) \\sum_{j=1}^{m}
+                                  \\frac{k_{ijj}}{\\omega_j \\mu_j \\sqrt{\\mu_i}}
+
+
+            - curva: The curvature of the property surface given by,
+            .. math::
+                    \\Delta P_2 = \\frac{1}{4} \\sum_{i=1}{m} \\frac{1}{\\omega_i \\mu_i}
+                                    \\left(\\frac{\\partial^2 P}{\\partial Q_i^2}\\right)
+
+
+            - sum: Summation of the anharmonicity and curvature values.
+            - temp: Temperature at which the calculation was run.
+
+            Now we print the contents of the :attr:`zpvc_results` attribute.
+
+            >>> print(zpvc.zpvc_results.to_string())
+                property      zpvc      zpva  tot_anharm  tot_curva  temp
+            0  13.932882 -2.887802  11.04508   -3.748377   0.860575     0
+
+            The information in the columns above is as follows:
+
+            - property: The property calculated at the equilibrium coordinates.
+            - zpvc: The Zero-Point vibrational correction to be applied on the property.
+            - zpva: The Zero-Point averaged property values. Summation of the :code:`'property'`
+            and :code:`'zpvc'` columns.
+            - tot_anharm: Summation of all of the normal mode contributions to the anharmonicity.
+            - tot_curva: Summation of all of the normal mode contributions to the curvature.
+            - temp: Temperature at which the calculation was run.
+
+            Now we can print the contents of the :attr:`eff_coord` attribute.
+
+            >>> print(zpvc.eff_coord.to_string())
+                set  Z         x         y             z symbol  temp  frame
+            0     0  1  0.343242 -2.168186  3.205383e-09      H     0      0
+            1     1  1 -3.122279 -1.159822 -3.496945e-07      H     0      0
+            2     2  1 -2.603661  0.536159 -9.922190e-09      H     0      0
+            3     3  1  3.307589 -0.342839  1.244102e-08      H     0      0
+            4     4  1  2.390190  1.172662  2.278307e-08      H     0      0
+            5     5  6  1.315911 -0.538146 -1.324874e-09      C     0      0
+            6     6  8  1.403388 -1.824836 -1.411113e-08      O     0      0
+            7     7  7  2.456096  0.168373  1.482704e-08      N     0      0
+            8     8  6 -0.009395  0.061711 -1.115198e-09      C     0      0
+            9     9  6 -1.142284 -0.865999  1.072109e-09      C     0      0
+            10   10  8 -0.887831 -2.122312  8.894732e-09      O     0      0
+            11   11  7 -0.187867  1.468788 -1.620257e-09      N     0      0
+            12   12  8  0.810723  2.219691 -1.043966e-08      O     0      0
+            13   13  8 -1.342229  1.946239  7.251946e-09      O     0      0
+            14   14  7 -2.421288 -0.456714 -4.873884e-09      N     0      0
+
+            All of the columns are defined in :class:`exatomic.core.atom.Atom`.
+
+            The final thing is to see what happens when we run the calculation for more than
+            one temperature.
+
+            >>> zpvc.zpvc(gradient=grad, property=prop, temperature=[0, 100, 200])
+            >>> print(zpvc.zpvc_results.to_string())
+                property      zpvc       zpva  tot_anharm  tot_curva  temp
+            0  13.932882 -2.887802  11.045080   -3.748377   0.860575     0
+            1  13.932882 -2.804743  11.128138   -3.678383   0.873640   100
+            2  13.932882 -2.648282  11.284599   -3.570384   0.922102   200
+
+            The only thing that has changed from the example above is that we have added more
+            rows to the :attr:`zpvc_results` attribute. This will be the case for all of the
+            class attributes printed above.
         """
         config = self.config
         if property.shape[1] != 2:
@@ -231,8 +436,6 @@ class ZPVC:
         smat = pd.DataFrame.from_dict(smat)
         smat.columns = ['dx', 'dy', 'dz']
         smat['freqdx'] = np.repeat(range(nmodes), nat)
-        print(smat.to_string())
-        print(grad.shape, smat.shape)
         # get the gradients multiplied by the normal modes
         delfq_zero, delfq_plus, delfq_minus = self.get_pos_neg_gradients(grad, smat, nmodes)
         if snmodes < nmodes:
@@ -254,12 +457,10 @@ class ZPVC:
         for fdx, sval in enumerate(select_freq):
             kqiii[fdx] = (delfq_plus[fdx][sval] - 2.0 * delfq_zero[fdx][sval] + \
                                                 delfq_minus[fdx][sval]) / (sel_delta[fdx]**2)
-        print(kqiii)
         # calculate anharmonic cubic force constant
         # this will have nmodes rows and snmodes cols
         kqijj = np.divide(delfq_plus - 2.0 * delfq_zero + delfq_minus,
                           np.multiply(sel_delta, sel_delta).reshape(snmodes,1))
-        print(kqijj.T[4])
         # get property values
         prop_grouped = prop.groupby('file')
         # get the property value for the equilibrium coordinate
