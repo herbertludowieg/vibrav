@@ -82,7 +82,7 @@ class Vibronic:
     +------------------+------------------------------------------------------------+----------------+
     | eigvectors_file  | Filepath of the spin-orbit eigenvectors.                   | eigvectors.txt |
     +------------------+------------------------------------------------------------+----------------+
-    | so_cont_tol      | Cut-off parameter for the minimum spin-free contribution   | 1e-12          |
+    | so_cont_tol      | Cut-off parameter for the minimum spin-free contribution   | None           |
     |                  | to each spin-orbit state.                                  |                |
     +------------------+------------------------------------------------------------+----------------+
     '''
@@ -94,7 +94,7 @@ class Vibronic:
                        'angmom_file': ('angmom', str), 'dipole_file': ('dipole', str),
                        'spin_file': ('spin', str), 'quadrupole_file': ('quadrupole', str),
                        'degen_delta': (1e-7, float), 'eigvectors_file': ('eigvectors.txt', str),
-                       'so_cont_tol': (1e-12, float)}
+                       'so_cont_tol': (None, float)}
     @staticmethod
     def check_size(data, size, var_name, dataframe=False):
         '''
@@ -423,6 +423,8 @@ class Vibronic:
         for file in glob(so_file+'-?.txt'):
             idx = int(file.split('-')[-1].replace('.txt', ''))
             df = open_txt(file)
+            # use a mapper as we cannot ensure that the files are found in any
+            # expected order
             df['component'] = idx_map[idx]
             dfs.append(df)
         #so_props = pd.concat(dfs, ignore_index=True)
@@ -453,6 +455,8 @@ class Vibronic:
         boltz_factor = boltz_dist(freq, temp, boltz_tol, boltz_states)
         cols = boltz_factor.columns.tolist()[:-3]
         boltz = np.zeros((boltz_factor.shape[0], 2))
+        # sum the boltzmann factors as we will do the sme thing later on anyway
+        # important when looking at the oscillator strengths
         for freqdx, data in boltz_factor.groupby('freqdx'):
             boltz[freqdx][0] = np.sum([val*(idx) for idx, val in enumerate(data[cols].values[0])])
             boltz[freqdx][1] = np.sum([val*(idx+1) for idx, val in enumerate(data[cols[:-1]].values[0])])
@@ -497,7 +501,8 @@ class Vibronic:
                 compute_d_dq(nstates, eigvectors, dprop_dq_so, dprop_dq)
                 # check if the array is hermitian
                 # this one should be
-                dprop_dq *= tdm_prefac
+                if property == 'electric_dipole':
+                    dprop_dq *= tdm_prefac
                 # generate the full property vibronic states following equation S3 for the reference
                 if eq_cont:
                     raise NotImplementedError
@@ -522,7 +527,7 @@ class Vibronic:
                     print(" ETA:{:.>32s}".format(str(eta)))
                     print("-"*37)
             # calculate the oscillator strengths
-            evib = planck_constant_au * speed_of_light_au * freq[founddx]/Length['cm', 'au']
+            evib = freq[founddx]*Energy['cm^-1', 'Ha']
             initial = np.repeat(range(nstates), nstates)+1
             final = np.tile(range(nstates), nstates)+1
             template = "{:6d}  {:6d}  {:>18.9E}  {:>18.9E}\n".format
