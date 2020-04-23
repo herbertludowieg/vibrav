@@ -191,7 +191,7 @@ class Output(Editor):
         if len(found) > 1:
             raise NotImplementedError("We have found more than one key for the spin-free " \
                                       +"oscillators.")
-        df = self._oscillator_parsing(self, found[0])
+        df = self._oscillator_parsing(found[0])
         self.sf_oscillator = df
 
     def parse_so_oscillator(self):
@@ -205,7 +205,7 @@ class Output(Editor):
         if len(found) > 1:
             raise NotImplementedError("We have found more than one key for the spin-orbit " \
                                       +"oscillators.")
-        df = self._oscillator_parsing(self, found[0])
+        df = self._oscillator_parsing(found[0])
         self.so_oscillator = df
 
     def parse_contribution(self):
