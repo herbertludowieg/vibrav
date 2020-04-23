@@ -1,11 +1,29 @@
 from vibrav.core import Config
 from exa.util.units import Length, Mass, Energy
+from exa.util.constants import Boltzmann_constant as boltzmann
+from exatomic.core.atom import Atom
+from exatomic.base import sym2z
 import numpy as np
 import pandas as pd
 
 class ZPVC:
-    _required_inputs = {}
-    _default_inputs = {}
+    _required_inputs = {'number_of_modes': int, 'number_of_nuclei': int}
+    _default_inputs = {'smatrix_file': ('smatrix.dat', str), 'eqcoord_file': ('eqcoord.dat', str),
+                       'atom_order_file': ('atom_order.dat', str)}
+
+    @staticmethod
+    def _get_temp_factor(temp, freq):
+        if temp > 1e-6:
+            try:
+                factor = freq*Energy['Ha', 'J'] / (2 * boltzmann * temp)
+                temp_fac = np.cosh(factor) / np.sinh(factor)
+            # this should be taken care of by the conditional but always good to
+            # take care of explicitly
+            except ZeroDivisionError:
+                raise ZeroDivisionError("Something seems to have gone wrong with the sinh function")
+        else:
+            temp_fac = 1.
+        return temp_fac
 
     @staticmethod
     def _check_file_continuity(df, prop, nmodes):
@@ -24,7 +42,7 @@ class ZPVC:
         return rdf
 
     @staticmethod
-    def get_pos_neg_gradients(grad, freq):
+    def get_pos_neg_gradients(grad, freq, nmodes):
         '''
         Here we get the gradients of the equilibrium, positive and negative displaced structures.
         We extract them from the gradient dataframe and convert them into normal coordinates
@@ -43,9 +61,10 @@ class ZPVC:
         # generate delta dataframe
         # TODO: make something so delta can be set
         #       possible issues are a user using a different type of delta
-        nmodes = len(freq['freqdx'].drop_duplicates().values)
+        #nmodes = len(smat)
         # get gradient of the equilibrium coordinates
         grad_0 = grouped.get_group(0)
+        print(grad_0.shape)
         # get gradients of the displaced coordinates in the positive direction
         grad_plus = grouped.filter(lambda x: x['file'].drop_duplicates().values in
                                                                         range(1,nmodes+1))
@@ -58,6 +77,7 @@ class ZPVC:
                                     np.sum(np.multiply(grad_0[['fx', 'fy', 'fz']].values, x.values))).values
         # we extend the size of this 1d array as we will perform some matrix summations with the
         # other outputs from this method
+        print(delfq_zero.shape, snmodes)
         delfq_zero = np.tile(delfq_zero, snmodes).reshape(snmodes, nmodes)
 
         delfq_plus = grad_plus.groupby('file')[['fx', 'fy', 'fz']].apply(lambda x:
@@ -128,7 +148,7 @@ class ZPVC:
         frequencies = np.sqrt(vqi).reshape(snmodes,)*Energy['Ha', 'cm^-1']
         return frequencies
 
-    def zpvc(self, gradients, property, delta, temperature=None, geometry=True, print_results=False):
+    def zpvc(self, gradient, property, temperature=None, geometry=True, print_results=False):
         """
         Method to compute the Zero-Point Vibrational Corrections. We implement the equations as
         outlined in the paper J. Phys. Chem. A 2005, 109, 8617-8623 (doi:10.1021/jp051685y).
@@ -153,8 +173,8 @@ class ZPVC:
         """
         config = self.config
         if property.shape[1] != 2:
-            raise ValueError("Property dataframe must have a second dimension of 2 not {}".format(
-                                                                                    self.property.shape[1]))
+            raise ValueError("Property dataframe must have a second dimension of 2 not " \
+                             +"{}".format(self.property.shape[1]))
         if temperature is None: temperature = [0]
         # get the total number of normal modes
         nmodes = config.number_of_modes
@@ -167,7 +187,6 @@ class ZPVC:
             tmp = grad.groupby('file').get_group(0)
         except KeyError:
             raise KeyError("Equilibrium coordinate gradients not found")
-
         try:
             tmp = prop.groupby('file').get_group(0)
         except KeyError:
@@ -186,28 +205,47 @@ class ZPVC:
             # overwrite the property and gradient dataframes
             grad = grad[grad['file'].isin(df['file'])]
             prop = prop[prop['file'].isin(df['file'])]
-        # get the gradients multiplied by the normal modes
-        delfq_zero, delfq_plus, delfq_minus = self.get_pos_neg_gradients(grad, uni.frequency.copy())
         # get the selected frequencies
         select_freq = grad[grad['file'].isin(range(1,nmodes+1))]
         select_freq = select_freq['file'].drop_duplicates().values - 1
         snmodes = len(select_freq)
-        #print(select_freq, snmodes)
         # get the actual frequencies
         # TODO: check if we should use the real or calculated frequencies
-        frequencies = uni.frequency_ext['freq'].values*Energy['cm^-1','Ha']
-        rmass = uni.frequency_ext['r_mass'].values*Mass['u', 'au_mass']
+        frequencies = pd.read_csv(config.frequency_file, header=None).values.reshape(-1,)
+        frequencies *= Energy['cm^-1','Ha']
+        rmass = pd.read_csv(config.reduced_mass_file, header=None).values.reshape(-1,)
+        rmass *= Mass['u', 'au_mass']
+        delta = pd.read_csv(config.delta_file, header=None).values.reshape(-1,)
+        eqcoord = pd.read_csv(config.eqcoord_file, header=None).values.reshape(-1,)
+        nat = int(eqcoord.shape[0]/3)
+        if nat != eqcoord.shape[0]/3.:
+            raise ValueError("Something is wrong with the eqcoord file.")
+        eqcoord = eqcoord.reshape(nat, 3)
+        atom_symbols = pd.read_csv(config.atom_order_file, header=None).values.reshape(-1,)
+        eqcoord = pd.DataFrame(eqcoord, columns=['x', 'y', 'z'])
+        eqcoord['symbol'] = atom_symbols
+        eqcoord['frame'] = 0
+        eqcoord = Atom(eqcoord)
+        smat = pd.read_csv(config.smatrix_file, header=None).values
+        smat = smat.reshape(nmodes*nat, 3)
+        smat = pd.DataFrame.from_dict(smat)
+        smat.columns = ['dx', 'dy', 'dz']
+        smat['freqdx'] = np.repeat(range(nmodes), nat)
+        print(smat.to_string())
+        print(grad.shape, smat.shape)
+        # get the gradients multiplied by the normal modes
+        delfq_zero, delfq_plus, delfq_minus = self.get_pos_neg_gradients(grad, smat, nmodes)
         if snmodes < nmodes:
             raise NotImplementedError("We do not currently have support to handle missing frequencies")
-            sel_delta = delta[select_freq]
-            sel_rmass = uni.frequency_ext['r_mass'].values[select_freq]*Mass['u', 'au_mass']
-            sel_freq = uni.frequency_ext['freq'].values[select_freq]*Energy['cm^-1','Ha']
+            #sel_delta = delta[select_freq]
+            #sel_rmass = uni.frequency_ext['r_mass'].values[select_freq]*Mass['u', 'au_mass']
+            #sel_freq = uni.frequency_ext['freq'].values[select_freq]*Energy['cm^-1','Ha']
         else:
             sel_delta = delta
             sel_rmass = rmass
             sel_freq = frequencies
         _ = self.calculate_frequencies(delfq_zero, delfq_plus, delfq_minus, sel_rmass, select_freq,
-                                                 sel_delta)
+                                       sel_delta)
         # calculate cubic force constant
         # we use a for loop because we need the diagonal values
         # if we select a specific number of modes then the diagonal elements
@@ -216,10 +254,12 @@ class ZPVC:
         for fdx, sval in enumerate(select_freq):
             kqiii[fdx] = (delfq_plus[fdx][sval] - 2.0 * delfq_zero[fdx][sval] + \
                                                 delfq_minus[fdx][sval]) / (sel_delta[fdx]**2)
+        print(kqiii)
         # calculate anharmonic cubic force constant
         # this will have nmodes rows and snmodes cols
         kqijj = np.divide(delfq_plus - 2.0 * delfq_zero + delfq_minus,
                           np.multiply(sel_delta, sel_delta).reshape(snmodes,1))
+        print(kqijj.T[4])
         # get property values
         prop_grouped = prop.groupby('file')
         # get the property value for the equilibrium coordinate
@@ -241,9 +281,9 @@ class ZPVC:
         # done with setting up everything
         # moving on to the actual calculations
 
-        atom_frames = uni.atom['frame'].values
-        eqcoord = uni.atom.groupby('frame').get_group(atom_frames[-1])[['x','y','z']].values
-        atom_order = uni.atom['symbol']
+        #atom_frames = uni.atom['frame'].values
+        #eqcoord = uni.atom.groupby('frame').get_group(atom_frames[-1])[['x','y','z']].values
+        atom_order = eqcoord['symbol']
         coor_dfs = []
         zpvc_dfs = []
         va_dfs = []
@@ -291,8 +331,8 @@ class ZPVC:
             if geometry:
                 # calculate the effective geometry
                 # we do not check this at the beginning as it will not always be computed
-                if not hasattr(uni, 'atom'):
-                    raise AttributeError("Please set the atom dataframe")
+                #if not hasattr(uni, 'atom'):
+                #    raise AttributeError("Please set the atom dataframe")
                 sum_to_eff_geo = np.zeros((eqcoord.shape[0], 3))
                 for i in range(snmodes):
                     temp1 = 0.0
@@ -302,9 +342,9 @@ class ZPVC:
                         temp1 += kqijj[j][i]/(frequencies[j]*rmass[j]*np.sqrt(sel_rmass[i])) * temp_fac
                     # get the temperature correction to the geometry in Bohr
                     sum_to_eff_geo += -0.25 * temp1 / (sel_freq[i]**2 * np.sqrt(sel_rmass[i])) * \
-                                        uni.frequency.groupby('freqdx').get_group(i)[['dx','dy','dz']].values
+                                        smat.groupby('freqdx').get_group(i)[['dx','dy','dz']].values
                 # get the effective geometry
-                tmp_coord = np.transpose(eqcoord + sum_to_eff_geo)
+                tmp_coord = np.transpose(eqcoord[['x', 'y', 'z']].values + sum_to_eff_geo)
                 # generate one of the coordinate dataframes
                 # we write the frame to be the same as the temp column so that one can take
                 # advantage of the exatomic.core.atom.Atom.to_xyz method
@@ -326,8 +366,8 @@ class ZPVC:
                     print(xyz.to_string(**stargs))
         if geometry:
             self.eff_coord = pd.concat(coor_dfs, ignore_index=True)
-        self.zpvc_results = pd.DataFrame(zpvc_dfs,
-                                         columns=['property', 'zpvc', 'zpva', 'tot_anharm', 'tot_curva', 'temp'])
+        self.zpvc_results = pd.DataFrame(zpvc_dfs, columns=['property', 'zpvc', 'zpva', 'tot_anharm', 
+                                                            'tot_curva', 'temp'])
         self.vib_average = pd.concat(va_dfs, ignore_index=True)
 
     def __init__(self, config_file, *args, **kwargs):
