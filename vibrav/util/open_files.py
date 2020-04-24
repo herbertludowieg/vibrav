@@ -14,6 +14,9 @@
 # along with vibrav.  If not, see <https://www.gnu.org/licenses/>.
 import pandas as pd
 import numpy as np
+import os
+import warnings
+import re
 
 def open_txt(fp, rearrange=True, **kwargs):
     '''
@@ -71,4 +74,62 @@ def open_txt(fp, rearrange=True, **kwargs):
     else:
         matrix = df.copy()
     return matrix
+
+def get_all_data(cls, path, property, f_start='', f_end=''):
+    '''
+    Function to get all of the data from the files in a specific directory.
+    It will look for all of the files that match the given `f_start`
+    and `f_end` input parameters and try to extract the information
+    for the given `property` with the `cls` parser class.
+
+    Note:
+        We recommend that the convention used in creating the different
+        files is such that there is an idex to each file to keep track of
+        the data that corresponds to the specific file. The program, when
+        attempting to find the index of the file, will find all of the
+        integers in the filename and assume that the last entry is the
+        file index. It will give a warning if it finds more than one
+        integer group in the filename to tell the user that it will
+        assume that the last group of integers found is the file index.
+
+    Parameters:
+        cls (class object): Class object of the output parser of choice.
+        path (:obj:`str`): Path to the directory containing all of the
+                           output files.
+        property (:obj:`str`): Property of interest to parse.
+        f_start (:obj:`str`): Starting string to match the output files.
+                              Defaults to :code:`''`.
+        f_end (:obj:`str`): Ending string to match the output files.
+                            Defaults to :code:`''`.
+
+    Returns:
+        data (:class:`pandas.DataFrame`): Data frame with all of the parsed data.
+
+    Raises:
+        ValueError: If the program cannot find any data or files that
+                    match the input parameters.
+    '''
+    dfs = []
+    for (_, _, files) in os.walk(path):
+        for file in files:
+            filename = os.path.join(path, file)
+            if os.path.isfile(filename) and file.startswith(f_start) and file.endswith(f_end):
+                ed = cls(filename)
+                try:
+                    df = getattr(ed, property)
+                except AttributeError:
+                    print("The property {} cannot be found in the output {}.".format(property, filename))
+                    continue
+                fdx = list(map(int, re.findall('\d+', file.replace(f_start, '').replace(f_end, ''))))
+                if len(fdx) > 1:
+                    warnings.warn("More than one index was found in the filename. Will assume that the " \
+                                  +"file index is the last number found.", Warning)
+                df['file'] = fdx[-1]
+            else:
+                continue
+            dfs.append(df)
+    if len(dfs) == 0:
+        raise ValueError("No data was found in the directory {}".format(path))
+    data = pd.concat(dfs, ignore_index=True)
+    return data
 
