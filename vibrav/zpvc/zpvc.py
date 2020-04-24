@@ -379,13 +379,17 @@ class ZPVC:
         config = self.config
         if property.shape[1] != 2:
             raise ValueError("Property dataframe must have a second dimension of 2 not " \
-                             +"{}".format(self.property.shape[1]))
+                             +"{}".format(property.shape[1]))
         if temperature is None: temperature = [0]
         # get the total number of normal modes
         nmodes = config.number_of_modes
+        if property.shape[0] != 2*nmodes+1:
+            raise ValueError("The number of entries in the property data frame must " \
+                             +"be twice the number of normal modes plus one, currently " \
+                             +"{}".format(property.shape[0]))
         # check for any missing files and remove the respective counterpart
-        grad = self._check_file_continuity(gradient, 'gradient', nmodes)
-        prop = self._check_file_continuity(property, 'property', nmodes)
+        grad = self._check_file_continuity(gradient.copy(), 'gradient', nmodes)
+        prop = self._check_file_continuity(property.copy(), 'property', nmodes)
         # check that the equlibrium coordinates are included
         # these are required for the three point difference methods
         try:
@@ -532,8 +536,6 @@ class ZPVC:
             if geometry:
                 # calculate the effective geometry
                 # we do not check this at the beginning as it will not always be computed
-                #if not hasattr(uni, 'atom'):
-                #    raise AttributeError("Please set the atom dataframe")
                 sum_to_eff_geo = np.zeros((eqcoord.shape[0], 3))
                 for i in range(snmodes):
                     temp1 = 0.0
