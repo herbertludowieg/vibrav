@@ -90,7 +90,7 @@ class Displace(metaclass=DispMeta):
     as it may reduce number of computations and memory usage significantly.
 
     Args:
-        uni (:class:`~exatomic.Universe`): Universe object containg pertinent data
+        cls (:class:`~exatomic.Universe`): Universe object containg pertinent data
         delta_type (int): Integer value to define the type of delta parameter to use
         fdx (int or list): Integer or list parameter to only displace along the
                            selected normal modes
@@ -197,22 +197,22 @@ class Displace(metaclass=DispMeta):
             for item in array:
                 f.write("{}\n".format(item))
 
-    def create_data_files(self, uni, path=None, config=None):
+    def create_data_files(self, cls, path=None, config=None):
         '''
         Method to create the .dat files that are needed to perform the calculations for
         vibrational averaging.
 
         Args:
-            uni (:class:`exatomic.Universe`): Universe object that has the frequency and atom
+            cls (:class:`exatomic.Universe`): Universe object that has the frequency and atom
                                               dataframes.
             path (:obj:`str`, optional): Path to save the files to. Defaults to `None`.
             config (:obj:`str`, optional): Path to base config file. Defaults to `None`.
         '''
         if path is None: path = os.getcwd()
-        freq = uni.frequency.copy()
-        atom = uni.atom.last_frame.copy()
+        freq = cls.frequency.copy()
+        atom = cls.atom.last_frame.copy()
         nat = atom.shape[0]
-        fdxs = uni.frequency['freqdx'].drop_duplicates().index.values
+        fdxs = cls.frequency['freqdx'].drop_duplicates().index.values
         # construct delta data file
         fn = "delta.dat"
         delta = self.delta['delta'].values
@@ -228,7 +228,7 @@ class Displace(metaclass=DispMeta):
         # construct reduced mass data file
         fn = "redmass.dat"
         try:
-            freq_ext = uni.frequency_ext.copy()
+            freq_ext = cls.frequency_ext.copy()
             redmass = freq_ext['r_mass'].values
         except AttributeError:
             try:
@@ -277,8 +277,8 @@ class Displace(metaclass=DispMeta):
             with open(mkp(path, config), 'a') as fn:
                 fn.write(text)
 
-    def __init__(self, uni, *args, **kwargs):
-        if not hasattr(uni, 'frequency'):
+    def __init__(self, cls, *args, **kwargs):
+        if not hasattr(cls, 'frequency'):
             raise AttributeError("Frequency dataframe cannot be found in universe")
         delta_type = kwargs.pop("delta_type", 0)
         fdx = kwargs.pop("fdx", -1)
@@ -287,9 +287,9 @@ class Displace(metaclass=DispMeta):
         config = kwargs.pop("config", None)
         if isinstance(fdx, int):
             fdx = [fdx]
-        freq = uni.frequency.copy()
-        atom = uni.atom.copy()
+        freq = cls.frequency.copy()
+        atom = cls.atom.copy()
         self.delta = gen_delta(freq, delta_type, disp, norm)
         self.disp = self.gen_displaced(freq, atom, fdx)
-        self.create_data_files(uni, config=config)
+        self.create_data_files(cls, config=config)
 
