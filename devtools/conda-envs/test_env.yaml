@@ -21,4 +21,5 @@ dependencies:
         - travis-sphinx
         - exa
         - sphinx_bootstrap_theme
+        - nbsphinx
 
