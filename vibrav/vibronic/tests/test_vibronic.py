@@ -20,9 +20,7 @@ def test_vibronic_coupling(freqdx):
                           write_energy=False, verbose=False, eq_cont=False, select_fdx=freqdx)
     base_oscil = open_txt(resource('molcas-ucl6-2minus-oscillators.txt.xz'), compression='xz',
                           rearrange=False)
-    test_oscil = open_txt(os.path.join('vibronic-outputs', 'oscillators.txt'), rearrange=False)
-    os.chdir(parent)
-    shutil.rmtree('molcas-ucl6-2minus-vibronic-coupling')
+    test_oscil = open_txt(os.path.join('vibronic-outputs', 'oscillators-0.txt'), rearrange=False)
     cols = ['nrow', 'ncol', 'oscil', 'energy']
     if freqdx[0] == -1:
         freqdx = range(15)
@@ -31,4 +29,14 @@ def test_vibronic_coupling(freqdx):
     test = test_oscil.groupby('sign').filter(lambda x: x['sign'].unique()
                                                        in ['minus', 'plus'])[cols].values
     assert np.allclose(base, test)
+    # test that the individual components average to the isotropic value
+    sum_oscil = np.zeros(base.shape[0])
+    for idx in range(1, 4):
+        df = open_txt(os.path.join('vibronic-outputs', 'oscillators-{}.txt'.format(idx)),
+                      rearrange=False)
+        sum_oscil += df['oscil'].values
+    sum_oscil /= 3.
+    assert np.allclose(base[:,2], sum_oscil)
+    os.chdir(parent)
+    shutil.rmtree('molcas-ucl6-2minus-vibronic-coupling')
 
