@@ -470,6 +470,24 @@ class Vibronic:
             formatters = ['{:.7f}'.format, '{:.7f}'.format, '{:d}'.format, '{:.7f}'.format]
             print(boltz.to_string(index=False, formatters=formatters))
             print('-'*80)
+        # create the vibronic-outputs directory if not available
+        vib_dir = 'vibronic-outputs'
+        if not os.path.exists(vib_dir):
+            os.mkdir(vib_dir)
+        # initialize the oscillator files
+        if write_oscil:
+            osc_tmp = 'oscillators-{}.txt'.format
+            header = "{:>5s} {:>5s} {:>24s} {:>24s} {:>6s} {:>7s}".format
+            oscil_formatters = ['{:>5d}'.format]*2+['{:>24.16E}'.format]*2 \
+                               +['{:>6d}'.format, '{:>7s}'.format]
+            with open(os.path.join(vib_dir, osc_tmp(0)), 'w') as fn:
+                fn.write(header('#NROW', 'NCOL', 'OSCIL', 'ENERGY', 'FREQDX', 'SIGN'))
+            with open(os.path.join(vib_dir, osc_tmp(1)), 'w') as fn:
+                fn.write(header('#NROW', 'NCOL', 'OSCIL', 'ENERGY', 'FREQDX', 'SIGN'))
+            with open(os.path.join(vib_dir, osc_tmp(2)), 'w') as fn:
+                fn.write(header('#NROW', 'NCOL', 'OSCIL', 'ENERGY', 'FREQDX', 'SIGN'))
+            with open(os.path.join(vib_dir, osc_tmp(3)), 'w') as fn:
+                fn.write(header('#NROW', 'NCOL', 'OSCIL', 'ENERGY', 'FREQDX', 'SIGN'))
         for fdx, founddx in enumerate(found_modes):
             vib_prop = np.zeros((2, ncomp, nstates, nstates), dtype=np.complex128)
             vib_start = time()
@@ -576,18 +594,37 @@ class Vibronic:
                     print("-----------------------------------")
                 # finally get the oscillator strengths from equation S12
                 to_drop = ['component', 'freqdx', 'sign', 'prop']
+                nrow = np.repeat(range(nstates), nstates) + 1
+                ncol = np.tile(range(nstates), nstates) + 1
                 for idx, (val, sign) in enumerate(zip([-1, 1], ['minus', 'plus'])):
                     boltz_factor = boltz.loc[founddx, sign]
-                    absorption = np.zeros(nstates*nstates, dtype=np.float64)
-                    for component in vibronic_prop[fdx][idx]:
-                        absorption += abs2(component)
+                    absorption = abs2(vib_prop[idx].reshape(ncomp, nstates*nstates))
+                    #for component in vib_prop[idx]:
+                    #    absorption += abs2(component.flatten())
                     # get the transition energies
                     energy = energies_so.reshape(-1,) - energies_so.reshape(-1,1) + val*evib
                     energy = energy.flatten()
                     self.check_size(energy, (nstates*nstates,), 'energy')
-                    self.check_size(absorption, (nstates*nstates,), 'absorption')
-                    oscil[fdx][idx] = boltz_factor * 2./3. * compute_oscil_str(absorption, energy)
-                    delta_E[fdx][idx] = energy
+                    self.check_size(absorption, (ncomp, nstates*nstates), 'absorption')
+                    oscil = boltz_factor * 2./3. * compute_oscil_str(np.sum(absorption, axis=0), energy)
+                    df = pd.DataFrame.from_dict({'nrow': nrow, 'ncol': ncol, 'oscil': oscil,
+                                                 'energy': energy})
+                    #df = df.loc[df['energy'] > 0.0]
+                    df['freqdx'] = founddx
+                    df['sign'] = sign
+                    filename = os.path.join('vibronic-outputs', 'oscillators-0.txt')
+                    with open(filename, 'a') as fn:
+                        fn.write('\n'+df.to_string(formatters=oscil_formatters, header=None, index=None))
+                    for idx, component in enumerate(absorption):
+                        oscil = boltz_factor * 2. * compute_oscil_str(component, energy)
+                        df = pd.DataFrame.from_dict({'nrow': nrow, 'ncol': ncol, 'oscil': oscil,
+                                                     'energy': energy})
+                        #df = df.loc[df['energy'] > 0.0]
+                        df['freqdx'] = founddx
+                        df['sign'] = sign
+                        filename = os.path.join('vibronic-outputs', 'oscillators-{}.txt'.format(idx+1))
+                        with open(filename, 'a') as fn:
+                            fn.write('\n'+df.to_string(formatters=oscil_formatters, header=None, index=None))
             else:
                 write_oscil = False
                 for idx, val in enumerate([-1, 1]):
@@ -750,7 +787,7 @@ class Vibronic:
             if print_stdout:
                 print('='*68)
         # write the oscillators to file if available
-        if write_oscil:
+        if False:
             if print_stdout:
                 print('='*68)
                 print("Writing vibronic oscillators to file")
