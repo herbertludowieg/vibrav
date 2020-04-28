@@ -72,10 +72,10 @@ def boltz_dist(energies, temp, tol=1e-6, states=None, ignore_max=False):
         >>> temp = 40
         >>> freq = [100, 200, 300]
         >>> boltz_dist(energies=freq, temp=temp, states=None)
-                  0         1             2             3  freqdx  partition  energy
-        0  0.972593  0.026656  7.305767e-04  2.002318e-05       0   1.028179     100
-        1  0.999249  0.000751  5.638231e-07  4.235235e-10       1   1.000752     200
-        2  0.999979  0.000021  4.238331e-10  8.725631e-15       2   1.000021     300
+                  0         1             2        3  freqdx  partition  energy
+        0  0.972593  0.026656  7.305767e-04  0.00002       0   1.028179     100
+        1  0.999249  0.000751  5.638231e-07  0.00000       1   1.000752     200
+        2  0.999979  0.000021  0.000000e+00  0.00000       2   1.000021     300
 
         Notice, that in the example above, the threshold is only applied to the lowest energy
         and all higher energies calculate the same number of states even when the threshold is
@@ -139,11 +139,13 @@ def boltz_dist(energies, temp, tol=1e-6, states=None, ignore_max=False):
         # termination conditions
         if def_states:
             while (_boltzmann(freq, nu, temp) > tol or nu < max_nu) and nu < 1e3:
-                boltz_factors[-1].append(_boltzmann(freq, nu, temp))
+                factor = _boltzmann(freq, nu, temp)
+                boltz_factors[-1].append(factor if factor > tol*1e-3 else 0.0)
                 nu += 1
         else:
             while nu < max_nu:
-                boltz_factors[-1].append(_boltzmann(freq, nu, temp))
+                factor = _boltzmann(freq, nu, temp)
+                boltz_factors[-1].append(factor if factor > tol*1e-3 else 0.0)
                 nu += 1
         if nu >= 1e3 and not ignore_max:
             raise ValueError("There is something wrong with this frequency ({}) and ".format(freq) \
