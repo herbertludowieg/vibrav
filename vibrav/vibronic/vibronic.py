@@ -588,7 +588,7 @@ class Vibronic:
                     for energy in energies:
                         fn.write('{:.9E}\n'.format(energy))
             signs = ['minus', 'none', 'plus']
-            if (property == 'electric_dipole' or property == 'magnetic_dipole') and write_oscil:
+            if (property.replace('_', '-') == 'electric-dipole') and write_oscil:
                 if print_stdout and verbose:
                     print(" Computing the oscillator strengths")
                     print("-----------------------------------")
@@ -599,8 +599,6 @@ class Vibronic:
                 for idx, (val, sign) in enumerate(zip([-1, 1], ['minus', 'plus'])):
                     boltz_factor = boltz.loc[founddx, sign]
                     absorption = abs2(vib_prop[idx].reshape(ncomp, nstates*nstates))
-                    #for component in vib_prop[idx]:
-                    #    absorption += abs2(component.flatten())
                     # get the transition energies
                     energy = energies_so.reshape(-1,) - energies_so.reshape(-1,1) + val*evib
                     energy = energy.flatten()
@@ -609,7 +607,6 @@ class Vibronic:
                     oscil = boltz_factor * 2./3. * compute_oscil_str(np.sum(absorption, axis=0), energy)
                     df = pd.DataFrame.from_dict({'nrow': nrow, 'ncol': ncol, 'oscil': oscil,
                                                  'energy': energy})
-                    #df = df.loc[df['energy'] > 0.0]
                     df['freqdx'] = founddx
                     df['sign'] = sign
                     filename = os.path.join('vibronic-outputs', 'oscillators-0.txt')
@@ -619,7 +616,6 @@ class Vibronic:
                         oscil = boltz_factor * 2. * compute_oscil_str(component, energy)
                         df = pd.DataFrame.from_dict({'nrow': nrow, 'ncol': ncol, 'oscil': oscil,
                                                      'energy': energy})
-                        #df = df.loc[df['energy'] > 0.0]
                         df['freqdx'] = founddx
                         df['sign'] = sign
                         filename = os.path.join('vibronic-outputs', 'oscillators-{}.txt'.format(idx+1))
