@@ -130,55 +130,55 @@ class Vibronic:
 
     def magnetic_oscillator(self):
         raise NotImplementedError("Needs to be fixed!!!")
-        config = self.config
-        nstates = self.nstates
-        oscil_states = int(config.oscillator_spin_states)
-        speed_of_light_au = speed_of_light * Length['m', 'au'] / Time['s', 'au']
-        # read in the spin-orbit energies
-        energies_so = pd.read_csv(config.so_energies_file, header=None,
-                                  comment='#').values.reshape(-1,)
-        # read in all of the angular momentum data and check size
-        ang_x = open_txt('angmom-1.txt').values
-        self.check_size(ang_x, (nstates, nstates), 'ang_x')
-        ang_y = open_txt('angmom-2.txt').values
-        self.check_size(ang_y, (nstates, nstates), 'ang_y')
-        ang_z = open_txt('angmom-3.txt').values
-        self.check_size(ang_z, (nstates, nstates), 'ang_z')
-        # read in all of the spin data and check size
-        spin_x = open_txt('spin-1.txt').values
-        self.check_size(spin_x, (nstates, nstates), 'spin_x')
-        spin_y = open_txt('spin-2.txt').values
-        self.check_size(spin_y, (nstates, nstates), 'spin_y')
-        spin_z = open_txt('spin-3.txt').values
-        self.check_size(spin_z, (nstates, nstates), 'spin_z')
-        # allocate data for x y and z components of magnetic dipoles
-        mx = np.zeros((nstates, nstates), dtype=np.complex128)
-        my = np.zeros((nstates, nstates), dtype=np.complex128)
-        mz = np.zeros((nstates, nstates), dtype=np.complex128)
-        # calclulate each element
-        mx = (1/2) * (ang_x*1j + 2*spin_x)
-        my = (1/2) * (ang_y*1j + 2j*spin_y)
-        mz = (1/2) * (ang_z*1j + 2*spin_z)
-        # allocate memory for magnetic dipoles
-        mdip = np.zeros((nstates, nstates), dtype=np.float64)
-        # calculate the magnetic dipoles
-        mdip = self._abs2(mx) + self._abs2(my) + self._abs2(mz)
-        # allocate memory for magnetic oscillator strengths
-        oscil = np.zeros((oscil_states, oscil_states), dtype=np.float64)
-        delta_E = np.zeros((oscil_states, oscil_states), dtype=np.float64)
-        # calculate the magnetic oscillator strengths
-        osc_prefac = (2/3) * (1/speed_of_light_au**2)
-        compute_mag_oscil_str(oscil_states, energies_so, 0, osc_prefac, mx, my, mz, oscil, delta_E)
-        #oscil = (2/3) * (1/speed_of_light_au**2) \
-        #            * np.repeat(ed.soc_energies['e_cm^-1'], nstates).reshape(nstates, nstates) \
-        #            * Energy['cm^-1', 'Ha'] * mdip
-        initial = np.repeat(range(oscil_states), oscil_states)
-        final = np.tile(range(oscil_states), oscil_states)
-        delta_E *= Energy['Ha', 'cm^-1']
-        df = pd.DataFrame.from_dict({'initial': initial, 'final': final,
-                                     'delta_E': delta_E.reshape(-1,),
-                                     'oscillator': oscil.reshape(-1,)})
-        self.mag_oscil = df
+        #config = self.config
+        #nstates = self.nstates
+        #oscil_states = int(config.oscillator_spin_states)
+        #speed_of_light_au = speed_of_light * Length['m', 'au'] / Time['s', 'au']
+        ## read in the spin-orbit energies
+        #energies_so = pd.read_csv(config.so_energies_file, header=None,
+        #                          comment='#').values.reshape(-1,)
+        ## read in all of the angular momentum data and check size
+        #ang_x = open_txt('angmom-1.txt').values
+        #self.check_size(ang_x, (nstates, nstates), 'ang_x')
+        #ang_y = open_txt('angmom-2.txt').values
+        #self.check_size(ang_y, (nstates, nstates), 'ang_y')
+        #ang_z = open_txt('angmom-3.txt').values
+        #self.check_size(ang_z, (nstates, nstates), 'ang_z')
+        ## read in all of the spin data and check size
+        #spin_x = open_txt('spin-1.txt').values
+        #self.check_size(spin_x, (nstates, nstates), 'spin_x')
+        #spin_y = open_txt('spin-2.txt').values
+        #self.check_size(spin_y, (nstates, nstates), 'spin_y')
+        #spin_z = open_txt('spin-3.txt').values
+        #self.check_size(spin_z, (nstates, nstates), 'spin_z')
+        ## allocate data for x y and z components of magnetic dipoles
+        #mx = np.zeros((nstates, nstates), dtype=np.complex128)
+        #my = np.zeros((nstates, nstates), dtype=np.complex128)
+        #mz = np.zeros((nstates, nstates), dtype=np.complex128)
+        ## calclulate each element
+        #mx = (1/2) * (ang_x*1j + 2*spin_x)
+        #my = (1/2) * (ang_y*1j + 2j*spin_y)
+        #mz = (1/2) * (ang_z*1j + 2*spin_z)
+        ## allocate memory for magnetic dipoles
+        #mdip = np.zeros((nstates, nstates), dtype=np.float64)
+        ## calculate the magnetic dipoles
+        #mdip = self._abs2(mx) + self._abs2(my) + self._abs2(mz)
+        ## allocate memory for magnetic oscillator strengths
+        #oscil = np.zeros((oscil_states, oscil_states), dtype=np.float64)
+        #delta_E = np.zeros((oscil_states, oscil_states), dtype=np.float64)
+        ## calculate the magnetic oscillator strengths
+        #osc_prefac = (2/3) * (1/speed_of_light_au**2)
+        #compute_mag_oscil_str(oscil_states, energies_so, 0, osc_prefac, mx, my, mz, oscil, delta_E)
+        ##oscil = (2/3) * (1/speed_of_light_au**2) \
+        ##            * np.repeat(ed.soc_energies['e_cm^-1'], nstates).reshape(nstates, nstates) \
+        ##            * Energy['cm^-1', 'Ha'] * mdip
+        #initial = np.repeat(range(oscil_states), oscil_states)
+        #final = np.tile(range(oscil_states), oscil_states)
+        #delta_E *= Energy['Ha', 'cm^-1']
+        #df = pd.DataFrame.from_dict({'initial': initial, 'final': final,
+        #                             'delta_E': delta_E.reshape(-1,),
+        #                             'oscillator': oscil.reshape(-1,)})
+        #self.mag_oscil = df
 
     def vibronic_coupling(self, property, write_property=True, write_energy=True, write_oscil=True,
                           print_stdout=True, temp=298, eq_cont=False, verbose=False,
