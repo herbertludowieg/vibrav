@@ -19,7 +19,8 @@ Code index:
 
 .. include:: modules.txt
 
-# Indices and tables
+Indices and tables
+------------------
 
 * :ref:`genindex`
 * :ref:`modindex`
