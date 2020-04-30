@@ -258,6 +258,80 @@ class Vibronic:
         delta = pd.read_csv(config.delta_file, header=None)
         rmass = pd.read_csv(config.reduced_mass_file, header=None)
         freq = pd.read_csv(config.frequency_file, header=None).values.reshape(-1,)
+        nmodes = config.number_of_modes
+        # calculate the boltzmann factors
+        boltz_factor = boltz_dist(freq, temp, boltz_tol, boltz_states)
+        cols = boltz_factor.columns.tolist()[:-3]
+        boltz = np.zeros((boltz_factor.shape[0], 2))
+        # sum the boltzmann factors as we will do the sme thing later on anyway
+        # important when looking at the oscillator strengths
+        for freqdx, data in boltz_factor.groupby('freqdx'):
+            boltz[freqdx][0] = np.sum([val*(idx) for idx, val in enumerate(data[cols].values[0])])
+            boltz[freqdx][1] = np.sum([val*(idx+1) for idx, val in enumerate(data[cols[:-1]].values[0])])
+        boltz = pd.DataFrame(boltz, columns=['minus', 'plus'])
+        boltz['freqdx'] = boltz_factor['freqdx']
+        boltz['partition'] = boltz_factor['partition']
+        if print_stdout:
+            tmp = boltz_factor.copy()
+            tmp = tmp[tmp.columns[:-3]]
+            tmp = tmp.T
+            tmp.index = pd.Index(range(tmp.shape[0]), name='state')
+            tmp.columns = boltz_factor['freqdx']
+            formatters = ['{:11.7f}'.format]*nmodes
+            print_cols = 6
+            start = 0
+            end = print_cols
+            text = " Printing Boltzmann populations for each normal mode with the\n" \
+                  +" energies from the {} file.".format(config.frequency_file)
+            print('='*78)
+            print(text)
+            print('-'*78)
+            while end <= nmodes:
+                cols = range(start, end)
+                tmp1 = tmp[cols]
+                tmp1 = tmp1.loc[tmp1[cols[0]].values.round(8) != 0]
+                formatters = ['{:11.7f}'.format]*len(cols)
+                print(tmp1.to_string(formatters=formatters, columns=cols))
+                start += print_cols
+                end += print_cols
+                print('')
+            else:
+                cols = range(start, nmodes)
+                tmp1 = tmp[cols]
+                tmp1 = tmp1.loc[tmp1[cols[0]].values.round(8) != 0]
+                formatters = ['{:11.7f}'.format]*len(cols)
+                print(tmp1.to_string(formatters=formatters, columns=cols))
+            print('='*78)
+            formatters = ['{:11.7f}'.format]*nmodes
+            tmp = boltz.copy()
+            tmp.index = tmp['freqdx']
+            tmp.drop(['freqdx'], inplace=True, axis=1)
+            tmp = tmp.T
+            start = 0
+            end = print_cols
+            print('\n\n')
+            text = " Printing the Boltzmann weighting for the plus an minus displaced\n" \
+                  +" and the respective partition function for each normal mode."
+            print('='*81)
+            print(text)
+            print('-'*81)
+            while end <= nmodes:
+                cols = range(start, end)
+                print(tmp.to_string(formatters=formatters, columns=cols))
+                start += print_cols
+                end += print_cols
+                print('')
+            else:
+                cols = range(start, nmodes)
+                print(tmp.to_string(formatters=formatters, columns=cols))
+            print('='*81)
+            #print('-'*80)
+            #print("Printing the boltzmann distribution for all")
+            #print("of the available frequencies at a temperature: {:.2f}".format(temp))
+            #formatters = ['{:.7f}'.format, '{:.7f}'.format, '{:d}'.format, '{:.7f}'.format]
+            #print(boltz.to_string(index=False, formatters=formatters))
+            #print('-'*80)
+            #raise
         # read the dipoles in the zero order file
         # make a multiplicity array for extending the derivative arrays from spin-free
         # states to spin-orbit states
@@ -304,7 +378,6 @@ class Vibronic:
             else:
                 raise ValueError("The all condition for selecting frequencies (-1) was passed " \
                                 +"along with other frequencies.")
-        nmodes = config.number_of_modes
         if select_fdx == -1:
             freq_range = list(range(1, nmodes+1))
         else:
@@ -451,25 +524,6 @@ class Vibronic:
             print("Spin orbit ground state was found to be: {:3d}".format(gs_degeneracy))
             print("--------------------------------------------")
         if store_gs_degen: self.gs_degeneracy = gs_degeneracy
-        # calculate the boltzmann factors
-        boltz_factor = boltz_dist(freq, temp, boltz_tol, boltz_states)
-        cols = boltz_factor.columns.tolist()[:-3]
-        boltz = np.zeros((boltz_factor.shape[0], 2))
-        # sum the boltzmann factors as we will do the sme thing later on anyway
-        # important when looking at the oscillator strengths
-        for freqdx, data in boltz_factor.groupby('freqdx'):
-            boltz[freqdx][0] = np.sum([val*(idx) for idx, val in enumerate(data[cols].values[0])])
-            boltz[freqdx][1] = np.sum([val*(idx+1) for idx, val in enumerate(data[cols[:-1]].values[0])])
-        boltz = pd.DataFrame(boltz, columns=['minus', 'plus'])
-        boltz['freqdx'] = boltz_factor['freqdx']
-        boltz['partition'] = boltz_factor['partition']
-        if print_stdout:
-            print('-'*80)
-            print("Printing the boltzmann distribution for all")
-            print("of the available frequencies at a temperature: {:.2f}".format(temp))
-            formatters = ['{:.7f}'.format, '{:.7f}'.format, '{:d}'.format, '{:.7f}'.format]
-            print(boltz.to_string(index=False, formatters=formatters))
-            print('-'*80)
         # create the vibronic-outputs directory if not available
         vib_dir = 'vibronic-outputs'
         if not os.path.exists(vib_dir):
