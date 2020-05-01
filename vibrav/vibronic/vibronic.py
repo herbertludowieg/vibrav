@@ -643,6 +643,7 @@ class Vibronic:
                         fn.write('{:.9E}\n'.format(energy))
             signs = ['minus', 'none', 'plus']
             if (property.replace('_', '-') == 'electric-dipole') and write_oscil:
+                mapper = {0: 'iso', 1: 'x', 2: 'y', 3: 'z'}
                 if print_stdout and verbose:
                     print(" Computing the oscillator strengths")
                     print("-----------------------------------")
@@ -659,22 +660,39 @@ class Vibronic:
                     self.check_size(energy, (nstates*nstates,), 'energy')
                     self.check_size(absorption, (ncomp, nstates*nstates), 'absorption')
                     oscil = boltz_factor * 2./3. * compute_oscil_str(np.sum(absorption, axis=0), energy)
-                    df = pd.DataFrame.from_dict({'nrow': nrow, 'ncol': ncol, 'oscil': oscil,
-                                                 'energy': energy})
-                    df['freqdx'] = founddx
-                    df['sign'] = sign
+                    #df = pd.DataFrame.from_dict({'nrow': nrow, 'ncol': ncol, 'oscil': oscil,
+                    #                             'energy': energy})
+                    #df['freqdx'] = founddx
+                    #df['sign'] = sign
+                    template = ' '.join(['{:>5d}']*2 + ['{:>24.16E}']*2 \
+                                        + ['{:>6d}', '{:>7s}'])
                     filename = os.path.join('vibronic-outputs', 'oscillators-0.txt')
+                    start = time()
                     with open(filename, 'a') as fn:
-                        fn.write('\n'+df.to_string(formatters=oscil_formatters, header=None, index=None))
+                        text = ''
+                        for nr, nc, osc, eng in zip(nrow, ncol, oscil, energy):
+                            text += '\n'+template.format(nr, nc, osc, eng, founddx, sign)
+                        fn.write(text+'\n')
+                    if print_stdout:
+                        text = " Wrote isotropic oscillators to {} for sign {} in {:.2f} s"
+                        print(text.format(filename, sign, time() - start))
                     for idx, component in enumerate(absorption):
                         oscil = boltz_factor * 2. * compute_oscil_str(component, energy)
-                        df = pd.DataFrame.from_dict({'nrow': nrow, 'ncol': ncol, 'oscil': oscil,
-                                                     'energy': energy})
-                        df['freqdx'] = founddx
-                        df['sign'] = sign
+                        #df = pd.DataFrame.from_dict({'nrow': nrow, 'ncol': ncol, 'oscil': oscil,
+                        #                             'energy': energy})
+                        #df['freqdx'] = founddx
+                        #df['sign'] = sign
                         filename = os.path.join('vibronic-outputs', 'oscillators-{}.txt'.format(idx+1))
+                        start = time()
                         with open(filename, 'a') as fn:
-                            fn.write('\n'+df.to_string(formatters=oscil_formatters, header=None, index=None))
+                        #    fn.write('\n'+df.to_string(formatters=oscil_formatters, header=None, index=None))
+                            text = ''
+                            for nr, nc, osc, eng in zip(nrow, ncol, oscil, energy):
+                                text += '\n'+template.format(nr, nc, osc, eng, founddx, sign)
+                            fn.write(text+'\n')
+                        if print_stdout:
+                            text = "Wrote oscillators for {} component to {} for sign {} in {:.2f} s"
+                            print(text.format(maper[idx+1], filename, sign, time() - start))
             else:
                 write_oscil = False
                 for idx, val in enumerate([-1, 1]):
