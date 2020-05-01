@@ -683,207 +683,207 @@ class Vibronic:
                     self.check_size(energy, (nstates*nstates,), 'energy')
                     delta_E[fdx][idx] = energy
         # write the values of the vibronic property
-        out_dir = 'vibronic-outputs'
-        nstates_vib = 2*nselected*nstates
-        if False:
-            write_energy = True
-            template = "{:6d}  {:6d}  {:+.9E}  {:+.9E}\n"
-            if print_stdout:
-                print('='*68)
-                print("Writing vibronic {} to file".format(property))
-            if not os.path.exists(out_dir):
-                os.mkdir(out_dir, 0o755)
-            if sparse:
-                # this is an algorithm that will write 2*nmodes blocks of nstates x nstates arrays
-                # essentially we have the tinking that only the vibronic levels of the same vibration
-                # interact as per the <phi_1|Q_p|phi_2> term in equation S3 in the referenced publication
-                # meaning that we can think of generating a sparse matrix of matrices of
-                # 2*nmodes x 2*nmodes and each submatrix is nstates x nstates with the diagonal matrices
-                # having non-zero values this can be depicted below with 2 normal modes
-                # [[[V],[0],[0],[0]],
-                #  [[0],[V],[0],[0]],
-                #  [[0],[0],[V],[0]],
-                #  [[0],[0],[0],[V]]]
-                # here V are the vibronic arrays being calculated and 0 are arrays of zeros
-                # the vibronic arrays are hermitian by definition and as such we only write the upper
-                # triangular elements to file
-                # to read the file one must consider that the file is both sparse and hermitian
-                # iterate over each component available
-                for jdx, (key, val) in enumerate(idx_map_rev.items()):
-                    start = time()
-                    filename = os.path.join(out_dir, out_file+"-{}.txt")
-                    with open(filename.format(val), 'w') as fn:
-                        fn.write('#NROW NCOL REAL IMAG\n')
-                        # outside of for loops as this will go from 0 to the number of vibronic states
-                        final = 0
-                        # iterate over normal modes
-                        for fdx in range(nmodes):
-                            # iterate over the plus and minus vibronic states around the
-                            # electronic excitation
-                            for idx, sign in enumerate(['minus', 'plus']):
-                                # iterate over the columns
-                                for i in range(nstates):
-                                    # this needs to reset to the initial value after we go to the
-                                    # next 'row' in the data
-                                    initial = (2*fdx+idx)*nstates
-                                    # iterate over the rows
-                                    for j in range(nstates):
-                                        real = np.real(vibronic_prop[fdx][idx][jdx][j*nstates+i])
-                                        imag = np.imag(vibronic_prop[fdx][idx][jdx][j*nstates+i])
-                                        fn.write(template.format(initial+1, final+1, real, imag))
-                                        initial += 1
-                                    final += 1
-                        if print_stdout:
-                            time_taken = timedelta(seconds=round(time()-start, 0))
-                            print("Wrote {:d} lines to {} in {}".format(2*nmodes*nstates*nstates,
-                                                                      filename.format(val),
-                                                                      str(time_taken)))
-            else:
-                raise Exception("I will not write a non-sparse matrix....Too many zeros")
-                #for jdx, (key, val) in enumerate(idx_map_rev.items()):
-                #    time_start = time()
-                #    filename = os.path.join(out_dir, out_file+"-{}.txt")
-                #    nelem = (nstates_vib)**2
-                #    with open(filename.format(val), 'w') as fn:
-                #        fn.write('#NROW NCOL REAL IMAG\n')
-                #        start = 0
-                #        for fdx in range(nmodes):
-                #            for idx, sign in enumerate(['minus', 'plus']):
-                #                index = 0
-                #                for i in range(nstates):
-                #                    j = 0
-                #                    real = np.real(vibronic_prop[fdx][idx][jdx])
-                #                    imag = np.imag(vibronic_prop[fdx][idx][jdx])
-                #                    while j < start:
-                #                        fn.write(template.format(i+start+1, j+1, 0., 0.))
-                #                        j += 1
-                #                    while (j >= start and j%nstates < i):
-                #                        #fn.write(template.format(i+start+1, j+1, real[index],
-                #                        #                         -imag[index]))
-                #                        #index += 1
-                #                        fn.write(template.format(i+start+1, j+1, 0., 0.))
-                #                        j += 1
-                #                    while (j < start+nstates and j%nstates >= i):
-                #                        fn.write(template.format(i+start+1, j+1, real[index],
-                #                                                 imag[index]))
-                #                        index += 1
-                #                        j += 1
-                #                    while j < nstates_vib:
-                #                        fn.write(template.format(i+start+1, j+1, 0., 0.))
-                #                        j += 1
-                #                start += nstates
-                #        if print_stdout:
-                #            time_taken = timedelta(seconds=round(time()-time_start, 0))
-                #            print("Wrote {} lines to {} in {}".format(int(nelem),
-                #                                                      filename.format(val),
-                #                                                      str(time_taken)))
-            if print_stdout:
-                print('='*68)
-        # write the vibronic energies to file
-        if False:
-            if print_stdout:
-                print('='*68)
-                print("Printing vibronic energies to file")
-            if not os.path.exists(out_dir):
-                os.mkdir(out_dir, 0o755)
-            start = time()
-            filename = os.path.join(out_dir, 'energies.txt')
-            template = "{:.9f}\n"
-            if sparse:
-                with open(filename, 'w') as fn:
-                    fn.write('# {:d} (atomic units)\n'.format(2*nmodes*nstates))
-                    # iterate over the normal modes
-                    for fdx in range(nmodes):
-                        # iterate over the plus and minus vibronic states around the
-                        # electronic excitation
-                        for idx, val in enumerate(['minus', 'plus']):
-                            # iterate over all upper triangular elements
-                            # this file does not need any fancy row or column indexing
-                            for i in range(nstates):
-                                fn.write(template.format(delta_E[fdx][idx][i]))
-                    if print_stdout:
-                        time_taken = timedelta(seconds=round(time()-start, 0))
-                        print("Wrote {:d} lines to {} in {}".format(2*nmodes*nstates,
-                                                                  filename, str(time_taken)))
-            else:
-                raise Exception("I will not write a non-sparse matrix....Too many zeros")
-                #with open(filename, 'w') as fn:
-                #    fn.write('# {} (atomic units)\n'.format(nelem))
-                #    time_start = time()
-                #    nelem = nstates_vib**2
-                #    start = 0
-                #    # iterate over the normal modes
-                #    for fdx in range(nmodes):
-                #        # iterate over the plus and minus vibronic states around the
-                #        # electronic excitation
-                #        for idx, val in enumerate(['minus', 'plus']):
-                #            index = 0
-                #            for i in range(nstates):
-                #                j = 0
-                #                while j < i+start:
-                #                    fn.write(template.format(0))
-                #                    j += 1
-                #                while (j < start+nstates and j%nstates >= i):
-                #                    fn.write(template.format(delta_E[fdx][idx][index]))
-                #                    index += 1
-                #                    j += 1
-                #                while j < nstates_vib:
-                #                    fn.write(template.format(0))
-                #                    j += 1
-                #            start += nstates
-                #    if print_stdout:
-                #        time_taken = timedelta(seconds=round(time()-time_start, 0))
-                #        print("Wrote {} lines to {} in {}".format(nelem, filename, str(time_taken)))
-            if print_stdout:
-                print('='*68)
-        # write the oscillators to file if available
-        if False:
-            if print_stdout:
-                print('='*68)
-                print("Writing vibronic oscillators to file")
-            if not os.path.exists(out_dir):
-                os.mkdir(out_dir, 0o755)
-            start = time()
-            filename = os.path.join(out_dir, 'oscillators.txt')
-            #if os.path.exists(filename):
-            #    warnings.warn("{} exists will make a backup of the original file".format(filename),
-            #                  Warning)
-            #    idx = 1
-            #    while os.path.exists(filename+'.bak.{}'.format(idx)): idx += 1
-            #    os.rename(filename, filename+'.bak.{}'.format(idx))
-            with open(filename, 'w') as fn:
-                # we also write the energies as they are needed when plotting the oscillators
-                template = "{:6d}  {:6d}  {:+.16E}  {:+.16E}  {:4d}  {:7s}\n"
-                fn.write('#NROW NCOL OSCIL ENERGY FREQDX SIGN\n')
-                # outside of for loops as this will go from 0 to the number of vibronic states
-                initial = 0
-                # iterate over the normal modes
-                for fdx, founddx in enumerate(found_modes):
-                    # iterate over the plus and minus vibronic states around the
-                    # electronic excitation
-                    for idx, val in enumerate(['minus', 'plus']):
-                        index = 0
-                        # iterate over the rows
-                        for i in range(nstates):
-                            # this needs to reset to the initial value after we go to the
-                            # next 'row' in the data
-                            final = initial
-                            # iterate over the columns
-                            for j in range(nstates):
-                                osc = oscil[fdx][idx][index]
-                                energ = delta_E[fdx][idx][index]
-                                #fn.write(template.format(initial+1, final+1, osc, energ, fdx, val))
-                                fn.write(template.format(i+1, j+1, osc, energ, founddx, val))
-                                index += 1
-                                final += 1
-                            initial += 1
-                if print_stdout:
-                    time_taken = timedelta(seconds=round(time()-start, 0))
-                    print("Wrote {} lines to {} in {}".format(int(2*nselected*nstates*nstates),
-                                                              filename, str(time_taken)))
-            if print_stdout:
-                print('='*68)
-        program_end = time()
+        #out_dir = 'vibronic-outputs'
+        #nstates_vib = 2*nselected*nstates
+        #if False:
+        #    write_energy = True
+        #    template = "{:6d}  {:6d}  {:+.9E}  {:+.9E}\n"
+        #    if print_stdout:
+        #        print('='*68)
+        #        print("Writing vibronic {} to file".format(property))
+        #    if not os.path.exists(out_dir):
+        #        os.mkdir(out_dir, 0o755)
+        #    if sparse:
+        #        # this is an algorithm that will write 2*nmodes blocks of nstates x nstates arrays
+        #        # essentially we have the tinking that only the vibronic levels of the same vibration
+        #        # interact as per the <phi_1|Q_p|phi_2> term in equation S3 in the referenced publication
+        #        # meaning that we can think of generating a sparse matrix of matrices of
+        #        # 2*nmodes x 2*nmodes and each submatrix is nstates x nstates with the diagonal matrices
+        #        # having non-zero values this can be depicted below with 2 normal modes
+        #        # [[[V],[0],[0],[0]],
+        #        #  [[0],[V],[0],[0]],
+        #        #  [[0],[0],[V],[0]],
+        #        #  [[0],[0],[0],[V]]]
+        #        # here V are the vibronic arrays being calculated and 0 are arrays of zeros
+        #        # the vibronic arrays are hermitian by definition and as such we only write the upper
+        #        # triangular elements to file
+        #        # to read the file one must consider that the file is both sparse and hermitian
+        #        # iterate over each component available
+        #        for jdx, (key, val) in enumerate(idx_map_rev.items()):
+        #            start = time()
+        #            filename = os.path.join(out_dir, out_file+"-{}.txt")
+        #            with open(filename.format(val), 'w') as fn:
+        #                fn.write('#NROW NCOL REAL IMAG\n')
+        #                # outside of for loops as this will go from 0 to the number of vibronic states
+        #                final = 0
+        #                # iterate over normal modes
+        #                for fdx in range(nmodes):
+        #                    # iterate over the plus and minus vibronic states around the
+        #                    # electronic excitation
+        #                    for idx, sign in enumerate(['minus', 'plus']):
+        #                        # iterate over the columns
+        #                        for i in range(nstates):
+        #                            # this needs to reset to the initial value after we go to the
+        #                            # next 'row' in the data
+        #                            initial = (2*fdx+idx)*nstates
+        #                            # iterate over the rows
+        #                            for j in range(nstates):
+        #                                real = np.real(vibronic_prop[fdx][idx][jdx][j*nstates+i])
+        #                                imag = np.imag(vibronic_prop[fdx][idx][jdx][j*nstates+i])
+        #                                fn.write(template.format(initial+1, final+1, real, imag))
+        #                                initial += 1
+        #                            final += 1
+        #                if print_stdout:
+        #                    time_taken = timedelta(seconds=round(time()-start, 0))
+        #                    print("Wrote {:d} lines to {} in {}".format(2*nmodes*nstates*nstates,
+        #                                                              filename.format(val),
+        #                                                              str(time_taken)))
+        #    else:
+        #        raise Exception("I will not write a non-sparse matrix....Too many zeros")
+        #        #for jdx, (key, val) in enumerate(idx_map_rev.items()):
+        #        #    time_start = time()
+        #        #    filename = os.path.join(out_dir, out_file+"-{}.txt")
+        #        #    nelem = (nstates_vib)**2
+        #        #    with open(filename.format(val), 'w') as fn:
+        #        #        fn.write('#NROW NCOL REAL IMAG\n')
+        #        #        start = 0
+        #        #        for fdx in range(nmodes):
+        #        #            for idx, sign in enumerate(['minus', 'plus']):
+        #        #                index = 0
+        #        #                for i in range(nstates):
+        #        #                    j = 0
+        #        #                    real = np.real(vibronic_prop[fdx][idx][jdx])
+        #        #                    imag = np.imag(vibronic_prop[fdx][idx][jdx])
+        #        #                    while j < start:
+        #        #                        fn.write(template.format(i+start+1, j+1, 0., 0.))
+        #        #                        j += 1
+        #        #                    while (j >= start and j%nstates < i):
+        #        #                        #fn.write(template.format(i+start+1, j+1, real[index],
+        #        #                        #                         -imag[index]))
+        #        #                        #index += 1
+        #        #                        fn.write(template.format(i+start+1, j+1, 0., 0.))
+        #        #                        j += 1
+        #        #                    while (j < start+nstates and j%nstates >= i):
+        #        #                        fn.write(template.format(i+start+1, j+1, real[index],
+        #        #                                                 imag[index]))
+        #        #                        index += 1
+        #        #                        j += 1
+        #        #                    while j < nstates_vib:
+        #        #                        fn.write(template.format(i+start+1, j+1, 0., 0.))
+        #        #                        j += 1
+        #        #                start += nstates
+        #        #        if print_stdout:
+        #        #            time_taken = timedelta(seconds=round(time()-time_start, 0))
+        #        #            print("Wrote {} lines to {} in {}".format(int(nelem),
+        #        #                                                      filename.format(val),
+        #        #                                                      str(time_taken)))
+        #    if print_stdout:
+        #        print('='*68)
+        ## write the vibronic energies to file
+        #if False:
+        #    if print_stdout:
+        #        print('='*68)
+        #        print("Printing vibronic energies to file")
+        #    if not os.path.exists(out_dir):
+        #        os.mkdir(out_dir, 0o755)
+        #    start = time()
+        #    filename = os.path.join(out_dir, 'energies.txt')
+        #    template = "{:.9f}\n"
+        #    if sparse:
+        #        with open(filename, 'w') as fn:
+        #            fn.write('# {:d} (atomic units)\n'.format(2*nmodes*nstates))
+        #            # iterate over the normal modes
+        #            for fdx in range(nmodes):
+        #                # iterate over the plus and minus vibronic states around the
+        #                # electronic excitation
+        #                for idx, val in enumerate(['minus', 'plus']):
+        #                    # iterate over all upper triangular elements
+        #                    # this file does not need any fancy row or column indexing
+        #                    for i in range(nstates):
+        #                        fn.write(template.format(delta_E[fdx][idx][i]))
+        #            if print_stdout:
+        #                time_taken = timedelta(seconds=round(time()-start, 0))
+        #                print("Wrote {:d} lines to {} in {}".format(2*nmodes*nstates,
+        #                                                          filename, str(time_taken)))
+        #    else:
+        #        raise Exception("I will not write a non-sparse matrix....Too many zeros")
+        #        #with open(filename, 'w') as fn:
+        #        #    fn.write('# {} (atomic units)\n'.format(nelem))
+        #        #    time_start = time()
+        #        #    nelem = nstates_vib**2
+        #        #    start = 0
+        #        #    # iterate over the normal modes
+        #        #    for fdx in range(nmodes):
+        #        #        # iterate over the plus and minus vibronic states around the
+        #        #        # electronic excitation
+        #        #        for idx, val in enumerate(['minus', 'plus']):
+        #        #            index = 0
+        #        #            for i in range(nstates):
+        #        #                j = 0
+        #        #                while j < i+start:
+        #        #                    fn.write(template.format(0))
+        #        #                    j += 1
+        #        #                while (j < start+nstates and j%nstates >= i):
+        #        #                    fn.write(template.format(delta_E[fdx][idx][index]))
+        #        #                    index += 1
+        #        #                    j += 1
+        #        #                while j < nstates_vib:
+        #        #                    fn.write(template.format(0))
+        #        #                    j += 1
+        #        #            start += nstates
+        #        #    if print_stdout:
+        #        #        time_taken = timedelta(seconds=round(time()-time_start, 0))
+        #        #        print("Wrote {} lines to {} in {}".format(nelem, filename, str(time_taken)))
+        #    if print_stdout:
+        #        print('='*68)
+        ## write the oscillators to file if available
+        #if False:
+        #    if print_stdout:
+        #        print('='*68)
+        #        print("Writing vibronic oscillators to file")
+        #    if not os.path.exists(out_dir):
+        #        os.mkdir(out_dir, 0o755)
+        #    start = time()
+        #    filename = os.path.join(out_dir, 'oscillators.txt')
+        #    #if os.path.exists(filename):
+        #    #    warnings.warn("{} exists will make a backup of the original file".format(filename),
+        #    #                  Warning)
+        #    #    idx = 1
+        #    #    while os.path.exists(filename+'.bak.{}'.format(idx)): idx += 1
+        #    #    os.rename(filename, filename+'.bak.{}'.format(idx))
+        #    with open(filename, 'w') as fn:
+        #        # we also write the energies as they are needed when plotting the oscillators
+        #        template = "{:6d}  {:6d}  {:+.16E}  {:+.16E}  {:4d}  {:7s}\n"
+        #        fn.write('#NROW NCOL OSCIL ENERGY FREQDX SIGN\n')
+        #        # outside of for loops as this will go from 0 to the number of vibronic states
+        #        initial = 0
+        #        # iterate over the normal modes
+        #        for fdx, founddx in enumerate(found_modes):
+        #            # iterate over the plus and minus vibronic states around the
+        #            # electronic excitation
+        #            for idx, val in enumerate(['minus', 'plus']):
+        #                index = 0
+        #                # iterate over the rows
+        #                for i in range(nstates):
+        #                    # this needs to reset to the initial value after we go to the
+        #                    # next 'row' in the data
+        #                    final = initial
+        #                    # iterate over the columns
+        #                    for j in range(nstates):
+        #                        osc = oscil[fdx][idx][index]
+        #                        energ = delta_E[fdx][idx][index]
+        #                        #fn.write(template.format(initial+1, final+1, osc, energ, fdx, val))
+        #                        fn.write(template.format(i+1, j+1, osc, energ, founddx, val))
+        #                        index += 1
+        #                        final += 1
+        #                    initial += 1
+        #        if print_stdout:
+        #            time_taken = timedelta(seconds=round(time()-start, 0))
+        #            print("Wrote {} lines to {} in {}".format(int(2*nselected*nstates*nstates),
+        #                                                      filename, str(time_taken)))
+        #    if print_stdout:
+        #        print('='*68)
+        #program_end = time()
         #if print_stdout:
         #    program_exec = timedelta(seconds=round(program_end - program_start, 0))
         #    vib_time = timedelta(seconds=round(np.mean(vib_times), 0))
