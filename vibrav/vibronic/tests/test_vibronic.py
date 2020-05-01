@@ -21,7 +21,7 @@ def test_vibronic_coupling(freqdx):
     base_oscil = open_txt(resource('molcas-ucl6-2minus-oscillators.txt.xz'), compression='xz',
                           rearrange=False)
     test_oscil = open_txt(os.path.join('vibronic-outputs', 'oscillators-0.txt'), rearrange=False)
-    cols = ['nrow', 'ncol', 'oscil', 'energy']
+    cols = ['oscil', 'energy']
     if freqdx[0] == -1:
         freqdx = range(15)
     base = base_oscil.groupby('freqdx').filter(lambda x: x['freqdx'].unique()
@@ -36,7 +36,7 @@ def test_vibronic_coupling(freqdx):
                       rearrange=False)
         sum_oscil += df['oscil'].values
     sum_oscil /= 3.
-    assert np.allclose(base[:,2], sum_oscil)
+    assert np.allclose(base[:,0], sum_oscil)
     os.chdir(parent)
     shutil.rmtree('molcas-ucl6-2minus-vibronic-coupling')
 
