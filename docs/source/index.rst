@@ -9,7 +9,7 @@ Welcome to the VIBRational AVeraging (VIBRAV) documentation!
 Examples:
 ---------
 .. toctree::
-   :maxdepth: 4
+   :maxdepth: 2
    :glob:
 
    examples/*

@@ -56,7 +56,6 @@ class Tape21(six.with_metaclass(Tape21Meta, Editor)):
         nlow = low.shape[0]
         # get only the ones that are non-zero
         freq = freq[low]
-        print(freq)
         nmodes = freq.shape[0]
         freq = np.repeat(freq, nat)
         if found[_renorm]:
