@@ -508,9 +508,9 @@ class Vibronic:
         # number of elements in upper triangular matrices for each vibronic block including the diagonal
         upper_nelem = int(nstates*(nstates+1)/2)
         # allocate memory for arrays
-        oscil = np.zeros((nselected, 2, nstates*nstates), dtype=np.float64)
-        delta_E = np.zeros((nselected, 2, nstates*nstates), dtype=np.float64)
-        vibronic_prop = np.zeros((nselected, 2, ncomp, nstates*nstates), dtype=np.complex128)
+        #oscil = np.zeros((nselected, 2, nstates*nstates), dtype=np.float64)
+        #delta_E = np.zeros((nselected, 2, nstates*nstates), dtype=np.float64)
+        #vibronic_prop = np.zeros((nselected, 2, ncomp, nstates*nstates), dtype=np.complex128)
         # timing things
         time_setup = time() - program_start
         # counter just for timing statistics
@@ -581,11 +581,12 @@ class Vibronic:
                     vib_prop_plus = fc*(so_prop + dprop_dq)
                     vib_prop_minus = fc*(so_prop - dprop_dq)
                 else:
-                    vib_prop_plus = fc*dprop_dq
-                    vib_prop_minus = fc*-dprop_dq
+                    # store the transpose as it will make some things easier down the line
+                    vib_prop_plus = fc*dprop_dq.T
+                    vib_prop_minus = fc*-dprop_dq.T
                 # store in array
-                vibronic_prop[fdx][0][idx_map_rev[key]-1] = vib_prop_minus.flatten()
-                vibronic_prop[fdx][1][idx_map_rev[key]-1] = vib_prop_plus.flatten()
+                #vibronic_prop[fdx][0][idx_map_rev[key]-1] = vib_prop_minus.flatten()
+                #vibronic_prop[fdx][1][idx_map_rev[key]-1] = vib_prop_plus.flatten()
                 vib_prop[0][idx_map_rev[key]-1] = vib_prop_minus
                 vib_prop[1][idx_map_rev[key]-1] = vib_prop_plus
                 # fancy timing stuff
@@ -600,12 +601,12 @@ class Vibronic:
                     print("-"*37)
             # calculate the oscillator strengths
             evib = freq[founddx]*Energy['cm^-1', 'Ha']
-            initial = np.repeat(range(nstates), nstates)+1
-            final = np.tile(range(nstates), nstates)+1
+            initial = np.tile(range(nstates), nstates)+1
+            final = np.repeat(range(nstates), nstates)+1
             template = "{:6d}  {:6d}  {:>18.9E}  {:>18.9E}\n".format
             if write_property:
                 for idx, (plus, minus) in enumerate(zip(*vib_prop)):
-                    plus_T = plus.T.flatten()
+                    plus_T = plus.flatten()
                     real = np.real(plus_T)
                     imag = np.imag(plus_T)
                     dir_name = os.path.join('vib'+str(founddx+1).zfill(3), 'plus')
@@ -616,7 +617,7 @@ class Vibronic:
                         fn.write('#{:>5s}  {:>6s}  {:>18s}  {:>18s}\n'.format('NROW', 'NCOL', 'REAL', 'IMAG'))
                         for i in range(nstates*nstates):
                             fn.write(template(initial[i], final[i], real[i], imag[i]))
-                    minus_T = minus.T.flatten()
+                    minus_T = minus.flatten()
                     real = np.real(minus_T)
                     imag = np.imag(minus_T)
                     dir_name = os.path.join('vib'+str(founddx+1).zfill(3), 'minus')
@@ -644,62 +645,58 @@ class Vibronic:
             signs = ['minus', 'none', 'plus']
             if (property.replace('_', '-') == 'electric-dipole') and write_oscil:
                 mapper = {0: 'iso', 1: 'x', 2: 'y', 3: 'z'}
-                if print_stdout and verbose:
-                    print(" Computing the oscillator strengths")
-                    print("-----------------------------------")
+                #if print_stdout and verbose:
+                #    print(" Computing the oscillator strengths")
+                #    print("-----------------------------------")
                 # finally get the oscillator strengths from equation S12
                 to_drop = ['component', 'freqdx', 'sign', 'prop']
-                nrow = np.repeat(range(nstates), nstates) + 1
-                ncol = np.tile(range(nstates), nstates) + 1
+                nrow = np.tile(range(nstates), nstates) + 1
+                ncol = np.repeat(range(nstates), nstates) + 1
                 for idx, (val, sign) in enumerate(zip([-1, 1], ['minus', 'plus'])):
                     boltz_factor = boltz.loc[founddx, sign]
                     absorption = abs2(vib_prop[idx].reshape(ncomp, nstates*nstates))
                     # get the transition energies
                     energy = energies_so.reshape(-1,) - energies_so.reshape(-1,1) + val*evib
                     energy = energy.flatten()
+                    # check for correct size
                     self.check_size(energy, (nstates*nstates,), 'energy')
                     self.check_size(absorption, (ncomp, nstates*nstates), 'absorption')
+                    # compute the isotropic oscillators
                     oscil = boltz_factor * 2./3. * compute_oscil_str(np.sum(absorption, axis=0), energy)
-                    #df = pd.DataFrame.from_dict({'nrow': nrow, 'ncol': ncol, 'oscil': oscil,
-                    #                             'energy': energy})
-                    #df['freqdx'] = founddx
-                    #df['sign'] = sign
+                    # write to file
                     template = ' '.join(['{:>5d}']*2 + ['{:>24.16E}']*2 \
                                         + ['{:>6d}', '{:>7s}'])
                     filename = os.path.join('vibronic-outputs', 'oscillators-0.txt')
                     start = time()
                     with open(filename, 'a') as fn:
                         text = ''
+                        # use a for loop instead of a df.to_string() as it is significantly faster
                         for nr, nc, osc, eng in zip(nrow, ncol, oscil, energy):
                             text += '\n'+template.format(nr, nc, osc, eng, founddx, sign)
-                        fn.write(text+'\n')
+                        fn.write(text)
                     if print_stdout:
                         text = " Wrote isotropic oscillators to {} for sign {} in {:.2f} s"
                         print(text.format(filename, sign, time() - start))
+                    # compute the oscillators for the individual cartesian components
                     for idx, component in enumerate(absorption):
                         oscil = boltz_factor * 2. * compute_oscil_str(component, energy)
-                        #df = pd.DataFrame.from_dict({'nrow': nrow, 'ncol': ncol, 'oscil': oscil,
-                        #                             'energy': energy})
-                        #df['freqdx'] = founddx
-                        #df['sign'] = sign
                         filename = os.path.join('vibronic-outputs', 'oscillators-{}.txt'.format(idx+1))
                         start = time()
                         with open(filename, 'a') as fn:
-                        #    fn.write('\n'+df.to_string(formatters=oscil_formatters, header=None, index=None))
                             text = ''
                             for nr, nc, osc, eng in zip(nrow, ncol, oscil, energy):
                                 text += '\n'+template.format(nr, nc, osc, eng, founddx, sign)
-                            fn.write(text+'\n')
+                            fn.write(text)
                         if print_stdout:
-                            text = "Wrote oscillators for {} component to {} for sign {} in {:.2f} s"
-                            print(text.format(maper[idx+1], filename, sign, time() - start))
-            else:
-                write_oscil = False
-                for idx, val in enumerate([-1, 1]):
-                    energy = energies_so.reshape(-1,) - energies_so.reshape(-1,1) + val*evib
-                    energy = energy.flatten()
-                    self.check_size(energy, (nstates*nstates,), 'energy')
-                    delta_E[fdx][idx] = energy
+                            text = " Wrote oscillators for {} component to {} for sign {} in {:.2f} s"
+                            print(text.format(mapper[idx+1], filename, sign, time() - start))
+            #else:
+            #    write_oscil = False
+            #    for idx, val in enumerate([-1, 1]):
+            #        energy = energies_so.reshape(-1,) - energies_so.reshape(-1,1) + val*evib
+            #        energy = energy.flatten()
+            #        self.check_size(energy, (nstates*nstates,), 'energy')
+            #        delta_E[fdx][idx] = energy
         # write the values of the vibronic property
         #out_dir = 'vibronic-outputs'
         #nstates_vib = 2*nselected*nstates
