@@ -240,6 +240,10 @@ class Vibronic:
         nstates = self.nstates
         nstates_sf = self.nstates_sf
         config = self.config
+        # create the vibronic-outputs directory if not available
+        vib_dir = 'vibronic-outputs'
+        if not os.path.exists(vib_dir):
+            os.mkdir(vib_dir)
         # print out the contents of the config file so the user knows how the parameters were read
         if print_stdout:
             print("Printing contents of config file")
@@ -271,6 +275,8 @@ class Vibronic:
         boltz = pd.DataFrame(boltz, columns=['minus', 'plus'])
         boltz['freqdx'] = boltz_factor['freqdx']
         boltz['partition'] = boltz_factor['partition']
+        filename = os.path.join(vib_dir, 'boltzmann-populations.csv')
+        boltz.to_csv(filename, index=False)
         if print_stdout:
             tmp = boltz_factor.copy()
             tmp = tmp[tmp.columns[:-3]]
@@ -524,10 +530,6 @@ class Vibronic:
             print("Spin orbit ground state was found to be: {:3d}".format(gs_degeneracy))
             print("--------------------------------------------")
         if store_gs_degen: self.gs_degeneracy = gs_degeneracy
-        # create the vibronic-outputs directory if not available
-        vib_dir = 'vibronic-outputs'
-        if not os.path.exists(vib_dir):
-            os.mkdir(vib_dir)
         # initialize the oscillator files
         if write_oscil:
             osc_tmp = 'oscillators-{}.txt'.format
@@ -605,7 +607,7 @@ class Vibronic:
             final = np.repeat(range(nstates), nstates)+1
             template = "{:6d}  {:6d}  {:>18.9E}  {:>18.9E}\n".format
             if write_property:
-                for idx, (plus, minus) in enumerate(zip(*vib_prop)):
+                for idx, (minus, plus) in enumerate(zip(*vib_prop)):
                     plus_T = plus.flatten()
                     real = np.real(plus_T)
                     imag = np.imag(plus_T)
@@ -614,7 +616,7 @@ class Vibronic:
                         os.makedirs(dir_name, 0o755, exist_ok=True)
                     filename = os.path.join(dir_name, out_file+'-{}.txt'.format(idx+1))
                     with open(filename, 'w') as fn:
-                        fn.write('#{:>5s}  {:>6s}  {:>18s}  {:>18s}\n'.format('NROW', 'NCOL', 'REAL', 'IMAG'))
+                        fn.write('{:>5s}  {:>6s}  {:>18s}  {:>18s}\n'.format('#NROW', 'NCOL', 'REAL', 'IMAG'))
                         for i in range(nstates*nstates):
                             fn.write(template(initial[i], final[i], real[i], imag[i]))
                     minus_T = minus.flatten()
@@ -625,21 +627,21 @@ class Vibronic:
                         os.makedirs(dir_name, 0o755)
                     filename = os.path.join(dir_name, out_file+'-{}.txt'.format(idx+1))
                     with open(filename, 'w') as fn:
-                        fn.write('#{:>5s}  {:>6s}  {:>10s}  {:>10s}\n'.format('NROW', 'NCOL', 'REAL', 'IMAG'))
+                        fn.write('{:>5s}  {:>6s}  {:>10s}  {:>10s}\n'.format('#NROW', 'NCOL', 'REAL', 'IMAG'))
                         for i in range(nstates*nstates):
                             fn.write(template(initial[i], final[i], real[i], imag[i]))
                 dir_name = os.path.join('vib'+str(founddx+1).zfill(3), 'minus')
                 with open(os.path.join(dir_name, 'energies.txt'), 'w') as fn:
                     fn.write('# {} (atomic units)\n'.format(nstates))
                     energies = energies_so + (1./2.)*evib - energies_so[0]
-                    energies[range(gs_degeneracy)] = (3./2.)*evib
+                    energies[range(gs_degeneracy)] = energies_so[:gs_degeneracy] - energies_so[0] + (3./2.)*evib
                     for energy in energies:
                         fn.write('{:.9E}\n'.format(energy))
                 dir_name = os.path.join('vib'+str(founddx+1).zfill(3), 'plus')
                 with open(os.path.join(dir_name, 'energies.txt'), 'w') as fn:
                     fn.write('# {} (atomic units)\n'.format(nstates))
                     energies = energies_so + (3./2.)*evib - energies_so[0]
-                    energies[range(gs_degeneracy)] = (1./2.)*evib
+                    energies[range(gs_degeneracy)] = energies_so[:gs_degeneracy] - energies_so[0] + (1./2.)*evib
                     for energy in energies:
                         fn.write('{:.9E}\n'.format(energy))
             signs = ['minus', 'none', 'plus']
@@ -656,7 +658,7 @@ class Vibronic:
                     boltz_factor = boltz.loc[founddx, sign]
                     absorption = abs2(vib_prop[idx].reshape(ncomp, nstates*nstates))
                     # get the transition energies
-                    energy = energies_so.reshape(-1,) - energies_so.reshape(-1,1) + val*evib
+                    energy = energies_so.reshape(-1, 1) - energies_so.reshape(-1,) + val*evib
                     energy = energy.flatten()
                     # check for correct size
                     self.check_size(energy, (nstates*nstates,), 'energy')
@@ -679,6 +681,8 @@ class Vibronic:
                         print(text.format(filename, sign, time() - start))
                     # compute the oscillators for the individual cartesian components
                     for idx, component in enumerate(absorption):
+                        self.check_size(component, (nstates*nstates,),
+                                        'absorption component {}'.format(idx))
                         oscil = boltz_factor * 2. * compute_oscil_str(component, energy)
                         filename = os.path.join('vibronic-outputs', 'oscillators-{}.txt'.format(idx+1))
                         start = time()
