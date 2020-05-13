@@ -422,6 +422,10 @@ class ZPVC:
         # TODO: check if we should use the real or calculated frequencies
         frequencies = pd.read_csv(config.frequency_file, header=None).values.reshape(-1,)
         frequencies *= Energy['cm^-1','Ha']
+        if any(frequencies < 0):
+            text = "Negative frequencies were found in {}. Make sure that the geometry " \
+                   +"optimization and frequency calculations proceeded correctly."
+            warnings.warn(text.format(config.frequency_file, Warning))
         rmass = pd.read_csv(config.reduced_mass_file, header=None).values.reshape(-1,)
         rmass *= Mass['u', 'au_mass']
         delta = pd.read_csv(config.delta_file, header=None).values.reshape(-1,)
