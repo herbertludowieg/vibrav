@@ -456,6 +456,7 @@ class Vibronic:
         else:
             ed.parse_sf_energy()
             energies_sf = ed.sf_energy['energy'].values
+        self.check_size(energies_sf, (nstates_sf,), 'energies_sf')
         if config.so_energies_file != '':
             try:
                 energies_so = pd.read_csv(config.so_energies_file, header=None,
@@ -469,6 +470,7 @@ class Vibronic:
         else:
             ed.parse_so_energy()
             energies_so = ed.so_energy['energy'].values
+        self.check_size(energies_so, (nstates,), 'energies_so')
         # get the property of choice from the zero order file given in the config file
         # the extra column in each of the parsed properties comes from the component column
         # in the molcas output parser
