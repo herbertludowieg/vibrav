@@ -17,6 +17,7 @@ import numpy as np
 import os
 import warnings
 import re
+import lzma
 
 def open_txt(fp, rearrange=True, **kwargs):
     '''
@@ -132,4 +133,12 @@ def get_all_data(cls, path, property, f_start='', f_end=''):
         raise ValueError("No data was found in the directory {}".format(path))
     data = pd.concat(dfs, ignore_index=True)
     return data
+
+def uncompress_output(fp, compression='xz'):
+    if compression == 'xz':
+        decomp = fp.split(os.sep)[-1][:-3]
+        with open(decomp, 'wb') as new_file, lzma.LZMAFile(fp, 'rb') as file:
+            for data in iter(lambda : file.read(100 *1024), b''):
+                new_file.write(data)
+    return decomp
 
