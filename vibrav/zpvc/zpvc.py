@@ -1,10 +1,12 @@
 from vibrav.core import Config
+from vibrav.util.print import dataframe_to_txt
 from exa.util.units import Length, Mass, Energy
 from exa.util.constants import Boltzmann_constant as boltzmann
 from exatomic.core.atom import Atom
 from exatomic.base import sym2z
 import numpy as np
 import pandas as pd
+import os
 
 class ZPVC:
     '''
@@ -376,6 +378,8 @@ class ZPVC:
             rows to the :attr:`zpvc_results` attribute. This will be the case for all of the
             class attributes printed above.
         """
+        zpvc_dir = 'zpvc-outputs'
+        if not os.path.exists(zpvc_dir): os.mkdir(zpvc_dir)
         config = self.config
         if property.shape[1] != 2:
             raise ValueError("Property dataframe must have a second dimension of 2 not " \
@@ -465,10 +469,20 @@ class ZPVC:
         for fdx, sval in enumerate(select_freq):
             kqiii[fdx] = (delfq_plus[fdx][sval] - 2.0 * delfq_zero[fdx][sval] + \
                                                 delfq_minus[fdx][sval]) / (sel_delta[fdx]**2)
+        fp = os.path.join(zpvc_dir, 'kqiii')
+        df = pd.DataFrame(kqiii.reshape(1,-1))
+        df.to_csv(fp+'.csv')
+        dataframe_to_txt(df=df, ncols=4, fp=fp+'.txt')
         # calculate anharmonic cubic force constant
         # this will have nmodes rows and snmodes cols
         kqijj = np.divide(delfq_plus - 2.0 * delfq_zero + delfq_minus,
                           np.multiply(sel_delta, sel_delta).reshape(snmodes,1))
+        fp = os.path.join(zpvc_dir, 'kqijj')
+        df = pd.DataFrame(kqijj)
+        df.columns.name = 'cols'
+        df.index.name = 'rows'
+        df.to_csv(fp+'.csv')
+        dataframe_to_txt(df=df, ncols=4, fp=fp+'.txt')
         # get property values
         prop_grouped = prop.groupby('file')
         # get the property value for the equilibrium coordinate
@@ -486,7 +500,17 @@ class ZPVC:
         prop_minus = prop_minus.values.reshape(snmodes,)
         # generate the derivatives of the property
         dprop_dq = np.divide(prop_plus - prop_minus, 2*sel_delta)
+        fp = os.path.join(zpvc_dir, 'dprop-dq')
+        df = pd.DataFrame(dprop_dq.reshape(1, -1))
+        df.columns.name = 'frequency'
+        df.to_csv(fp+'.csv')
+        dataframe_to_txt(df=df, ncols=4, fp=fp+'.txt')
         d2prop_dq2 = np.divide(prop_plus - 2*prop_zero + prop_minus, np.multiply(sel_delta, sel_delta))
+        fp = os.path.join(zpvc_dir, 'd2prop-dq2')
+        df = pd.DataFrame(dprop_dq.reshape(1, -1))
+        df.columns.name = 'frequency'
+        df.to_csv(fp+'.csv')
+        dataframe_to_txt(df=df, ncols=4, fp=fp+'.txt')
         # done with setting up everything
         # moving on to the actual calculations
 
@@ -575,7 +599,15 @@ class ZPVC:
             self.eff_coord = pd.concat(coor_dfs, ignore_index=True)
         self.zpvc_results = pd.DataFrame(zpvc_dfs, columns=['property', 'zpvc', 'zpva', 'tot_anharm', 
                                                             'tot_curva', 'temp'])
+        formatters = ['{:12.5f}'.format] + ['{:12.7f}'.format]*4 + ['{:d}'.format]
+        fp = os.path.join(zpvc_dir, 'results')
+        self.zpvc_results.to_csv(fp+'.csv')
+        dataframe_to_txt(self.zpvc_results, ncols=6, fp=fp+'.txt', float_format=formatters)
         self.vib_average = pd.concat(va_dfs, ignore_index=True)
+        formatters = ['{:10.3f}'.format, '{:8d}'.format] + ['{:12.7f}'.format]*3 + ['{:5d}'.format]
+        fp = os.path.join(zpvc_dir, 'vibrational-average')
+        self.vib_average.to_csv(fp+'.csv')
+        dataframe_to_txt(self.vib_average, ncols=6, fp=fp+'.txt', float_format=formatters)
 
     def __init__(self, config_file, *args, **kwargs):
         config = Config.open_config(config_file, self._required_inputs,

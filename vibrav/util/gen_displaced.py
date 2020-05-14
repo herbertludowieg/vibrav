@@ -202,6 +202,16 @@ class Displace(metaclass=DispMeta):
         Method to create the .dat files that are needed to perform the calculations for
         vibrational averaging.
 
+        This script will auto-generate the configuration file (:code:`'va.conf'` by default)
+        given in the config parameter. It will create it with the following input options,
+
+        - **DELTA_FILE**: delta.dat
+        - **SMATRIX_FILE**: smatrix.dat
+        - **ATOM_ORDER_FILE**: atom_order.dat
+        - **REDUCED_MASS_FILE**: redmass.dat
+        - **FREQUENCY_FILE**: freq.dat
+        - **DISPLAC_A_FILE**: displac_a.dat
+
         Args:
             cls (:class:`exatomic.Universe`): Universe object that has the frequency and atom
                                               dataframes.
