@@ -13,8 +13,7 @@
 # You should have received a copy of the GNU General Public License
 # along with vibrav.  If not, see <https://www.gnu.org/licenses/>.
 import numpy as np
-from numba import jit, prange, vectorize, float64, complex128
-from vibrav.util.math import abs2
+from numba import jit, vectorize, float64, complex128
 
 @vectorize([float64(float64, float64)])
 def compute_oscil_str(absorption, energy):
