@@ -19,6 +19,8 @@ class Tape21(six.with_metaclass(Tape21Meta, Editor)):
     '''
     Parser for ADF Tape21 that have been converted to an ASCII file with
     their dmpkf utility.
+
+    **All properties are parsed based on the input order.**
     '''
 
     @staticmethod
@@ -155,17 +157,29 @@ class Tape21(six.with_metaclass(Tape21Meta, Editor)):
         df['frame'] = 0
         self.frequency = df
 
-    def parse_atom(self):
+    def parse_atom(self, input_order=True):
+        '''
+        Parse the atom table.
+
+        Args:
+            input_order (:obj:`bool`, optional): Parse the atom table in the input order format.
+                                                 Defaults to :code:`False`.
+        '''
         # search flags
-        _reatom = "xyz InputOrder"
+        _reinpatom = "xyz InputOrder"
+        _reordatom = "xyz"
+        #_regeom = "Geometry"
         _reqtch = "qtch"
         _rentyp = "ntyp"
         _renqptr = "nqptr"
         _reinporder = "atom order index"
         _remass = "mass"
-        found = self.find(_reatom, _reqtch, _rentyp, _renqptr, _reinporder, _remass, keys_only=True)
-        ncoords = int(self[found[_reatom][0]+1].split()[0])
-        coords = self._dfme(np.array(found[_reatom]), ncoords)
+        found = self.find(_reinpatom, _reordatom, _reqtch, _rentyp, _renqptr, _reinporder,# _regeom,
+                          _remass, keys_only=True)
+        if input_order: _reatom = _reinpatom
+        else: _reatom = _reordatom
+        ncoords = self._intme(found[_reatom])
+        coords = self._dfme(found[_reatom], ncoords)
         x = coords[::3]
         y = coords[1::3]
         z = coords[2::3]
@@ -181,21 +195,26 @@ class Tape21(six.with_metaclass(Tape21Meta, Editor)):
         for n in range(ntyp):
             for idx in range(nqptr[n], nqptr[n+1]):
                 zordered[idx] = qtch[n]
-        # convert to the input structure
-        zinput = np.zeros(nat)
-        input_order = self._dfme(found[_reinporder], nat*2).reshape(2, nat).astype(int) - 1
-        # iterate over the input order array as this gives the location of each atom type after
-        # the re-ordering done in adf
-        for od, inp in zip(input_order[0], range(nat)):
-            zinput[inp] = zordered[od]
+        if input_order:
+            # convert to the input structure
+            zinput = np.zeros(nat)
+            input_order = self._dfme(found[_reinporder], nat*2).reshape(2, nat).astype(int) - 1
+            # iterate over the input order array as this gives the location of each atom type after
+            # the re-ordering done in adf
+            for od, inp in zip(input_order[0], range(nat)):
+                zinput[inp] = zordered[od]
+            Z = zinput.astype(int)
+        else:
+            Z = zordered
         set = np.array(list(range(nat)))
-        symbol = pd.Series(zinput).map(z2sym)
+        symbol = pd.Series(Z).map(z2sym)
         # put it all together
         df = pd.DataFrame.from_dict({'symbol': symbol, 'set': set, 'label': set, 'x': x, 'y': y,
-                                     'z': z, 'Z': zinput, 'frame': 0})
+                                     'z': z, 'Z': Z, 'frame': 0})
         self.atom = df
 
     def parse_gradient(self):
+        ''' Parse the gradients in the input order. '''
         # search flags
         _reinpgrad = "Gradients_InputOrder"
         _refrggrad = "Gradients_CART"
@@ -209,7 +228,7 @@ class Tape21(six.with_metaclass(Tape21Meta, Editor)):
         y = grad[1::3]
         z = grad[2::3]
         if not hasattr(self, 'atom'):
-            self.parse_atom()
+            self.parse_atom(input_order=True)
         symbol = self.atom['symbol'].values
         Z = self.atom['Z'].values.astype(int)
         atom = list(range(len(x)))
@@ -220,7 +239,32 @@ class Tape21(six.with_metaclass(Tape21Meta, Editor)):
         self.gradient = df
 
     def parse_nmr_shielding(self):
-        raise NotImplementedError("Coming soon!!")
+        ''' Parse the NMR shielding tensors in the input order. '''
+        _reiso = "NMR Shieldings InputOrder"
+        _retensor = "NMR Shielding Tensor InputOrder"
+        found = self.find(_reiso, _retensor, keys_only=True)
+        if not found[_reiso]:
+            return
+        if not hasattr(self, 'atom'):
+            self.parse_atom(input_order=True)
+        nshield = self._intme(found[_reiso])
+        shielding = self._dfme(found[_reiso], nshield)
+        ntens = self._intme(found[_retensor])
+        tensor = self._dfme(found[_retensor], ntens)
+        tensor = tensor.reshape(nshield, 9)
+        zeros = list(map(lambda x: all(x != 0), tensor))
+        requested = np.where(zeros)[0]
+        tensor = tensor[requested]
+        shielding = shielding[requested]
+        #requested = np.where(shielding != 0)[0]
+        cols = ['xx', 'xy', 'xz', 'yx', 'yy', 'yz', 'zx', 'zy', 'zz']
+        df = pd.DataFrame(tensor, columns=cols)
+        df['isotropic'] = shielding
+        df['atom'] = requested
+        df['symbol'] = self.atom.last_frame.iloc[requested]['symbol'].values
+        df['label'] = 'nmr_shielding'
+        df['frame'] = 0
+        self.nmr_shielding = df
 
     def parse_j_coupling(self):
         _reiso = "NMR Coupling J const InputOrder"
@@ -229,7 +273,7 @@ class Tape21(six.with_metaclass(Tape21Meta, Editor)):
         if not found[_reiso]:
             return
         if not hasattr(self, 'atom'):
-            self.parse_atom()
+            self.parse_atom(input_order=True)
         ncoupl = self._intme(found[_reiso])
         natom = np.sqrt(ncoupl)
         coupling = self._dfme(found[_reiso], ncoupl)
@@ -242,7 +286,7 @@ class Tape21(six.with_metaclass(Tape21Meta, Editor)):
         atoms = np.transpose(list(map(lambda x: divmod(x, natom), requested)))
         df['isotropic'] = coupling[coupling != 0]
         df['atom'] = atoms[0].astype(int)
-        symbols = self.atom['symbol'].values
+        symbols = self.atom.last_frame['symbol'].values
         if len(symbols) > natom:
             raise NotImplementedError("Cannot deal with more than one atom frame.")
         df['symbol'] = list(map(lambda x: symbols[x], df['atom'].values))
