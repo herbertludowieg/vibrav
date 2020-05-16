@@ -27,13 +27,16 @@ def test_vibronic_coupling(freqdx):
     base = base_oscil.groupby('freqdx').filter(lambda x: x['freqdx'].unique()
                                                          in freqdx)[cols].values
     test = test_oscil.groupby('sign').filter(lambda x: x['sign'].unique()
-                                                       in ['minus', 'plus'])[cols].values
+                                                       in ['minus', 'plus'])
+    test.sort_values(by=['freqdx', 'sign', 'nrow', 'ncol'], inplace=True)
+    test = test[cols].values
     assert np.allclose(base, test)
     # test that the individual components average to the isotropic value
     sum_oscil = np.zeros(base.shape[0])
     for idx in range(1, 4):
         df = open_txt(os.path.join('vibronic-outputs', 'oscillators-{}.txt'.format(idx)),
                       rearrange=False)
+        df.sort_values(by=['freqdx', 'sign', 'nrow', 'ncol'], inplace=True)
         sum_oscil += df['oscil'].values
     sum_oscil /= 3.
     assert np.allclose(base[:,0], sum_oscil)
