@@ -577,7 +577,7 @@ class Vibronic:
                 compute_d_dq(nstates, eigvectors, dprop_dq_so, dprop_dq)
                 # check if the array is hermitian
                 # this one should be
-                if property == 'electric_dipole':
+                if property == 'electric_dipole' or True:
                     dprop_dq *= tdm_prefac
                 # generate the full property vibronic states following equation S3 for the reference
                 if eq_cont:
