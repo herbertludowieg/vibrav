@@ -12,7 +12,7 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with vibrav.  If not, see <https://www.gnu.org/licenses/>.
-from exa.core import Editor
+from exa.core.editor import Editor
 import pandas as pd
 import numpy as np
 

@@ -1,4 +1,5 @@
-from exa.core import Editor, TypedMeta
+from exa.core.container import TypedMeta
+from exa.core.editor import Editor
 from exa.util.units import Length, Mass, Energy
 from exatomic.core.atom import Atom, Frequency
 from exatomic.core.gradient import Gradient
@@ -157,7 +158,7 @@ class Tape21(six.with_metaclass(Tape21Meta, Editor)):
         df['frame'] = 0
         self.frequency = df
 
-    def parse_atom(self, input_order=True):
+    def parse_atom(self, input_order=False):
         '''
         Parse the atom table.
 

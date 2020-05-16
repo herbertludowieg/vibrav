@@ -16,8 +16,6 @@ import pandas as pd
 import numpy as np
 import os
 import warnings
-from datetime import datetime, timedelta
-from time import time
 from vibrav.molcas import Output
 from exa.util.units import Time, Mass, Energy, Length
 from exa.util.constants import (speed_of_light_in_vacuum as speed_of_light,
@@ -27,9 +25,11 @@ from vibrav.numerical.vibronic_func import *
 from vibrav.core.config import Config
 from vibrav.numerical.degeneracy import energetic_degeneracy
 from vibrav.numerical.boltzmann import boltz_dist
-from glob import glob
 from vibrav.util.open_files import open_txt
 from vibrav.util.math import get_triu, ishermitian, abs2
+from glob import glob
+from datetime import datetime, timedelta
+from time import time
 
 class Vibronic:
     '''
