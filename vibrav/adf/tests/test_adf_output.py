@@ -32,7 +32,7 @@ def test_atom(editor, test_file):
 @pytest.mark.parametrize("res_file,test_file", freq_params)
 def test_frequency(editor, test_file):
     data = pd.read_csv(resource(test_file), compression='xz', header=0, index_col=False)
-    editor.parse_frequency()
+    editor.parse_frequency(cart=False)
     cols = ['dx', 'dy', 'dz', 'frequency']
     assert np.allclose(data[cols].values, editor.frequency[cols].values)
 
