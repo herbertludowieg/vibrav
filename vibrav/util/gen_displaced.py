@@ -1,8 +1,8 @@
 import pandas as pd
 import numpy as np
 import os
-from exatomic.core import Atom
-from exa import TypedMeta
+from exatomic.core.atom import Atom
+from exa.core.container import TypedMeta
 from exa.util.utility import mkp
 from exa.util.units import Length
 
