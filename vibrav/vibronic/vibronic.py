@@ -26,7 +26,7 @@ from vibrav.core.config import Config
 from vibrav.numerical.degeneracy import energetic_degeneracy
 from vibrav.numerical.boltzmann import boltz_dist
 from vibrav.util.open_files import open_txt
-from vibrav.util.math import get_triu, ishermitian, abs2
+from vibrav.util.math import get_triu, ishermitian, isantihermitian
 from glob import glob
 from datetime import datetime, timedelta
 from time import time
@@ -576,9 +576,22 @@ class Vibronic:
                 sf_to_so(nstates_sf, nstates, multiplicity, dprop_dq_sf, dprop_dq_so)
                 compute_d_dq(nstates, eigvectors, dprop_dq_so, dprop_dq)
                 # check if the array is hermitian
-                # this one should be
-                if property == 'electric_dipole' or True:
-                    dprop_dq *= tdm_prefac
+                if property == 'electric_dipole':
+                    if not ishermitian(dprop_dq):
+                        text = "The vibronic electric dipole at frequency {} for component {} " \
+                               +"was not found to be hermitian."
+                        raise ValueError(text.format(fdx, key))
+                elif property == 'magnetic_dipole':
+                    if not isantihermitian(dprop_dq):
+                        text = "The vibronic magentic dipole at frequency {} for component {} " \
+                               +"was not found to be non-hermitian."
+                        raise ValueError(text.format(fdx, key))
+                elif property == 'electric_quadrupole':
+                    if not ishermitian(dprop_dq):
+                        text = "The vibronic electric quadrupole at frequency {} for " \
+                               +"component {} was not found to be hermitian."
+                        raise ValueError(text.format(fdx, key))
+                dprop_dq *= tdm_prefac
                 # generate the full property vibronic states following equation S3 for the reference
                 if eq_cont:
                     raise NotImplementedError
