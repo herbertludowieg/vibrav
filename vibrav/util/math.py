@@ -21,8 +21,8 @@ def get_triu(arr, k=0):
 
     Args:
         arr (:obj:`numpy.array`): Array to parse the upper triangular elements
-        k (:obj:`int`): k parameter that goes into the `np.triu_indices_from` function. Refer to numpy
-                        documentation for more information.
+        k (:obj:`int`): k parameter that goes into the `np.triu_indices_from` function. Refer to
+                        numpy documentation for more information.
 
     Returns:
         triu_arr (:obj:`numpy.array`): 1D array with the upper triangular elements
@@ -33,6 +33,7 @@ def get_triu(arr, k=0):
     triu_arr = arr[triu]
     return triu_arr
 
+@vectorize
 def ishermitian(data):
     '''
     Check if the input array is hermitian.
@@ -50,6 +51,63 @@ def ishermitian(data):
     herm = np.conjugate(np.transpose(data))
     isherm = np.allclose(herm, data)
     return isherm
+
+@vectorize
+def isantihermitian(data):
+    '''
+    Check if the input array is symmetric.
+
+    Note:
+        This function does not determine if there are any non-numeric values.
+        It assumes that you are feeding an array of floats, ints, etc.
+
+    Args:
+        data (:obj:`numpy.array`): Array to be evaluated
+
+    Return:
+        isherm (:obj:`bool`): Is the array hermitian
+    '''
+    antiherm = -1.*np.conjugate(np.transpose(data))
+    isantiherm = np.allclose(antiherm, data)
+    return isantiherm
+
+@vectorize
+def issymmetric(data):
+    '''
+    Check if the input array is symmetric.
+
+    Note:
+        This function does not determine if there are any non-numeric values.
+        It assumes that you are feeding an array of floats, ints, etc.
+
+    Args:
+        data (:obj:`numpy.array`): Array to be evaluated
+
+    Return:
+        isherm (:obj:`bool`): Is the array hermitian
+    '''
+    symm = np.transpose(data)
+    issymm = np.allclose(symm, data)
+    return issymm
+
+@vectorize
+def isantisymmetric(data):
+    '''
+    Check if the input array is symmetric.
+
+    Note:
+        This function does not determine if there are any non-numeric values.
+        It assumes that you are feeding an array of floats, ints, etc.
+
+    Args:
+        data (:obj:`numpy.array`): Array to be evaluated
+
+    Return:
+        isherm (:obj:`bool`): Is the array hermitian
+    '''
+    antisymm = -1.*np.transpose(data)
+    isantisymm = np.allclose(antisymm, data)
+    return isantisymm
 
 @vectorize([float64(complex128)])
 def abs2(x):
