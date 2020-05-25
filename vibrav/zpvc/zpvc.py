@@ -7,6 +7,7 @@ from exatomic.base import sym2z
 import numpy as np
 import pandas as pd
 import os
+import warnings
 
 class ZPVC:
     '''
