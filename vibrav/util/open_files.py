@@ -134,7 +134,7 @@ def get_all_data(cls, path, property, f_start='', f_end=''):
     data = pd.concat(dfs, ignore_index=True)
     return data
 
-def uncompress_output(fp, compression='xz'):
+def uncompress_file(fp, compression='xz'):
     if compression == 'xz':
         decomp = fp.split(os.sep)[-1][:-3]
         with open(decomp, 'wb') as new_file, lzma.LZMAFile(fp, 'rb') as file:
