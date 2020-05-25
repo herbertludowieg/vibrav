@@ -26,7 +26,7 @@ from vibrav.core.config import Config
 from vibrav.numerical.degeneracy import energetic_degeneracy
 from vibrav.numerical.boltzmann import boltz_dist
 from vibrav.util.open_files import open_txt
-from vibrav.util.math import get_triu, ishermitian, isantihermitian
+from vibrav.util.math import get_triu, ishermitian, isantihermitian, abs2
 from glob import glob
 from datetime import datetime, timedelta
 from time import time
@@ -499,16 +499,17 @@ class Vibronic:
         else:
             raise NotImplementedError("Sorry the attribute that you are trying to use is not " \
                                      +"yet implemented.")
-        # get the spin-orbit property from the molcas output for the equilibrium geometry
-        dfs = []
-        for file in glob(so_file+'-?.txt'):
-            idx = int(file.split('-')[-1].replace('.txt', ''))
-            df = open_txt(file)
-            # use a mapper as we cannot ensure that the files are found in any
-            # expected order
-            df['component'] = idx_map[idx]
-            dfs.append(df)
-        so_props = pd.concat(dfs, ignore_index=True)
+        if eq_cont:
+            # get the spin-orbit property from the molcas output for the equilibrium geometry
+            dfs = []
+            for file in glob(so_file+'-?.txt'):
+                idx = int(file.split('-')[-1].replace('.txt', ''))
+                df = open_txt(file)
+                # use a mapper as we cannot ensure that the files are found in any
+                # expected order
+                df['component'] = idx_map[idx]
+                dfs.append(df)
+            so_props = pd.concat(dfs, ignore_index=True)
         # number of components
         ncomp = len(idx_map.keys())
         # for easier access
