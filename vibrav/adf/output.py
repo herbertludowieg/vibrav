@@ -5,6 +5,7 @@ from exatomic.core.atom import Atom, Frequency
 from exatomic.core.gradient import Gradient
 from exatomic.core.tensor import JCoupling
 from exatomic.base import z2sym, sym2isomass
+from vibrav.numerical.redmass import rmass_mwc, rmass_cart
 import numpy as np
 import pandas as pd
 import six
@@ -24,32 +25,75 @@ class Tape21(six.with_metaclass(Tape21Meta, Editor)):
     **All properties are parsed based on the input order.**
     '''
 
-    @staticmethod
-    def rmass_mwc(data, symbol):
-        cols = ['dx', 'dy', 'dz']
-        mapper = sym2isomass(symbol)
-        mass = list(map(mapper.get, symbol))
-        mass = np.repeat(mass, 3).astype(float)
-        mass = mass.reshape(data[cols].shape)
-        disps = data[cols].values
-        r_mass = np.sum(np.square(disps)/mass)
-        r_mass = 1/r_mass
-        return r_mass
-
-    @staticmethod
-    def rmass_cart(data, symbol):
-        cols = ['dx', 'dy', 'dz']
-        mapper = sym2isomass(symbol)
-        mass = list(map(mapper.get, symbol))
-        mass = np.repeat(mass, 3).astype(float)
-        mass = mass.reshape(data[cols].shape)
-        disps = data[cols].values
-        norms = np.linalg.norm(disps*np.sqrt(mass))
-        norms = 1/norms
-        disps *= norms
-        r_mass = np.sum(np.square(disps))
-        r_mass = 1/r_mass
-        return r_mass
+#    @staticmethod
+#    def rmass_mwc(data, symbol):
+#        '''
+#        Calculate the reduced masses from the mass-weighted normal modes. With
+#        the equation,
+#
+#        .. math::
+#            \\mu_i = \\left(\\sum_k^{3N} \\left(\\frac{l_{MWCk,i}}
+#                                                {\\sqrt{m_k}}\\right)^2\\right)^{-1}
+#
+#        Note:
+#            This assumes that the normal modes have already been placed in the
+#            :code:`['dx', 'dy', 'dz']` columns.
+#
+#        Args:
+#            data (:class:`pandas.DataFrame`): Data frame the has the mass-weighted
+#                                              normal modes.
+#            symbol (:obj:`list`): List-like object that has the atomic symbols.
+#
+#        Returns:
+#            r_mass (:class:`numpy.ndarray`): Array containing the calculated reduced
+#                                             masses.
+#        '''
+#        cols = ['dx', 'dy', 'dz']
+#        mapper = sym2isomass(symbol)
+#        mass = list(map(mapper.get, symbol))
+#        mass = np.repeat(mass, 3).astype(float)
+#        mass = mass.reshape(data[cols].shape)
+#        disps = data[cols].values
+#        r_mass = np.sum(np.square(disps)/mass)
+#        r_mass = 1/r_mass
+#        return r_mass
+#
+#    @staticmethod
+#    def rmass_cart(data, symbol):
+#        '''
+#        Calculate the reduced masses from the normalized non-mass-weighted cartesian
+#        normal modes. With the equation,
+#
+#        .. math::
+#            \\mu_i = \\left(\\sum_k^{3N} l_{CARTk,i}^2\\right)^{-1}
+#
+#        Note:
+#            This assumes that the normal modes have already been placed in the
+#            :code:`['dx', 'dy', 'dz']` columns.
+#
+#        Args:
+#            data (:class:`pandas.DataFrame`): Data frame the has the non-mass-weighted
+#                                              cartesian normal modes.
+#            symbol (:obj:`list`): List-like object that has the atomic symbols.
+#
+#        Returns:
+#            r_mass (:class:`numpy.ndarray`): Array containing the calculated reduced
+#                                             masses.
+#        '''
+#        cols = ['dx', 'dy', 'dz']
+#        # get the isotopic masses of the unique atoms
+#        mapper = sym2isomass(symbol)
+#        # get a list of the isotopic masses
+#        mass = list(map(mapper.get, symbol))
+#        mass = np.repeat(mass, 3).astype(float)
+#        mass = mass.reshape(data[cols].shape)
+#        disps = data[cols].values
+#        norms = np.linalg.norm(disps*np.sqrt(mass))
+#        norms = 1/norms
+#        disps *= norms
+#        r_mass = np.sum(np.square(disps))
+#        r_mass = 1/r_mass
+#        return r_mass
 
     def _intme(self, fitem, idx=0):
         return int(self[fitem[idx]+1].split()[0])
@@ -70,6 +114,11 @@ class Tape21(six.with_metaclass(Tape21Meta, Editor)):
             averaging. Also, it will be unable to calculate the reduced masses as it will
             have normalized cartesian coordinates where it expects normalized
             mass-weighted cartesian normal modes.
+
+        Args:
+            cart (:obj:`bool`, optional): Parse the normalized cartesian coordinates or
+                                          the mass-weighted normal modes. Defaults to
+                                          :code:`True`.
         '''
         # search flags
         _renorm = "NormalModes_RAW"
@@ -141,16 +190,15 @@ class Tape21(six.with_metaclass(Tape21Meta, Editor)):
         mass = symbol.map(mapper).astype(float).values
         symbol = np.tile(self.atom['symbol'], nmodes)
         mass = np.repeat(mass, 3)
-        print(dx.shape, dy.shape, dz.shape, freq.shape, freqdx.shape)
         # put the data together
         df = pd.DataFrame({'dx': dx, 'dy': dy, 'dz': dz, 'frequency': freq,
                            'freqdx': freqdx})
         cols = ['dx', 'dy', 'dz']
         # calculate the reduced masses
         if not cart:
-            r_mass = df.groupby(['freqdx']).apply(self.rmass_mwc, self.atom['symbol']).values
+            r_mass = df.groupby(['freqdx']).apply(rmass_mwc, self.atom['symbol']).values
         else:
-            r_mass = df.groupby(['freqdx']).apply(self.rmass_cart, self.atom['symbol']).values
+            r_mass = df.groupby(['freqdx']).apply(rmass_cart, self.atom['symbol']).values
         df['r_mass'] = np.repeat(r_mass, nat)
         df['symbol'] = symbol
         df['label'] = label
@@ -233,8 +281,8 @@ class Tape21(six.with_metaclass(Tape21Meta, Editor)):
         symbol = self.atom['symbol'].values
         Z = self.atom['Z'].values.astype(int)
         atom = list(range(len(x)))
-        df = pd.DataFrame.from_dict({'Z': Z, 'atom': atom, 'fx': x, 'fy': y, 'fz': z, 'symbol': symbol,
-                                     'frame': 0})
+        df = pd.DataFrame.from_dict({'Z': Z, 'atom': atom, 'fx': x, 'fy': y, 'fz': z,
+                                     'symbol': symbol, 'frame': 0})
         df = df[['atom', 'Z', 'fx', 'fy', 'fz', 'symbol', 'frame']]
         #for u in ['fx', 'fy', 'fz']: df[u] *= 1./Length['Angstrom', 'au']
         self.gradient = df
