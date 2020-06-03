@@ -27,6 +27,7 @@ from vibrav.numerical.degeneracy import energetic_degeneracy
 from vibrav.numerical.boltzmann import boltz_dist
 from vibrav.util.open_files import open_txt
 from vibrav.util.math import get_triu, ishermitian, isantihermitian, abs2
+from vibrav.util.print import dataframe_to_txt
 from glob import glob
 from datetime import datetime, timedelta
 from time import time
@@ -127,6 +128,112 @@ class Vibronic:
         else:
             if np.any(pd.isnull(data)):
                 raise TypeError("NaN values were found in the data for '{}'".format(var_name))
+
+    def _parse_energies(self, ed, sf_file='', so_file=''):
+        # parse the energies from the output is the energy files are not available
+        if sf_file != '':
+            try:
+                energies_sf = pd.read_csv(config.sf_energies_file, header=None,
+                                          comment='#').values.reshape(-1,)
+            except FileNotFoundError:
+                text = "The file {} was not found. Reading the spin-free energies directly " \
+                       +"from the zero order output file {}."
+                warnings.warn(text.format(config.sf_energies_file, config.zero_order_file),
+                              Warning) \
+                ed.parse_sf_energy()
+                energies_sf = ed.sf_energy['energy'].values
+        else:
+            ed.parse_sf_energy()
+            energies_sf = ed.sf_energy['energy'].values
+        self.check_size(energies_sf, (nstates_sf,), 'energies_sf')
+        if so_file != '':
+            try:
+                energies_so = pd.read_csv(config.so_energies_file, header=None,
+                                          comment='#').values.reshape(-1,)
+            except FileNotFoundError:
+                text = "The file {} was not found. Reading the spin-orbit energies directly " \
+                       +"from the zero order output file {}."
+                warnings.warn(text.format(config.so_energies_file, config.zero_order_file),
+                              Warning)
+                ed.parse_so_energy()
+                energies_so = ed.so_energy['energy'].values
+        else:
+            ed.parse_so_energy()
+            energies_so = ed.so_energy['energy'].values
+        self.check_size(energies_so, (nstates,), 'energies_so')
+        return energies_sf, energies_so
+
+    def get_hamiltonian_deriv(self, nselected, delta, redmass):
+        # read the hamiltonian files in each of the confg??? directories
+        # it is assumed that the directories are named confg with a 3-fold padded number (000)
+        padding = 3
+        plus_matrix = []
+        minus_matrix = []
+        found_modes = []
+        if isinstance(select_fdx, (list, tuple, np.ndarray)):
+            if select_fdx[0] == -1 and len(select_fdx) == 1:
+                select_fdx = select_fdx[0]
+            elif select_fdx[0] != -1:
+                pass
+            else:
+                raise ValueError("The all condition for selecting frequencies (-1) was passed " \
+                                +"along with other frequencies.")
+        if select_fdx == -1:
+            freq_range = list(range(1, nmodes+1))
+        else:
+            if isinstance(select_fdx, int): select_fdx = [select_fdx]
+            freq_range = np.array(select_fdx) + 1
+        nselected = len(freq_range)
+        for idx in freq_range:
+            # error catching serves the purpose to know which
+            # of the hamiltonian files are missing
+            try:
+                plus = open_txt(os.path.join('confg'+str(idx).zfill(padding), 'ham-sf.txt'))
+                try:
+                    minus = open_txt(os.path.join('confg'+str(idx+nmodes).zfill(padding),
+                                                  'ham-sf.txt'))
+                except FileNotFoundError:
+                    warnings.warn("Could not find ham-sf.txt file for in directory " \
+                                  +'confg'+str(idx+nmodes).zfill(padding) \
+                                  +"\nIgnoring frequency index {}".format(idx), Warning)
+                    continue
+            except FileNotFoundError:
+                warnings.warn("Could not find ham-sf.txt file for in directory " \
+                              +'confg'+str(idx).zfill(padding) \
+                              +"\nIgnoring frequency index {}".format(idx), Warning)
+                continue
+            # put it all together only if both plus and minus
+            # ham-sf.txt files are found
+            plus_matrix.append(plus)
+            minus_matrix.append(minus)
+            found_modes.append(idx-1)
+        ham_plus = pd.concat(plus_matrix, ignore_index=True)
+        ham_minus = pd.concat(minus_matrix, ignore_index=True)
+        dham_dq = ham_plus - ham_minus
+        if nselected != len(found_modes):
+            warnings.warn("Number of selected normal modes is not equal to found modes, " \
+                         +"currently, {} and {}\n".format(nselected, len(found_modes)) \
+                         +"Overwriting the number of selceted normal modes by the number "\
+                         +"of found modes.", Warning)
+            nselected = len(found_modes)
+        self.check_size(dham_dq, (nstates_sf*nselected, nstates_sf), 'dham_dq')
+        # TODO: this division by the sqrt of the mass needs to be verified
+        #       left as is for the time being as it was in the original code
+        sf_sqrt_rmass = np.repeat(np.sqrt(rmass.loc[found_modes].values*Mass['u', 'au_mass']),
+                                  nstates_sf).reshape(-1, 1)
+        sf_delta = np.repeat(delta.loc[found_modes].values, nstates_sf).reshape(-1, 1)
+        if use_sqrt_rmass:
+            to_dq = 2 * sf_sqrt_rmass * sf_delta
+        else:
+            warnings.warn("We assume that you used non-mass-weighted displacements to generate " \
+                          +"the displaced structures. We cannot ensure that this actually works.",
+                          Warning)
+            to_dq = 2 * sf_delta
+        # convert to normal coordinates
+        dham_dq = dham_dq / to_dq
+        # add a frequency index reference
+        dham_dq['freqdx'] = np.repeat(found_modes, nstates_sf)
+        return dham_dq
 
     def magnetic_oscillator(self):
         raise NotImplementedError("Needs to be fixed!!!")
@@ -283,53 +390,27 @@ class Vibronic:
             tmp = tmp.T
             tmp.index = pd.Index(range(tmp.shape[0]), name='state')
             tmp.columns = boltz_factor['freqdx']
-            formatters = ['{:11.7f}'.format]*nmodes
             print_cols = 6
-            start = 0
-            end = print_cols
             text = " Printing Boltzmann populations for each normal mode with the\n" \
                   +" energies from the {} file.".format(config.frequency_file)
             print('='*78)
             print(text)
             print('-'*78)
-            while end <= nmodes:
-                cols = range(start, end)
-                tmp1 = tmp[cols]
-                tmp1 = tmp1.loc[tmp1[cols[0]].values.round(8) != 0]
-                formatters = ['{:11.7f}'.format]*len(cols)
-                print(tmp1.to_string(formatters=formatters, columns=cols))
-                start += print_cols
-                end += print_cols
-                print('')
-            else:
-                cols = range(start, nmodes)
-                tmp1 = tmp[cols]
-                tmp1 = tmp1.loc[tmp1[cols[0]].values.round(8) != 0]
-                formatters = ['{:11.7f}'.format]*len(cols)
-                print(tmp1.to_string(formatters=formatters, columns=cols))
+            print(dataframe_to_txt(tmp, float_format=['{:11.7f}'.format]*nmodes,
+                                   ncols=print_cols))
             print('='*78)
-            formatters = ['{:11.7f}'.format]*nmodes
             tmp = boltz.copy()
             tmp.index = tmp['freqdx']
             tmp.drop(['freqdx'], inplace=True, axis=1)
             tmp = tmp.T
-            start = 0
-            end = print_cols
             print('\n\n')
             text = " Printing the Boltzmann weighting for the plus an minus displaced\n" \
                   +" and the respective partition function for each normal mode."
             print('='*81)
             print(text)
             print('-'*81)
-            while end <= nmodes:
-                cols = range(start, end)
-                print(tmp.to_string(formatters=formatters, columns=cols))
-                start += print_cols
-                end += print_cols
-                print('')
-            else:
-                cols = range(start, nmodes)
-                print(tmp.to_string(formatters=formatters, columns=cols))
+            print(dataframe_to_txt(tmp, float_format=['{:11.7f}'.format]*nmodes,
+                                   ncols=print_cols))
             print('='*81)
             #print('-'*80)
             #print("Printing the boltzmann distribution for all")
@@ -370,107 +451,11 @@ class Vibronic:
                 df = pd.DataFrame.from_dict(df_dict)
                 print(df.to_string(index=False))
         self.check_size(eigvectors, (nstates, nstates), 'eigvectors')
-        # read the hamiltonian files in each of the confg??? directories
-        # it is assumed that the directories are named confg with a 3-fold padded number (000)
-        padding = 3
-        plus_matrix = []
-        minus_matrix = []
-        found_modes = []
-        if isinstance(select_fdx, (list, tuple, np.ndarray)):
-            if select_fdx[0] == -1 and len(select_fdx) == 1:
-                select_fdx = select_fdx[0]
-            elif select_fdx[0] != -1:
-                pass
-            else:
-                raise ValueError("The all condition for selecting frequencies (-1) was passed " \
-                                +"along with other frequencies.")
-        if select_fdx == -1:
-            freq_range = list(range(1, nmodes+1))
-        else:
-            if isinstance(select_fdx, int): select_fdx = [select_fdx]
-            freq_range = np.array(select_fdx) + 1
-        nselected = len(freq_range)
-        for idx in freq_range:
-            # error catching serves the purpose to know which
-            # of the hamiltonian files are missing
-            try:
-                plus = open_txt(os.path.join('confg'+str(idx).zfill(padding), 'ham-sf.txt'))
-                try:
-                    minus = open_txt(os.path.join('confg'+str(idx+nmodes).zfill(padding),
-                                                  'ham-sf.txt'))
-                except FileNotFoundError:
-                    warnings.warn("Could not find ham-sf.txt file for in directory " \
-                                  +'confg'+str(idx+nmodes).zfill(padding) \
-                                  +"\nIgnoring frequency index {}".format(idx), Warning)
-                    continue
-            except FileNotFoundError:
-                warnings.warn("Could not find ham-sf.txt file for in directory " \
-                              +'confg'+str(idx).zfill(padding) \
-                              +"\nIgnoring frequency index {}".format(idx), Warning)
-                continue
-            # put it all together only if both plus and minus
-            # ham-sf.txt files are found
-            plus_matrix.append(plus)
-            minus_matrix.append(minus)
-            found_modes.append(idx-1)
-        ham_plus = pd.concat(plus_matrix, ignore_index=True)
-        ham_minus = pd.concat(minus_matrix, ignore_index=True)
-        dham_dq = ham_plus - ham_minus
-        if nselected != len(found_modes):
-            warnings.warn("Number of selected normal modes is not equal to found modes, " \
-                         +"currently, {} and {}\n".format(nselected, len(found_modes)) \
-                         +"Overwriting the number of selceted normal modes by the number "\
-                         +"of found modes.", Warning)
-            nselected = len(found_modes)
-        self.check_size(dham_dq, (nstates_sf*nselected, nstates_sf), 'dham_dq')
-        # TODO: this division by the sqrt of the mass needs to be verified
-        #       left as is for the time being as it was in the original code
-        sf_sqrt_rmass = np.repeat(np.sqrt(rmass.loc[found_modes].values*Mass['u', 'au_mass']),
-                                  nstates_sf).reshape(-1, 1)
-        sf_delta = np.repeat(delta.loc[found_modes].values, nstates_sf).reshape(-1, 1)
-        if use_sqrt_rmass:
-            to_dq = 2 * sf_sqrt_rmass * sf_delta
-        else:
-            warnings.warn("We assume that you used non-mass-weighted displacements to generate " \
-                          +"the displaced structures. We cannot ensure that this actually works.",
-                          Warning)
-            to_dq = 2 * sf_delta
-        # convert to normal coordinates
-        dham_dq = dham_dq / to_dq
-        # add a frequency index reference
-        dham_dq['freqdx'] = np.repeat(found_modes, nstates_sf)
+        dham_dq = self.get_hamiltonian_deriv(nselected, delta, rmass)
+        found_modes = dham_dq['freqdx'].unique()
         # TODO: it would be really cool if we could just input a list of properties to compute
         #       and the program will take care of the rest
         ed = Output(config.zero_order_file)
-        # parse the energies from the output is the energy files are not available
-        if config.sf_energies_file != '':
-            try:
-                energies_sf = pd.read_csv(config.sf_energies_file, header=None,
-                                          comment='#').values.reshape(-1,)
-            except FileNotFoundError:
-                warnings.warn("The file {} was not found. Reading ".format(config.sf_energies_file) \
-                              +"spin-free energies direclty from the " \
-                              +"zero order output file {}".format(config.zero_order_file), Warning)
-                ed.parse_sf_energy()
-                energies_sf = ed.sf_energy['energy'].values
-        else:
-            ed.parse_sf_energy()
-            energies_sf = ed.sf_energy['energy'].values
-        self.check_size(energies_sf, (nstates_sf,), 'energies_sf')
-        if config.so_energies_file != '':
-            try:
-                energies_so = pd.read_csv(config.so_energies_file, header=None,
-                                          comment='#').values.reshape(-1,)
-            except FileNotFoundError:
-                warnings.warn("The file {} was not found. Reading ".format(config.so_energies_file) \
-                              +"spin-orbit energies direclty from the " \
-                              +"zero order output file {}".format(config.zero_order_file), Warning)
-                ed.parse_so_energy()
-                energies_so = ed.so_energy['energy'].values
-        else:
-            ed.parse_so_energy()
-            energies_so = ed.so_energy['energy'].values
-        self.check_size(energies_so, (nstates,), 'energies_so')
         # get the property of choice from the zero order file given in the config file
         # the extra column in each of the parsed properties comes from the component column
         # in the molcas output parser
@@ -514,6 +499,8 @@ class Vibronic:
         ncomp = len(idx_map.keys())
         # for easier access
         idx_map_rev = {v: k for k, v in idx_map.items()}
+        energies_sf, energies_so = self._parse_energies(ed, config.sf_energies_file,
+                                                        config.so_energies_file)
         # timing things
         time_setup = time() - program_start
         # counter just for timing statistics
