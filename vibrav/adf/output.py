@@ -3,7 +3,7 @@ from exa.core.editor import Editor
 from exa.util.units import Length, Mass, Energy
 from exatomic.core.atom import Atom, Frequency
 from exatomic.core.gradient import Gradient
-from exatomic.core.tensor import JCoupling
+from exatomic.core.tensor import JCoupling, NMRShielding
 from exatomic.base import z2sym, sym2isomass
 from vibrav.numerical.redmass import rmass_mwc, rmass_cart
 import numpy as np
