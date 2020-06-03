@@ -133,37 +133,37 @@ class Vibronic:
         # parse the energies from the output is the energy files are not available
         if sf_file != '':
             try:
-                energies_sf = pd.read_csv(config.sf_energies_file, header=None,
+                energies_sf = pd.read_csv(self.config.sf_energies_file, header=None,
                                           comment='#').values.reshape(-1,)
             except FileNotFoundError:
                 text = "The file {} was not found. Reading the spin-free energies directly " \
                        +"from the zero order output file {}."
-                warnings.warn(text.format(config.sf_energies_file, config.zero_order_file),
-                              Warning) \
+                warnings.warn(text.format(self.config.sf_energies_file, config.zero_order_file),
+                              Warning)
                 ed.parse_sf_energy()
                 energies_sf = ed.sf_energy['energy'].values
         else:
             ed.parse_sf_energy()
             energies_sf = ed.sf_energy['energy'].values
-        self.check_size(energies_sf, (nstates_sf,), 'energies_sf')
+        self.check_size(energies_sf, (self.nstates_sf,), 'energies_sf')
         if so_file != '':
             try:
-                energies_so = pd.read_csv(config.so_energies_file, header=None,
+                energies_so = pd.read_csv(self.config.so_energies_file, header=None,
                                           comment='#').values.reshape(-1,)
             except FileNotFoundError:
                 text = "The file {} was not found. Reading the spin-orbit energies directly " \
                        +"from the zero order output file {}."
-                warnings.warn(text.format(config.so_energies_file, config.zero_order_file),
+                warnings.warn(text.format(self.config.so_energies_file, config.zero_order_file),
                               Warning)
                 ed.parse_so_energy()
                 energies_so = ed.so_energy['energy'].values
         else:
             ed.parse_so_energy()
             energies_so = ed.so_energy['energy'].values
-        self.check_size(energies_so, (nstates,), 'energies_so')
+        self.check_size(energies_so, (self.nstates,), 'energies_so')
         return energies_sf, energies_so
 
-    def get_hamiltonian_deriv(self, nselected, delta, redmass):
+    def get_hamiltonian_deriv(self, select_fdx, delta, redmass, nmodes, use_sqrt_rmass):
         # read the hamiltonian files in each of the confg??? directories
         # it is assumed that the directories are named confg with a 3-fold padded number (000)
         padding = 3
@@ -216,12 +216,12 @@ class Vibronic:
                          +"Overwriting the number of selceted normal modes by the number "\
                          +"of found modes.", Warning)
             nselected = len(found_modes)
-        self.check_size(dham_dq, (nstates_sf*nselected, nstates_sf), 'dham_dq')
+        #self.check_size(dham_dq, (self.nstates_sf*nselected, self.nstates_sf), 'dham_dq')
         # TODO: this division by the sqrt of the mass needs to be verified
         #       left as is for the time being as it was in the original code
-        sf_sqrt_rmass = np.repeat(np.sqrt(rmass.loc[found_modes].values*Mass['u', 'au_mass']),
-                                  nstates_sf).reshape(-1, 1)
-        sf_delta = np.repeat(delta.loc[found_modes].values, nstates_sf).reshape(-1, 1)
+        sf_sqrt_rmass = np.repeat(np.sqrt(redmass.loc[found_modes].values*Mass['u', 'au_mass']),
+                                  self.nstates_sf).reshape(-1, 1)
+        sf_delta = np.repeat(delta.loc[found_modes].values, self.nstates_sf).reshape(-1, 1)
         if use_sqrt_rmass:
             to_dq = 2 * sf_sqrt_rmass * sf_delta
         else:
@@ -232,7 +232,7 @@ class Vibronic:
         # convert to normal coordinates
         dham_dq = dham_dq / to_dq
         # add a frequency index reference
-        dham_dq['freqdx'] = np.repeat(found_modes, nstates_sf)
+        dham_dq['freqdx'] = np.repeat(found_modes, self.nstates_sf)
         return dham_dq
 
     def magnetic_oscillator(self):
@@ -451,7 +451,7 @@ class Vibronic:
                 df = pd.DataFrame.from_dict(df_dict)
                 print(df.to_string(index=False))
         self.check_size(eigvectors, (nstates, nstates), 'eigvectors')
-        dham_dq = self.get_hamiltonian_deriv(nselected, delta, rmass)
+        dham_dq = self.get_hamiltonian_deriv(select_fdx, delta, rmass, nmodes, use_sqrt_rmass)
         found_modes = dham_dq['freqdx'].unique()
         # TODO: it would be really cool if we could just input a list of properties to compute
         #       and the program will take care of the rest

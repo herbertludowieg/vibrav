@@ -33,7 +33,6 @@ def get_triu(arr, k=0):
     triu_arr = arr[triu]
     return triu_arr
 
-@vectorize
 def ishermitian(data):
     '''
     Check if the input array is hermitian.
@@ -52,7 +51,6 @@ def ishermitian(data):
     isherm = np.allclose(herm, data)
     return isherm
 
-@vectorize
 def isantihermitian(data):
     '''
     Check if the input array is symmetric.
@@ -71,7 +69,6 @@ def isantihermitian(data):
     isantiherm = np.allclose(antiherm, data)
     return isantiherm
 
-@vectorize
 def issymmetric(data):
     '''
     Check if the input array is symmetric.
@@ -90,7 +87,6 @@ def issymmetric(data):
     issymm = np.allclose(symm, data)
     return issymm
 
-@vectorize
 def isantisymmetric(data):
     '''
     Check if the input array is symmetric.
