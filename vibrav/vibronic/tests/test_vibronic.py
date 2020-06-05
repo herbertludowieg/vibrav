@@ -21,22 +21,27 @@ def test_vibronic_coupling(freqdx):
     base_oscil = open_txt(resource('molcas-ucl6-2minus-oscillators.txt.xz'), compression='xz',
                           rearrange=False)
     test_oscil = open_txt(os.path.join('vibronic-outputs', 'oscillators-0.txt'), rearrange=False)
+    test_oscil = test_oscil[np.logical_and(test_oscil['oscil'].values > 0,
+                                           test_oscil['energy'].values > 0)]
     cols = ['oscil', 'energy']
     if freqdx[0] == -1:
         freqdx = range(15)
     base = base_oscil.groupby('freqdx').filter(lambda x: x['freqdx'].unique()
-                                                         in freqdx)[cols].values
+                                                         in freqdx)
+    base.sort_values(by=['freqdx', 'sign', 'nrow', 'ncol'], inplace=True)
+    base = base[cols].values
     test = test_oscil.groupby('sign').filter(lambda x: x['sign'].unique()
                                                        in ['minus', 'plus'])
     test.sort_values(by=['freqdx', 'sign', 'nrow', 'ncol'], inplace=True)
     test = test[cols].values
-    assert np.allclose(base[:,0], test[:,0], atol=1e-10)
+    assert np.allclose(base[:,0], test[:,0])
     assert np.allclose(base[:,1], test[:,1])
     # test that the individual components average to the isotropic value
     sum_oscil = np.zeros(base.shape[0])
     for idx in range(1, 4):
         df = open_txt(os.path.join('vibronic-outputs', 'oscillators-{}.txt'.format(idx)),
                       rearrange=False)
+        df = df[np.logical_and(df['oscil'].values > 0, df['energy'].values > 0)]
         df.sort_values(by=['freqdx', 'sign', 'nrow', 'ncol'], inplace=True)
         sum_oscil += df['oscil'].values
     sum_oscil /= 3.
