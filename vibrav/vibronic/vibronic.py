@@ -668,6 +668,8 @@ class Vibronic:
                     for energy in energies:
                         fn.write('{:.9E}\n'.format(energy))
             if write_sf_property:
+                initial = np.tile(range(nstates_sf), nstates_sf)+1
+                final = np.repeat(range(nstates_sf), nstates_sf)+1
                 for idx, (minus, plus) in enumerate(zip(*vib_prop_sf)):
                     plus_T = plus.flatten()
                     real = np.real(plus_T)
@@ -679,7 +681,7 @@ class Vibronic:
                     with open(filename, 'w') as fn:
                         fn.write('{:>5s}  {:>6s}  {:>18s}  {:>18s}\n'.format('#NROW', 'NCOL',
                                                                              'REAL', 'IMAG'))
-                        for i in range(nstates*nstates):
+                        for i in range(nstates_sf*nstates_sf):
                             fn.write(template(initial[i], final[i], real[i], imag[i]))
                     minus_T = minus.flatten()
                     real = np.real(minus_T)
@@ -691,9 +693,11 @@ class Vibronic:
                     with open(filename, 'w') as fn:
                         fn.write('{:>5s}  {:>6s}  {:>10s}  {:>10s}\n'.format('#NROW', 'NCOL',
                                                                              'REAL', 'IMAG'))
-                        for i in range(nstates*nstates):
+                        for i in range(nstates_sf*nstates_sf):
                             fn.write(template(initial[i], final[i], real[i], imag[i]))
             if write_sf_property:
+                initial = np.tile(range(nstates), nstates)+1
+                final = np.repeat(range(nstates), nstates)+1
                 for idx, (minus, plus) in enumerate(zip(*vib_prop_sf_so_len)):
                     plus_T = plus.flatten()
                     real = np.real(plus_T)
@@ -720,6 +724,8 @@ class Vibronic:
                         for i in range(nstates*nstates):
                             fn.write(template(initial[i], final[i], real[i], imag[i]))
             if write_dham_dq:
+                initial = np.tile(range(nstates_sf), nstates_sf)+1
+                final = np.repeat(range(nstates_sf), nstates_sf)+1
                 dir_name = os.path.join('vib'+str(founddx+1).zfill(3))
                 if not os.path.exists(dir_name):
                     os.makedirs(dir_name, 0o755)
@@ -729,24 +735,8 @@ class Vibronic:
                 with open(filename, 'w') as fn:
                     fn.write('{:>5s}  {:>6s}  {:>10s}  {:>10s}\n'.format('#NROW', 'NCOL',
                                                                          'REAL', 'IMAG'))
-                    for i in range(nstates*nstates):
+                    for i in range(nstates_sf*nstates_sf):
                         fn.write(template(initial[i], final[i], real[i], imag[i]))
-                #dir_name = os.path.join('vib'+str(founddx+1).zfill(3), 'minus')
-                #with open(os.path.join(dir_name, 'energies-sf.txt'), 'w') as fn:
-                #    fn.write('# {} (atomic units)\n'.format(nstates))
-                #    energies = energies_sf + (1./2.)*evib - energies_sf[0]
-                #    energies[range(gs_degeneracy)] = energies_so[:gs_degeneracy] \
-                #                                        - energies_so[0] + (3./2.)*evib
-                #    for energy in energies:
-                #        fn.write('{:.9E}\n'.format(energy))
-                #dir_name = os.path.join('vib'+str(founddx+1).zfill(3), 'plus')
-                #with open(os.path.join(dir_name, 'energies-sf.txt'), 'w') as fn:
-                #    fn.write('# {} (atomic units)\n'.format(nstates))
-                #    energies = energies_sf + (3./2.)*evib - energies_sf[0]
-                #    energies[range(gs_degeneracy)] = energies_so[:gs_degeneracy] \
-                #                                        - energies_sf[0] + (1./2.)*evib
-                #    for energy in energies:
-                #        fn.write('{:.9E}\n'.format(energy))
             if (property.replace('_', '-') == 'electric-dipole') and write_oscil:
                 mapper = {0: 'iso', 1: 'x', 2: 'y', 3: 'z'}
                 # finally get the oscillator strengths from equation S12
