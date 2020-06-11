@@ -557,6 +557,7 @@ class Vibronic:
             self.check_size(dham_dq_mode, (nstates_sf, nstates_sf), 'dham_dq_mode')
             tdm_prefac = np.sqrt(planck_constant_au \
                                  /(2*speed_of_light_au*freq[founddx]/Length['cm', 'au']))/(2*np.pi)
+            print("TDM prefac: {:.4f}".format(tdm_prefac))
             # iterate over all of the available components
             for idx, (key, val) in enumerate(grouped_data):
                 start = time()
