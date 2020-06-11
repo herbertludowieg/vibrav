@@ -383,6 +383,7 @@ class Vibronic:
         boltz = pd.DataFrame(boltz, columns=['minus', 'plus'])
         boltz['freqdx'] = boltz_factor['freqdx']
         boltz['partition'] = boltz_factor['partition']
+        boltz.index = boltz['freqdx'].values
         filename = os.path.join(vib_dir, 'boltzmann-populations.csv')
         boltz.to_csv(filename, index=False)
         if print_stdout and False:
@@ -752,7 +753,7 @@ class Vibronic:
                 nrow = np.tile(range(nstates), nstates) + 1
                 ncol = np.repeat(range(nstates), nstates) + 1
                 for idx, (val, sign) in enumerate(zip([-1, 1], ['minus', 'plus'])):
-                    boltz_factor = boltz.groupby('freqdx').get_group(founddx)[sign]
+                    boltz_factor = boltz.loc[founddx, sign]
                     absorption = abs2(vib_prop[idx].reshape(ncomp, nstates*nstates))
                     # get the transition energies
                     energy = energies_so.reshape(-1, 1) - energies_so.reshape(-1,) + val*evib
