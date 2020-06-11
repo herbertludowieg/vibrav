@@ -289,7 +289,8 @@ class Vibronic:
 
     def vibronic_coupling(self, property, write_property=True, write_energy=True, write_oscil=True,
                           print_stdout=True, temp=298, eq_cont=False, verbose=False,
-                          use_sqrt_rmass=True, select_fdx=-1, boltz_states=None, boltz_tol=1e-6):
+                          use_sqrt_rmass=True, select_fdx=-1, boltz_states=None, boltz_tol=1e-6,
+                          write_sf_oscil=False, write_sf_property=False, write_dham_dq=False):
         '''
         Vibronic coupling method to calculate the vibronic coupling by the equations as given
         in reference *J. Phys. Chem. Lett.* **2018**, 9, 887-894. This code follows a similar structure
@@ -384,7 +385,7 @@ class Vibronic:
         boltz['partition'] = boltz_factor['partition']
         filename = os.path.join(vib_dir, 'boltzmann-populations.csv')
         boltz.to_csv(filename, index=False)
-        if print_stdout:
+        if print_stdout and False:
             tmp = boltz_factor.copy()
             tmp = tmp[tmp.columns[:-3]]
             tmp = tmp.T
@@ -528,8 +529,23 @@ class Vibronic:
                 fn.write(header('#NROW', 'NCOL', 'OSCIL', 'ENERGY', 'FREQDX', 'SIGN'))
             with open(os.path.join(vib_dir, osc_tmp(3)), 'w') as fn:
                 fn.write(header('#NROW', 'NCOL', 'OSCIL', 'ENERGY', 'FREQDX', 'SIGN'))
+        if write_sf_oscil:
+            osc_tmp = 'oscillators-sf-{}.txt'.format
+            header = "{:>5s} {:>5s} {:>24s} {:>24s} {:>6s} {:>7s}".format
+            oscil_formatters = ['{:>5d}'.format]*2+['{:>24.16E}'.format]*2 \
+                               +['{:>6d}'.format, '{:>7s}'.format]
+            with open(os.path.join(vib_dir, osc_tmp(0)), 'w') as fn:
+                fn.write(header('#NROW', 'NCOL', 'OSCIL', 'ENERGY', 'FREQDX', 'SIGN'))
+            with open(os.path.join(vib_dir, osc_tmp(1)), 'w') as fn:
+                fn.write(header('#NROW', 'NCOL', 'OSCIL', 'ENERGY', 'FREQDX', 'SIGN'))
+            with open(os.path.join(vib_dir, osc_tmp(2)), 'w') as fn:
+                fn.write(header('#NROW', 'NCOL', 'OSCIL', 'ENERGY', 'FREQDX', 'SIGN'))
+            with open(os.path.join(vib_dir, osc_tmp(3)), 'w') as fn:
+                fn.write(header('#NROW', 'NCOL', 'OSCIL', 'ENERGY', 'FREQDX', 'SIGN'))
         for fdx, founddx in enumerate(found_modes):
             vib_prop = np.zeros((2, ncomp, nstates, nstates), dtype=np.complex128)
+            vib_prop_sf = np.zeros((2, ncomp, nstates_sf, nstates_sf), dtype=np.float64)
+            vib_prop_sf_so_len = np.zeros((2, ncomp, nstates, nstates), dtype=np.float64)
             vib_start = time()
             if print_stdout:
                 print("*******************************************")
@@ -565,6 +581,10 @@ class Vibronic:
                         text = "The vibronic electric dipole at frequency {} for component {} " \
                                +"was not found to be hermitian."
                         raise ValueError(text.format(fdx, key))
+                    if not ishermitian(dprop_dq_sf):
+                        text = "The vibronic electric dipole at frequency {} for component {} " \
+                               +"was not found to be hermitian."
+                        raise ValueError(text.format(fdx, key))
                 elif property == 'magnetic_dipole':
                     if not isantihermitian(dprop_dq):
                         text = "The vibronic magentic dipole at frequency {} for component {} " \
@@ -576,6 +596,8 @@ class Vibronic:
                                +"component {} was not found to be hermitian."
                         raise ValueError(text.format(fdx, key))
                 dprop_dq *= tdm_prefac
+                dprop_dq_sf *= tdm_prefac
+                dprop_dq_so *= tdm_prefac
                 # generate the full property vibronic states following equation S3 for the reference
                 if eq_cont:
                     so_prop = so_props.groupby('component').get_group(key).drop('component', axis=1)
@@ -585,9 +607,17 @@ class Vibronic:
                     # store the transpose as it will make some things easier down the line
                     vib_prop_plus = fc*dprop_dq.T
                     vib_prop_minus = fc*-dprop_dq.T
+                    vib_prop_sf_plus = fc*dprop_dq_sf.T
+                    vib_prop_sf_minus = fc*-dprop_dq_sf.T
+                    vib_prop_sf_so_len_plus = fc*dprop_dq_so.T
+                    vib_prop_sf_so_len_minus = fc*-dprop_dq_so.T
                 # store in array
                 vib_prop[0][idx_map_rev[key]-1] = vib_prop_minus
                 vib_prop[1][idx_map_rev[key]-1] = vib_prop_plus
+                vib_prop_sf[0][idx_map_rev[key]-1] = vib_prop_sf_minus
+                vib_prop_sf[1][idx_map_rev[key]-1] = vib_prop_sf_plus
+                vib_prop_sf_so_len[0][idx_map_rev[key]-1] = vib_prop_sf_so_len_minus
+                vib_prop_sf_so_len[1][idx_map_rev[key]-1] = vib_prop_sf_so_len_plus
             # calculate the oscillator strengths
             evib = freq[founddx]*Energy['cm^-1', 'Ha']
             initial = np.tile(range(nstates), nstates)+1
@@ -635,6 +665,86 @@ class Vibronic:
                                                         - energies_so[0] + (1./2.)*evib
                     for energy in energies:
                         fn.write('{:.9E}\n'.format(energy))
+            if write_sf_property:
+                for idx, (minus, plus) in enumerate(zip(*vib_prop_sf)):
+                    plus_T = plus.flatten()
+                    real = np.real(plus_T)
+                    imag = np.imag(plus_T)
+                    dir_name = os.path.join('vib'+str(founddx+1).zfill(3), 'plus')
+                    if not os.path.exists(dir_name):
+                        os.makedirs(dir_name, 0o755, exist_ok=True)
+                    filename = os.path.join(dir_name, out_file+'-sf-{}.txt'.format(idx+1))
+                    with open(filename, 'w') as fn:
+                        fn.write('{:>5s}  {:>6s}  {:>18s}  {:>18s}\n'.format('#NROW', 'NCOL',
+                                                                             'REAL', 'IMAG'))
+                        for i in range(nstates*nstates):
+                            fn.write(template(initial[i], final[i], real[i], imag[i]))
+                    minus_T = minus.flatten()
+                    real = np.real(minus_T)
+                    imag = np.imag(minus_T)
+                    dir_name = os.path.join('vib'+str(founddx+1).zfill(3), 'minus')
+                    if not os.path.exists(dir_name):
+                        os.makedirs(dir_name, 0o755)
+                    filename = os.path.join(dir_name, out_file+'-sf-{}.txt'.format(idx+1))
+                    with open(filename, 'w') as fn:
+                        fn.write('{:>5s}  {:>6s}  {:>10s}  {:>10s}\n'.format('#NROW', 'NCOL',
+                                                                             'REAL', 'IMAG'))
+                        for i in range(nstates*nstates):
+                            fn.write(template(initial[i], final[i], real[i], imag[i]))
+            if write_sf_property:
+                for idx, (minus, plus) in enumerate(zip(*vib_prop_sf_so_len)):
+                    plus_T = plus.flatten()
+                    real = np.real(plus_T)
+                    imag = np.imag(plus_T)
+                    dir_name = os.path.join('vib'+str(founddx+1).zfill(3), 'plus')
+                    if not os.path.exists(dir_name):
+                        os.makedirs(dir_name, 0o755, exist_ok=True)
+                    filename = os.path.join(dir_name, out_file+'-sf-so-len-{}.txt'.format(idx+1))
+                    with open(filename, 'w') as fn:
+                        fn.write('{:>5s}  {:>6s}  {:>18s}  {:>18s}\n'.format('#NROW', 'NCOL',
+                                                                             'REAL', 'IMAG'))
+                        for i in range(nstates*nstates):
+                            fn.write(template(initial[i], final[i], real[i], imag[i]))
+                    minus_T = minus.flatten()
+                    real = np.real(minus_T)
+                    imag = np.imag(minus_T)
+                    dir_name = os.path.join('vib'+str(founddx+1).zfill(3), 'minus')
+                    if not os.path.exists(dir_name):
+                        os.makedirs(dir_name, 0o755)
+                    filename = os.path.join(dir_name, out_file+'-sf-so-len-{}.txt'.format(idx+1))
+                    with open(filename, 'w') as fn:
+                        fn.write('{:>5s}  {:>6s}  {:>10s}  {:>10s}\n'.format('#NROW', 'NCOL',
+                                                                             'REAL', 'IMAG'))
+                        for i in range(nstates*nstates):
+                            fn.write(template(initial[i], final[i], real[i], imag[i]))
+            if write_dham_dq:
+                dir_name = os.path.join('vib'+str(founddx+1).zfill(3))
+                if not os.path.exists(dir_name):
+                    os.makedirs(dir_name, 0o755)
+                filename = os.path.join(dir_name, 'hamiltonian-derivs.txt')
+                real = np.real(dham_dq_mode.flatten(order='F'))
+                imag = np.imag(dham_dq_mode.flatten(order='F'))
+                with open(filename, 'w') as fn:
+                    fn.write('{:>5s}  {:>6s}  {:>10s}  {:>10s}\n'.format('#NROW', 'NCOL',
+                                                                         'REAL', 'IMAG'))
+                    for i in range(nstates*nstates):
+                        fn.write(template(initial[i], final[i], real[i], imag[i]))
+                #dir_name = os.path.join('vib'+str(founddx+1).zfill(3), 'minus')
+                #with open(os.path.join(dir_name, 'energies-sf.txt'), 'w') as fn:
+                #    fn.write('# {} (atomic units)\n'.format(nstates))
+                #    energies = energies_sf + (1./2.)*evib - energies_sf[0]
+                #    energies[range(gs_degeneracy)] = energies_so[:gs_degeneracy] \
+                #                                        - energies_so[0] + (3./2.)*evib
+                #    for energy in energies:
+                #        fn.write('{:.9E}\n'.format(energy))
+                #dir_name = os.path.join('vib'+str(founddx+1).zfill(3), 'plus')
+                #with open(os.path.join(dir_name, 'energies-sf.txt'), 'w') as fn:
+                #    fn.write('# {} (atomic units)\n'.format(nstates))
+                #    energies = energies_sf + (3./2.)*evib - energies_sf[0]
+                #    energies[range(gs_degeneracy)] = energies_so[:gs_degeneracy] \
+                #                                        - energies_sf[0] + (1./2.)*evib
+                #    for energy in energies:
+                #        fn.write('{:.9E}\n'.format(energy))
             if (property.replace('_', '-') == 'electric-dipole') and write_oscil:
                 mapper = {0: 'iso', 1: 'x', 2: 'y', 3: 'z'}
                 # finally get the oscillator strengths from equation S12
@@ -662,7 +772,8 @@ class Vibronic:
                         text = ''
                         # use a for loop instead of a df.to_string() as it is significantly faster
                         for nr, nc, osc, eng in zip(nrow, ncol, oscil, energy):
-                            text += '\n'+template.format(nr, nc, osc, eng, founddx, sign)
+                            if osc > 0 and eng > 0:
+                                text += '\n'+template.format(nr, nc, osc, eng, founddx, sign)
                         fn.write(text)
                     if print_stdout:
                         text = " Wrote isotropic oscillators to {} for sign {} in {:.2f} s"
@@ -678,7 +789,59 @@ class Vibronic:
                         with open(filename, 'a') as fn:
                             text = ''
                             for nr, nc, osc, eng in zip(nrow, ncol, oscil, energy):
+                                if osc > 0 and eng > 0:
+                                    text += '\n'+template.format(nr, nc, osc, eng, founddx, sign)
+                            fn.write(text)
+                        if print_stdout:
+                            text = " Wrote oscillators for {} component to {} for sign " \
+                                   +"{} in {:.2f} s"
+                            print(text.format(mapper[idx+1], filename, sign, time() - start))
+            if (property.replace('_', '-') == 'electric-dipole') and write_sf_oscil:
+                mapper = {0: 'iso', 1: 'x', 2: 'y', 3: 'z'}
+                # finally get the oscillator strengths from equation S12
+                to_drop = ['component', 'freqdx', 'sign', 'prop']
+                nrow = np.tile(range(nstates_sf), nstates_sf) + 1
+                ncol = np.repeat(range(nstates_sf), nstates_sf) + 1
+                for idx, (val, sign) in enumerate(zip([-1, 1], ['minus', 'plus'])):
+                    boltz_factor = boltz.loc[founddx, sign]
+                    absorption = abs2(vib_prop_sf[idx].reshape(ncomp, nstates_sf*nstates_sf))
+                    # get the transition energies
+                    energy = energies_sf.reshape(-1, 1) - energies_sf.reshape(-1,) + val*evib
+                    energy = energy.flatten()
+                    # check for correct size
+                    self.check_size(energy, (nstates_sf*nstates_sf,), 'energy')
+                    self.check_size(absorption, (ncomp, nstates_sf*nstates_sf), 'absorption')
+                    # compute the isotropic oscillators
+                    oscil = boltz_factor * 2./3. * compute_oscil_str(np.sum(absorption, axis=0),
+                                                                     energy)
+                    # write to file
+                    template = ' '.join(['{:>5d}']*2 + ['{:>24.16E}']*2 \
+                                        + ['{:>6d}', '{:>7s}'])
+                    filename = os.path.join('vibronic-outputs', 'oscillators-sf-0.txt')
+                    start = time()
+                    with open(filename, 'a') as fn:
+                        text = ''
+                        # use a for loop instead of a df.to_string() as it is significantly faster
+                        for nr, nc, osc, eng in zip(nrow, ncol, oscil, energy):
+                            if osc > 0 and eng > 0:
                                 text += '\n'+template.format(nr, nc, osc, eng, founddx, sign)
+                        fn.write(text)
+                    if print_stdout:
+                        text = " Wrote isotropic oscillators to {} for sign {} in {:.2f} s"
+                        print(text.format(filename, sign, time() - start))
+                    # compute the oscillators for the individual cartesian components
+                    for idx, component in enumerate(absorption):
+                        self.check_size(component, (nstates_sf*nstates_sf,),
+                                        'absorption component {}'.format(idx))
+                        oscil = boltz_factor * 2. * compute_oscil_str(component, energy)
+                        filename = os.path.join('vibronic-outputs',
+                                                'oscillators-sf-{}.txt'.format(idx+1))
+                        start = time()
+                        with open(filename, 'a') as fn:
+                            text = ''
+                            for nr, nc, osc, eng in zip(nrow, ncol, oscil, energy):
+                                if osc > 0 and eng > 0:
+                                    text += '\n'+template.format(nr, nc, osc, eng, founddx, sign)
                             fn.write(text)
                         if print_stdout:
                             text = " Wrote oscillators for {} component to {} for sign " \
