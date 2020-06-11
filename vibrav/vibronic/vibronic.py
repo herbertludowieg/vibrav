@@ -752,7 +752,7 @@ class Vibronic:
                 nrow = np.tile(range(nstates), nstates) + 1
                 ncol = np.repeat(range(nstates), nstates) + 1
                 for idx, (val, sign) in enumerate(zip([-1, 1], ['minus', 'plus'])):
-                    boltz_factor = boltz.loc[founddx, sign]
+                    boltz_factor = boltz.groupby('freqdx').get_group(founddx)[sign]
                     absorption = abs2(vib_prop[idx].reshape(ncomp, nstates*nstates))
                     # get the transition energies
                     energy = energies_so.reshape(-1, 1) - energies_so.reshape(-1,) + val*evib
