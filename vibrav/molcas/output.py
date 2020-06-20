@@ -171,7 +171,7 @@ class Output(Editor):
         _reenerg = " SO-RASSI State "
         found = self.find(_reenerg)
         if not found:
-            return
+            raise AttributeError("Could not find the Spin-Orbit energies.")
         energies = []
         for _, line in found:
             energy = float(line.split()[-1])
