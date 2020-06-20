@@ -19,7 +19,7 @@ import warnings
 import re
 import lzma
 
-def open_txt(fp, rearrange=True, **kwargs):
+def open_txt(fp, rearrange=True, get_complex=False, **kwargs):
     '''
     Method to open a .txt file that has a separator of ' ' with the first columns ordered as
     ['nrow', 'ncol', 'real', 'imag']. We take care of adding the two values to generate a
@@ -74,6 +74,8 @@ def open_txt(fp, rearrange=True, **kwargs):
                                                                      len(df['ncol'].unique())))
     else:
         matrix = df.copy()
+        if get_complex:
+            matrix['complex'] = matrix['real'] + 1j*df['imag']
     return matrix
 
 def get_all_data(cls, path, property, f_start='', f_end=''):
