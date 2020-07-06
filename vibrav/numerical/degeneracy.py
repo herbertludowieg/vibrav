@@ -1,7 +1,7 @@
 import numpy as np
 import pandas as pd
 
-def energetic_degeneracy(data_df, degen_delta, rtol=1e-12, numpy=True):
+def energetic_degeneracy(data_df, degen_delta, rtol=1e-12, numpy=True, original_order=False):
     '''
     Get the energetic degeneracies within the energy tolerance given by the
     `degen_delta` parameter. This is mean to keep track of the indeces at which
@@ -46,14 +46,15 @@ def energetic_degeneracy(data_df, degen_delta, rtol=1e-12, numpy=True):
     # we then sort by the energies without reseting the index
     # because that way we keep track of the input energy ordering
     if not numpy:
-        sorted = data_df.sort_values()
+        df = pd.DataFrame.from_dict({'energy': data_df, 'sort': range(data_df.shape[0])})
+        sorted = df.sort_values(by=df.columns[0])
         index = sorted.index.values
-        data = sorted.values
+        data = sorted['energy'].values
     else:
-        df = pd.Series(data_df)
-        sorted = df.sort_values()
+        df = pd.DataFrame.from_dict({'energy': data_df, 'sort': range(data_df.shape[0])})
+        sorted = df.sort_values(by=df.columns[0])
         index = sorted.index.values
-        data = sorted.values
+        data = sorted['energy'].values
     # iterate over all of the energies
     while idx < data.shape[0]:
         # determine what is degenerate
@@ -65,12 +66,16 @@ def energetic_degeneracy(data_df, degen_delta, rtol=1e-12, numpy=True):
         degen_index = index[ddx]
         mean = np.mean(degen_vals)
         # add however many degenerate energies are found
-        idx += ddx.shape[0]
         # put everything together
-        df = pd.DataFrame.from_dict({'value': [mean], 'degen': [ddx.shape[0]]})
+        df = pd.DataFrame.from_dict({'value': [mean], 'degen': [ddx.shape[0]],
+                                     'sort': index[idx]})
+        idx += ddx.shape[0]
         found = np.transpose(degen_index)
         df['index'] = [found]
         degen_states.append(df)
     degeneracy = pd.concat(degen_states, ignore_index=True)
+    if original_order:
+        degeneracy.sort_values(by=['sort'], inplace=True)
+        degeneracy.reset_index(drop=True, inplace=True)
     return degeneracy
 
