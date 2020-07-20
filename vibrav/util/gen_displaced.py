@@ -264,7 +264,7 @@ class Displace(metaclass=DispMeta):
         disp *= Length['au', 'Angstrom']
         freqdx = freq['freqdx'].drop_duplicates().values
         n = len(atom_order)
-        with open(mkp(path, fn), 'w') as f:
+        with open(os.path.join(path, fn), 'w') as f:
             f.write("actual displacement in angstroms\n")
             f.write("atom normal_mode distance_atom_moves\n")
             for fdx in range(len(freqdx)):
@@ -280,10 +280,10 @@ class Displace(metaclass=DispMeta):
         text += template("FREQUENCY_FILE", "freq.dat")
         text += template("DISPLAC_A_FILE", "displac_a.dat")
         if config is None:
-            with open(mkp(path, 'va.conf'), 'w') as fn:
+            with open(os.path.join(path, 'va.conf'), 'w') as fn:
                 fn.write(text)
         else:
-            with open(mkp(path, config), 'a') as fn:
+            with open(os.path.join(path, config), 'a') as fn:
                 fn.write(text)
 
     def __init__(self, cls, *args, **kwargs):
