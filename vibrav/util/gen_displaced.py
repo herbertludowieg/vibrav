@@ -3,7 +3,6 @@ import numpy as np
 import os
 from exatomic.core.atom import Atom
 from exa.core.container import TypedMeta
-from exa.util.utility import mkp
 from exa.util.units import Length
 
 def gen_delta(freq, delta_type, disp=None, norm=0.04):
@@ -193,7 +192,7 @@ class Displace(metaclass=DispMeta):
 
     @staticmethod
     def _write_data_file(path, array, fn):
-        with open(mkp(path, fn), 'w') as f:
+        with open(os.path.join(path, fn), 'w') as f:
             for item in array:
                 f.write("{}\n".format(item))
 
