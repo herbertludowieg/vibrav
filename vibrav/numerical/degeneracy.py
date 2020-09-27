@@ -1,7 +1,8 @@
 import numpy as np
 import pandas as pd
 
-def energetic_degeneracy(data_df, degen_delta, rtol=1e-12, numpy=True, original_order=False):
+def energetic_degeneracy(data_df, degen_delta, rtol=1e-12, numpy=True, original_order=False,
+                         min_sort=False):
     '''
     Get the energetic degeneracies within the energy tolerance given by the
     `degen_delta` parameter. This is mean to keep track of the indeces at which
@@ -46,7 +47,8 @@ def energetic_degeneracy(data_df, degen_delta, rtol=1e-12, numpy=True, original_
     # we then sort by the energies without reseting the index
     # because that way we keep track of the input energy ordering
     if not numpy:
-        df = pd.DataFrame.from_dict({'energy': data_df, 'sort': range(data_df.shape[0])})
+        df = pd.DataFrame.from_dict({'energy': data_df.values.flatten(),
+                                     'sort': range(data_df.shape[0])})
         sorted = df.sort_values(by=df.columns[0])
         index = sorted.index.values
         data = sorted['energy'].values
@@ -67,8 +69,12 @@ def energetic_degeneracy(data_df, degen_delta, rtol=1e-12, numpy=True, original_
         mean = np.mean(degen_vals)
         # add however many degenerate energies are found
         # put everything together
-        df = pd.DataFrame.from_dict({'value': [mean], 'degen': [ddx.shape[0]],
-                                     'sort': index[idx]})
+        if min_sort:
+            df = pd.DataFrame.from_dict({'value': [mean], 'degen': [ddx.shape[0]],
+                                         'sort': min(degen_index)})
+        else:
+            df = pd.DataFrame.from_dict({'value': [mean], 'degen': [ddx.shape[0]],
+                                         'sort': index[idx]})
         idx += ddx.shape[0]
         found = np.transpose(degen_index)
         df['index'] = [found]
