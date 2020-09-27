@@ -290,7 +290,8 @@ class Vibronic:
     def vibronic_coupling(self, property, write_property=True, write_energy=True, write_oscil=True,
                           print_stdout=True, temp=298, eq_cont=False, verbose=False,
                           use_sqrt_rmass=True, select_fdx=-1, boltz_states=None, boltz_tol=1e-6,
-                          write_sf_oscil=False, write_sf_property=False, write_dham_dq=False):
+                          write_sf_oscil=False, write_sf_property=False, write_dham_dq=False,
+                          write_all_oscil=False):
         '''
         Vibronic coupling method to calculate the vibronic coupling by the equations as given
         in reference *J. Phys. Chem. Lett.* **2018**, 9, 887-894. This code follows a similar structure
@@ -764,7 +765,10 @@ class Vibronic:
                         text = ''
                         # use a for loop instead of a df.to_string() as it is significantly faster
                         for nr, nc, osc, eng in zip(nrow, ncol, oscil, energy):
-                            if osc > 0 and eng > 0:
+                            if not write_all_oscil:
+                                if osc > 0 and eng > 0:
+                                    text += '\n'+template.format(nr, nc, osc, eng, founddx, sign)
+                            else:
                                 text += '\n'+template.format(nr, nc, osc, eng, founddx, sign)
                         fn.write(text)
                     if print_stdout:
@@ -781,7 +785,11 @@ class Vibronic:
                         with open(filename, 'a') as fn:
                             text = ''
                             for nr, nc, osc, eng in zip(nrow, ncol, oscil, energy):
-                                if osc > 0 and eng > 0:
+                                if not write_all_oscil:
+                                    if osc > 0 and eng > 0:
+                                        text += '\n'+template.format(nr, nc, osc, eng, founddx,
+                                                                     sign)
+                                else:
                                     text += '\n'+template.format(nr, nc, osc, eng, founddx, sign)
                             fn.write(text)
                         if print_stdout:
@@ -815,7 +823,10 @@ class Vibronic:
                         text = ''
                         # use a for loop instead of a df.to_string() as it is significantly faster
                         for nr, nc, osc, eng in zip(nrow, ncol, oscil, energy):
-                            if osc > 0 and eng > 0:
+                            if write_all_oscil:
+                                if osc > 0 and eng > 0:
+                                    text += '\n'+template.format(nr, nc, osc, eng, founddx, sign)
+                            else:
                                 text += '\n'+template.format(nr, nc, osc, eng, founddx, sign)
                         fn.write(text)
                     if print_stdout:
@@ -832,7 +843,11 @@ class Vibronic:
                         with open(filename, 'a') as fn:
                             text = ''
                             for nr, nc, osc, eng in zip(nrow, ncol, oscil, energy):
-                                if osc > 0 and eng > 0:
+                                if write_all_oscil:
+                                    if osc > 0 and eng > 0:
+                                        text += '\n'+template.format(nr, nc, osc, eng, founddx,
+                                                                     sign)
+                                else:
                                     text += '\n'+template.format(nr, nc, osc, eng, founddx, sign)
                             fn.write(text)
                         if print_stdout:
