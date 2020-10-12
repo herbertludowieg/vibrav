@@ -153,12 +153,12 @@ class Output(Editor):
         Get the Spin-Free energies.
         '''
         _reenerg = " RASSI State "
-        _reengrg_rasscf = " RASSCF root number"
+        _reenerg_rasscf = " RASSCF root number"
         found = self.find(_reenerg, _reenerg_rasscf)
         key = ''
         if found[_reenerg]:
             key = _reenerg
-        elif found[_renerg_rasscf]:
+        elif found[_reenerg_rasscf]:
             key = _reenerg_rasscf
         else:
             return
