@@ -153,11 +153,19 @@ class Output(Editor):
         Get the Spin-Free energies.
         '''
         _reenerg = " RASSI State "
-        found = self.find(_reenerg)
-        if not found:
+        _reengrg_rasscf = " RASSCF root number"
+        found = self.find(_reenerg, _reenerg_rasscf)
+        key = ''
+        if found[_reenerg]:
+            key = _reenerg
+        elif found[_renerg_rasscf:
+            key = _reenerg_rasscf
+        else:
             return
+        if key == '':
+            raise ValueError("This should not have executed at all")
         energies = []
-        for _, line in found:
+        for _, line in found[key]:
             energy = float(line.split()[-1])
             energies.append(energy)
         rel_energy = list(map(lambda x: x - energies[0], energies))
