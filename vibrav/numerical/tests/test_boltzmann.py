@@ -18,6 +18,9 @@ boltz_params = [(df.groupby('states').get_group(3), np.array([65.2308, 65.2461, 
 @pytest.mark.parametrize("expected, freq, states", part_params)
 def test_partition(expected, freq, states):
     boltz = boltz_dist(energies=freq, temp=temp, states=states)
+    print(boltz)
+    print(expected)
+    assert False
     assert np.allclose(expected, boltz['partition'].values)
 
 @pytest.mark.parametrize("expected, freq, states", boltz_params)

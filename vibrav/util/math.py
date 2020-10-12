@@ -65,7 +65,9 @@ def isantihermitian(data):
     Return:
         isherm (:obj:`bool`): Is the array hermitian
     '''
-    antiherm = -1.*np.conjugate(np.transpose(data))
+    if isinstance(data, (list, tuple)): data = np.array(data)
+    a = -1*(np.ones(data.shape) - np.eye(data.shape[0])) + np.eye(data.shape[0])
+    antiherm = a*np.conjugate(np.transpose(data))
     isantiherm = np.allclose(antiherm, data)
     return isantiherm
 
@@ -83,6 +85,9 @@ def issymmetric(data):
     Return:
         isherm (:obj:`bool`): Is the array hermitian
     '''
+    if np.iscomplex(data).any():
+        raise TypeError("The data type that was detected in the passed data were " \
+                        +"complex instead or real values. Use ishermitian instead.")
     symm = np.transpose(data)
     issymm = np.allclose(symm, data)
     return issymm
@@ -101,7 +106,12 @@ def isantisymmetric(data):
     Return:
         isherm (:obj:`bool`): Is the array hermitian
     '''
-    antisymm = -1.*np.transpose(data)
+    if isinstance(data, (list, tuple)): data = np.array(data)
+    if np.iscomplex(data).any():
+        raise TypeError("The data type that was detected in the passed data were " \
+                        +"complex instead or real values. Use isantihermitian instead.")
+    a = -1*(np.ones(data.shape) - np.eye(data.shape[0])) + np.eye(data.shape[0])
+    antisymm = a*np.transpose(data)
     isantisymm = np.allclose(antisymm, data)
     return isantisymm
 

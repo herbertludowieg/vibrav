@@ -89,7 +89,8 @@ def boltz_dist(energies, temp, tol=1e-6, states=None, ignore_max=False):
     # to simplify code
     def _boltzmann(energ, nu, temp):
         ''' Boltzmann distribution function. '''
-        return np.exp(-energ*nu/(boltz_constant*Energy['J', 'cm^-1']*temp))
+        boltzconst = 0.69503480041119800
+        return np.exp(-energ*nu/(boltzconst*temp))
     # resursive function
     def _partition_func(energ, nu, temp):
         ''' Partition function. '''
