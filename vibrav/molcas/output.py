@@ -158,7 +158,7 @@ class Output(Editor):
         key = ''
         if found[_reenerg]:
             key = _reenerg
-        elif found[_renerg_rasscf:
+        elif found[_renerg_rasscf]:
             key = _reenerg_rasscf
         else:
             return
