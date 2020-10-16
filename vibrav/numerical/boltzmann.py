@@ -1,7 +1,7 @@
 import numpy as np
 import pandas as pd
 import warnings
-from exa.util.constants import Boltzmann_constant as boltz_constant
+from exa.util.constants import Boltzmann_constant_in_inverse_meter_per_kelvin as boltz_const
 from exa.util.units import Energy
 
 def boltz_dist(energies, temp, tol=1e-6, states=None, ignore_max=False):
@@ -89,8 +89,7 @@ def boltz_dist(energies, temp, tol=1e-6, states=None, ignore_max=False):
     # to simplify code
     def _boltzmann(energ, nu, temp):
         ''' Boltzmann distribution function. '''
-        boltzconst = 0.69503480041119800
-        return np.exp(-energ*nu/(boltzconst*temp))
+        return np.exp(-energ*nu/(boltz_const/100*temp))
     # resursive function
     def _partition_func(energ, nu, temp):
         ''' Partition function. '''
