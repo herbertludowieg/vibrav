@@ -17,10 +17,10 @@ import numpy as np
 import os
 import warnings
 from vibrav.molcas import Output
-from exa.util.units import Time, Mass, Energy, Length
+from exa.util.units import Time, Length
 from exa.util.constants import (speed_of_light_in_vacuum as speed_of_light,
-                                Planck_constant as planck_constant,
-                                Boltzmann_constant as boltz_constant)
+                                Planck_constant as planck_constant)
+from exa.util import conversions as conv
 from vibrav.numerical.vibronic_func import *
 from vibrav.core.config import Config
 from vibrav.numerical.degeneracy import energetic_degeneracy
@@ -219,7 +219,7 @@ class Vibronic:
         #self.check_size(dham_dq, (self.nstates_sf*nselected, self.nstates_sf), 'dham_dq')
         # TODO: this division by the sqrt of the mass needs to be verified
         #       left as is for the time being as it was in the original code
-        sf_sqrt_rmass = np.repeat(np.sqrt(redmass.loc[found_modes].values*Mass['u', 'au_mass']),
+        sf_sqrt_rmass = np.repeat(np.sqrt(redmass.loc[found_modes].values*(1/conv.amu2u)),
                                   self.nstates_sf).reshape(-1, 1)
         sf_delta = np.repeat(delta.loc[found_modes].values, self.nstates_sf).reshape(-1, 1)
         if use_sqrt_rmass:
@@ -303,6 +303,8 @@ class Vibronic:
             magnetic_dipole and electric_quadrupole, currently. For more properties please reach out
             through github or via email.
 
+            This will only work with data from Molcas/OpenMolcas.
+
         Warning:
             The value of the energy difference parameter (`degen_delta` in the configuration file)
             and the spin-free contribution to the spin-orbit states cutoff (`so_cont_tol` in the
@@ -335,6 +337,16 @@ class Vibronic:
                                                  frequency).
             boltz_tol (:obj:`float`, optional): Tolerance value for the Boltzmann distribution cutoff.
                                                 Defaults to `1e-5`.
+            write_sf_oscil (:obj:`bool`, optional): Write the spin-free vibronic oscillators.
+                                                    Defaults to `False`.
+            write_sf_property (:obj:`bool`, optional): Write the spin-free vibronic property values.
+                                                       Defaults to `False`.
+            write_dham_dq (:obj:`bool`, optional): Write the hamiltonian derivatives for each normal
+                                                   mode. Defaults to `False`.
+            write_all_oscil (:obj:`bool`, optional): Write the entire matrix of the vibronic
+                                                     oscillator values instead of only those that
+                                                     are physically meaningful (positive energy and
+                                                     oscillator value). Defaults to `False`.
 
         Raises:
             NotImplementedError: When the property requested with the `property` parameter does not
@@ -622,7 +634,7 @@ class Vibronic:
                 vib_prop_sf_so_len[0][idx_map_rev[key]-1] = vib_prop_sf_so_len_minus
                 vib_prop_sf_so_len[1][idx_map_rev[key]-1] = vib_prop_sf_so_len_plus
             # calculate the oscillator strengths
-            evib = freq[founddx]*Energy['cm^-1', 'Ha']
+            evib = freq[founddx]*conv.inv_m2Ha*100
             initial = np.tile(range(nstates), nstates)+1
             final = np.repeat(range(nstates), nstates)+1
             template = "{:6d}  {:6d}  {:>18.9E}  {:>18.9E}\n".format
