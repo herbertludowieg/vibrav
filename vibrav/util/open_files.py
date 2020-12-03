@@ -19,7 +19,7 @@ import warnings
 import re
 import lzma
 
-def open_txt(fp, rearrange=True, get_complex=False, **kwargs):
+def open_txt(fp, rearrange=True, get_complex=False, fill=False, **kwargs):
     '''
     Method to open a .txt file that has a separator of ' ' with the first columns ordered as
     ['nrow', 'ncol', 'real', 'imag']. We take care of adding the two values to generate a
@@ -37,6 +37,7 @@ def open_txt(fp, rearrange=True, get_complex=False, **kwargs):
                                            method.
         rearrange (bool, optional): If you want to rearrange the data into a square complex matrix.
                                     Defaults to `True`.
+        fill (:obj:`bool`, optional): Fill the missing indeces with zeros.
         **kwargs (optional): Arguments that will be passed into :code:`pandas.read_csv`
 
     Returns:
@@ -69,9 +70,22 @@ def open_txt(fp, rearrange=True, get_complex=False, **kwargs):
     df['ncol'] -= 1
     # rearrange the data to a matrix ordered by the rows and columns
     if rearrange:
-        matrix = pd.DataFrame(df.groupby('nrow').apply(lambda x:
-                              x['real']+1j*x['imag']).values.reshape(len(df['nrow'].unique()),
-                                                                     len(df['ncol'].unique())))
+        nrow = df['nrow'].unique().shape[0]
+        ncol = df['ncol'].unique().shape[0]
+        if df.shape[0] == nrow*ncol:
+            matrix = pd.DataFrame(df.groupby('nrow').apply(lambda x:
+                                  x['real']+1j*x['imag']).values.reshape(nrow, ncol))
+        elif fill:
+            matrix = np.zeros((nrow, ncol), dtype=np.complex128)
+            for row, col, real, imag in zip(df.nrow, df.ncol, df.real, df.imag):
+                matrix[row, col] = real + 1j*imag
+            matrix = pd.DataFrame(matrix)
+        else:
+            text = "The given matrix is not square with {} elements and " \
+                   +"(nrow, ncol) ({}, {}). If the input matrix is sparse " \
+                   +"then use the 'fill=True' as this will fill the matrix " \
+                   +"with zeros."
+            raise ValueError(text.format(df.shape[0], nrow, ncol))
     else:
         matrix = df.copy()
         if get_complex:
