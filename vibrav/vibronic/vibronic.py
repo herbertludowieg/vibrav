@@ -95,7 +95,7 @@ class Vibronic:
                        'angmom_file': ('angmom', str), 'dipole_file': ('dipole', str),
                        'spin_file': ('spin', str), 'quadrupole_file': ('quadrupole', str),
                        'degen_delta': (1e-7, float), 'eigvectors_file': ('eigvectors.txt', str),
-                       'so_cont_tol': (None, float)}
+                       'so_cont_tol': (None, float), 'sparse_hamiltonian': (False, bool)}
     @staticmethod
     def check_size(data, size, var_name, dataframe=False):
         '''
@@ -163,7 +163,8 @@ class Vibronic:
         self.check_size(energies_so, (self.nstates,), 'energies_so')
         return energies_sf, energies_so
 
-    def get_hamiltonian_deriv(self, select_fdx, delta, redmass, nmodes, use_sqrt_rmass):
+    def get_hamiltonian_deriv(self, select_fdx, delta, redmass, nmodes, use_sqrt_rmass,
+                              sparse_hamiltonian):
         # read the hamiltonian files in each of the confg??? directories
         # it is assumed that the directories are named confg with a 3-fold padded number (000)
         padding = 3
@@ -188,10 +189,11 @@ class Vibronic:
             # error catching serves the purpose to know which
             # of the hamiltonian files are missing
             try:
-                plus = open_txt(os.path.join('confg'+str(idx).zfill(padding), 'ham-sf.txt'))
+                plus = open_txt(os.path.join('confg'+str(idx).zfill(padding), 'ham-sf.txt'),
+                                fill=sparse_hamiltonian)
                 try:
                     minus = open_txt(os.path.join('confg'+str(idx+nmodes).zfill(padding),
-                                                  'ham-sf.txt'))
+                                                  'ham-sf.txt'), fill=sparse_hamiltonian)
                 except FileNotFoundError:
                     warnings.warn("Could not find ham-sf.txt file for in directory " \
                                   +'confg'+str(idx+nmodes).zfill(padding) \
@@ -466,7 +468,8 @@ class Vibronic:
                 df = pd.DataFrame.from_dict(df_dict)
                 print(df.to_string(index=False))
         self.check_size(eigvectors, (nstates, nstates), 'eigvectors')
-        dham_dq = self.get_hamiltonian_deriv(select_fdx, delta, rmass, nmodes, use_sqrt_rmass)
+        dham_dq = self.get_hamiltonian_deriv(select_fdx, delta, rmass, nmodes,
+                                             use_sqrt_rmass, config.sparse_hamiltonian)
         found_modes = dham_dq['freqdx'].unique()
         # TODO: it would be really cool if we could just input a list of properties to compute
         #       and the program will take care of the rest
