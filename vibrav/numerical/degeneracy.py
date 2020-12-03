@@ -69,7 +69,7 @@ def energetic_degeneracy(data_df, degen_delta, rtol=1e-12, numpy=True, original_
         mean = np.mean(degen_vals)
         # add however many degenerate energies are found
         # put everything together
-        if min_sort:
+        if min_sort and False:
             df = pd.DataFrame.from_dict({'value': [mean], 'degen': [ddx.shape[0]],
                                          'sort': min(degen_index)})
         else:
