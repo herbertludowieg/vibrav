@@ -530,7 +530,7 @@ class Vibronic:
             print("--------------------------------------------")
         if store_gs_degen: self.gs_degeneracy = gs_degeneracy
         # initialize the oscillator files
-        if write_oscil:
+        if write_oscil and property == 'electric_dipole':
             osc_tmp = 'oscillators-{}.txt'.format
             header = "{:>5s} {:>5s} {:>24s} {:>24s} {:>6s} {:>7s}".format
             oscil_formatters = ['{:>5d}'.format]*2+['{:>24.16E}'.format]*2 \
@@ -543,7 +543,7 @@ class Vibronic:
                 fn.write(header('#NROW', 'NCOL', 'OSCIL', 'ENERGY', 'FREQDX', 'SIGN'))
             with open(os.path.join(vib_dir, osc_tmp(3)), 'w') as fn:
                 fn.write(header('#NROW', 'NCOL', 'OSCIL', 'ENERGY', 'FREQDX', 'SIGN'))
-        if write_sf_oscil:
+        if write_sf_oscil and property == 'electric_dipole':
             osc_tmp = 'oscillators-sf-{}.txt'.format
             header = "{:>5s} {:>5s} {:>24s} {:>24s} {:>6s} {:>7s}".format
             oscil_formatters = ['{:>5d}'.format]*2+['{:>24.16E}'.format]*2 \
