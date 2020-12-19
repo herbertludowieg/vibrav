@@ -16,6 +16,7 @@ class Tape21Meta(TypedMeta):
     frequency = Frequency
     gradient = Gradient
     j_coupling = JCoupling
+    nmr_shielding = NMRShielding
 
 class Tape21(six.with_metaclass(Tape21Meta, Editor)):
     '''
