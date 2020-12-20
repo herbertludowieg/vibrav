@@ -1,3 +1,5 @@
+from exa import logging
+logging.disable()
 from vibrav.core import Config
 from vibrav.util.print import dataframe_to_txt
 from exa.util.units import Length, Mass, Energy
