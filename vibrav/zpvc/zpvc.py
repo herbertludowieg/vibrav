@@ -602,7 +602,7 @@ class ZPVC:
             self.eff_coord = pd.concat(coor_dfs, ignore_index=True)
         self.zpvc_results = pd.DataFrame(zpvc_dfs, columns=['property', 'zpvc', 'zpva', 'tot_anharm', 
                                                             'tot_curva', 'temp'])
-        formatters = ['{:12.5f}'.format] + ['{:12.7f}'.format]*4 + ['{:d}'.format]
+        formatters = ['{:12.5f}'.format] + ['{:12.7f}'.format]*4 + ['{:9.3f}'.format]
         fp = os.path.join(zpvc_dir, 'results')
         self.zpvc_results.to_csv(fp+'.csv')
         dataframe_to_txt(self.zpvc_results, ncols=6, fp=fp+'.txt', float_format=formatters)
