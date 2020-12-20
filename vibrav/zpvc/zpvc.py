@@ -607,7 +607,7 @@ class ZPVC:
         self.zpvc_results.to_csv(fp+'.csv')
         dataframe_to_txt(self.zpvc_results, ncols=6, fp=fp+'.txt', float_format=formatters)
         self.vib_average = pd.concat(va_dfs, ignore_index=True)
-        formatters = ['{:10.3f}'.format, '{:8d}'.format] + ['{:12.7f}'.format]*3 + ['{:5d}'.format]
+        formatters = ['{:10.3f}'.format, '{:8d}'.format] + ['{:12.7f}'.format]*3 + ['{:9.3f}'.format]
         fp = os.path.join(zpvc_dir, 'vibrational-average')
         self.vib_average.to_csv(fp+'.csv')
         dataframe_to_txt(self.vib_average, ncols=6, fp=fp+'.txt', float_format=formatters)
