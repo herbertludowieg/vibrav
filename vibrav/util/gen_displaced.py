@@ -1,5 +1,6 @@
 import pandas as pd
 import numpy as np
+import warnings
 import os
 from exatomic.core.atom import Atom
 from exa.core.container import TypedMeta
@@ -37,24 +38,25 @@ def gen_delta(freq, delta_type, disp=None, norm=0.04):
 
     Examples:
     """
-    nat = freq['label'].drop_duplicates().shape[0]
-    freqdx = freq['freqdx'].unique()
+    data = freq.copy()
+    nat = data['label'].drop_duplicates().shape[0]
+    freqdx = data['freqdx'].unique()
     nmode = freqdx.shape[0]
     # global avrage displacement of 0.04 bohr for all atom displacements
     if delta_type == 0:
         d = np.sum(np.linalg.norm(
-            freq[['dx', 'dy', 'dz']].values, axis=1))
+            data[['dx', 'dy', 'dz']].values, axis=1))
         delta = norm * nat * nmode / (np.sqrt(3) * d)
         delta = np.repeat(delta, nmode)
     # average displacement of 0.04 bohr for each normal mode
     elif delta_type == 1:
-        d = freq.groupby(['freqdx', 'frame']).apply(
+        d = data.groupby(['freqdx', 'frame']).apply(
             lambda x: np.sum(np.linalg.norm(
                 x[['dx', 'dy', 'dz']].values, axis=1))).values
         delta = norm * nat / d
     # maximum displacement of 0.04 bohr for any atom in each normal mode
     elif delta_type == 2:
-        d = freq.groupby(['freqdx', 'frame']).apply(lambda x:
+        d = data.groupby(['freqdx', 'frame']).apply(lambda x:
             np.amax(abs(np.linalg.norm(x[['dx', 'dy', 'dz']].values, axis=1)))).values
         delta = norm / d
     elif delta_type == 3:
@@ -81,7 +83,6 @@ class Displace(metaclass=DispMeta):
     :class:`~exatomic.atom.Frequency` dataframe. It will scale these displacements to a
     desired type defined by the user with the delta_type keyword. For more information
     on this keyword see the documentation on the
-    :class:`~exatomic.va.gen_delta` function.
 
     We can also define a specific normal mode or a list of normal modes that are of
     interest and generate displaced coordinates along those specific modes rather
@@ -95,6 +96,8 @@ class Displace(metaclass=DispMeta):
                            selected normal modes
         disp (float): Floating point value to set a specific displacement delta
                       parameter. Must be used with delta_type=3
+        mwc (bool): Divide the normal modes by the reduced mass prior to calculating
+                    the delta parameter
     """
 
     _tol = 1e-6
@@ -196,7 +199,7 @@ class Displace(metaclass=DispMeta):
             for item in array:
                 f.write("{}\n".format(item))
 
-    def create_data_files(self, cls, path=None, config=None):
+    def create_data_files(self, freq, atom, path=None, config=None):
         '''
         Method to create the .dat files that are needed to perform the calculations for
         vibrational averaging.
@@ -210,6 +213,7 @@ class Displace(metaclass=DispMeta):
         - **REDUCED_MASS_FILE**: redmass.dat
         - **FREQUENCY_FILE**: freq.dat
         - **DISPLAC_A_FILE**: displac_a.dat
+        - **EQCOORD_FILE**: eqcoord.dat
 
         Args:
             cls (:class:`exatomic.Universe`): Universe object that has the frequency and atom
@@ -218,10 +222,8 @@ class Displace(metaclass=DispMeta):
             config (:obj:`str`, optional): Path to base config file. Defaults to `None`.
         '''
         if path is None: path = os.getcwd()
-        freq = cls.frequency.copy()
-        atom = cls.atom.last_frame.copy()
         nat = atom.shape[0]
-        fdxs = cls.frequency['freqdx'].drop_duplicates().index.values
+        fdxs = freq['freqdx'].drop_duplicates().index.values
         # construct delta data file
         fn = "delta.dat"
         delta = self.delta['delta'].values
@@ -237,15 +239,11 @@ class Displace(metaclass=DispMeta):
         # construct reduced mass data file
         fn = "redmass.dat"
         try:
-            freq_ext = cls.frequency_ext.copy()
-            redmass = freq_ext['r_mass'].values
-        except AttributeError:
-            try:
-                if freq['r_mass'].shape[0] > 0:
-                    redmass = freq.loc[fdxs, 'r_mass'].values
-            except KeyError:
-                raise AttributeError("Could not find the reduced masses in either the frequency " \
-                                     +"dataframe and could not find the frequency_ext dataframe.")
+            if freq['r_mass'].shape[0] > 0:
+                redmass = freq.loc[fdxs, 'r_mass'].values
+        except KeyError:
+            raise AttributeError("Could not find the reduced masses in either the frequency " \
+                                 +"dataframe and could not find the frequency_ext dataframe.")
         self._write_data_file(path=path, array=redmass, fn=fn)
         # construct eqcoord data file
         fn = "eqcoord.dat"
@@ -279,6 +277,7 @@ class Displace(metaclass=DispMeta):
         text += template("REDUCED_MASS_FILE", "redmass.dat")
         text += template("FREQUENCY_FILE", "freq.dat")
         text += template("DISPLAC_A_FILE", "displac_a.dat")
+        text += template("EQCOORD_FILE", "eqcoord.dat")
         if config is None:
             with open(os.path.join(path, 'va.conf'), 'w') as fn:
                 fn.write(text)
@@ -294,11 +293,21 @@ class Displace(metaclass=DispMeta):
         disp = kwargs.pop("disp", None)
         norm = kwargs.pop("norm", 0.04)
         config = kwargs.pop("config", None)
+        mwc = kwargs.pop("mwc", False)
         if isinstance(fdx, int):
             fdx = [fdx]
         freq = cls.frequency.copy()
+        if mwc:
+            print(freq.to_string())
+            freq[['dx', 'dy', 'dz']] /= np.sqrt(freq['r_mass'].values).reshape(-1,1)
+            text = "We are dividing the normal modes by the sqrt of the " \
+                   +"reduced mass. This is not implemented into any " \
+                   +"of the scripts in VIBRAV and is untested."
+            warnings.warn(text, Warning)
+            print(freq.to_string())
+        print(freq.to_string())
         atom = cls.atom.copy()
         self.delta = gen_delta(freq, delta_type, disp, norm)
         self.disp = self.gen_displaced(freq, atom, fdx)
-        self.create_data_files(cls, config=config)
+        self.create_data_files(atom=atom.last_frame, freq=freq, config=config)
 
