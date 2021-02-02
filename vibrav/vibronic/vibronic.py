@@ -95,7 +95,8 @@ class Vibronic:
                        'angmom_file': ('angmom', str), 'dipole_file': ('dipole', str),
                        'spin_file': ('spin', str), 'quadrupole_file': ('quadrupole', str),
                        'degen_delta': (1e-7, float), 'eigvectors_file': ('eigvectors.txt', str),
-                       'so_cont_tol': (None, float), 'sparse_hamiltonian': (False, bool)}
+                       'so_cont_tol': (None, float), 'sparse_hamiltonian': (False, bool),
+                       'states': (None, int)}
     @staticmethod
     def check_size(data, size, var_name, dataframe=False):
         '''
@@ -162,6 +163,19 @@ class Vibronic:
             energies_so = ed.so_energy['energy'].values
         self.check_size(energies_so, (self.nstates,), 'energies_so')
         return energies_sf, energies_so
+
+    @staticmethod
+    def _get_states(energies, states):
+        df = pd.DataFrame.from_dict({'energies': energies, 'sdx': range(len(energies))})
+        df.sort_values(by=['energies'], inplace=True)
+        df.reset_index(drop=True, inplace=True)
+        incl_states = np.zeros(df.shape[0])
+        incl_states[range(states)] = 1
+        incl_states = incl_states.astype(bool)
+        df['incl_states'] = incl_states
+        df.sort_values(by=['sdx'], inplace=True)
+        incl_states = df['incl_states'].values
+        return incl_states
 
     def get_hamiltonian_deriv(self, select_fdx, delta, redmass, nmodes, use_sqrt_rmass,
                               sparse_hamiltonian):
@@ -519,6 +533,10 @@ class Vibronic:
         idx_map_rev = {v: k for k, v in idx_map.items()}
         energies_sf, energies_so = self._parse_energies(ed, config.sf_energies_file,
                                                         config.so_energies_file)
+        if config.states is not None:
+            incl_states = self._get_states(energies_sf, config.states)
+        else:
+            incl_states = None
         # timing things
         time_setup = time() - program_start
         # counter just for timing statistics
@@ -590,7 +608,7 @@ class Vibronic:
                 dprop_dq = np.zeros((nstates, nstates), dtype=np.complex128)
                 # calculate everything
                 compute_d_dq_sf(nstates_sf, dham_dq_mode, prop, energies_sf, dprop_dq_sf,
-                                config.degen_delta)
+                                config.degen_delta, incl_states=incl_states)
                 sf_to_so(nstates_sf, nstates, multiplicity, dprop_dq_sf, dprop_dq_so)
                 compute_d_dq(nstates, eigvectors, dprop_dq_so, dprop_dq)
                 # check if the array is hermitian
