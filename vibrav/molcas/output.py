@@ -244,3 +244,139 @@ class Output(Editor):
         df['weight'] = df['weight'].astype(np.single)
         self.contribution = df
 
+    def parse_rasscf_hamiltonian(self):
+        # parsing keys
+        _reham = "Explicit Hamiltonian"
+        found = self.find(_reham, keys_only=True)
+        # we assume that you know that these should be in the output
+        if not found:
+            text = "Could not find the Hamiltonian in the RASSCF output. " \
+                   +"Make sure that you used print level 5."
+            raise ValueError(text)
+        # get the size of the matrix
+        matrix_size = list(map(int, self[found[0]+1].replace('x', '').split()[-2:]))
+        if matrix_size[0] != matrix_size[1]:
+            raise NotImplementedError("Sorry there is only support for square matrices")
+        # get where the matrix starts
+        starts = np.array(found)+3
+        end = starts[0]
+        while self[end].strip(): end += 1
+        ends = starts + (end - starts[0])
+        dfs = []
+        for idx, (start, end) in enumerate(zip(starts, ends)):
+            df = self.pandas_dataframe(start, end, ncol=5)
+            df = df.values.reshape(-1)
+            df = df[~np.isnan(df)]
+            full = matrix_size[0]*matrix_size[1]
+            lowtri = matrix_size[0]*(matrix_size[1]+1)/2
+            # determine if we have a square or lower triangular matrix
+            if df.shape[0] == full:
+                lower_triangular = False
+            elif df.shape[0] != lowtri and df.shape[0] != full:
+                text = "Parsed Hamiltonian matrix does not have the right number of elements. " \
+                       +"Expected {}, currently {}"
+                lower_triangular = False
+                raise ValueError(text.format(lowtri, df.shape[0]))
+            else:
+                lower_triangular = True
+            # deal with the matrix correctly
+            if lower_triangular:
+                il = np.tril_indices(matrix_size[0])
+                tmp = np.zeros(matrix_size)
+                tmp[il] = df
+                tmp2 = tmp + tmp.T - (np.eye(matrix_size[0])*tmp)
+                df = pd.DataFrame(tmp2)
+            else:
+                df = pd.DataFrame(df.reshape(matrix_size))
+            # add a frame column to keep track of stuff
+            df['frame'] = idx
+            dfs.append(df)
+        # put it all together
+        ham = pd.concat(dfs, ignore_index=True)
+        self.hamiltonian = ham
+
+    def parse_rasscf_eigenvalues(self):
+        # parsing keys
+        _reeigval = "Eigenvalues of the explicit Hamiltonian"
+        found = self.find(_reeigval, keys_only=True)
+        # we assume that you know that these should be in the output
+        if not found:
+            text = "Could not find the Eigenvalues in the RASSCF output. " \
+                   +"Make sure that you used print level 5."
+            raise ValueError(text)
+        # get the number of eigenvalues there should be
+        size = int(self[found[0]+2].split()[-1])
+        starts = np.array(found)+4
+        end = starts[0]
+        while self[end].strip(): end += 1
+        ends = starts + (end - starts[0])
+        dfs = []
+        for idx, (start, end) in enumerate(zip(starts, ends)):
+            arrs = []
+            # read through every line and get the eigenvalues correctly
+            for ldx in range(start, end):
+                line = self[ldx]
+                d = line.split('-')
+                vals = list(map(lambda x: -1*float(x), d[1:]))
+                arrs.append(vals)
+            df = pd.DataFrame.from_dict({'values': np.concatenate(arrs), 'frame': idx})
+            if df.shape[0] != size:
+                text = "Parsed Eigenvalues do not have the right number of elements. " \
+                       +"Expected {}, currently {}"
+                raise ValueError(text.format(size, sr.shape[0]))
+            # add a frame column to keep track of stuff
+            df['frame'] = idx
+            dfs.append(df)
+        # put it all together
+        values = pd.concat(dfs, ignore_index=True)
+        self.eigenvalues = values
+
+    def parse_rasscf_eigenvectors(self):
+        # parsing keys
+        _reeigvec = "Eigenvectors of the explicit Hamiltonian"
+        found = self.find(_reeigvec, keys_only=True)
+        # we assume that you know that these should be in the output
+        if not found:
+            text = "Could not find the Eigenvectors in the RASSCF output. " \
+                   +"Make sure that you used print level 5."
+            raise ValueError(text)
+        # ensure square matrix
+        matrix_size = list(map(int, self[found[0]+1].replace('x', '').split()[-2:]))
+        if matrix_size[0] != matrix_size[1]:
+            raise NotImplementedError("Sorry there is only support for square matrices")
+        starts = np.array(found)+2
+        end = starts[0]
+        while "Initial" not in self[end].strip(): end += 1
+        ends = starts + (end - starts[0])
+        size = matrix_size[0]*matrix_size[1]
+        dfs = []
+        for idx, (start, end) in enumerate(zip(starts, ends)):
+            # get data
+            vec = self.pandas_dataframe(start, end, ncol=5).values.reshape(-1)
+            vec = vec[~np.isnan(vec)]
+            # ensure size
+            if vec.shape[0] != size:
+                text = "Parsed Eigenvector matrix does not have the right number of elements. " \
+                       +"Expected {}, currently {}"
+                raise ValueError(text.format(size, vec.shape[0]))
+            df = pd.DataFrame(vec.reshape(matrix_size))
+            df['frame'] = idx
+            dfs.append(df)
+        # put it all together
+        self.eigenvectors = pd.concat(dfs, ignore_index=True)
+
+    def parse_rasscf_ordering(self):
+        _reorder = "Configurations included in the explicit Hamiltonian"
+        found = self.find(_reorder, keys_only=True)
+        if not found:
+            text = "Could not find the energy ordering in the RASSCF output. " \
+                   +"Make sure that you used print level 5."
+            raise ValueError(text)
+        size = int(self[found[0]+2].split()[-1])
+        start = found[0]+4
+        end = start
+        while self[end].strip(): end += 1
+        order = self.pandas_dataframe(start, end, ncol=20).values.reshape(-1)
+        order = order[~np.isnan(order)]
+        self.order = order.astype(int)-1
+
