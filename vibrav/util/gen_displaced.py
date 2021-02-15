@@ -298,14 +298,11 @@ class Displace(metaclass=DispMeta):
             fdx = [fdx]
         freq = cls.frequency.copy()
         if mwc:
-            print(freq.to_string())
             freq[['dx', 'dy', 'dz']] /= np.sqrt(freq['r_mass'].values).reshape(-1,1)
             text = "We are dividing the normal modes by the sqrt of the " \
                    +"reduced mass. This is not implemented into any " \
                    +"of the scripts in VIBRAV and is untested."
             warnings.warn(text, Warning)
-            print(freq.to_string())
-        print(freq.to_string())
         atom = cls.atom.copy()
         self.delta = gen_delta(freq, delta_type, disp, norm)
         self.disp = self.gen_displaced(freq, atom, fdx)

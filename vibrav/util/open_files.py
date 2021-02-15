@@ -19,7 +19,8 @@ import warnings
 import re
 import lzma
 
-def open_txt(fp, rearrange=True, get_complex=False, fill=False, **kwargs):
+def open_txt(fp, rearrange=True, get_complex=False, fill=False, is_complex=True, tol=None,
+             **kwargs):
     '''
     Method to open a .txt file that has a separator of ' ' with the first columns ordered as
     ['nrow', 'ncol', 'real', 'imag']. We take care of adding the two values to generate a
@@ -38,6 +39,7 @@ def open_txt(fp, rearrange=True, get_complex=False, fill=False, **kwargs):
         rearrange (bool, optional): If you want to rearrange the data into a square complex matrix.
                                     Defaults to `True`.
         fill (:obj:`bool`, optional): Fill the missing indeces with zeros.
+        is_complex (:obj:`bool`, optional): The input data is complex.
         **kwargs (optional): Arguments that will be passed into :code:`pandas.read_csv`
 
     Returns:
@@ -86,10 +88,34 @@ def open_txt(fp, rearrange=True, get_complex=False, fill=False, **kwargs):
                    +"then use the 'fill=True' as this will fill the matrix " \
                    +"with zeros."
             raise ValueError(text.format(df.shape[0], nrow, ncol))
+        if not is_complex:
+            real = np.real(matrix.values)
+            imag = np.imag(matrix.values)
+            if not np.allclose(imag, 0):
+                raise ValueError("The input data was detected to be complex " \
+                                 +"but the kwarg 'is_complex' was set to " \
+                                 +"'False'")
+            matrix = pd.DataFrame(np.real(matrix.values))
     else:
         matrix = df.copy()
+        if tol is not None:
+            index = matrix['real'].abs() < tol
+            matrix.loc[index, 'real'] = 0.0
+            index = matrix['imag'].abs() < tol
+            matrix.loc[index, 'imag'] = 0.0
+        if get_complex and not is_complex:
+            raise ValueError("Keywords 'get_complex' and 'is_complex' clash " \
+                             +"as they were set to 'True' and 'False', " \
+                             +"respectively. Cannot calculate the complex " \
+                             +"values if they are not complex.")
         if get_complex:
             matrix['complex'] = matrix['real'] + 1j*df['imag']
+        if not is_complex:
+            if not np.allclose(matrix['imag'].values, 0):
+                raise ValueError("The input data was detected to be complex " \
+                                 +"but the kwarg 'is_complex' was set to " \
+                                 +"'False'")
+            matrix.drop('imag', axis=1, inplace=True)
     return matrix
 
 def get_all_data(cls, path, property, f_start='', f_end=''):
