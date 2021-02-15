@@ -89,8 +89,7 @@ class Vibronic:
     '''
     _required_inputs = {'number_of_multiplicity': int, 'spin_multiplicity': (tuple, int),
                         'number_of_states': (tuple, int), 'number_of_nuclei': int,
-                        'number_of_modes': int, 'zero_order_file': str,
-                        'oscillator_spin_states': int}
+                        'number_of_modes': int, 'zero_order_file': str}
     _default_inputs = {'sf_energies_file': ('', str), 'so_energies_file': ('', str),
                        'angmom_file': ('angmom', str), 'dipole_file': ('dipole', str),
                        'spin_file': ('spin', str), 'quadrupole_file': ('quadrupole', str),
@@ -232,7 +231,7 @@ class Vibronic:
                          +"Overwriting the number of selceted normal modes by the number "\
                          +"of found modes.", Warning)
             nselected = len(found_modes)
-        #self.check_size(dham_dq, (self.nstates_sf*nselected, self.nstates_sf), 'dham_dq')
+        self.check_size(dham_dq, (self.nstates_sf*nselected, self.nstates_sf), 'dham_dq')
         # TODO: this division by the sqrt of the mass needs to be verified
         #       left as is for the time being as it was in the original code
         sf_sqrt_rmass = np.repeat(np.sqrt(redmass.loc[found_modes].values*(1/conv.amu2u)),
@@ -388,7 +387,7 @@ class Vibronic:
             print(config.to_string())
             print("*"*46)
         # for defining the sizes of the arrays later on
-        oscil_states = int(config.oscillator_spin_states)
+        #oscil_states = int(config.oscillator_spin_states)
         # define constants used later on
         speed_of_light_au = speed_of_light*Length['m', 'au']/Time['s', 'au']
         planck_constant_au = 2*np.pi
