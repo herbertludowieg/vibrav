@@ -542,6 +542,7 @@ class Vibronic:
         vib_times = []
         grouped = dham_dq.groupby('freqdx')
         iter_times = []
+        prefactor = []
         degeneracy = energetic_degeneracy(energies_so, config.degen_delta)
         gs_degeneracy = degeneracy.loc[0, 'degen']
         if print_stdout:
@@ -591,6 +592,7 @@ class Vibronic:
             tdm_prefac = np.sqrt(planck_constant_au \
                                  /(2*speed_of_light_au*freq[founddx]/Length['cm', 'au']))/(2*np.pi)
             print("TDM prefac: {:.4f}".format(tdm_prefac))
+            prefactor.append(tdm_prefac)
             # iterate over all of the available components
             for idx, (key, val) in enumerate(grouped_data):
                 start = time()
@@ -886,6 +888,12 @@ class Vibronic:
                             text = " Wrote oscillators for {} component to {} for sign " \
                                    +"{} in {:.2f} s"
                             print(text.format(mapper[idx+1], filename, sign, time() - start))
+        if print_stdout:
+            print("Writing out the prefactors used for the transition dipole moments.")
+        with open(os.path.join(vib_dir, 'alpha.txt'), 'w') as fn:
+            fn.write('alpha\n')
+            for val in prefactor:
+                fn.write('{:.9f}\n'.format(val))
         #program_end = time()
         #if print_stdout:
         #    program_exec = timedelta(seconds=round(program_end - program_start, 0))
