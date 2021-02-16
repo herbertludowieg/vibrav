@@ -25,7 +25,7 @@ from vibrav.numerical.vibronic_func import *
 from vibrav.core.config import Config
 from vibrav.numerical.degeneracy import energetic_degeneracy
 from vibrav.numerical.boltzmann import boltz_dist
-from vibrav.util.open_files import open_txt
+from vibrav.util.io import open_txt
 from vibrav.util.math import get_triu, ishermitian, isantihermitian, abs2
 from vibrav.util.print import dataframe_to_txt
 from glob import glob
@@ -966,7 +966,7 @@ def combine_ham_files(paths, nmodes, out_path='confg{:03d}', debug=False):
                                          `'confg{:03d}'`.
         debug (:obj:`bool`, optional): Turn on some light debug text.
     '''
-    from vibrav.util.open_files import open_txt
+    from vibrav.util.io import open_txt
     import pandas as pd
     import warnings
     import os

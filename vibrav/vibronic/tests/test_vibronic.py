@@ -1,6 +1,6 @@
 from vibrav.vibronic import Vibronic
 from vibrav.base import resource
-from vibrav.util.open_files import open_txt
+from vibrav.util.io import open_txt
 import numpy as np
 import pandas as pd
 import tarfile

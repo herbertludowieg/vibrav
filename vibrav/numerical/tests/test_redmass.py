@@ -1,6 +1,6 @@
 from vibrav.numerical.redmass import rmass_mwc, rmass_cart
 from vibrav.adf.output import Tape21
-from vibrav.util.open_files import uncompress_file
+from vibrav.util.io import uncompress_file
 from vibrav.base import resource
 import pandas as pd
 import numpy as np

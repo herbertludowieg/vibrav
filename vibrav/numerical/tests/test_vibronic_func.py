@@ -1,6 +1,6 @@
 from vibrav.numerical import vibronic_func
 from vibrav.base import resource
-from vibrav.util.open_files import open_txt
+from vibrav.util.io import open_txt
 import pandas as pd
 import numpy as np
 
