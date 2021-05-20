@@ -16,6 +16,140 @@ from exa.core.editor import Editor
 import pandas as pd
 import numpy as np
 
+class Hamiltonian(pd.DataFrame):
+    _tol = 1e-10
+    def head(self, rows=5, cols=None):
+        if cols is None: cols = rows
+        return self.loc[range(rows), range(cols)]
+
+    def diag(self):
+        return np.diagonal(self)
+
+#    def __init__(self, df):
+#        df[df.abs() < self._tol] = 0.0
+#        super(Hamiltonian, self).__init__(df)
+
+class RassiDebugHam(pd.DataFrame):
+    @property
+    def hij(self):
+        istates = self['istate']
+        jstates = self['jstate']
+        nstates = self['istate'].max() + 1
+        grouped = self.groupby(['istate', 'jstate'])
+        arr = np.zeros((nstates, nstates))
+        hij = self['hij'].values
+        for j in range(nstates):
+            for i in range(j, nstates):
+                arr[i][j] = grouped.get_group((i,j))['hij']
+                arr[j][i] = grouped.get_group((i,j))['hij']
+        df = Hamiltonian(arr)
+        return df
+
+    @property
+    def hzero(self):
+        istates = self['istate']
+        jstates = self['jstate']
+        nstates = self['istate'].max() + 1
+        grouped = self.groupby(['istate', 'jstate'])
+        arr = np.zeros((nstates, nstates))
+        hzero = self['hij'].values
+        for j in range(nstates):
+            for i in range(j, nstates):
+                arr[i][j] = grouped.get_group((i,j))['hzero']
+                arr[j][i] = grouped.get_group((i,j))['hzero']
+        df = Hamiltonian(arr)
+        return df
+
+    @property
+    def hone(self):
+        istates = self['istate']
+        jstates = self['jstate']
+        nstates = self['istate'].max() + 1
+        grouped = self.groupby(['istate', 'jstate'])
+        arr = np.zeros((nstates, nstates))
+        hone = self['hij'].values
+        for j in range(nstates):
+            for i in range(j, nstates):
+                arr[i][j] = grouped.get_group((i,j))['hone']
+                arr[j][i] = grouped.get_group((i,j))['hone']
+        df = Hamiltonian(arr)
+        return df
+
+    @property
+    def htwo(self):
+        istates = self['istate']
+        jstates = self['jstate']
+        nstates = self['istate'].max() + 1
+        grouped = self.groupby(['istate', 'jstate'])
+        arr = np.zeros((nstates, nstates))
+        htwo = self['hij'].values
+        for j in range(nstates):
+            for i in range(j, nstates):
+                arr[i][j] = grouped.get_group((i,j))['htwo']
+                arr[j][i] = grouped.get_group((i,j))['htwo']
+        df = Hamiltonian(arr)
+        return df
+
+    @property
+    def sij(self):
+        istates = self['istate']
+        jstates = self['jstate']
+        nstates = self['istate'].max() + 1
+        grouped = self.groupby(['istate', 'jstate'])
+        arr = np.zeros((nstates, nstates))
+        sij = self['hij'].values
+        for j in range(nstates):
+            for i in range(j, nstates):
+                arr[i][j] = grouped.get_group((i,j))['sij']
+                arr[j][i] = grouped.get_group((i,j))['sij']
+        df = Hamiltonian(arr)
+        return df
+
+    @property
+    def ecore(self):
+        istates = self['istate']
+        jstates = self['jstate']
+        nstates = self['istate'].max() + 1
+        grouped = self.groupby(['istate', 'jstate'])
+        arr = np.zeros((nstates, nstates))
+        ecore = self['hij'].values
+        for j in range(nstates):
+            for i in range(j, nstates):
+                arr[i][j] = grouped.get_group((i,j))['ecore']
+                arr[j][i] = grouped.get_group((i,j))['ecore']
+        df = Hamiltonian(arr)
+        return df
+
+    @property
+    def nuc(self):
+        istates = self['istate']
+        jstates = self['jstate']
+        nstates = self['istate'].max() + 1
+        grouped = self.groupby(['istate', 'jstate'])
+        arr = np.zeros((nstates, nstates))
+        nuc = self['hij'].values
+        for j in range(nstates):
+            for i in range(j, nstates):
+                arr[i][j] = grouped.get_group((i,j))['nuc']
+                arr[j][i] = grouped.get_group((i,j))['nuc']
+        df = Hamiltonian(arr)
+        return df
+
+    @property
+    def erfnuc(self):
+        istates = self['istate']
+        jstates = self['jstate']
+        nstates = self['istate'].max() + 1
+        grouped = self.groupby(['istate', 'jstate'])
+        arr = np.zeros((nstates, nstates))
+        erfnuc = self['hij'].values
+        for j in range(nstates):
+            for i in range(j, nstates):
+                arr[i][j] = grouped.get_group((i,j))['erfnuc']
+                arr[j][i] = grouped.get_group((i,j))['erfnuc']
+        df = Hamiltonian(arr)
+        return df
+
 class Output(Editor):
     '''
     This output editor is supposed to work for OpenMolcas.
@@ -258,7 +392,7 @@ class Output(Editor):
         if matrix_size[0] != matrix_size[1]:
             raise NotImplementedError("Sorry there is only support for square matrices")
         # get where the matrix starts
-        starts = np.array(found)+3
+        starts = np.array(found)+2
         end = starts[0]
         while self[end].strip(): end += 1
         ends = starts + (end - starts[0])
@@ -288,7 +422,7 @@ class Output(Editor):
                 df = pd.DataFrame(tmp2)
             else:
                 df = pd.DataFrame(df.reshape(matrix_size))
-            self.hamiltonian = df
+            self.hamiltonian = Hamiltonian(df)
         else:
             for idx, (start, end) in enumerate(zip(starts, ends)):
                 df = self.pandas_dataframe(start, end, ncol=5)
@@ -320,7 +454,7 @@ class Output(Editor):
                 dfs.append(df)
             # put it all together
             ham = pd.concat(dfs, ignore_index=True)
-            self.hamiltonian = ham
+            self.hamiltonian = Hamiltonian(ham)
 
     def parse_rasscf_eigenvalues(self, last_frame=True):
         # parsing keys
@@ -434,11 +568,79 @@ class Output(Editor):
         order = order[~np.isnan(order)]
         self.order = order.astype(int)-1
 
-    def parse_rasscf(self, last_frame=True):
+    def parse_rasscf(self, last_frame=True, newvecs=True):
         if not hasattr(self, 'hamiltonian'):
             self.parse_rasscf_hamiltonian(last_frame)
         if not hasattr(self, 'eigenvectors'):
             self.parse_rasscf_eigenvectors(last_frame)
         if not hasattr(self, 'eigenvalues'):
             self.parse_rasscf_eigenvalues(last_frame)
+        if not hasattr(self, 'ci_vector'):
+            self.parse_rasscf_ci_vector(newvecs)
+
+    def parse_rassi_ham_debug(self):
+        _restate = "ISTATE, JSTATE:"
+        _rehzero = "HZERO="
+        _rehone =  "HONE ="
+        _rehtwo =  "HTWO ="
+        _rehij =   "HIJ  ="
+        _resij =   "SIJ  ="
+        _reecore = "ECORE="
+        _renuc =   "ENUC ="
+        _reerfnuc= "ERFNU="
+        found = self.find(_restate, _rehzero, _rehone, _rehtwo, _rehij, _resij, _reecore, _renuc, _reerfnuc)
+        if not found:
+            raise ValueError("Could not find RASSI Hamiltonian debug values. " \
+                             +"Make sure you use MOLCAS_PRINT value greater than 4.")
+        vals = zip(found[_restate], found[_rehzero], found[_rehone],
+                   found[_rehtwo], found[_rehij], found[_resij],
+                   found[_reecore], found[_renuc], found[_reerfnuc])
+        cols = ['istate', 'jstate', 'hzero', 'hone', 'htwo', 'hij', 'sij', 'ecore', 'nuc', 'erfnuc']
+        srs = []
+        for (_, lst), (_, lhz), (_, lho), (_, lht), \
+            (_, lhij), (_, lsij), (_, lecore), (_, lnuc), (_, lerfnuc) in vals:
+            istate, jstate = list(map(int, lst.split()[-2:]))
+            hzero = float(lhz.split('=')[-1])
+            hone = float(lho.split('=')[-1])
+            htwo = float(lht.split('=')[-1])
+            hij = float(lhij.split('=')[-1])
+            sij = float(lsij.split('=')[-1])
+            ecore = float(lecore.split('=')[-1])
+            nuc = float(lnuc.split('=')[-1])
+            erfnuc = float(lerfnuc.split('=')[-1])
+            sr = pd.Series([istate, jstate, hzero, hone, htwo, hij, sij, ecore,
+                            nuc, erfnuc], index=cols)
+            srs.append(sr)
+        df = pd.concat(srs, axis=1).T
+        df['istate'] = df['istate'].astype(int) - 1
+        df['jstate'] = df['jstate'].astype(int) - 1
+        if df.istate.max() != df.jstate.max():
+            raise ValueError("Did not find a square hamiltonian matrix.")
+        self.rassi_ham_debug = RassiDebugHam(df)
+
+    def parse_rasscf_ci_vector(self, newvecs=True):
+        end = ''
+        if newvecs:
+            _recivec = "NEW CI-VECTOR IN SUBROUTINE REORD (MAX. 200 ELEMENTS)"
+        else:
+            _recivec = "OLD CI-VECTOR IN SUBROUTINE REORD (MAX. 200 ELEMENTS)"
+            end = "NEW CI-VECTOR IN SUBROUTINE REORD (MAX. 200 ELEMENTS)"
+        found = self.find(_recivec, keys_only=True)
+        starts = np.array(found)+1
+        if newvecs:
+            stop = starts[0]
+            while self[stop].strip(): stop += 1
+        else:
+            stop = starts[0]
+            while self[stop].strip() != end: stop += 1
+        stops = starts + (stop - starts[0])
+        srs = []
+        for start, stop in zip(starts, stops):
+            df = self.pandas_dataframe(start, stop, ncol=10)
+            sr = pd.Series(df.values.flatten())
+            srs.append(sr)
+        df = pd.concat(srs, axis=1, ignore_index=True)
+        df.columns.name = 'root'
+        df.index.name = 'conf'
+        self.ci_vector = df
 
