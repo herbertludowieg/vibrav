@@ -15,6 +15,7 @@
 from exa.core.editor import Editor
 import pandas as pd
 import numpy as np
+import re
 
 class Hamiltonian(pd.DataFrame):
     _tol = 1e-10
@@ -577,6 +578,8 @@ class Output(Editor):
             self.parse_rasscf_eigenvalues(last_frame)
         if not hasattr(self, 'ci_vector'):
             self.parse_rasscf_ci_vector(newvecs)
+        if not hasattr(self, 'ci_coeff'):
+            self.parse_rasscf_ci_coeff()
 
     def parse_rassi_ham_debug(self):
         _restate = "ISTATE, JSTATE:"
@@ -643,4 +646,34 @@ class Output(Editor):
         df.columns.name = 'root'
         df.index.name = 'conf'
         self.ci_vector = df
+
+    def parse_rasscf_ci_coeff(self):
+        _recoeff = "printout of CI-coefficients larger than"
+        found = self.find(_recoeff)
+        dfs = []
+        for ldx, line in found:
+            idx = ldx + 3
+            confs, pops, coeffs, weights = [], [], [], []
+            while self[idx].strip() != '':
+                d = self[idx].split()
+                idx += 1
+                conf = int(d[0])
+                pop = d[1]
+                coeff = float(d[2])
+                weight = float(d[3])
+                confs.append(conf)
+                pops.append(pop)
+                coeffs.append(coeff)
+                weights.append(weight)
+            df = pd.DataFrame.from_dict({'conf': confs, 'population': pops, 'coeff': coeffs,
+                                         'weight': weights})
+            sort_index = df['coeff'].abs().sort_values(ascending=False).index
+            df = df.loc[sort_index]
+            root = list(map(int, re.findall(r'\d+', line)))[-1]
+            energy = float(self[ldx+1].split()[-1])
+            df['energy'] = energy
+            df['root'] = root-1
+            dfs.append(df)
+        coeff = pd.concat(dfs, ignore_index=True)
+        self.ci_coeff = coeff
 
