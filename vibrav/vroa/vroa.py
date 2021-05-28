@@ -155,12 +155,17 @@ class VROA():
         epsilon = np.array([[0,0,0,0,0,1,0,-1,0],
                             [0,0,-1,0,0,0,1,0,0],
                             [0,1,0,-1,0,0,0,0,0]])
-        for idx, ((val, roa_data), (_, grad_data)) in \
-                                    enumerate(zip(roa.groupby('exc_freq'),
-                                                  grad.groupby('exc_freq'))):
+        for _, ((idx, roa_data), (_, grad_data)) in \
+                                    enumerate(zip(roa.groupby('exc_idx'),
+                                                  grad.groupby('exc_idx'))):
             # convert the excitation frequency to a.u.
             try:
-                exc_freq = 1e9/val*conversions.inv_m2Ha
+                tmp = roa_data['exc_freq'].unique()
+                if tmp.shape[0] > 1:
+                    raise ValueError("More than one excitation frequency was found " \
+                                     +"with the same index.")
+                exc_wave = tmp[0]
+                exc_freq = 1e9/tmp[0]*conversions.inv_m2Ha
             except ZeroDivisionError:
                 text = "The excitation frequency detected was close to zero"
                 raise ZeroDivisionError(text)
@@ -198,7 +203,7 @@ class VROA():
             index = list(map(lambda x: x == 'g_prime', complex_roa['label']))
             tmp = complex_roa.loc[index, cols].reset_index(drop=True).to_dict()
             g_prime = pd.DataFrame.from_dict(tmp)
-            grad_derivs = self.get_pos_neg_gradients(grad, smat, nmodes)
+            grad_derivs = self.get_pos_neg_gradients(grad_data, smat, nmodes)
             
             # separate tensors into positive and negative displacements
             # highly dependent on the value of the index
@@ -236,7 +241,7 @@ class VROA():
             forwscat_vroa = _forwscat(alpha_g, beta_g, beta_A)
             #forwscat_vroa *= 1e4
             if raman_units:
-                lambda_0 = 1e9/val
+                lambda_0 = exc_freq*conversions.Ha2inv_m
                 lambda_p = freq*100
                 kp = self.raman_int_units(lambda_0=lambda_0, lambda_p=lambda_p, temp=temp)*100**2
                 raman_int *= kp
@@ -251,12 +256,12 @@ class VROA():
             df = pd.DataFrame.from_dict({"freq": freq, "freqdx": select_freq, "beta_g*1e6":beta_g*1e6,
                                         "beta_A*1e6": beta_A*1e6, "alpha_g*1e6": alpha_g*1e6,
                                         "backscatter": backscat_vroa, "forwardscatter":forwscat_vroa})
-            df['exc_freq'] = np.repeat(val, len(df))
+            df['exc_freq'] = np.repeat(exc_wave, len(df))
             df['exc_idx'] = np.repeat(idx, len(df))
             rdf = pd.DataFrame.from_dict({"freq": freq, "freqdx": select_freq,
                                           "alpha_squared": alpha_squared,
                                           "beta_alpha": beta_alpha, "raman_int": raman_int})
-            rdf['exc_freq'] = np.repeat(val, len(rdf))
+            rdf['exc_freq'] = np.repeat(exc_wave, len(rdf))
             rdf['exc_idx'] = np.repeat(idx, len(df))
             scatter.append(df)
             raman.append(rdf)
