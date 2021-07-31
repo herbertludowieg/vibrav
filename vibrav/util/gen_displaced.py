@@ -224,6 +224,7 @@ class Displace(metaclass=DispMeta):
         if path is None: path = os.getcwd()
         nat = atom.shape[0]
         fdxs = freq['freqdx'].drop_duplicates().index.values
+        nmodes = fdxs.shape[0]
         # construct delta data file
         fn = "delta.dat"
         delta = self.delta['delta'].values
@@ -278,6 +279,8 @@ class Displace(metaclass=DispMeta):
         text += template("FREQUENCY_FILE", "freq.dat")
         text += template("DISPLAC_A_FILE", "displac_a.dat")
         text += template("EQCOORD_FILE", "eqcoord.dat")
+        text += template("NUMBER_OF_NUCLEI", nat)
+        text += template("NUMBER_OF_MODES", nmodes)
         if config is None:
             with open(os.path.join(path, 'va.conf'), 'w') as fn:
                 fn.write(text)
