@@ -1049,7 +1049,7 @@ def combine_ham_files(paths, nmodes, out_path='confg{:03d}', debug=False):
                 if not path.endswith('ham-sf.txt'):
                     dir = path.format(idx)
                 else:
-                    dir = os.path.join(path.split(os.sep)[:-1])
+                    dir = os.path.join(*path.split(os.sep)[:-1])
                     dir = dir.format(idx)
                 # check that the directory exists
                 if not os.path.exists(dir):
