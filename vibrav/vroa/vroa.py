@@ -155,9 +155,8 @@ class VROA():
         epsilon = np.array([[0,0,0,0,0,1,0,-1,0],
                             [0,0,-1,0,0,0,1,0,0],
                             [0,1,0,-1,0,0,0,0,0]])
-        for _, ((idx, roa_data), (_, grad_data)) in \
-                                    enumerate(zip(roa.groupby('exc_idx'),
-                                                  grad.groupby('exc_idx'))):
+        arr = zip(roa.groupby('exc_idx'), grad.groupby('exc_idx'))
+        for _, ((idx, roa_data), (_, grad_data)) in enumerate(arr):
             # convert the excitation frequency to a.u.
             try:
                 tmp = roa_data['exc_freq'].unique()
@@ -170,7 +169,7 @@ class VROA():
                 text = "The excitation frequency detected was close to zero"
                 raise ZeroDivisionError(text)
             roa_data = self._check_file_continuity(roa_data, "ROA", nmodes)
-            grad_data = self._check_file_continuity(grad_data, "ROA", nmodes)
+            grad_data = self._check_file_continuity(grad_data, "Gradient", nmodes)
             select_freq = roa_data['file'].sort_values().drop_duplicates().values-1
             mask = select_freq > nmodes-1
             select_freq = select_freq[~mask]
@@ -178,9 +177,11 @@ class VROA():
             if snmodes < nmodes:
                 sel_rmass = rmass[select_freq].reshape(snmodes,1)
                 sel_delta = delta[select_freq].reshape(snmodes,1)
+                sel_freq = freq[select_freq]
             else:
                 sel_rmass = rmass.reshape(snmodes, 1)
                 sel_delta = delta.reshape(snmodes, 1)
+                sel_freq = freq
             cols = ['label', 'file']
             complex_roa = roa_data.groupby(cols).apply(self.make_complex)
             complex_roa.reset_index(inplace=True)
@@ -242,7 +243,7 @@ class VROA():
             #forwscat_vroa *= 1e4
             if raman_units:
                 lambda_0 = exc_freq*conversions.Ha2inv_m
-                lambda_p = freq*100
+                lambda_p = sel_freq*100
                 kp = self.raman_int_units(lambda_0=lambda_0, lambda_p=lambda_p, temp=temp)*100**2
                 raman_int *= kp
                 backscat_vroa *= kp
@@ -253,12 +254,12 @@ class VROA():
             # we set this just so it is easier to view the data
             pd.options.display.float_format = '{:.6f}'.format
             # generate dataframe with all pertinent data for vroa scatter
-            df = pd.DataFrame.from_dict({"freq": freq, "freqdx": select_freq, "beta_g*1e6":beta_g*1e6,
+            df = pd.DataFrame.from_dict({"freq": sel_freq, "freqdx": select_freq, "beta_g*1e6":beta_g*1e6,
                                         "beta_A*1e6": beta_A*1e6, "alpha_g*1e6": alpha_g*1e6,
                                         "backscatter": backscat_vroa, "forwardscatter":forwscat_vroa})
             df['exc_freq'] = np.repeat(exc_wave, len(df))
             df['exc_idx'] = np.repeat(idx, len(df))
-            rdf = pd.DataFrame.from_dict({"freq": freq, "freqdx": select_freq,
+            rdf = pd.DataFrame.from_dict({"freq": sel_freq, "freqdx": select_freq,
                                           "alpha_squared": alpha_squared,
                                           "beta_alpha": beta_alpha, "raman_int": raman_int})
             rdf['exc_freq'] = np.repeat(exc_wave, len(rdf))
