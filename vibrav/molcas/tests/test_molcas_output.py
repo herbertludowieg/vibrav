@@ -9,25 +9,33 @@ import os
 import pytest
 
 @pytest.fixture(scope="module")
-def editor():
-    comp = resource("molcas-rassi-nien.out.xz")
-    decomp = comp.split(os.sep)[-1][:-3]
-    #with open(decomp, 'wb') as new_file, bz2.BZ2File(comp, 'rb') as file:
-    with open(decomp, 'wb') as new_file, lzma.LZMAFile(comp, 'rb') as file:
-        for data in iter(lambda : file.read(100 *1024), b''):
-            new_file.write(data)
-    editor = molcas.Output(decomp)
-    yield editor
-    os.remove(decomp)
+def nien_ed():
+    nien_decomp = uncompress_file(resource("molcas-rassi-nien.out.xz"), compression='xz')
+    nien_ed = molcas.Output(nien_decomp)
+    yield nien_ed
+    os.remove(nien_decomp)
 
-def test_sf_dipole(editor):
-    data = pd.read_csv(resource('molcas-rassi-nien-sf-dipole.csv.xz'), compression='xz', header=0,
+@pytest.fixture(scope="module")
+def niphen_ed():
+    niphen_decomp = uncompress_file(resource("molcas-rassi-niphen.out.xz"), compression='xz')
+    niphen_ed = molcas.Output(niphen_decomp)
+    yield niphen_ed
+    os.remove(niphen_decomp)
+
+#@pytest.fixture(params=['nien_ed'])
+#def editor(request):
+#    return request.getfixturevalue(request.param)
+
+@pytest.mark.parametrize('editor,test',
+                         [('nien_ed', resource('molcas-rassi-nien-sf-dipole.csv.xz'))])
+def test_sf_dipole(editor, test, request):
+    data = pd.read_csv(test, compression='xz', header=0,
                        index_col=False)
-    print(editor)
-    editor.parse_sf_dipole_moment()
+    ed = request.getfixturevalue(editor)
+    ed.parse_sf_dipole_moment()
     arr = []
     cols = []
-    for key, val in editor.sf_dipole_moment.groupby('component'):
+    for key, val in ed.sf_dipole_moment.groupby('component'):
         tmp = val.select_dtypes(np.float64).values.T.flatten()
         arr.append(tmp)
         cols.append(key)
@@ -42,13 +50,16 @@ def test_sf_dipole(editor):
             raise ValueError("Null values were found in dipole data for column {}".format(col))
             assert False
 
-def test_sf_angmom(editor):
-    data = pd.read_csv(resource('molcas-rassi-nien-sf-angmom.csv.xz'), compression='xz', header=0,
+@pytest.mark.parametrize('editor,test',
+                         [('nien_ed', resource('molcas-rassi-nien-sf-angmom.csv.xz'))])
+def test_sf_angmom(editor, test, request):
+    data = pd.read_csv(test, compression='xz', header=0,
                        index_col=False)
-    editor.parse_sf_angmom()
+    ed = request.getfixturevalue(editor)
+    ed.parse_sf_angmom()
     arr = []
     cols = []
-    for key, val in editor.sf_angmom.groupby('component'):
+    for key, val in ed.sf_angmom.groupby('component'):
         tmp = val.select_dtypes(np.float64).values.T.flatten()
         arr.append(tmp)
         cols.append(key)
@@ -64,13 +75,16 @@ def test_sf_angmom(editor):
             raise ValueError("Null values were found in angmom data for column {}".format(col))
             assert False
 
-def test_sf_quadrupole(editor):
-    data = pd.read_csv(resource('molcas-rassi-nien-sf-quadrupole.csv.xz'), compression='xz',
+@pytest.mark.parametrize('editor,test',
+                         [('nien_ed', resource('molcas-rassi-nien-sf-quadrupole.csv.xz'))])
+def test_sf_quadrupole(editor, test, request):
+    data = pd.read_csv(test, compression='xz',
                        header=0, index_col=False)
-    editor.parse_sf_quadrupole_moment()
+    ed = request.getfixturevalue(editor)
+    ed.parse_sf_quadrupole_moment()
     arr = []
     cols = []
-    for key, val in editor.sf_quadrupole_moment.groupby('component'):
+    for key, val in ed.sf_quadrupole_moment.groupby('component'):
         tmp = val.select_dtypes(np.float64).values.T.flatten()
         arr.append(tmp)
         cols.append(key)
@@ -85,28 +99,34 @@ def test_sf_quadrupole(editor):
             raise ValueError("Null values were found in quadrupole data for column {}".format(col))
             assert False
 
-def test_energies(editor):
-    data = pd.read_csv(resource('molcas-rassi-nien-energy.csv.xz'), compression='xz', header=0,
+@pytest.mark.parametrize('editor,test',
+                         [('nien_ed', resource('molcas-rassi-nien-energy.csv.xz'))])
+def test_energies(editor, test, request):
+    data = pd.read_csv(test, compression='xz', header=0,
                        index_col=False)
-    editor.parse_sf_energy()
-    editor.parse_so_energy()
-    assert np.allclose(data['so'].values, editor.so_energy['energy'].values)
-    assert np.allclose(data['sf'].dropna().values, editor.sf_energy['energy'].values)
+    ed = request.getfixturevalue(editor)
+    ed.parse_sf_energy()
+    ed.parse_so_energy()
+    assert np.allclose(data['so'].values, ed.so_energy['energy'].values)
+    assert np.allclose(data['sf'].dropna().values, ed.sf_energy['energy'].values)
 
-def test_oscillator(editor):
-    data = pd.read_csv(resource('molcas-rassi-nien-oscillators.csv.xz'), compression='xz', header=0,
+@pytest.mark.parametrize('editor,test',
+                         [('nien_ed', resource('molcas-rassi-nien-oscillators.csv.xz'))])
+def test_oscillator(editor, test, request):
+    data = pd.read_csv(test, compression='xz', header=0,
                                 index_col=False)
+    ed = request.getfixturevalue(editor)
     data[['nrow', 'ncol']] -= [1, 1]
-    editor.parse_sf_oscillator()
-    editor.parse_so_oscillator()
+    ed.parse_sf_oscillator()
+    ed.parse_so_oscillator()
     sf_oscil = data.groupby('theory').get_group('sf')
     sf_oscil = sf_oscil.drop('theory', axis=1).values
     so_oscil = data.groupby('theory').get_group('so')
     so_oscil = so_oscil.drop('theory', axis=1).values
-    test_sf = editor.sf_oscillator.copy()
+    test_sf = ed.sf_oscillator.copy()
     test_sf[['nrow', 'ncol']] = test_sf[['nrow', 'ncol']].astype(np.uint16)
     test_sf = test_sf.values
-    test_so = editor.so_oscillator.copy()
+    test_so = ed.so_oscillator.copy()
     test_so[['nrow', 'ncol']] = test_so[['nrow', 'ncol']].astype(np.uint16)
     test_so = test_so.values
     assert np.allclose(sf_oscil, test_sf)
