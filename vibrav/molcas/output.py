@@ -93,7 +93,10 @@ class Output(Editor):
         if not found:
             raise AttributeError("Could not find the TDM in the output")
         #found = self.find(_retdm, _resta, keys_only=True)
-        props = np.array(found)[:3]
+        if len(found) > 6:
+            props = np.array(found)[:6:2]
+        else:
+            props = np.array(found)[:3]
         stop = props[0] + 5
         while self[stop].strip(): stop += 1
         data_length = stop - props[0] - 5

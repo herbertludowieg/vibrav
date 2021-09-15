@@ -1,5 +1,6 @@
 from vibrav import molcas
 from vibrav.base import resource
+from vibrav.util.io import uncompress_file
 import numpy as np
 import pandas as pd
 import bz2
