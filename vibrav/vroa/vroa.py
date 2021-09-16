@@ -33,12 +33,13 @@ class VROA():
     | grad_file        | Filepath of the gradient data from the quantum chemistry   | grad.csv       |
     |                  | calculation.                                               |                |
     +------------------+------------------------------------------------------------+----------------+
+
+    Other default arguments are taken care of with the :func:`vibrav.core.config.Config` class.
+
     '''
     _required_inputs = {'number_of_modes': int, 'number_of_nuclei': int}
     _default_inputs = {'roa_file': ('roa.csv', str),
-                       'grad_file': ('grad.csv', str),
-                       'freqdx': (-1, int),
-                       'smatrix_file': ('smatrix.dat', str)}
+                       'grad_file': ('grad.csv', str)}
     @staticmethod
     def raman_int_units(lambda_0, lambda_p, temp=None):
         '''
