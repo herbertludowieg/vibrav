@@ -123,7 +123,7 @@ class VROA():
         new_df['exc_idx'] = df['exc_idx'].unique()[0]
         return new_df
 
-    def vroa(self, raman_units=False, temp=None):
+    def vroa(self, atomic_units=True, temp=None):
         config = self.config
         scatter = []
         raman = []
@@ -241,7 +241,7 @@ class VROA():
             #backscat_vroa *= Mass['u', 'au_mass']
             forwscat_vroa = _forwscat(alpha_g, beta_g, beta_A)
             #forwscat_vroa *= 1e4
-            if raman_units:
+            if not atomic_units:
                 lambda_0 = exc_freq*conversions.Ha2inv_m
                 lambda_p = sel_freq*100
                 kp = self.raman_int_units(lambda_0=lambda_0, lambda_p=lambda_p, temp=temp)*100**2
