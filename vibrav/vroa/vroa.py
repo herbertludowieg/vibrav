@@ -9,6 +9,31 @@ from vibrav.numerical.vroa_func import _backscat, _forwscat, _make_derivatives
 from vibrav.core.config import Config
 
 class VROA():
+    '''
+    Main class to run vibrational Raman optical activity calculations.
+
+    Required arguments in the configuration file.
+
+    +------------------------+--------------------------------------------------+----------------------------+
+    | Argument               | Description                                      | Data Type                  |
+    +========================+==================================================+============================+
+    | number_of_nuclei       | Number of nuclei in the system.                  | :obj:`int`                 |
+    +------------------------+--------------------------------------------------+----------------------------+
+    | number_of_modes        | Number of normal modes in the molecule.          | :obj:`int`                 |
+    +------------------------+--------------------------------------------------+----------------------------+
+
+    Default arguments in configuration file specific to this class.
+
+    +------------------+------------------------------------------------------------+----------------+
+    | Argument         | Description                                                | Default Value  |
+    +==================+============================================================+================+
+    | roa_file         | Filepath of the ROA data from the quantum chemistry        | roa.csv        |
+    |                  | calculation.                                               |                |
+    +------------------+------------------------------------------------------------+----------------+
+    | grad_file        | Filepath of the gradient data from the quantum chemistry   | grad.csv       |
+    |                  | calculation.                                               |                |
+    +------------------+------------------------------------------------------------+----------------+
+    '''
     _required_inputs = {'number_of_modes': int, 'number_of_nuclei': int}
     _default_inputs = {'roa_file': ('roa.csv', str),
                        'grad_file': ('grad.csv', str),
