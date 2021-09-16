@@ -123,7 +123,7 @@ class VROA():
         new_df['exc_idx'] = df['exc_idx'].unique()[0]
         return new_df
 
-    def vroa(self, raman_units=False, temp=None):
+    def vroa(self, atomic_units=True, temp=None, assume_real=False):
         config = self.config
         scatter = []
         raman = []
@@ -228,7 +228,7 @@ class VROA():
             # J. Chem. Phys. 2007, 127, 134101
             au2angs = constants.atomic_unit_of_length*1e10
             alpha_squared, beta_alpha, beta_g, beta_A, alpha_g = _make_derivatives(dalpha_dq,
-                                  dg_dq, dA_dq, exc_freq, epsilon, snmodes, au2angs**4, C_au, False)
+                                  dg_dq, dA_dq, exc_freq, epsilon, snmodes, au2angs**4, C_au, assume_real)
             # calculate Raman intensities
             raman_int = 4 * (45 * alpha_squared + 8 * beta_alpha)
 
