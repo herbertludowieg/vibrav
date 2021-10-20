@@ -149,8 +149,35 @@ class VROA():
         new_df['exc_idx'] = df['exc_idx'].unique()[0]
         return new_df
 
-    def vroa(self, atomic_units=True, temp=None, assume_real=False):
+    def vroa(self, atomic_units=True, temp=None, assume_real=False, print_stdout=False):
+        '''
+        VROA method to calculate the VROA back/forwardscatter intensities from the
+        equations given in paper **insert paper**.
+
+        Note:
+            The final units of this method is in Angstrom^4 / amu. When using
+            `atomic_units=False` the output values are in cm^2 / sr.
+
+        Args:
+            atomic_units (:obj:`bool`, optional): Calculate the intensities in
+                                    atomic units. Defaults to `True`.
+            temp (:obj:`float`, optional): Calculate the boltzmann factors with
+                                    the specified temperature. Defaults to
+                                    `None` which is then converted to 298 K.
+            assume_real (:obj:`bool`, optional): Assume that the ROA data is
+                                    not complex valued. The equations will
+                                    ignore the imaginary contributions. Only
+                                    recommended for testing purposes.
+                                    Defaults to `False`raman_units.
+            print_stdout (:obj:`bool`, optional): Print the progress of the
+                                    script to stdout. Defaults to `False`.
+        '''
         config = self.config
+        if print_stdout:
+            print("Printing contents of config file")
+            print("*"*46)
+            print(config.to_string())
+            print("*"*46)
         scatter = []
         raman = []
         delta = pd.read_csv(config.delta_file,
@@ -190,6 +217,8 @@ class VROA():
                     raise ValueError("More than one excitation frequency was found " \
                                      +"with the same index.")
                 exc_wave = tmp[0]
+                if print_stdout:
+                    print("Found excitation wavelength of {:.2f} nm".format(exc_wave))
                 exc_freq = 1e9/tmp[0]*conversions.inv_m2Ha
             except ZeroDivisionError:
                 text = "The excitation frequency detected was close to zero"
