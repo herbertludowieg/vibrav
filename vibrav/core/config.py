@@ -23,33 +23,49 @@ class Config(Series):
 
     Global default values.
 
-    +-------------------+---------------------------------------------------+---------------+
-    | Attribute         | Description                                       | Default Value |
-    +===================+===================================================+===============+
-    | delta_file        | Filepath of the delta displacement parameters     | delta.dat     |
-    |                   | used to generate the different displaced          |               |
-    |                   | structures.                                       |               |
-    +-------------------+---------------------------------------------------+---------------+
-    | reduced_mass_file | Filepath to the reduced masses of the vibrational | redmass.dat   |
-    |                   | modes.                                            |               |
-    +-------------------+---------------------------------------------------+---------------+
-    | frequency_file    | Filepath of the energies of the normal modes.     | freq.dat      |
-    +-------------------+---------------------------------------------------+---------------+
-    | delta_disp        | Constant displacement parameter to generate the   | 0.0           |
-    |                   | displaced structures. Only matters for the        |               |
-    |                   | `delta_type` parameter for                        |               |
-    |                   | :func:`vibrav.util.gen_displaced.gen_delta` is 3. |               |
-    +-------------------+---------------------------------------------------+---------------+
-    | delta_algorithm   | Delta algorithm used to generate the displaced    | 2             |
-    |                   | structures. This is passed as the `delta_type`    |               |
-    |                   | parameter in                                      |               |
-    |                   | :func:`vibrav.util.gen_displaced.gen_delta`       |               |
-    +-------------------+---------------------------------------------------+---------------+
-    | delta_value       | Normalization parameter used to generate the      | 0.04          |
-    |                   | displaced structures. This is passed as the norm  |               |
-    |                   | parameter in                                      |               |
-    |                   | :func:`vibrav.util.gen_displaced.gen_delta`       |               |
-    +-------------------+---------------------------------------------------+---------------+
+    +-------------------+---------------------------------------------------+----------------+
+    | Attribute         | Description                                       | Default Value  |
+    +===================+===================================================+================+
+    | delta_file        | Filepath of the delta displacement parameters     | delta.dat      |
+    |                   | used to generate the different displaced          |                |
+    |                   | structures.                                       |                |
+    +-------------------+---------------------------------------------------+----------------+
+    | reduced_mass_file | Filepath to the reduced masses of the vibrational | redmass.dat    |
+    |                   | modes.                                            |                |
+    +-------------------+---------------------------------------------------+----------------+
+    | frequency_file    | Filepath of the energies of the normal modes.     | freq.dat       |
+    +-------------------+---------------------------------------------------+----------------+
+    | smatrix_file      | Filepath of the frequency normal mode             | smatrix.dat    |
+    |                   | displacements as a column vector of normalized    |                |
+    |                   | cartesian coordinates in atomic units.            |                |
+    +-------------------+---------------------------------------------------+----------------+
+    | eqcoord_file      | Filepath of the equilibrium coordinates of the    | eqcoord.dat    |
+    |                   | molecule. This is given as a column vector of     |                |
+    |                   | the coordinates in Angstrom units.                |                |
+    +-------------------+---------------------------------------------------+----------------+
+    | atom_order_file   | Filepath of the atomic symbols in the correct     | atom_order.dat |
+    |                   | order as it appears on the XYZ coordinate file.   |                |
+    +-------------------+---------------------------------------------------+----------------+
+    | delta_disp        | Constant displacement parameter to generate the   | 0.0            |
+    |                   | displaced structures. Only matters for the        |                |
+    |                   | `delta_type` parameter for                        |                |
+    |                   | :func:`vibrav.util.gen_displaced.gen_delta` is 3. |                |
+    +-------------------+---------------------------------------------------+----------------+
+    | delta_algorithm   | Delta algorithm used to generate the displaced    | 2              |
+    |                   | structures. This is passed as the `delta_type`    |                |
+    |                   | parameter in                                      |                |
+    |                   | :func:`vibrav.util.gen_displaced.gen_delta`       |                |
+    +-------------------+---------------------------------------------------+----------------+
+    | delta_value       | Normalization parameter used to generate the      | 0.04           |
+    |                   | displaced structures. This is passed as the norm  |                |
+    |                   | parameter in                                      |                |
+    |                   | :func:`vibrav.util.gen_displaced.gen_delta`       |                |
+    +-------------------+---------------------------------------------------+----------------+
+    | freqdx            | Set which frequency indices to calculate. This is | -1             |
+    |                   | a zero based index and can be set with a '-' for  |                |
+    |                   | a range of indices and a ',' or ' ' for specific  |                |
+    |                   | indices.                                          |                |
+    +-------------------+---------------------------------------------------+----------------+
 
     '''
     _sname = 'config_file'

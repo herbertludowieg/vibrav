@@ -580,17 +580,17 @@ class Vibronic:
         else:
             raise NotImplementedError("Sorry the attribute that you are trying to use is not " \
                                      +"yet implemented.")
-        if eq_cont:
-            # get the spin-orbit property from the molcas output for the equilibrium geometry
-            dfs = []
-            for file in glob(so_file+'-?.txt'):
-                idx = int(file.split('-')[-1].replace('.txt', ''))
-                df = open_txt(file)
-                # use a mapper as we cannot ensure that the files are found in any
-                # expected order
-                df['component'] = idx_map[idx]
-                dfs.append(df)
-            so_props = pd.concat(dfs, ignore_index=True)
+        #if eq_cont:
+        #    # get the spin-orbit property from the molcas output for the equilibrium geometry
+        #    dfs = []
+        #    for file in glob(so_file+'-?.txt'):
+        #        idx = int(file.split('-')[-1].replace('.txt', ''))
+        #        df = open_txt(file)
+        #        # use a mapper as we cannot ensure that the files are found in any
+        #        # expected order
+        #        df['component'] = idx_map[idx]
+        #        dfs.append(df)
+        #    so_props = pd.concat(dfs, ignore_index=True)
         # number of components
         ncomp = len(idx_map.keys())
         # for easier access
@@ -701,7 +701,7 @@ class Vibronic:
                 dprop_dq_sf *= tdm_prefac
                 dprop_dq_so *= tdm_prefac
                 # generate the full property vibronic states following equation S3 for the reference
-                if eq_cont:
+                if eq_cont and False:
                     so_prop = so_props.groupby('component').get_group(key).drop('component', axis=1)
                     vib_prop_plus = fc*(so_prop + dprop_dq)
                     vib_prop_minus = fc*(so_prop - dprop_dq)
