@@ -68,6 +68,55 @@ def gen_delta(freq, delta_type, disp=None, norm=0.04):
     delta = pd.DataFrame.from_dict({'delta': delta, 'freqdx': freqdx})
     return delta
 
+def gen_displaced_cartesian(atom_df, delta=0.01, include_zeroth=True):
+    """
+    Function to generate displaced coordinates in cartesian space. Will generate
+    a total of 3N displacements with N being the number of atoms. If you desire
+    the functionality to displace along the calculated normal modes please see
+    :func:`vibrav.util.gen_displaced.Displace.gen_displaced`. We use the
+    convention where nat*3 + j + nat*3*sign
+    """
+    # get needed data from dataframes
+    # atom coordinates should be in Bohr
+    atom = atom_df.last_frame
+    eqcoord = atom[['x', 'y', 'z']].values
+    symbols = atom['symbol'].values
+    nat = atom.shape[0]
+    delta_au = delta*Length['Angstrom', 'au']
+    # gaussian Fchk class uses Zeff where the Output class uses Z
+    # add try block to account for the possible exception
+    try:
+        znums = atom['Zeff'].values
+    except KeyError:
+        try:
+            znums = atom['Z'].values
+        except KeyError:
+            pass
+    # chop all values less than tolerance
+    eqcoord[abs(eqcoord) < 1e-6] = 0.0
+    modes = np.eye(3)*delta
+    disp = []
+    for idx in range(nat):
+        for jdx, vec in enumerate(modes):
+            for ndx, sign in enumerate([1, -1]):
+                coord = eqcoord.copy()
+                coord[idx] += sign*vec*delta_au
+                df = pd.DataFrame(coord, columns=['x', 'y', 'z'])
+                df['symbol'] = symbols
+                df['frame'] = idx*3+jdx+ndx*3*nat+1
+                df['set'] = range(nat)
+                disp.append(df)
+    if include_zeroth:
+        df = pd.DataFrame(eqcoord, columns=['x', 'y', 'z'])
+        df['symbol'] = symbols
+        df['frame'] = 0
+        df['set'] = range(nat)
+        disp.append(df)
+    disp = Atom(pd.concat(disp, ignore_index=True))
+    disp.sort_values(by=['frame', 'set'], inplace=True)
+    disp.reset_index(drop=True, inplace=True)
+    return disp
+
 class DispMeta(TypedMeta):
     disp = Atom
     delta = pd.DataFrame
