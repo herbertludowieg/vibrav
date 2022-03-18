@@ -68,7 +68,8 @@ def gen_delta(freq, delta_type, disp=None, norm=0.04):
     delta = pd.DataFrame.from_dict({'delta': delta, 'freqdx': freqdx})
     return delta
 
-def gen_displaced_cartesian(atom_df, delta=0.01, include_zeroth=True):
+def gen_displaced_cartesian(atom_df, delta=0.01, include_zeroth=True,
+                            exclude=None):
     """
     Function to generate displaced coordinates in cartesian space. Will generate
     a total of 3N displacements with N being the number of atoms. If you desire
@@ -94,13 +95,17 @@ def gen_displaced_cartesian(atom_df, delta=0.01, include_zeroth=True):
             pass
     # chop all values less than tolerance
     eqcoord[abs(eqcoord) < 1e-6] = 0.0
-    modes = np.eye(3)*delta
+    modes = np.eye(3)
     disp = []
     for idx in range(nat):
         for jdx, vec in enumerate(modes):
             for ndx, sign in enumerate([1, -1]):
                 coord = eqcoord.copy()
-                coord[idx] += sign*vec*delta_au
+                if exclude is not None:
+                    if (idx, jdx) != exclude:
+                        coord[idx] += sign*vec*delta_au
+                else:
+                    coord[idx] += sign*vec*delta_au
                 df = pd.DataFrame(coord, columns=['x', 'y', 'z'])
                 df['symbol'] = symbols
                 df['frame'] = idx*3+jdx+ndx*3*nat+1
