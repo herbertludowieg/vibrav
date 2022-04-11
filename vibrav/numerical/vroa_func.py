@@ -1,12 +1,34 @@
 from numba import jit, prange, vectorize, float64
 import numpy as np
 
-@vectorize([float64(float64, float64)])
-def _backscat(beta_g, beta_A):
+#@vectorize([float64(float64, float64)])
+def backscat(beta_g, beta_A):
+    '''
+    Calculate the backscattering intensities of the vibrational
+    Raman Optical Activity.
+
+    Equation taken from *J. Phys. Chem. A* **2016**, 120, 9740-9748
+    DOI: 10.1021/acs.jpca.6b09975
+
+    .. math::
+        \\Delta\\frac{d\\sigma}{d\\Omega}(180^{o}) = \\frac{4}{c}\\left[24\\beta(G^{\\prime})_p^2+8\\beta(A)_p^2\\right]
+
+    '''
     return 4.* (24 * beta_g + 8 * beta_A)
 
-@vectorize([float64(float64, float64, float64)])
-def _forwscat(alpha_g, beta_g, beta_A):
+#@vectorize([float64(float64, float64, float64)])
+def forwscat(alpha_g, beta_g, beta_A):
+    '''
+    Calculate the forward-scattering intensities of the vibrational
+    Raman Optical Activity.
+
+    Equation taken from *J. Phys. Chem. A* **2016**, 120, 9740-9748
+    DOI: 10.1021/acs.jpca.6b09975
+
+    .. math::
+        \\Delta\\frac{d\\sigma}{d\\Omega}(0^{o}) = \\frac{4}{c}\\left[180(\\alpha G^{\\prime})+4\\beta(G^{\\prime})_p^2-4\\beta(A)_p^2\\right]
+
+    '''
     return 4.* (180 * alpha_g + 4 * beta_g - 4 * beta_A)
 
 @jit(nopython=True, parallel=False, cache=True)

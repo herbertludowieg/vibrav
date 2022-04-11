@@ -5,7 +5,7 @@ import warnings
 #                                Planck_constant as H,
 #                                Boltzmann_constant as KB)
 from exa.util import conversions, constants
-from vibrav.numerical.vroa_func import _backscat, _forwscat, _make_derivatives
+from vibrav.numerical.vroa_func import backscat, forwscat, _make_derivatives
 from vibrav.core.config import Config
 
 class VROA():
@@ -52,7 +52,8 @@ class VROA():
         the Raman intensities.
 
         Note:
-            Input values lambda_0 and lambda_p must be in the units of m^-1
+            Input values `lambda_0` and `lambda_p` must be in the units of
+            m :math:`^{-1}`.
 
         Args:
             lambda_0 (float): Wavenumber value of the incident light
@@ -77,13 +78,39 @@ class VROA():
 
     @staticmethod
     def _check_file_continuity(df, prop, nmodes):
+        '''
+        Verifies that we have all of the displacements included in
+        the dataframe. This is necessary as we require that both the
+        positive and negative are present. If one is missing we will
+        ignore that normal mode index.
+
+        Args:
+            df (pandas.DataFrame): Data frame with all of the pertinent
+                                   data. Must have a 'file' column.
+            prop (str): Name of the property for printing the message
+                        and better knowing what went wrong.
+            nmodes (int): Number of normal modes in the molecule.
+
+        Returns:
+            rdf (pandas.DataFrame): Data frame that contains all of the
+                                    data that was determined to have the
+                                    positive and negative displacement
+                                    pair.
+        '''
+        # grab the file indeces
         files = df['file'].drop_duplicates()
+        # sort the files by what we know to be the positive and
+        # negative displacements
         pos_file = files[files.isin(range(1,nmodes+1))]
         neg_file = files[files.isin(range(nmodes+1, 2*nmodes+1))]-nmodes
+        # determine where the values are the same
         intersect = np.intersect1d(pos_file.values, neg_file.values)
+        # determine which files indeces are missing from the intersection
         diff = np.unique(np.concatenate((np.setdiff1d(pos_file.values, intersect),
                                          np.setdiff1d(neg_file.values, intersect)), axis=None))
         rdf = df.copy()
+        # if there is a difference then we will grab only those indeces
+        # for which there is a positive and negative displacement pair
         if len(diff) > 0:
             print("Seems that we are missing one of the {} outputs for frequency {} ".format(prop, diff)+ \
                   "we will ignore the {} data for these frequencies.".format(prop))
@@ -101,6 +128,7 @@ class VROA():
         Args:
             grad (:class:`exatomic.gradient.Gradient`): DataFrame containing all of the gradient data
             freq (:class:`exatomic.atom.Frquency`): DataFrame containing all of the frequency data
+            nmodes (int): Number of normal modes in the molecule.
 
         Returns:
             delfq_zero (pandas.DataFrame): Normal mode converted gradients of equilibrium structure
@@ -108,10 +136,6 @@ class VROA():
             delfq_minus (pandas.DataFrame): Normal mode converted gradients of negative displaced structure
         '''
         grouped = grad.groupby('file')
-        # generate delta dataframe
-        # TODO: make something so delta can be set
-        #       possible issues are a user using a different type of delta
-        #nmodes = len(freq['freqdx'].drop_duplicates().values)
         # get gradient of the equilibrium coordinates
         grad_0 = grouped.get_group(0)
         # get gradients of the displaced coordinates in the positive direction
@@ -121,13 +145,11 @@ class VROA():
         # get gradients of the displaced coordinates in the negative direction
         grad_minus = grouped.filter(lambda x: x['file'].drop_duplicates().values in
                                                                         range(nmodes+1, 2*nmodes+1))
-        # TODO: Check if we can make use of numba to speed up this code
         delfq_zero = freq.groupby('freqdx')[['dx', 'dy', 'dz']].apply(lambda x:
                                     np.sum(np.multiply(grad_0[['fx', 'fy', 'fz']].values, x.values))).values
         # we extend the size of this 1d array as we will perform some matrix summations with the
         # other outputs from this method
         delfq_zero = np.tile(delfq_zero, snmodes).reshape(snmodes, nmodes)
-
         delfq_plus = grad_plus.groupby('file')[['fx', 'fy', 'fz']].apply(lambda x:
                                 freq.groupby('freqdx')[['dx', 'dy', 'dz']].apply(lambda y:
                                     np.sum(np.multiply(y.values, x.values)))).values
@@ -139,6 +161,19 @@ class VROA():
 
     @staticmethod
     def make_complex(df):
+        '''
+        Transform the electric dipole-quadrupole polarizability tensor
+        to complex valued.
+
+        Args:
+            df (pandas.DataFrame): Data frame with the three cartesian
+                                directions of the electric
+                                dipole-quadrupole polarizability tensor.
+
+        Returns:
+            new_df (pandas.DataFrame): Data frame with the complex
+                                valued tensor.
+        '''
         grouped = df.groupby('type')
         cols = [x+y for x in ['x', 'y', 'z'] for y in ['x', 'y', 'z']]
         complex = grouped.get_group('real')[cols].values \
@@ -152,11 +187,12 @@ class VROA():
     def vroa(self, atomic_units=True, temp=None, assume_real=False, print_stdout=False):
         '''
         VROA method to calculate the VROA back/forwardscatter intensities from the
-        equations given in paper **insert paper**.
+        equations given in paper J. Phys. Chem. A 2016, 120, 9740-9748
+        DOI: 10.1021/acs.jpca.6b09975
 
         Note:
-            The final units of this method is in Angstrom^4 / amu. When using
-            `atomic_units=False` the output values are in cm^2 / sr.
+            The final units of this method is in :math:`\\unicode{xC5}^{4} / amu`. When using
+            `atomic_units=False` the output values are in :math:`cm^2 / sr`.
 
         Args:
             atomic_units (:obj:`bool`, optional): Calculate the intensities in
@@ -168,7 +204,7 @@ class VROA():
                                     not complex valued. The equations will
                                     ignore the imaginary contributions. Only
                                     recommended for testing purposes.
-                                    Defaults to `False`raman_units.
+                                    Defaults to `False`.
             print_stdout (:obj:`bool`, optional): Print the progress of the
                                     script to stdout. Defaults to `False`.
         '''
@@ -180,6 +216,7 @@ class VROA():
             print("*"*46)
         scatter = []
         raman = []
+        # grab the data from the respective files given in the config file
         delta = pd.read_csv(config.delta_file,
                             header=None).values.reshape(-1)
         rmass = pd.read_csv(config.reduced_mass_file,
@@ -189,19 +226,23 @@ class VROA():
         nmodes = config.number_of_modes
         nat = config.number_of_nuclei
         smat = pd.read_csv(config.smatrix_file, header=None)
+        # rearrange the smatrix to a 3 x N*(3*N-6) matrix
         smat['groups'] = np.tile([0,1,2], nmodes*nat)
         tmp = smat.groupby('groups').apply(lambda x: x[0].values).to_dict()
         smat = pd.DataFrame.from_dict(tmp)
         smat.columns = ['dx', 'dy', 'dz']
         smat['freqdx'] = np.repeat(range(nmodes), nat)
+        # grab the data that was already parsed for the ROA and gradients
         roa = pd.read_csv(config.roa_file)
         grad = pd.read_csv(config.grad_file)
         try:
+            # remove the zeroth index
             roa_0 = roa.groupby('file').get_group(0)
             idxs = roa_0.index.values
             roa = roa.loc[~roa.index.isin(idxs)]
         except KeyError:
             pass
+        # set up some constants
         C = constants.speed_of_light_in_vacuum
         conv = constants.atomic_unit_of_time / constants.atomic_unit_of_length
         C_au = C * conv
@@ -223,12 +264,16 @@ class VROA():
             except ZeroDivisionError:
                 text = "The excitation frequency detected was close to zero"
                 raise ZeroDivisionError(text)
+            # check to see that we have a positive and negative displacement
+            # for each of the normal modes
             roa_data = self._check_file_continuity(roa_data, "ROA", nmodes)
             grad_data = self._check_file_continuity(grad_data, "Gradient", nmodes)
+            # get which of the frequencies we have
             select_freq = roa_data['file'].sort_values().drop_duplicates().values-1
             mask = select_freq > nmodes-1
             select_freq = select_freq[~mask]
             snmodes = len(select_freq)
+            # get the data for those frequencies that we have found
             if snmodes < nmodes:
                 sel_rmass = rmass[select_freq].reshape(snmodes,1)
                 sel_delta = delta[select_freq].reshape(snmodes,1)
@@ -241,7 +286,10 @@ class VROA():
             complex_roa = roa_data.groupby(cols).apply(self.make_complex)
             complex_roa.reset_index(inplace=True)
             complex_roa.drop('level_2', axis=1, inplace=True)
+            # get the data for the dipole-quadrupole polarizability
             cols = [x+y for x in ['x', 'y', 'z'] for y in ['x', 'y', 'z']]
+            # get the indeces of where those values are in the ROA dataframe
+            # there are three cartesian directions as it is a 3D tensor
             index = list(map(lambda x: x == 'Ax', complex_roa['label']))
             index = np.logical_or(list(map(lambda x: x == 'Ay',
                                            complex_roa['label'])), index)
@@ -253,14 +301,16 @@ class VROA():
                                      x[cols].values[2]]).flatten())
             tmp = tmp.reset_index(drop=True).to_dict()
             A = pd.DataFrame.from_dict(tmp).T
+            # get the data for the electric dipole-dipole polarizability
             index = list(map(lambda x: x == 'alpha', complex_roa['label']))
             tmp = complex_roa.loc[index, cols].reset_index(drop=True).to_dict()
             alpha = pd.DataFrame.from_dict(tmp)
+            # get the data for the electric dipole-magnetic dipole polarizability
             index = list(map(lambda x: x == 'g_prime', complex_roa['label']))
             tmp = complex_roa.loc[index, cols].reset_index(drop=True).to_dict()
             g_prime = pd.DataFrame.from_dict(tmp)
+            # determine the derivatives of the gradients
             grad_derivs = self.get_pos_neg_gradients(grad_data, smat, nmodes)
-            
             # separate tensors into positive and negative displacements
             # highly dependent on the value of the index
             # we neglect the equilibrium coordinates
@@ -273,8 +323,7 @@ class VROA():
             g_prime_minus = np.divide(g_prime.loc[range(snmodes, 2*snmodes)].values, np.sqrt(sel_rmass))
             A_plus = np.divide(A.loc[range(0, snmodes)].values, np.sqrt(sel_rmass))
             A_minus = np.divide(A.loc[range(snmodes, 2*snmodes)].values, np.sqrt(sel_rmass))
-
-            # generate derivatives by two point difference method
+            # generate derivatives by two point central finite difference method
             dalpha_dq = np.divide((alpha_plus - alpha_minus), 2 * sel_delta)
             dg_dq = np.divide((g_prime_plus - g_prime_minus), 2 * sel_delta)
             dA_dq = np.array([np.divide((A_plus[i] - A_minus[i]), 2 * sel_delta[i])
@@ -286,16 +335,10 @@ class VROA():
                                   dg_dq, dA_dq, exc_freq, epsilon, snmodes, au2angs**4, C_au, assume_real)
             # calculate Raman intensities
             raman_int = 4 * (45 * alpha_squared + 8 * beta_alpha)
-
             # calculate VROA back scattering and forward scattering intensities
-            backscat_vroa = _backscat(beta_g, beta_A)
-            #backscat_vroa *= 1e4
-            # TODO: check the units of this because we convert the invariants from
-            #       au to Angstrom and here we convert again from au to Angstrom
-            #backscat_vroa *= Length['au', 'Angstrom']**4*Mass['u', 'au_mass']
-            #backscat_vroa *= Mass['u', 'au_mass']
-            forwscat_vroa = _forwscat(alpha_g, beta_g, beta_A)
-            #forwscat_vroa *= 1e4
+            backscat_vroa = backscat(beta_g, beta_A)
+            forwscat_vroa = forwscat(alpha_g, beta_g, beta_A)
+            # convert to raman units if desired
             if not atomic_units:
                 lambda_0 = exc_freq*conversions.Ha2inv_m
                 lambda_p = sel_freq*100
@@ -303,11 +346,8 @@ class VROA():
                 raman_int *= kp
                 backscat_vroa *= kp
                 forwscat_vroa *= kp
-            # TODO: check the units of this because we convert the invariants from
-            #       au to Angstrom and here we convert again from au to Angstrom
-            #forwscat_vroa *=Length['au', 'Angstrom']**4*Mass['u', 'au_mass']
-            # we set this just so it is easier to view the data
-            pd.options.display.float_format = '{:.6f}'.format
+            ## we set this just so it is easier to view the data
+            #pd.options.display.float_format = '{:.6f}'.format
             # generate dataframe with all pertinent data for vroa scatter
             df = pd.DataFrame.from_dict({"freq": sel_freq, "freqdx": select_freq, "beta_g*1e6":beta_g*1e6,
                                         "beta_A*1e6": beta_A*1e6, "alpha_g*1e6": alpha_g*1e6,
