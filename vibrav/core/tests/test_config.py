@@ -18,7 +18,9 @@ def test_config():
             'oscillator_spin_states': 91, 'delta_file': 'delta.dat',
             'reduced_mass_file': 'redmass.dat', 'frequency_file': 'freq.dat',
             'sf_energies_file': 'energies-SF.txt', 'so_energies_file': 'energies.txt',
-            'zero_order_file': 'ucl-rassi.out', 'degen_delta': 1e-5}
+            'zero_order_file': 'ucl-rassi.out', 'degen_delta': 1e-5,
+            'eqcoord_file': 'eqcoord.dat', 'smatrix_file': 'smatrix.dat',
+            'atom_order_file': 'atom_order.dat'}
     for key, val in base.items():
         assert val == config[key]
 

@@ -70,9 +70,16 @@ class Config(Series):
     '''
     _sname = 'config_file'
     _iname = 'config_elem'
-    _default = {'delta_file': ('delta.dat', str), 'reduced_mass_file': ('redmass.dat', str),
-                'delta_disp': (0, float), 'frequency_file': ('freq.dat', str),
-                'delta_algorithm': (2, int), 'delta_value': (0.04, float)}
+    _default = {'delta_file': ('delta.dat', str),
+                'reduced_mass_file': ('redmass.dat', str),
+                'frequency_file': ('freq.dat', str),
+                'smatrix_file': ('smatrix.dat', str),
+                'eqcoord_file': ('eqcoord.dat', str),
+                'atom_order_file': ('atom_order.dat', str),
+                'delta_disp': (0, float),
+                'delta_algorithm': (2, int),
+                'delta_value': (0.04, float),
+                'freqdx': (-1, int)}
 
     @classmethod
     def open_config(cls, fp, required, defaults=None):
