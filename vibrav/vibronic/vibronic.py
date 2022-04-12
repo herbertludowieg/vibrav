@@ -243,6 +243,35 @@ class Vibronic:
 
     def get_hamiltonian_deriv(self, select_fdx, delta, redmass, nmodes, use_sqrt_rmass,
                               sparse_hamiltonian):
+        '''
+        Find and read all of the Hamiltonian txt files in the different confg
+        directories.
+
+        Note:
+            The path of confg is hardcoded along with the names of the
+            SF Hamiltonian files as `'ham-sf.txt'`.
+
+        Args:
+            select_fdx (int):
+            delta (pd.DataFrame): Data frame with all the delta values
+                        used for each of the normal mode displacements.
+                        Read from the given `delta_file` input in the
+                        configuration file.
+            redmass (pd.DataFrame): Data frame with all of the reduced
+                        masses for each of the normal modes. Read from
+                        the given `redmass_file` input in the
+                        configuration file.
+            nmodes (int): The number of normal modes in the molecule.
+            use_sqrt_rmass (bool):
+            sparse_hamiltonian (bool): Tell the program that the input
+                        Hamiltonian files are sparse matrices made up
+                        of block diagonal values.
+
+        Returns:
+            dham_dq (pd.DataFrame): Data frame with the derivative of
+                        the Hamiltonians with respect to the normal
+                        mode.
+        '''
         # read the hamiltonian files in each of the confg??? directories
         # it is assumed that the directories are named confg with a 3-fold padded number (000)
         padding = 3
