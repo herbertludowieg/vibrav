@@ -50,6 +50,10 @@ def compute_d_dq_sf(nstates_sf, dham_dq, eq_sf, energies_sf, dprop_dq_sf, tol=1e
         dprop_dq_sf (:obj:`numpy.array`, output): Spin-free derivative of the property of interest.
         tol (:obj:`float`, optional, input): Tolerance value for the energy differences.
                                              Defaults to :code:`1e-5`.
+        incl_states (:obj:`numpy.array`, input): Select the states that you want to use. Typically
+                                            would be used by the user to select how many states
+                                            to include in the SOS. Defaults to :code:`None`
+                                            (all available states are included).
     '''
     if incl_states is None:
         for idx in range(nstates_sf):

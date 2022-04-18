@@ -462,6 +462,15 @@ class Vibronic:
                                  have any output parser or just has not been coded yet.
             ValueError: If the array that is expected to be Hermitian actually is not.
         '''
+        # 90% of this method is actually just error checking and making
+        # sure that the input data is what is to be expected
+        # oftentimes this is actually the more important step as it is
+        # possible to get a result with bad data and it is a bug that
+        # will not be noticed
+        # if the program throws an error there is a reason why that happens
+        # if the error is not documented or thrown by something other than
+        # this program feel free to contact the administrators on github
+        # to look into the issue
         sparse = True
         store_gs_degen = True
         # for program running ststistics
@@ -508,6 +517,7 @@ class Vibronic:
         boltz.index = boltz['freqdx'].values
         filename = os.path.join(vib_dir, 'boltzmann-populations.csv')
         boltz.to_csv(filename, index=False)
+        # deprecated because there are issues with the printing algorithm
         if print_stdout and False:
             tmp = boltz_factor.copy()
             tmp = tmp[tmp.columns[:-3]]
@@ -553,6 +563,9 @@ class Vibronic:
         self.check_size(multiplicity, (nstates_sf,), 'multiplicity')
         # read the eigvectors data
         eigvectors = open_txt(config.eigvectors_file).values
+        # mainly for testing purposes but this serves the purpose of limiting
+        # the contribution of the SOC from states that can cause some issues
+        # with the final intensities
         if config.so_cont_tol is not None:
             conts = abs2(eigvectors)
             so_cont_limit = conts < config.so_cont_tol
@@ -575,6 +588,7 @@ class Vibronic:
                 df = pd.DataFrame.from_dict(df_dict)
                 print(df.to_string(index=False))
         self.check_size(eigvectors, (nstates, nstates), 'eigvectors')
+        # get the hamiltonian derivatives
         dham_dq = self.get_hamiltonian_deriv(select_fdx, delta, rmass, nmodes,
                                              use_sqrt_rmass, config.sparse_hamiltonian)
         found_modes = dham_dq['freqdx'].unique()
@@ -609,6 +623,7 @@ class Vibronic:
         else:
             raise NotImplementedError("Sorry the attribute that you are trying to use is not " \
                                      +"yet implemented.")
+        # deprecated
         #if eq_cont:
         #    # get the spin-orbit property from the molcas output for the equilibrium geometry
         #    dfs = []
@@ -620,12 +635,18 @@ class Vibronic:
         #        df['component'] = idx_map[idx]
         #        dfs.append(df)
         #    so_props = pd.concat(dfs, ignore_index=True)
+        #
         # number of components
+        # important because we can have up to 6 components for the
+        # electric quadrupole moments
         ncomp = len(idx_map.keys())
         # for easier access
         idx_map_rev = {v: k for k, v in idx_map.items()}
+        # get the energies
         energies_sf, energies_so = self._parse_energies(ed, config.sf_energies_file,
                                                         config.so_energies_file)
+        # more testing things but this will only include a select number of the
+        # sf states in the SOS equations
         if config.states is not None:
             incl_states = self._get_states(energies_sf, config.states)
         else:
@@ -685,7 +706,8 @@ class Vibronic:
             self.check_size(dham_dq_mode, (nstates_sf, nstates_sf), 'dham_dq_mode')
             tdm_prefac = np.sqrt(planck_constant_au \
                                  /(2*speed_of_light_au*freq[founddx]/Length['cm', 'au']))/(2*np.pi)
-            print("TDM prefac: {:.4f}".format(tdm_prefac))
+            if print_stdout:
+                print("TDM prefac: {:.4f}".format(tdm_prefac))
             prefactor.append(tdm_prefac)
             # iterate over all of the available components
             for idx, (key, val) in enumerate(grouped_data):
@@ -731,6 +753,7 @@ class Vibronic:
                 dprop_dq_so *= tdm_prefac
                 # generate the full property vibronic states following equation S3 for the reference
                 if eq_cont and False:
+                    # deprecated
                     so_prop = so_props.groupby('component').get_group(key).drop('component', axis=1)
                     vib_prop_plus = fc*(so_prop + dprop_dq)
                     vib_prop_minus = fc*(so_prop - dprop_dq)
@@ -754,6 +777,9 @@ class Vibronic:
             initial = np.tile(range(nstates), nstates)+1
             final = np.repeat(range(nstates), nstates)+1
             template = "{:6d}  {:6d}  {:>18.9E}  {:>18.9E}\n".format
+            # TODO: This needs some revisions. Whole lot of spaghetti code.
+            # no calculations from this point onward
+            # just a whole lot of file writing
             if write_property:
                 for idx, (minus, plus) in enumerate(zip(*vib_prop)):
                     plus_T = plus.flatten()
