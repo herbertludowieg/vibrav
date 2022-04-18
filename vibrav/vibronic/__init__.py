@@ -13,3 +13,5 @@
 # You should have received a copy of the GNU General Public License
 # along with vibrav.  If not, see <https://www.gnu.org/licenses/>.
 from .vibronic import Vibronic, write_txt
+from .combine_ham import combine_ham_files
+
