@@ -33,6 +33,24 @@ def get_triu(arr, k=0):
     triu_arr = arr[triu]
     return triu_arr
 
+def get_tril(arr, k=0):
+    '''
+    Get the lower triangular indeces of the input matrix
+
+    Args:
+        arr (:obj:`numpy.array`): Array to parse the lower triangular elements
+        k (:obj:`int`): k parameter that goes into the `np.tril_indices_from` function. Refer to
+                        numpy documentation for more information.
+
+    Returns:
+        triu_arr (:obj:`numpy.array`): 1D array with the lower triangular elements
+    '''
+    # get the elements in the upper triangular
+    tril = np.tril_indices_from(arr, k=k)
+    # return the elements as a 1d array
+    tril_arr = arr[tril]
+    return tril_arr
+
 def ishermitian(data):
     '''
     Check if the input array is hermitian.
