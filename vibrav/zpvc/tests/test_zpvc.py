@@ -58,7 +58,7 @@ def test_zpvc(zpvc_results, zpvc_geometry, grad, prop, temp):
     with tarfile.open(resource('nitromalonamide-zpvc-dat-files.tar.xz'), 'r:xz') as tar:
         tar.extractall()
     zpvc = ZPVC(config_file=resource('nitromalonamide-zpvc-config.conf'))
-    zpvc.zpvc(gradient=grad, property=prop, temperature=temp)
+    zpvc.zpvc(gradient=grad, property=prop, temperature=temp, write_out_files=False)
     data_files = glob.glob('*.dat')
     for file in data_files: os.remove(file)
     test_cols = ['tot_anharm', 'tot_curva', 'zpvc', 'property', 'zpva']

@@ -193,7 +193,8 @@ class ZPVC:
         frequencies = np.sqrt(vqi).reshape(snmodes,)*Energy['Ha', 'cm^-1']
         return frequencies
 
-    def zpvc(self, gradient, property, temperature=None, geometry=True, print_results=False):
+    def zpvc(self, gradient, property, temperature=None, geometry=True, print_results=False,
+             write_out_files=True):
         """
         Method to compute the Zero-Point Vibrational Corrections. We implement the equations as
         outlined in the paper *J. Phys. Chem. A* 2005, **109**, 8617-8623 (doi:10.1021/jp051685y).
@@ -396,7 +397,9 @@ class ZPVC:
             class attributes printed above.
         """
         zpvc_dir = 'zpvc-outputs'
-        if not os.path.exists(zpvc_dir): os.mkdir(zpvc_dir)
+        if write_out_files:
+            if not os.path.exists(zpvc_dir):
+                os.mkdir(zpvc_dir)
         config = self.config
         if property.shape[1] != 2:
             raise ValueError("Property dataframe must have a second dimension of 2 not " \
@@ -488,8 +491,9 @@ class ZPVC:
                                                 delfq_minus[fdx][sval]) / (sel_delta[fdx]**2)
         fp = os.path.join(zpvc_dir, 'kqiii')
         df = pd.DataFrame(kqiii.reshape(1,-1))
-        df.to_csv(fp+'.csv')
-        dataframe_to_txt(df=df, ncols=4, fp=fp+'.txt')
+        if write_out_files:
+            df.to_csv(fp+'.csv')
+            dataframe_to_txt(df=df, ncols=4, fp=fp+'.txt')
         # calculate anharmonic cubic force constant
         # this will have nmodes rows and snmodes cols
         kqijj = np.divide(delfq_plus - 2.0 * delfq_zero + delfq_minus,
@@ -498,8 +502,9 @@ class ZPVC:
         df = pd.DataFrame(kqijj)
         df.columns.name = 'cols'
         df.index.name = 'rows'
-        df.to_csv(fp+'.csv')
-        dataframe_to_txt(df=df, ncols=4, fp=fp+'.txt')
+        if write_out_files:
+            df.to_csv(fp+'.csv')
+            dataframe_to_txt(df=df, ncols=4, fp=fp+'.txt')
         # get property values
         prop_grouped = prop.groupby('file')
         # get the property value for the equilibrium coordinate
@@ -520,14 +525,16 @@ class ZPVC:
         fp = os.path.join(zpvc_dir, 'dprop-dq')
         df = pd.DataFrame(dprop_dq.reshape(1, -1))
         df.columns.name = 'frequency'
-        df.to_csv(fp+'.csv')
-        dataframe_to_txt(df=df, ncols=4, fp=fp+'.txt')
+        if write_out_files:
+            df.to_csv(fp+'.csv')
+            dataframe_to_txt(df=df, ncols=4, fp=fp+'.txt')
         d2prop_dq2 = np.divide(prop_plus - 2*prop_zero + prop_minus, np.multiply(sel_delta, sel_delta))
         fp = os.path.join(zpvc_dir, 'd2prop-dq2')
         df = pd.DataFrame(dprop_dq.reshape(1, -1))
         df.columns.name = 'frequency'
-        df.to_csv(fp+'.csv')
-        dataframe_to_txt(df=df, ncols=4, fp=fp+'.txt')
+        if write_out_files:
+            df.to_csv(fp+'.csv')
+            dataframe_to_txt(df=df, ncols=4, fp=fp+'.txt')
         # done with setting up everything
         # moving on to the actual calculations
 
@@ -618,13 +625,15 @@ class ZPVC:
                                                             'tot_curva', 'temp'])
         formatters = ['{:12.5f}'.format] + ['{:12.7f}'.format]*4 + ['{:9.3f}'.format]
         fp = os.path.join(zpvc_dir, 'results')
-        self.zpvc_results.to_csv(fp+'.csv')
-        dataframe_to_txt(self.zpvc_results, ncols=6, fp=fp+'.txt', float_format=formatters)
+        if write_out_files:
+            self.zpvc_results.to_csv(fp+'.csv')
+            dataframe_to_txt(self.zpvc_results, ncols=6, fp=fp+'.txt', float_format=formatters)
         self.vib_average = pd.concat(va_dfs, ignore_index=True)
         formatters = ['{:10.3f}'.format, '{:8d}'.format] + ['{:12.7f}'.format]*3 + ['{:9.3f}'.format]
         fp = os.path.join(zpvc_dir, 'vibrational-average')
-        self.vib_average.to_csv(fp+'.csv')
-        dataframe_to_txt(self.vib_average, ncols=6, fp=fp+'.txt', float_format=formatters)
+        if write_out_files:
+            self.vib_average.to_csv(fp+'.csv')
+            dataframe_to_txt(self.vib_average, ncols=6, fp=fp+'.txt', float_format=formatters)
 
     def __init__(self, config_file, *args, **kwargs):
         config = Config.open_config(config_file, self._required_inputs,
