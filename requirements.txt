@@ -1,3 +1,7 @@
 exa
 numpy
 pandas
+coveralls
+coverage
+pytest
+pytest-cov
