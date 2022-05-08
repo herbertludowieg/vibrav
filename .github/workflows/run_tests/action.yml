@@ -1,0 +1,9 @@
+name: Run Tests
+description: Run the tests
+
+runs:
+  using: "composite"
+  steps:
+    - name: Run tests
+      shell: bash -l {0}
+      run: pytest --doctest-modules -v --cov coveralls --cov-report term --cov=vibrav --cov-report xml
