@@ -12,9 +12,8 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with vibrav.  If not, see <https://www.gnu.org/licenses/>.
-from exa.core.container import TypedMeta
-from exa.core.editor import Editor
-from exa.util.units import Length, Mass, Energy
+from exatomic.exa.core.container import TypedMeta
+from exatomic.exa.core.editor import Editor
 from exatomic.core.atom import Atom, Frequency
 from exatomic.core.gradient import Gradient
 from exatomic.core.tensor import JCoupling, NMRShielding
@@ -23,7 +22,6 @@ from vibrav.numerical.redmass import rmass_mwc, rmass_cart
 import numpy as np
 import pandas as pd
 import six
-import warnings
 
 class Tape21Meta(TypedMeta):
     atom = Atom
@@ -299,7 +297,6 @@ class Tape21(six.with_metaclass(Tape21Meta, Editor)):
         df = pd.DataFrame.from_dict({'Z': Z, 'atom': atom, 'fx': x, 'fy': y, 'fz': z,
                                      'symbol': symbol, 'frame': 0})
         df = df[['atom', 'Z', 'fx', 'fy', 'fz', 'symbol', 'frame']]
-        #for u in ['fx', 'fy', 'fz']: df[u] *= 1./Length['Angstrom', 'au']
         self.gradient = df
 
     def parse_nmr_shielding(self):
