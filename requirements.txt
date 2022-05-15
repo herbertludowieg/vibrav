@@ -1,4 +1,3 @@
-exa
 exatomic
 numpy
 pandas
