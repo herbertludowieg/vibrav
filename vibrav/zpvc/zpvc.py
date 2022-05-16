@@ -12,12 +12,10 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with vibrav.  If not, see <https://www.gnu.org/licenses/>.
-from exa import logging
-logging.disable()
 from vibrav.core import Config
 from vibrav.util.print import dataframe_to_txt
-from exa.util.units import Length, Mass, Energy
-from exa.util.constants import Boltzmann_constant as boltzmann
+from exatomic.exa.util.units import Length, Mass, Energy
+from exatomic.util.constants import Boltzmann_constant as boltzmann
 from exatomic.core.atom import Atom
 from exatomic.base import sym2z
 import numpy as np

@@ -12,9 +12,9 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with vibrav.  If not, see <https://www.gnu.org/licenses/>.
-from exa.core.container import TypedMeta
-from exa.core.editor import Editor
-from exa.util.units import Length, Mass, Energy
+from exatomic.exa.core.container import TypedMeta
+from exatomic.exa.core.editor import Editor
+from exatomic.exa.util.units import Length, Mass, Energy
 from exatomic.core.atom import Atom, Frequency
 from exatomic.core.gradient import Gradient
 from exatomic.core.tensor import JCoupling, NMRShielding

@@ -14,7 +14,7 @@
 # along with vibrav.  If not, see <https://www.gnu.org/licenses/>.
 import pandas as pd
 import numpy as np
-from exa.core.numerical import Series
+from exatomic.exa.core.numerical import Series
 
 class Config(Series):
     '''

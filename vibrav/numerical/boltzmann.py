@@ -15,8 +15,8 @@
 import numpy as np
 import pandas as pd
 import warnings
-from exa.util.constants import Boltzmann_constant_in_inverse_meter_per_kelvin as boltz_const
-from exa.util.units import Energy
+from exatomic.util.constants import Boltzmann_constant_in_inverse_meter_per_kelvin as boltz_const
+from exatomic.exa.util.units import Energy
 
 def boltz_dist(energies, temp, tol=1e-6, states=None, ignore_max=False):
     '''

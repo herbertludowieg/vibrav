@@ -17,8 +17,8 @@ import numpy as np
 import warnings
 import os
 from exatomic.core.atom import Atom
-from exa.core.container import TypedMeta
-from exa.util.units import Length
+from exatomic.exa.core.container import TypedMeta
+from exatomic.exa.util.units import Length
 
 def gen_delta(freq, delta_type, disp=None, norm=0.04):
     """

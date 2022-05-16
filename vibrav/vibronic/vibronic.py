@@ -17,10 +17,10 @@ import numpy as np
 import os
 import warnings
 from vibrav.molcas import Output
-from exa.util.units import Time, Length
-from exa.util.constants import (speed_of_light_in_vacuum as speed_of_light,
+from exatomic.exa.util.units import Time, Length
+from exatomic.util.constants import (speed_of_light_in_vacuum as speed_of_light,
                                 Planck_constant as planck_constant)
-from exa.util import conversions as conv
+from exatomic.util import conversions as conv
 from vibrav.numerical.vibronic_func import *
 from vibrav.core.config import Config
 from vibrav.numerical.degeneracy import energetic_degeneracy

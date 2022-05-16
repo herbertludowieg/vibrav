@@ -18,7 +18,7 @@ import warnings
 #from exa.util.constants import (speed_of_light_in_vacuum as C,
 #                                Planck_constant as H,
 #                                Boltzmann_constant as KB)
-from exa.util import conversions, constants
+from exatomic.util import conversions, constants
 from vibrav.numerical.vroa_func import backscat, forwscat, _make_derivatives
 from vibrav.core.config import Config
 
