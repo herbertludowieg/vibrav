@@ -365,6 +365,7 @@ class Displace(metaclass=DispMeta):
         norm = kwargs.pop("norm", 0.04)
         config = kwargs.pop("config", None)
         mwc = kwargs.pop("mwc", False)
+        path = kwargs.pop("path", None)
         if isinstance(fdx, int):
             fdx = [fdx]
         freq = cls.frequency.copy()
@@ -377,5 +378,6 @@ class Displace(metaclass=DispMeta):
         atom = cls.atom.copy()
         self.delta = gen_delta(freq, delta_type, disp, norm)
         self.disp = self.gen_displaced(freq, atom, fdx)
-        self.create_data_files(atom=atom.last_frame, freq=freq, config=config)
+        self.create_data_files(atom=atom.last_frame, freq=freq, config=config,
+                               path=path)
 
