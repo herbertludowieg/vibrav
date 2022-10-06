@@ -19,36 +19,47 @@ import warnings
 import re
 import lzma
 
-def open_txt(fp, rearrange=True, get_complex=False, fill=False, is_complex=True, tol=None,
-             **kwargs):
+def open_txt(fp, rearrange=True, get_complex=False, fill=False, is_complex=True,
+             tol=None, get_magnitude=False, **kwargs):
     '''
-    Method to open a .txt file that has a separator of ' ' with the first columns ordered as
-    ['nrow', 'ncol', 'real', 'imag']. We take care of adding the two values to generate a
-    complex number. The program will take your data and automatically generate a matrix
-    of complex values that has the size of the maximum of the unique values in the 'nrow'
-    column and the maximum in the 'ncol' column. tha being said if there are missing values
-    the program will throw 'ValueError' as it will not be able to determine the size of the
-    new matrix. This works for both square and non-square matrices. We assume that the indexing
-    is non-pythonic hence the subtraction of 'nrow' and 'ncol' columns.
+    Method to open a .txt file that has a separator of ' ' with the first
+    columns ordered as ['nrow', 'ncol', 'real', 'imag']. We take care of
+    adding the two values to generate a complex number. The program will
+    take your data and automatically generate a matrix of complex values
+    that has the size of the maximum of the unique values in the 'nrow'
+    column and the maximum in the 'ncol' column. tha being said if there
+    are missing values the program will throw 'ValueError' as it will not
+    be able to determine the size of the  new matrix. This works for both
+    square and non-square matrices. We assume that the indexing is
+    non-pythonic hence the subtraction of 'nrow' and 'ncol' columns.
 
     Args:
         fp (str): Filepath of the file you want to open.
-        sep (str, optional): Delimiter value.
-        skipinitialspace (bool, optional): Pandas skipinitialspace argument in the `pandas.read_csv`
-                                           method.
-        rearrange (bool, optional): If you want to rearrange the data into a square complex matrix.
-                                    Defaults to `True`.
+        rearrange (bool, optional): If you want to rearrange the data
+            into a square complex matrix. Defaults to `True`.
         fill (:obj:`bool`, optional): Fill the missing indeces with zeros.
         is_complex (:obj:`bool`, optional): The input data is complex.
-        **kwargs (optional): Arguments that will be passed into :code:`pandas.read_csv`
+        tol (:obj:`float`, optional): Ignore any values in the matrix that
+            are less than this threshold. Defaults to `None` (no values are
+            discarded).
+        get_magnitude (:obj:`bool`, optional): Calculate the magnitude of
+            the data. Only applicable when the input data is complex. Will
+            be ignored if `rearrange=True`. Defaults to `False`.
+        sep (str, optional): Delimiter value. Will default to `' '`.
+        skipinitialspace (bool, optional): Pandas skipinitialspace argument
+            in the `pandas.read_csv` method. Defaults to `True`.
+        **kwargs (optional): Arguments that will be passed into
+            :code:`pandas.read_csv`.
 
     Returns:
-        matrix (pandas.DataFrame): Re-sized complex square matrix with the appropriate size.
+        matrix (pandas.DataFrame): Re-sized complex square matrix with the
+            appropriate size.
 
     Raises:
-        TypeError: When there are null values found. A common place this has been an issue is when
-                   the first two columns in the '.txt' files read have merged due to too many states.
-                   This was found to happen when there were over 1000 spin-orbit states.
+        TypeError: When there are null values found. A common place this has
+            been an issue is when the first two columns in the '.txt' files
+            read have merged due to too many states. This was found to happen
+            when there were over 1000 spin-orbit states.
     '''
     keys = kwargs.keys()
     # make sure certain defaults keys are kwargs
@@ -89,13 +100,14 @@ def open_txt(fp, rearrange=True, get_complex=False, fill=False, is_complex=True,
                    +"with zeros."
             raise ValueError(text.format(df.shape[0], nrow, ncol))
         if not is_complex:
-            real = np.real(matrix.values)
             imag = np.imag(matrix.values)
             if not np.allclose(imag, 0):
                 raise ValueError("The input data was detected to be complex " \
                                  +"but the kwarg 'is_complex' was set to " \
                                  +"'False'")
             matrix = pd.DataFrame(np.real(matrix.values))
+        matrix.columns.name = 'ncol'
+        matrix.index.name = 'nrow'
     else:
         matrix = df.copy()
         if tol is not None:
@@ -109,14 +121,102 @@ def open_txt(fp, rearrange=True, get_complex=False, fill=False, is_complex=True,
                              +"respectively. Cannot calculate the complex " \
                              +"values if they are not complex.")
         if get_complex:
-            matrix['complex'] = matrix['real'] + 1j*df['imag']
+            matrix['complex'] = matrix['real'] + 1j*matrix['imag']
         if not is_complex:
             if not np.allclose(matrix['imag'].values, 0):
                 raise ValueError("The input data was detected to be complex " \
                                  +"but the kwarg 'is_complex' was set to " \
                                  +"'False'")
             matrix.drop('imag', axis=1, inplace=True)
+        if get_magnitude and is_complex:
+            from vibrav.numerical.phases import get_mag
+            matrix['magnitude'] = get_mag(matrix['real'].values,
+                                          matrix['imag'].values)
     return matrix
+
+def write_txt(df, fp, formatter=None, header=None, order='F',
+              non_matrix=False):
+    '''
+    Function to write the input data as a txt file with the set format
+    to be read by external codes in the MCD suite.
+
+    Args:
+        df (pandas.DataFrame or numpy.ndarray): Input data
+        fp (str): File to write data to
+        formatter (:obj:`list`, optional): List of formatting strings.
+        header (:obj:`str`, optional): Header to place on the file.
+        order (:obj:`str`, optional): Flattening order. See
+                                      numpy.ndarray.flatten for more
+                                      information.
+    '''
+    if formatter is None:
+        formatter = ['{:6d}']*2+['{:25.16E}']*2
+    if header is None:
+        text = '{:<6s} {:<6s} {:>25s} {:>25s}\n'
+        header = text.format('#NROW', 'NCOL', 'REAL', 'IMAG')
+    if len(formatter) != 4 and not non_matrix:
+        raise NotImplementedError('Do not currently support custom number of columns')
+    if not non_matrix:
+        shape = df.shape
+        # check data consistency
+        try:
+            if len(shape) != 2:
+                text = "The input array must be 2-dimensional, currently {} dimensional"
+                raise ValueError(text.format(len(df.shape)))
+        except AttributeError:
+            raise AttributeError("The input array must be of type numpy.ndarray or pandas.DataFrame")
+        if shape[0] != shape[1]:
+            text = "The input data is not square will assume that this is correct"
+            warnings.warn(text, Warning)
+        if isinstance(df, pd.DataFrame):
+            cols = ['nrow', 'ncol', 'real', 'imag']
+            if any(list(map(lambda x: x in df.columns, cols))):
+                msg = "We detected the input data as having the " \
+                      +"ordered columns to be written to file. " \
+                      +"If this is, true add the 'non_matrix=True' " \
+                      +"to your script. If not, please submit a " \
+                      +"bug report."
+                raise ValueError(msg)
+            arr = df.values
+        elif isinstance(df, np.ndarray):
+            arr = df.copy()
+        # check that the array is not made of strings
+        # can get away with this by checking the (0,0) element
+        # as if one value in a numpy array is a string then all
+        # others will be strings as well
+        if isinstance(arr[0][0], str):
+            raise ValueError("Sorry one of the values in the input array " \
+                             +"is a string")
+        # flatten the array to have a single column data
+        # the order is set to Fortran style as the original
+        # code does this
+        if order == 'F':
+            nrow = np.tile(range(shape[0]), shape[1])+1
+            ncol = np.repeat(range(shape[1]), shape[0])+1
+        elif order == 'C':
+            nrow = np.repeat(range(shape[0]), shape[1])+1
+            ncol = np.tile(range(shape[1]), shape[0])+1
+        else:
+            raise NotImplementedError("Sorry we only support flattening by C or Fortran style")
+        flat = arr.flatten(order=order)
+        real = np.real(flat)
+        imag = np.imag(flat)
+        # write out data
+        data_template = ' '.join(formatter)
+        data_template += '\n'
+        arr = zip(real, imag, nrow, ncol)
+        with open(fp, 'w') as fn:
+            fn.write(header)
+            for r, i, nr, nc in arr:
+                fn.write(data_template.format(nr, nc, r, i))
+    else:
+        with open(fp, 'w') as fn:
+            fn.write(header)
+            formatter = list(map(lambda x: x.format, formatter))
+            df_copy = df.copy()
+            df_copy[['nrow', 'ncol']] += [1,1]
+            fn.write(df_copy.to_string(formatters=formatter, header=False,
+                                       index=False))
 
 def get_all_data(cls, path, property, f_start='', f_end=''):
     '''
