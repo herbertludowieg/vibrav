@@ -312,7 +312,8 @@ class Displace(metaclass=DispMeta):
             for item in array:
                 f.write("{}\n".format(item))
 
-    def create_data_files(self, freq, atom, path=None, config=None):
+    def create_data_files(self, freq, atom, norms, path=None,
+                          config=None):
         '''
         Method to create the .dat files that are needed to perform the calculations for
         vibrational averaging.
@@ -325,7 +326,6 @@ class Displace(metaclass=DispMeta):
         - **ATOM_ORDER_FILE**: atom_order.dat
         - **REDUCED_MASS_FILE**: redmass.dat
         - **FREQUENCY_FILE**: freq.dat
-        - **DISPLAC_A_FILE**: displac_a.dat
         - **EQCOORD_FILE**: eqcoord.dat
 
         Args:
@@ -368,20 +368,20 @@ class Displace(metaclass=DispMeta):
         fn = "freq.dat"
         frequency = freq.loc[fdxs, 'frequency'].values
         self._write_data_file(path=path, array=frequency, fn=fn)
-        # construct actual displacement data file
-        fn = "displac_a.dat"
-        rdelta = np.repeat(delta, nat)
-        disp = np.multiply(np.linalg.norm(np.transpose(freq[['dx','dy','dz']].values), axis=0),
-                                                        rdelta)
-        disp *= Length['au', 'Angstrom']
-        freqdx = freq['freqdx'].drop_duplicates().values
-        n = len(atom_order)
-        with open(os.path.join(path, fn), 'w') as f:
-            f.write("actual displacement in angstroms\n")
-            f.write("atom normal_mode distance_atom_moves\n")
-            for fdx in range(len(freqdx)):
-                for idx in range(n):
-                    f.write("{} {}\t{}\n".format(idx+1, fdx+1, disp[fdx*nat+idx]))
+        ## construct actual displacement data file
+        #fn = "displac_a.dat"
+        #rdelta = np.repeat(delta, nat)
+        #disp = np.multiply(np.linalg.norm(np.transpose(freq[['dx','dy','dz']].values), axis=0),
+        #                                                rdelta)
+        #disp *= Length['au', 'Angstrom']
+        #freqdx = freq['freqdx'].drop_duplicates().values
+        #n = len(atom_order)
+        #with open(os.path.join(path, fn), 'w') as f:
+        #    f.write("actual displacement in angstroms\n")
+        #    f.write("atom normal_mode distance_atom_moves\n")
+        #    for fdx in range(len(freqdx)):
+        #        for idx in range(n):
+        #            f.write("{} {}\t{}\n".format(idx+1, fdx+1, disp[fdx*nat+idx]))
         # construct initial configuration file
         template = "{:<20s}          {}\n".format
         text = ''
@@ -390,7 +390,7 @@ class Displace(metaclass=DispMeta):
         text += template("ATOM_ORDER_FILE", "atom_order.dat")
         text += template("REDUCED_MASS_FILE", "redmass.dat")
         text += template("FREQUENCY_FILE", "freq.dat")
-        text += template("DISPLAC_A_FILE", "displac_a.dat")
+        #text += template("DISPLAC_A_FILE", "displac_a.dat")
         text += template("EQCOORD_FILE", "eqcoord.dat")
         text += template("NUMBER_OF_NUCLEI", nat)
         text += template("NUMBER_OF_MODES", nmodes)
@@ -410,6 +410,7 @@ class Displace(metaclass=DispMeta):
         norms = sorted(kwargs.pop("norm", [0.04]))
         config = kwargs.pop("config", None)
         mwc = kwargs.pop("mwc", False)
+        path = kwargs.pop("path", None)
         if isinstance(fdx, int):
             fdx = [fdx]
         freq = cls.frequency.copy()
@@ -422,5 +423,6 @@ class Displace(metaclass=DispMeta):
         atom = cls.atom.copy()
         self.delta = gen_delta(freq, delta_type, disp, norms)
         self.disp = self.gen_displaced(freq, atom, fdx)
-        self.create_data_files(atom=atom.last_frame, freq=freq, config=config)
+        self.create_data_files(atom=atom.last_frame, freq=freq, config=config,
+                               norms=norms, path=path)
 
