@@ -17,10 +17,10 @@ import numpy as np
 import warnings
 import os
 from exatomic.core.atom import Atom
-from exa.core.container import TypedMeta
-from exa.util.units import Length
+from exatomic.exa.core.container import TypedMeta
+from exatomic.exa.util.units import Length
 
-def gen_delta(freq, delta_type, disp=None, norm=0.04):
+def gen_delta(freq, delta_type, disp=None, norms=None):
     """
     Function to compute the delta parameter to be used for the maximum distortion
     of the molecule along the normal mode.
@@ -56,30 +56,35 @@ def gen_delta(freq, delta_type, disp=None, norm=0.04):
     nat = data['label'].drop_duplicates().shape[0]
     freqdx = data['freqdx'].unique()
     nmode = freqdx.shape[0]
-    # global avrage displacement of 0.04 bohr for all atom displacements
-    if delta_type == 0:
-        d = np.sum(np.linalg.norm(
-            data[['dx', 'dy', 'dz']].values, axis=1))
-        delta = norm * nat * nmode / (np.sqrt(3) * d)
-        delta = np.repeat(delta, nmode)
-    # average displacement of 0.04 bohr for each normal mode
-    elif delta_type == 1:
-        d = data.groupby(['freqdx', 'frame']).apply(
-            lambda x: np.sum(np.linalg.norm(
-                x[['dx', 'dy', 'dz']].values, axis=1))).values
-        delta = norm * nat / d
-    # maximum displacement of 0.04 bohr for any atom in each normal mode
-    elif delta_type == 2:
-        d = data.groupby(['freqdx', 'frame']).apply(lambda x:
-            np.amax(abs(np.linalg.norm(x[['dx', 'dy', 'dz']].values, axis=1)))).values
-        delta = norm / d
-    elif delta_type == 3:
-        if disp is not None:
-            delta = np.repeat(disp, nmode)
-        else:
-            raise ValueError("Must provide a displacement value through the disp variable for " \
-                             +"delta_type = 3")
-    delta = pd.DataFrame.from_dict({'delta': delta, 'freqdx': freqdx})
+    deltas = []
+    for norm in norms:
+        # global avrage displacement of 0.04 bohr for all atom displacements
+        if delta_type == 0:
+            d = np.sum(np.linalg.norm(
+                data[['dx', 'dy', 'dz']].values, axis=1))
+            delta = norm * nat * nmode / (np.sqrt(3) * d)
+            delta = np.repeat(delta, nmode)
+        # average displacement of 0.04 bohr for each normal mode
+        elif delta_type == 1:
+            d = data.groupby(['freqdx', 'frame']).apply(
+                lambda x: np.sum(np.linalg.norm(
+                    x[['dx', 'dy', 'dz']].values, axis=1))).values
+            delta = norm * nat / d
+        # maximum displacement of 0.04 bohr for any atom in each normal mode
+        elif delta_type == 2:
+            d = data.groupby(['freqdx', 'frame']).apply(lambda x:
+                np.amax(abs(np.linalg.norm(x[['dx', 'dy', 'dz']].values, axis=1)))).values
+            delta = norm / d
+        elif delta_type == 3:
+            if disp is not None:
+                delta = np.repeat(disp, nmode)
+            else:
+                raise ValueError("Must provide a displacement value through the disp variable for " \
+                                 +"delta_type = 3")
+        delta = pd.DataFrame.from_dict({'delta': delta, 'freqdx': freqdx})
+        delta['norm'] = norm
+        deltas.append(delta)
+    delta = pd.concat(deltas, ignore_index=True)
     return delta
 
 def gen_displaced_cartesian(atom_df, delta=0.01, include_zeroth=True,
@@ -170,6 +175,18 @@ class Displace(metaclass=DispMeta):
 
     _tol = 1e-6
 
+    @staticmethod
+    def _insert_vals(df, znums, symbols, fdx, frame, freq,
+                     label, norm, delta):
+        df['Z'] = znums
+        df['symbol'] = symbols
+        df['freqdx'] = fdx
+        df['frame'] = frame
+        df['frequency'] = freq
+        df['label'] = label
+        df['norm'] = norm
+        df['delta'] = delta
+
     def gen_displaced(self, freq, atom_df, fdx):
         """
         Function to generate displaced coordinates for each selected normal mode.
@@ -211,55 +228,65 @@ class Displace(metaclass=DispMeta):
             freq_g = freq.groupby('freqdx').filter(lambda x: fdx in
                                                     x['freqdx'].drop_duplicates().values+1).copy()
         unique_index = freq_g['freqdx'].drop_duplicates().index
-        disp = freq_g[['dx','dy','dz']].values
         modes = freq_g.loc[unique_index, 'frequency'].values
         nat = eqcoord.shape[0]
         freqdx = freq_g['freqdx'].unique()
         tnmodes = freq['freqdx'].unique().shape[0]
         nmodes = freqdx.shape[0]
-        # chop all values less than tolerance
-        eqcoord[abs(eqcoord) < self._tol] = 0.0
-        # get delta values for wanted frequencies
-        try:
-            if -1 in fdx:
-                delta = self.delta['delta'].values
-            elif -1 not in fdx:
-                delta = self.delta.groupby('freqdx').filter(lambda x:
-                                      fdx in x['freqdx'].drop_duplicates().values+1)['delta'].values
-            else:
-                raise TypeError("fdx must be a list of integers or a single integer")
-            #if len(delta) != tnmodes:
-            #    raise ValueError("Inappropriate length of delta. Passed a length of {} "+
-            #                     "when it should have a length of {}. One value for each "+
-            #                     "normal mode.".format(len(delta), tnmodes))
-            #else:
-            #    delta = np.repeat(delta, nat)
-            delta = np.repeat(delta, nat)
-        except AttributeError:
-            raise AttributeError("Please compute self.delta first")
-        # calculate displaced coordinates in positive and negative directions
-        disp_pos = np.tile(np.transpose(eqcoord), nmodes) + np.multiply(np.transpose(disp), delta)
-        disp_neg = np.tile(np.transpose(eqcoord), nmodes) - np.multiply(np.transpose(disp), delta)
-        full = np.concatenate((eqcoord, np.transpose(disp_pos), np.transpose(disp_neg)), axis=0)
-        # generate frequency index labels
-        freqdx = [i+1+tnmodes*j for j in range(0,2,1) for i in freqdx]
-        freqdx = np.concatenate(([0],freqdx))
-        freqdx = np.repeat(freqdx, nat)
-        # generate the modes column
-        # useful if the frequency indexing is confusing
-        modes = np.repeat(np.concatenate(([0],modes,modes)), nat)
-        symbols = np.tile(symbols, 2*nmodes+1)
-        znums = np.tile(znums, 2*nmodes+1)
-        #frame = np.zeros(len(znums)).astype(np.int64)
-        # create dataframe
-        # coordinates are in units of Bohr as we use the coordinates from the atom dataframe
-        df = pd.DataFrame(full, columns=['x', 'y', 'z'])
-        df['freqdx'] = freqdx
-        df['Z'] = znums
-        df['symbol'] = symbols
-        df['frequency'] = modes
-        df['frame'] = freqdx
-        return df
+        grouped = freq_g.groupby('freqdx')
+        cols = ['dx', 'dy', 'dz']
+        displaced = atom[['x', 'y', 'z']].copy()
+        self._insert_vals(displaced, znums, symbols, 0, 0,
+                          0.0, range(nat), 0.0, 0.0)
+        dfs = []
+        arr = enumerate(self.delta.groupby(['norm', 'freqdx']))
+        for idx, ((norm, fdx), delta_df) in arr:
+            delta = delta_df['delta'].values[0]
+            disp = grouped.get_group(fdx)[cols].values
+            frame = int(idx/nmodes)*2*nmodes
+            # create the positive displacement coordinates
+            disp_pos = eqcoord + disp*delta
+            df = pd.DataFrame(disp_pos, columns=['x', 'y', 'z'])
+            self._insert_vals(df, znums, symbols, fdx+1, fdx+1+frame,
+                              modes[fdx], range(nat), norm, delta)
+            dfs.append(df)
+            # create the negative displacement coordinates
+            disp_neg = eqcoord - disp*delta
+            df = pd.DataFrame(disp_neg, columns=['x', 'y', 'z'])
+            self._insert_vals(df, znums, symbols, fdx+nmodes+1,
+                              fdx+nmodes+1+frame, modes[fdx],
+                              range(nat), norm, delta)
+            dfs.append(df)
+        displaced = pd.concat([displaced]+dfs, ignore_index=True)
+        displaced.sort_values(by=['frame', 'label'], inplace=True)
+        displaced.reset_index(drop=True, inplace=True)
+        nnorms = self.delta.norm.unique().shape[0]
+        print("Making sure that the displacements and order is correct")
+        for fdx in range(2*nmodes):
+            sign = 1 if fdx < nmodes else -1
+            idxs = [fdx+1+x*2*nmodes for x in range(nnorms)]
+            df = displaced.groupby('frame').filter(lambda x: x['frame'].unique() in idxs)
+            cols = ['x', 'y', 'z']
+            coords = np.tile(atom[cols].values.flatten(),
+                             nnorms).reshape(nnorms*nat, 3)
+            df = (df[cols].values - coords)/df[['delta']].values
+            df *= sign
+            df[abs(df) < 1e-6] = 0.0
+            df = pd.DataFrame(df)
+            df['group'] = np.repeat(range(nnorms), nat)
+            f = fdx if fdx < nmodes else fdx - nmodes
+            disps = freq_g.groupby('freqdx').get_group(f)[['dx', 'dy', 'dz']].values
+            for group, data in df.groupby('group'):
+                close = np.allclose(data[range(3)].values, disps, atol=1e-6)
+                if not close:
+                    print("Difference between displaced and real modes")
+                    print(data[range(3)].values - disps)
+                    print("Elements that are close to 1e-6")
+                    print(np.isclose(data[range(3)].values, disps, atol=1e-6))
+                    msg = "There was an issue with the displacement {}"
+                    raise ValueError(msg.format(group*nmodes+fdx+1))
+        print("Done with check")
+        return Atom(displaced)
 
     @staticmethod
     def _write_data_file(path, array, fn):
@@ -267,7 +294,8 @@ class Displace(metaclass=DispMeta):
             for item in array:
                 f.write("{}\n".format(item))
 
-    def create_data_files(self, freq, atom, path=None, config=None):
+    def create_data_files(self, freq, atom, norms, path=None,
+                          config=None):
         '''
         Method to create the .dat files that are needed to perform the calculations for
         vibrational averaging.
@@ -280,7 +308,6 @@ class Displace(metaclass=DispMeta):
         - **ATOM_ORDER_FILE**: atom_order.dat
         - **REDUCED_MASS_FILE**: redmass.dat
         - **FREQUENCY_FILE**: freq.dat
-        - **DISPLAC_A_FILE**: displac_a.dat
         - **EQCOORD_FILE**: eqcoord.dat
 
         Args:
@@ -293,6 +320,7 @@ class Displace(metaclass=DispMeta):
         nat = atom.shape[0]
         fdxs = freq['freqdx'].drop_duplicates().index.values
         nmodes = fdxs.shape[0]
+        nnorms = len(norms)
         # construct delta data file
         fn = "delta.dat"
         delta = self.delta['delta'].values
@@ -323,20 +351,20 @@ class Displace(metaclass=DispMeta):
         fn = "freq.dat"
         frequency = freq.loc[fdxs, 'frequency'].values
         self._write_data_file(path=path, array=frequency, fn=fn)
-        # construct actual displacement data file
-        fn = "displac_a.dat"
-        rdelta = np.repeat(delta, nat)
-        disp = np.multiply(np.linalg.norm(np.transpose(freq[['dx','dy','dz']].values), axis=0),
-                                                        rdelta)
-        disp *= Length['au', 'Angstrom']
-        freqdx = freq['freqdx'].drop_duplicates().values
-        n = len(atom_order)
-        with open(os.path.join(path, fn), 'w') as f:
-            f.write("actual displacement in angstroms\n")
-            f.write("atom normal_mode distance_atom_moves\n")
-            for fdx in range(len(freqdx)):
-                for idx in range(n):
-                    f.write("{} {}\t{}\n".format(idx+1, fdx+1, disp[fdx*nat+idx]))
+        ## construct actual displacement data file
+        #fn = "displac_a.dat"
+        #rdelta = np.repeat(delta, nat)
+        #disp = np.multiply(np.linalg.norm(np.transpose(freq[['dx','dy','dz']].values), axis=0),
+        #                                                rdelta)
+        #disp *= Length['au', 'Angstrom']
+        #freqdx = freq['freqdx'].drop_duplicates().values
+        #n = len(atom_order)
+        #with open(os.path.join(path, fn), 'w') as f:
+        #    f.write("actual displacement in angstroms\n")
+        #    f.write("atom normal_mode distance_atom_moves\n")
+        #    for fdx in range(len(freqdx)):
+        #        for idx in range(n):
+        #            f.write("{} {}\t{}\n".format(idx+1, fdx+1, disp[fdx*nat+idx]))
         # construct initial configuration file
         template = "{:<20s}          {}\n".format
         text = ''
@@ -345,10 +373,13 @@ class Displace(metaclass=DispMeta):
         text += template("ATOM_ORDER_FILE", "atom_order.dat")
         text += template("REDUCED_MASS_FILE", "redmass.dat")
         text += template("FREQUENCY_FILE", "freq.dat")
-        text += template("DISPLAC_A_FILE", "displac_a.dat")
+        #text += template("DISPLAC_A_FILE", "displac_a.dat")
         text += template("EQCOORD_FILE", "eqcoord.dat")
         text += template("NUMBER_OF_NUCLEI", nat)
         text += template("NUMBER_OF_MODES", nmodes)
+        text += template("NUMBER_OF_NORMS", nnorms)
+        text += template("NORM_FACTORS",
+                         ' '.join(list(map(str, norms))))
         if config is None:
             with open(os.path.join(path, 'va.conf'), 'w') as fn:
                 fn.write(text)
@@ -362,9 +393,10 @@ class Displace(metaclass=DispMeta):
         delta_type = kwargs.pop("delta_type", 0)
         fdx = kwargs.pop("fdx", -1)
         disp = kwargs.pop("disp", None)
-        norm = kwargs.pop("norm", 0.04)
+        norms = sorted(kwargs.pop("norm", [0.04]))
         config = kwargs.pop("config", None)
         mwc = kwargs.pop("mwc", False)
+        path = kwargs.pop("path", None)
         if isinstance(fdx, int):
             fdx = [fdx]
         freq = cls.frequency.copy()
@@ -375,7 +407,8 @@ class Displace(metaclass=DispMeta):
                    +"of the scripts in VIBRAV and is untested."
             warnings.warn(text, Warning)
         atom = cls.atom.copy()
-        self.delta = gen_delta(freq, delta_type, disp, norm)
+        self.delta = gen_delta(freq, delta_type, disp, norms)
         self.disp = self.gen_displaced(freq, atom, fdx)
-        self.create_data_files(atom=atom.last_frame, freq=freq, config=config)
+        self.create_data_files(atom=atom.last_frame, freq=freq, config=config,
+                               norms=norms, path=path)
 

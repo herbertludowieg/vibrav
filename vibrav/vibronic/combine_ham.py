@@ -46,6 +46,7 @@ def combine_ham_files(paths, nmodes, out_path='confg{:03d}', debug=False):
     '''
     from vibrav.util.io import open_txt
     import pandas as pd
+    import numpy as np
     import warnings
     import os
     class FileNotFound(Exception):

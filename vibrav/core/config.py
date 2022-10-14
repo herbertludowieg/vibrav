@@ -14,7 +14,7 @@
 # along with vibrav.  If not, see <https://www.gnu.org/licenses/>.
 import pandas as pd
 import numpy as np
-from exa.core.numerical import Series
+from exatomic.exa.core.numerical import Series
 
 class Config(Series):
     '''
@@ -143,7 +143,7 @@ class Config(Series):
             >>> from vibrav.base import resource
             >>> required = {'number_of_multiplicity': int, 'spin_multiplicity': (tuple, int),
             ...             'number_of_states': (tuple, int), 'number_of_nuclei': int}
-            >>> config = Config.open_config(resource('molcas-ucl6-2minus-vibronic-config'), required={})
+            >>> config = Config.open_config(resource('molcas-ucl6-2minus-vibronic-config'), required=required)
             >>> print(config.to_sring())
             config_elem
             freq_data_file              [ADF_FREQ_FILE]
@@ -183,7 +183,7 @@ class Config(Series):
             >>> required = {'number_of_multiplicity': int, 'spin_multiplicity': (tuple, int),
             ...             'number_of_states': (tuple, int), 'number_of_nuclei': int}
             >>> new_default = {'test': ('', str)}
-            >>> config = Config.open_config(resource('molcas-ucl6-2minus-vibronic-config'), required={})
+            >>> config = Config.open_config(resource('molcas-ucl6-2minus-vibronic-config'), required=required, defaults=new_default)
             >>> print(config.to_sring())
             config_elem
             freq_data_file              [ADF_FREQ_FILE]
