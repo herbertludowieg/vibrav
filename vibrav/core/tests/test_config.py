@@ -15,6 +15,7 @@
 from vibrav.core import Config
 from vibrav.base import resource
 import pandas as np
+import os
 
 def test_config():
     required = {'number_of_multiplicity': int, 'spin_multiplicity': (tuple, int),
@@ -38,4 +39,15 @@ def test_config():
     for key, val in base.items():
         assert val == config[key]
 
+def test_config_resource():
+    required = {'number_of_modes': int, 'number_of_nuclei': int, 'property_file': str,
+                'gradient_file': str, 'property_atoms': (list, int),
+                'property_column': str}
+    default = {'smatrix_file': ('smatrix.dat', str), 'eqcoord_file': ('eqcoord.dat', str),
+               'atom_order_file': ('atom_order.dat', str)}
+    config = Config.open_config(resource('nitromal-zpvc-va.conf'), required=required,
+                                defaults=default)
+    for key, val in config.items():
+        if key.endswith('_file'):
+            assert os.path.join('static', 'misc', 'zpvc-test') in val
 

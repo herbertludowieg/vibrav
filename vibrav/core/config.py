@@ -84,7 +84,7 @@ class Config(Series):
                 'use_resource': (0, bool)}
 
     @classmethod
-    def open_config(cls, fp, required, defaults=None):
+    def open_config(cls, fp, required=None, defaults=None):
         '''
         Open and read the config file that is given.
     
@@ -254,36 +254,38 @@ class Config(Series):
             # this allows us to use this script in the different ways we need it and we just
             # pass it the parameters that are required for that specific calculation
             # it is not pretty but I think it is the most generalized way to do this
-            elif key in required.keys():
-                found_required.append(key)
-                # make sure if the entry will need to be iterated over
-                # this must be specified by giving a two element required param. value in the dict
-                if isinstance(required[key], (list, tuple)):
-                    config[key] = tuple(map(lambda x: required[key][1](x), d[1:]))
-                # when the requirement value passed is not two elements but the data on the
-                # config file has more than one element
-                elif not isinstance(required[key], (list, tuple)) and len(d[1:]) > 1:
-                    raise AttributeError("Found more than one element in input although it is " \
-                                        +"expected to be a single value")
-                # for a single element input
-                elif len(d[1:]) == 1:
-                    config[key] = required[key](d[1])
-                # if all else fails
-                # this should never execute
-                else:
-                    raise Exception("Something strange is going on here")
+            elif required is not None:
+                if key in required.keys():
+                    found_required.append(key)
+                    # make sure if the entry will need to be iterated over
+                    # this must be specified by giving a two element required param. value in the dict
+                    if isinstance(required[key], (list, tuple)):
+                        config[key] = tuple(map(lambda x: required[key][1](x), d[1:]))
+                    # when the requirement value passed is not two elements but the data on the
+                    # config file has more than one element
+                    elif not isinstance(required[key], (list, tuple)) and len(d[1:]) > 1:
+                        raise AttributeError("Found more than one element in input although it is " \
+                                            +"expected to be a single value")
+                    # for a single element input
+                    elif len(d[1:]) == 1:
+                        config[key] = required[key](d[1])
+                    # if all else fails
+                    # this should never execute
+                    else:
+                        raise Exception("Something strange is going on here")
             # all other inputs
             # TODO: make some extras input thing that will take care of these
             #       we do not want to throw them out as it may be useful at some point
             else:
                 config[key] = d[1:]
-        # check for missing required arguments
-        missing_required = list(filter(lambda x: x not in found_required, required.keys()))
-        if missing_required:
-            raise AttributeError("There is a required input parameter missing." \
-                                +"\nThe required parameters in the config file for this " \
-                                +"calculation are:" \
-                                +"{}".format('\n - '.join(['']+list(required.keys()))))
+        if required is not None:
+            # check for missing required arguments
+            missing_required = list(filter(lambda x: x not in found_required, required.keys()))
+            if missing_required:
+                raise AttributeError("There is a required input parameter missing." \
+                                    +"\nThe required parameters in the config file for this " \
+                                    +"calculation are:" \
+                                    +"{}".format('\n - '.join(['']+list(required.keys()))))
         # check for missing default arguments and fill in with the default values
         # availabel in the defaults dict
         missing_default = list(filter(lambda x: x not in found_defaults, defaults.keys()))
