@@ -15,6 +15,7 @@
 import pandas as pd
 import numpy as np
 from exatomic.exa.core.numerical import Series
+from vibrav.base import resource
 
 class Config(Series):
     '''
@@ -79,7 +80,8 @@ class Config(Series):
                 'delta_disp': (0, float),
                 'delta_algorithm': (2, int),
                 'delta_value': (0.04, float),
-                'freqdx': (-1, int)}
+                'freqdx': (-1, int),
+                'use_resource': (0, bool)}
 
     @classmethod
     def open_config(cls, fp, required, defaults=None):
@@ -287,5 +289,12 @@ class Config(Series):
         missing_default = list(filter(lambda x: x not in found_defaults, defaults.keys()))
         for missing in missing_default:
             config[missing] = defaults[missing][0]
+        if config['use_resource']:
+            for key, val in config.items():
+                if '_file' in key:
+                    if type(val) == list:
+                        config[key] = [resource(x) for x in val]
+                    else:
+                        config[key] = resource(val)
         return cls(config)
 
