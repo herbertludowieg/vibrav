@@ -52,6 +52,8 @@ def gen_delta(freq, delta_type, disp=None, norms=None):
 
     Examples:
     """
+    if not type(norms) == list:
+        norms = [norms]
     data = freq.copy()
     nat = data['label'].drop_duplicates().shape[0]
     freqdx = data['freqdx'].unique()
@@ -396,17 +398,24 @@ class Displace(metaclass=DispMeta):
         delta_type = kwargs.pop("delta_type", 0)
         fdx = kwargs.pop("fdx", -1)
         disp = kwargs.pop("disp", None)
-        norms = sorted(kwargs.pop("norm", [0.04]))
+        norms = sorted(kwargs.pop("norms", [0.04]))
         config = kwargs.pop("config", None)
         mwc = kwargs.pop("mwc", False)
         path = kwargs.pop("path", None)
         cart_disp = kwargs.pop("cart_disp", False)
-        atom = cls.atom.copy()
-        if not hasattr(cls, 'frequency'):
-            raise AttributeError("Frequency dataframe cannot be found in universe")
+        atom_file = kwargs.pop("atom_file", None)
+        freq_file = kwargs.pop("freq_file", None)
+        write_files = kwargs.pop("write_files", True)
+        csv_props = kwargs.pop("csv_props", False)
+        if not csv_props:
+            atom = cls.atom.copy()
+            freq = cls.frequency.copy()
+        else:
+            from exatomic.core import Atom, Frequency
+            atom = Atom(pd.read_csv(atom_file))
+            freq = Frequency(pd.read_csv(freq_file))
         if isinstance(fdx, int):
             fdx = [fdx]
-        freq = cls.frequency.copy()
         if not cart_disp:
             if mwc:
                 freq[['dx', 'dy', 'dz']] /= np.sqrt(freq['r_mass'].values).reshape(-1,1)
@@ -421,7 +430,8 @@ class Displace(metaclass=DispMeta):
             delta_dict = dict(delta=[disp*Length['Angstrom', 'au']]*nat)
             self.delta = pd.DataFrame.from_dict(delta_dict)
             self.disp = self.gen_displaced_cartesian(atom, disp)
-        self.create_data_files(atom=atom.last_frame, freq=freq, config=config,
-                               norms=norms, path=path, cart_disp=cart_disp,
-                               disp=disp)
+        if write_files:
+            self.create_data_files(atom=atom.last_frame, freq=freq, config=config,
+                                   norms=norms, path=path, cart_disp=cart_disp,
+                                   disp=disp)
 
