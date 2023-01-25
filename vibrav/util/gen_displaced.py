@@ -20,7 +20,7 @@ from exatomic.core.atom import Atom
 from exatomic.exa.core.container import TypedMeta
 from exatomic.exa.util.units import Length
 
-def gen_delta(freq, delta_type, disp=None, norms=None):
+def gen_delta(freq, delta_type, disp=None, norm=None):
     """
     Function to compute the delta parameter to be used for the maximum distortion
     of the molecule along the normal mode.
@@ -52,31 +52,31 @@ def gen_delta(freq, delta_type, disp=None, norms=None):
 
     Examples:
     """
-    if not type(norms) == list:
-        norms = [norms]
+    if not type(norm) == list:
+        norm = [norm]
     data = freq.copy()
     nat = data['label'].drop_duplicates().shape[0]
     freqdx = data['freqdx'].unique()
     nmode = freqdx.shape[0]
     deltas = []
-    for norm in norms:
+    for n in norm:
         # global avrage displacement of 0.04 bohr for all atom displacements
         if delta_type == 0:
             d = np.sum(np.linalg.norm(
                 data[['dx', 'dy', 'dz']].values, axis=1))
-            delta = norm * nat * nmode / (np.sqrt(3) * d)
+            delta = n * nat * nmode / (np.sqrt(3) * d)
             delta = np.repeat(delta, nmode)
         # average displacement of 0.04 bohr for each normal mode
         elif delta_type == 1:
             d = data.groupby(['freqdx', 'frame']).apply(
                 lambda x: np.sum(np.linalg.norm(
                     x[['dx', 'dy', 'dz']].values, axis=1))).values
-            delta = norm * nat / d
+            delta = n * nat / d
         # maximum displacement of 0.04 bohr for any atom in each normal mode
         elif delta_type == 2:
             d = data.groupby(['freqdx', 'frame']).apply(lambda x:
                 np.amax(abs(np.linalg.norm(x[['dx', 'dy', 'dz']].values, axis=1)))).values
-            delta = norm / d
+            delta = n / d
         elif delta_type == 3:
             if disp is not None:
                 delta = np.repeat(disp, nmode)
@@ -84,7 +84,7 @@ def gen_delta(freq, delta_type, disp=None, norms=None):
                 raise ValueError("Must provide a displacement value through the disp variable for " \
                                  +"delta_type = 3")
         delta = pd.DataFrame.from_dict({'delta': delta, 'freqdx': freqdx})
-        delta['norm'] = norm
+        delta['norm'] = n
         deltas.append(delta)
     delta = pd.concat(deltas, ignore_index=True)
     return delta
@@ -296,7 +296,7 @@ class Displace(metaclass=DispMeta):
             for item in array:
                 f.write("{}\n".format(item))
 
-    def create_data_files(self, freq, atom, norms, cart_disp, disp,
+    def create_data_files(self, freq, atom, norm, cart_disp, disp,
                           path=None, config=None):
         '''
         Method to create the .dat files that are needed to perform the calculations for
@@ -322,7 +322,7 @@ class Displace(metaclass=DispMeta):
         nat = atom.shape[0]
         fdxs = freq['freqdx'].drop_duplicates().index.values
         nmodes = fdxs.shape[0]
-        nnorms = len(norms)
+        nnorms = len(norm)
         # construct delta data file
         fn = "delta.dat"
         delta = self.delta['delta'].values
@@ -382,7 +382,7 @@ class Displace(metaclass=DispMeta):
         text += template("NUMBER_OF_NORMS", nnorms)
         if not cart_disp:
             text += template("NORM_FACTORS",
-                             ' '.join(list(map(str, norms))))
+                             ' '.join(list(map(str, norm))))
         else:
             text += template("NORM_FACTORS",
                              ' '.join(list(map(str, [disp]))))
@@ -398,7 +398,7 @@ class Displace(metaclass=DispMeta):
         delta_type = kwargs.pop("delta_type", 0)
         fdx = kwargs.pop("fdx", -1)
         disp = kwargs.pop("disp", None)
-        norms = sorted(kwargs.pop("norms", [0.04]))
+        norm = sorted(kwargs.pop("norm", [0.04]))
         config = kwargs.pop("config", None)
         mwc = kwargs.pop("mwc", False)
         path = kwargs.pop("path", None)
@@ -423,7 +423,7 @@ class Displace(metaclass=DispMeta):
                        +"reduced mass. This is not implemented into any " \
                        +"of the scripts in VIBRAV and is untested."
                 warnings.warn(text, Warning)
-            self.delta = gen_delta(freq, delta_type, disp, norms)
+            self.delta = gen_delta(freq, delta_type, disp, norm)
             self.disp = self.gen_displaced(freq, atom, fdx)
         else:
             nat = atom.last_frame.shape[0]
@@ -432,6 +432,6 @@ class Displace(metaclass=DispMeta):
             self.disp = self.gen_displaced_cartesian(atom, disp)
         if write_files:
             self.create_data_files(atom=atom.last_frame, freq=freq, config=config,
-                                   norms=norms, path=path, cart_disp=cart_disp,
+                                   norm=norm, path=path, cart_disp=cart_disp,
                                    disp=disp)
 

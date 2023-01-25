@@ -30,7 +30,7 @@ params = ([1, 0.02, 'nien3-frequency-data.csv.xz', 'nien3-1-0.02-delta.dat.xz'],
 def test_gen_delta(delta_type, norm, freq, expected):
     freq_df = pd.read_csv(resource(freq), compression='xz')
     exp_df = pd.read_csv(resource(expected), header=None, compression='xz').values.reshape(-1,)
-    delta = gen_delta(freq=freq_df, delta_type=delta_type, norms=norm)
+    delta = gen_delta(freq=freq_df, delta_type=delta_type, norm=norm)
     assert np.allclose(exp_df, delta['delta'].values.reshape(-1,))
 
 def test_normal_modes():
