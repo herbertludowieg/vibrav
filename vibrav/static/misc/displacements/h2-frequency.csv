@@ -1,0 +1,3 @@
+frequency,Z,label,dx,dy,dz,frequency,freqdx,ir_int,r_mass,symbol,frame
+0,1,1,-0.0,0.0,0.70711,5481.2439,0,0.0,1.0078,H,0
+1,1,2,0.0,0.0,-0.70711,5481.2439,0,0.0,1.0078,H,0
