@@ -16,7 +16,7 @@ import numpy as np
 import pandas as pd
 
 def energetic_degeneracy(data_df, degen_delta, rtol=1e-12, numpy=True, original_order=False,
-                         min_sort=False):
+                         min_sort=False, original_size=False):
     '''
     Get the energetic degeneracies within the energy tolerance given by the
     `degen_delta` parameter. This is mean to keep track of the indeces at which
@@ -56,6 +56,7 @@ def energetic_degeneracy(data_df, degen_delta, rtol=1e-12, numpy=True, original_
                                               degenerate energies.
     '''
     degen_states = []
+    original = []
     idx = 0
     # convert to a pandas series object
     # we then sort by the energies without reseting the index
@@ -71,6 +72,10 @@ def energetic_degeneracy(data_df, degen_delta, rtol=1e-12, numpy=True, original_
         sorted = df.sort_values(by=df.columns[0])
         index = sorted.index.values
         data = sorted['energy'].values
+    original_data = pd.DataFrame.from_dict({'energy': data})
+    original_data.index = index
+    original_data['index'] = 0
+    original_data['degen'] = 0
     # iterate over all of the energies
     while idx < data.shape[0]:
         # determine what is degenerate
@@ -89,13 +94,31 @@ def energetic_degeneracy(data_df, degen_delta, rtol=1e-12, numpy=True, original_
         else:
             df = pd.DataFrame.from_dict({'value': [mean], 'degen': [ddx.shape[0]],
                                          'sort': index[idx]})
-        idx += ddx.shape[0]
+        idx += ddx.shape[0] if not original_size else 1
         found = np.transpose(degen_index)
         df['index'] = [found]
+        #ndf = original_data.loc[ddx].copy()
+        #ndf['degen'] = ddx.shape[0]
+        #ndf['index'] = [found]*ddx.shape[0]
+        #ndf['degen_energy'] = [mean]*ddx.shape[0]
+        #for d in ddx:
+        #    print(original_data.loc[d])
+        #    print(d, found)
+        #    original_data.loc[d, 'degen'] = ddx.shape[0]
+        #    original_data.loc[d, 'index'] = [found]
         degen_states.append(df)
+        #if original_size:
+        #    original.append(ndf)
     degeneracy = pd.concat(degen_states, ignore_index=True)
+    if original_size:
+        degeneracy.index = index
     if original_order:
         degeneracy.sort_values(by=['sort'], inplace=True)
         degeneracy.reset_index(drop=True, inplace=True)
-    return degeneracy
+    if not original_size or True:
+        return degeneracy
+    else:
+        original = pd.concat(original)
+        return degeneracy, original
+
 
