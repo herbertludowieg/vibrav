@@ -12,7 +12,7 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with vibrav.  If not, see <https://www.gnu.org/licenses/>.
-from vibrav.util.gen_displaced import gen_delta
+from vibrav.util.gen_displaced import gen_delta, Displace
 from vibrav.base import resource
 import pytest
 import numpy as np
@@ -31,4 +31,7 @@ def test_gen_delta(delta_type, norm, freq, expected):
     exp_df = pd.read_csv(resource(expected), header=None, compression='xz').values.reshape(-1,)
     delta = gen_delta(freq=freq_df, delta_type=delta_type, norm=norm)
     assert np.allclose(exp_df, delta['delta'].values.reshape(-1,))
-    
+
+def test_normal_modes():
+    disp = Displace(cls=None, write_files=False, atom_file=resource('h2-atom.csv'),
+                    freq_file=resource('h2-frequency.csv'), csv_props=True)
