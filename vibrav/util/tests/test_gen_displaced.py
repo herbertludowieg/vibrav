@@ -37,13 +37,13 @@ def test_normal_modes():
     def read_file(fp):
         return pd.read_csv(fp, index_col=False, header=None).values.flatten()
     disp = Displace(cls=None, write_files=False, atom_file=resource('h2-atom.csv'),
-                    freq_file=resource('h2-frequency.csv'), csv_props=True)
+                    freq_file=resource('h2-frequency.csv'), csv_props=True,
+                    norm=[0.02, 0.04])
     actual = pd.read_csv(resource('h2-norm-disps.csv'), index_col=0, header=0)
     cols = ['x', 'y', 'z']
     assert np.allclose(disp.disp[cols], actual[cols])
     files = glob.glob('*.dat')
     for f in files:
-        if f == 'atom_order.dat' or f == 'eqcoord.dat': continue
         test = read_file(f)
         actual = read_file(resource('h2-'+f))
         assert np.allclose(test, actual)
