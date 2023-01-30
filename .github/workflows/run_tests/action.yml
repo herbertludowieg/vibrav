@@ -11,7 +11,7 @@ runs:
   steps:
     - name: Run tests
       shell: bash -l {0}
-      run: pytest --doctest-modules -v --cov coveralls --cov-report term --cov=vibrav --cov-report xml vibrav
+      run: pytest -v --cov coveralls --cov-report term --cov=vibrav --cov-report xml vibrav
     - name: Upload Coverage
       if: (runner.os == 'Linux') && (matrix.python-version == '3.8') && (always())
       uses: actions/upload-artifact@v2
