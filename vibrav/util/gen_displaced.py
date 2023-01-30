@@ -96,8 +96,8 @@ class DispMeta(TypedMeta):
 
 class Displace(metaclass=DispMeta):
     """
-    Supporting class for Vibrational Averaging that will generate input files
-    for a selected program under a certain displacement parameter.
+    Supporting class for Vibrational Averaging that will displace the input atomic
+    coordinates along its normal modes (:func:`~vibrav.Displace.gen_displaced`).
 
     Computes displaced coordinates for all available normal modes from the equilibrium
     position by using the displacement vector components contained in the

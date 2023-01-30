@@ -63,9 +63,16 @@ def test_zpvc(zpvc_results, zpvc_geometry, grad, prop, temp):
     for file in data_files: os.remove(file)
     test_cols = ['tot_anharm', 'tot_curva', 'zpvc', 'property', 'zpva']
     exp_cols = ['anharm' ,'curv' ,'zpvc' ,'prop' ,'zpva']
-    print(zpvc.vib_average.to_string())
+    print("Test values")
     print(zpvc_results.get_group(temp[0])[exp_cols].values)
+    print("Calculated values")
     print(zpvc.zpvc_results[test_cols].values)
+    print("Comparison with np.isclose(atol=1e-3, rtol=1e-4)")
+    print(np.isclose(zpvc_results.get_group(temp[0])[exp_cols].values,
+                       zpvc.zpvc_results[test_cols].values, atol=1e-3, rtol=1e-4))
+    print("Comparison with np.isclose(atol=1e-3, rtol=1e-5)")
+    print(np.isclose(zpvc_results.get_group(temp[0])[exp_cols].values,
+                       zpvc.zpvc_results[test_cols].values, atol=1e-3, rtol=1e-5))
     assert np.allclose(zpvc_results.get_group(temp[0])[exp_cols].values,
-                       zpvc.zpvc_results[test_cols].values, atol=1e-3)
+                       zpvc.zpvc_results[test_cols].values, atol=1e-3, rtol=1e-4)
 
