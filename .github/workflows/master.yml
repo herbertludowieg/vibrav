@@ -70,7 +70,7 @@ jobs:
         run: sudo apt-get install -y pandoc
       - name: Install Dependencies
         run: |
-          pip install --upgrade --upgrade-strategy eager -r requirements.publish.txt -e .
+          pip install --upgrade --upgrade-strategy eager -r requirements.publish.txt -r requirements.txt -e .
       - name: Publish Docs
         run: |
           rm -rf docs/source/*.txt
