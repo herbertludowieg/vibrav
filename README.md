@@ -3,6 +3,9 @@ VIBRAtional AVeraging (vibrav)
 
 A tool to perform vibrational averaging of molecular properties on molecules.
 
+[![Codacy Badge](https://app.codacy.com/project/badge/Grade/e56e338b3e944e1985b846c9127ed952)](https://www.codacy.com/gh/herbertludowieg/vibrav/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=herbertludowieg/vibrav&amp;utm_campaign=Badge_Grade)
+[![Codacy Badge](https://app.codacy.com/project/badge/Coverage/e56e338b3e944e1985b846c9127ed952)](https://www.codacy.com/gh/herbertludowieg/vibrav/dashboard?utm_source=github.com&utm_medium=referral&utm_content=herbertludowieg/vibrav&utm_campaign=Badge_Coverage)
+
 ## Installation
 To use this code package you must download the development version and execute
 
