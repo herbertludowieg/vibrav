@@ -39,7 +39,7 @@ cmd.exe /C start index.html
  - numpy
  - pandas
  - numba
- - [exa](https://github.com/exa-analytics/exa)
+ - [exatomic](https://github.com/exa-analytics/exatomic)
 
 ## Calculations available
 ### Vibronic Coupling:
