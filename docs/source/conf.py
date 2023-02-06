@@ -144,9 +144,9 @@ latex_elements = {
 
     # Additional stuff for the LaTeX preamble.
     #
-    'packages': r'''
-\usepackage[margin=1in]{geometry}
-''',
+#    'packages': r'''
+#\usepackage[margin=1in]{geometry}
+#''',
 
     # Latex figure (float) alignment
     #
