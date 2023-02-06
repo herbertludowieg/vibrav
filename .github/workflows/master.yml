@@ -61,7 +61,7 @@ jobs:
       - uses: actions/cache@v2
         with:
           path: ${{ env.pythonLocation }}
-          key: ${{ runner.os }}-3.8-${{ hashFiles('requirements.txt') }}-${{ hashFiles('requirements.dev.txt') }}-${{ hasFiles('requirements.publish.txt') }}
+          key: ${{ runner.os }}-3.8-${{ hashFiles('requirements.txt') }}-${{ hashFiles('requirements.dev.txt') }}-${{ hashFiles('requirements.publish.txt') }}
           restore-keys: ${{ runner.os }}-3.8-${{ hashFiles('requirements.txt') }}-${{ hashFiles('requirements.dev.txt') }}
       - name: Install Pandoc
         run: sudo apt-get install -y pandoc
