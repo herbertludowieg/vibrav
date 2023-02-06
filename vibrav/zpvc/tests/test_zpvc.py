@@ -53,10 +53,10 @@ def prop():
     yield prop
 
 # have to make a rtol input due to the test data accuracy
-@pytest.mark.parametrize("temp, nat", [([  0], 15, 1e-4), ([100], 15, 1e-5),
-                                       ([200], 15, 1e-5), ([300], 15, 1e-5),
-                                       ([400], 15, 1e-5), ([600], 15, 1e-5)])
-def test_zpvc(zpvc_results, zpvc_geometry, grad, prop, temp, rtol):
+@pytest.mark.parametrize("temp, nat, rtol", [([  0], 15, 1e-4), ([100], 15, 1e-5),
+                                        ([200], 15, 1e-5), ([300], 15, 1e-5),
+                                        ([400], 15, 1e-5), ([600], 15, 1e-5)])
+def test_zpvc(zpvc_results, zpvc_geometry, grad, prop, temp, nat, rtol):
     zpvc = ZPVC(config_file=resource('nitromalonamide-zpvc-config.conf'))
     zpvc.zpvc(gradient=grad, property=prop, temperature=temp, write_out_files=False)
     test_cols = ['tot_anharm', 'tot_curva', 'zpvc', 'property', 'zpva']
