@@ -67,6 +67,8 @@ jobs:
           pip install --upgrade --upgrade-strategy eager -r requirements.publish.txt -r requirements.txt -e .
       - name: Sphinx build
         run: |
+          rm -rf docs/source/*.txt
+          SPINX_APIDOC_OPTIONS=members,undoc-members,show-inheritance sphinx-apidoc -eM -s txt -o docs/source/ -d 3 vibrav *test*
           sphinx-build docs/source _build
       #- name: Publish Docs
       #  run: |
