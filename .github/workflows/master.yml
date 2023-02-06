@@ -49,3 +49,16 @@ jobs:
           project-token: ${{ secrets.CODACY_PROJECT_TOKEN }}
           coverage-reports: coverage.xml
 
+  publish-docs:
+    needs: run-tests
+    runs-on: ubuntu-latest
+    name: Publish Docs
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-python@v2
+        with:
+          python-version: 3.8
+      - uses: actions/cache@v2
+        with:
+          path: ${{ env.pythonLocation }}
+          key: ${{ runner.os }}-3.8-${{ hashFiles('requirements.txt') }}-${{ hashFiles('requirements.dev.txt') }}-${{
