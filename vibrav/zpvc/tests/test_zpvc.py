@@ -52,15 +52,13 @@ def prop():
     prop = df.copy()
     yield prop
 
-@pytest.mark.parametrize("temp, nat", [([0], 15), ([100], 15), ([200], 15), ([300], 15),
-                                       ([400], 15), ([600], 15)])
-def test_zpvc(zpvc_results, zpvc_geometry, grad, prop, temp):
-    with tarfile.open(resource('nitromalonamide-zpvc-dat-files.tar.xz'), 'r:xz') as tar:
-        tar.extractall()
+# have to make a rtol input due to the test data accuracy
+@pytest.mark.parametrize("temp, nat", [([  0], 15, 1e-4), ([100], 15, 1e-5),
+                                       ([200], 15, 1e-5), ([300], 15, 1e-5),
+                                       ([400], 15, 1e-5), ([600], 15, 1e-5)])
+def test_zpvc(zpvc_results, zpvc_geometry, grad, prop, temp, rtol):
     zpvc = ZPVC(config_file=resource('nitromalonamide-zpvc-config.conf'))
     zpvc.zpvc(gradient=grad, property=prop, temperature=temp, write_out_files=False)
-    data_files = glob.glob('*.dat')
-    for file in data_files: os.remove(file)
     test_cols = ['tot_anharm', 'tot_curva', 'zpvc', 'property', 'zpva']
     exp_cols = ['anharm' ,'curv' ,'zpvc' ,'prop' ,'zpva']
     print("Test values")
@@ -74,5 +72,5 @@ def test_zpvc(zpvc_results, zpvc_geometry, grad, prop, temp):
     print(np.isclose(zpvc_results.get_group(temp[0])[exp_cols].values,
                        zpvc.zpvc_results[test_cols].values, atol=1e-3, rtol=1e-5))
     assert np.allclose(zpvc_results.get_group(temp[0])[exp_cols].values,
-                       zpvc.zpvc_results[test_cols].values, atol=1e-3, rtol=1e-4)
+                       zpvc.zpvc_results[test_cols].values, atol=1e-3, rtol=rtol)
 
