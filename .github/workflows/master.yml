@@ -74,7 +74,7 @@ jobs:
       - name: Publish Docs
         run: |
           rm -rf docs/source/*.txt
-          SPHINX_APIDOC_OPTIONS=members,undoc-members,show-inheritance sphinx-apidoc -eM -s txt -o docs/source/ vibrav *test*
+          SPINX_APIDOC_OPTIONS=members,undoc-members,show-inheritance sphinx-apidoc -eM -s txt -o docs/source/ -d 3 vibrav *test*
           travis-sphinx build
           travis-sphinx deploy
 
