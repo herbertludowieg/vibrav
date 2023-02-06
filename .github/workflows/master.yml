@@ -20,7 +20,7 @@ jobs:
           python-version: ${{ matrix.python-version }}
       - name: Install Dependencies
         run: |
-          pip install --upgrade --upgrade-strategy eager -r requirements.txt -e .
+          pip install --upgrade --upgrade-strategy eager -r requirements.txt -r requirements.dev.txt -e .
       - name: Check out dev exatomic
         uses: actions/checkout@v2
         with:

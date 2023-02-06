@@ -1,7 +1,3 @@
 exatomic
 numpy
 pandas
-coveralls
-coverage
-pytest
-pytest-cov
