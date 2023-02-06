@@ -65,15 +65,19 @@ jobs:
       - name: Install Dependencies
         run: |
           pip install --upgrade --upgrade-strategy eager -r requirements.publish.txt -r requirements.txt -e .
-      #- name: Sphinx build
-      #  run: |
-      #    sphinx-build docs _build
-      - name: Publish Docs
+      - name: Sphinx build
         run: |
-          rm -rf docs/source/*.txt
-          SPINX_APIDOC_OPTIONS=members,undoc-members,show-inheritance sphinx-apidoc -eM -s txt -o docs/source/ -d 3 vibrav *test*
-          travis-sphinx build
-      #    travis-sphinx deploy
+          sphinx-build docs/source _build
+      #- name: Publish Docs
+      #  run: |
+      #    rm -rf docs/source/*.txt
+      #    SPINX_APIDOC_OPTIONS=members,undoc-members,show-inheritance sphinx-apidoc -eM -s txt -o docs/source/ -d 3 vibrav *test*
+      #    travis-sphinx build
+      ##    travis-sphinx deploy
+      - name: Debug
+        run: |
+          pwd
+          ls -la
       - name: Deploy
         uses: peaceiris/actions-gh-pages@v3
         if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/master' }}
