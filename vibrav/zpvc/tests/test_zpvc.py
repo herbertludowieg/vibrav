@@ -35,14 +35,13 @@ def zpvc_geometry():
     zpvc_geometry = df.groupby('temp')
     yield zpvc_geometry
 
-@pytest.mark.parametrize("temp", [([0,100,200,300,400,500,600])])
-def test_zpvc(zpvc_results, zpvc_geometry, temp):
+def test_zpvc(zpvc_results, zpvc_geometry):
     zpvc = ZPVC(config_file=resource('nitromal-zpvc-va.conf'))
-    zpvc.zpvc(temperature=temp, write_out_files=False)
+    zpvc.zpvc(write_out_files=False)
     cols = ['tot_anharm', 'tot_curva', 'zpvc', 'zpva']
     assert np.allclose(zpvc_results[cols].values, zpvc.zpvc_results[cols].values)
     cols = ['x', 'y', 'z']
-    for t in temp:
+    for t in zpvc.config.temperature:
         assert np.allclose(zpvc_geometry.get_group(t)[cols],
                            zpvc.eff_coord.groupby('temp').get_group(t)[cols])
 
