@@ -24,7 +24,7 @@ import pandas as pd
 import os
 import warnings
 
-_zpvc_result = '''\
+_zpvc_results = '''\
 ========Results from Vibrational Averaging at {temp:.2f} K==========
 ----Result of ZPVC calculation for {snmodes:d} of {nmodes:d} frequencies
     - Total Anharmonicity:   {anharm:+.6f}
@@ -32,6 +32,10 @@ _zpvc_result = '''\
     - Zero Point Vib. Corr.: {zpvc:+.6f}
     - Zero Point Vib. Avg.:  {zpva:+.6f}
 '''
+
+eff_geo = '''\
+----Effective geometry in Angstroms for T={:.2f} K
+{}'''
 
 class ZPVC:
     '''
@@ -125,7 +129,8 @@ class ZPVC:
                         'temperature': (list, float)}
     _default_inputs = {'smatrix_file': ('smatrix.dat', str),
                        'eqcoord_file': ('eqcoord.dat', str),
-                       'atom_order_file': ('atom_order.dat', str)}
+                       'atom_order_file': ('atom_order.dat', str),
+                       'index_col': (True, bool)}
 
     @staticmethod
     def _get_temp_factor(temp, freq):
@@ -479,10 +484,16 @@ class ZPVC:
             if not os.path.exists(zpvc_dir):
                 os.mkdir(zpvc_dir)
         config = self.config
-        gradient = pd.read_csv(config.gradient_file, index_col=0) \
-                                .sort_values(by=['file', 'atom'])
-        property = pd.read_csv(config.property_file, index_col=0) \
-                                .sort_values(by=['file', 'atom'])
+        if config.index_col:
+            gradient = pd.read_csv(config.gradient_file, index_col=0) \
+                                    .sort_values(by=['file', 'atom'])
+            property = pd.read_csv(config.property_file, index_col=0) \
+                                    .sort_values(by=['file', 'atom'])
+        else:
+            gradient = pd.read_csv(config.gradient_file, index_col=False) \
+                                    .sort_values(by=['file', 'atom'])
+            property = pd.read_csv(config.property_file, index_col=False) \
+                                    .sort_values(by=['file', 'atom'])
         grouped = property.groupby('atom').get_group
         temperature = config.temperature
         pcol = config.property_column
@@ -632,7 +643,7 @@ class ZPVC:
             # moving on to the actual calculations
             atom_order = eqcoord['symbol']
             # calculate the ZPVC's at different temperatures by iterating over them
-            for t in temperature:
+            for tdx, t in enumerate(temperature):
                 # calculate anharmonicity in the potential energy surface
                 anharm = np.zeros(snmodes)
                 for i in range(nmodes):
@@ -659,18 +670,19 @@ class ZPVC:
                                num_frequency=num_freqs, freqdx=range(nmodes),
                                anharm=anharm, curva=curva, sum=anharm+curva,
                                temp=np.repeat(t, nmodes),
-                               atom=np.repeat(atom, nmodes))
+                               atom=np.repeat(atom, nmodes),
+                               frame=np.repeat(tdx, nmodes))
                 va_dfs.append(pd.DataFrame.from_dict(dict_df))
                 zpvc = np.sum(anharm+curva)
                 tot_anharm = np.sum(anharm)
                 tot_curva = np.sum(curva)
                 zpvc_dfs.append([prop_zero[0], zpvc, prop_zero[0] + zpvc, tot_anharm,
-                                 tot_curva, t, atom])
+                                 tot_curva, t, atom, tdx])
                 if print_results:
                     print(_zpvc_results.format(temp=t, snmodes=snmodes, nmodes=nmodes,
                                                anharm=tot_anharm, curva=tot_curva,
                                                zpvc=zpvc, zpva=prop_zero[0]+zpvc))
-        for t in temperature:
+        for tdx, t in enumerate(temperature):
             if geometry:
                 # calculate the effective geometry
                 # we do not check this at the beginning as it will not always be computed
@@ -694,33 +706,48 @@ class ZPVC:
                                              'y': tmp_coord[1], 'z': tmp_coord[2],
                                              'symbol': atom_order,
                                              'temp': np.repeat(t, eqcoord.shape[0]),
-                                             'frame': np.repeat(t, len(eqcoord))})
+                                             'frame': np.repeat(tdx, len(eqcoord))})
                 cols = ['x', 'y', 'z']
                 for col in cols:
                     df.loc[df[col].abs() < 1e-6, col] = 0
+                df = Atom(df)
                 coor_dfs.append(df)
+                #coor_df = Atom(df)
                 # print out the effective geometry in Angstroms
                 if print_results:
-                    print("----Effective geometry in Angstroms")
-                    xyz = coor_dfs[-1][['symbol','x','y','z']].copy()
-                    xyz['x'] *= Length['au', 'Angstrom']
-                    xyz['y'] *= Length['au', 'Angstrom']
-                    xyz['z'] *= Length['au', 'Angstrom']
-                    stargs = {'columns': None, 'header': False, 'index': False,
-                              'formatters': {'symbol': '{:<5}'.format},
-                              'float_format': '{:6f}'.format}
-                    print(xyz.to_string(**stargs))
+                    print(eff_geo.format(t, df.to_xyz()))
+                    #print("----Effective geometry in Angstroms")
+                    #xyz = coor_dfs[-1][['symbol','x','y','z']].copy()
+                    #xyz['x'] *= Length['au', 'Angstrom']
+                    #xyz['y'] *= Length['au', 'Angstrom']
+                    #xyz['z'] *= Length['au', 'Angstrom']
+                    #stargs = {'columns': None, 'header': False, 'index': False,
+                    #          'formatters': {'symbol': '{:<5}'.format},
+                    #          'float_format': '{:6f}'.format}
+                    #print(xyz.to_string(**stargs))
         if geometry:
-            self.eff_coord = pd.concat(coor_dfs, ignore_index=True)
+            self.eff_coord = Atom(pd.concat(coor_dfs, ignore_index=True))
+            if write_out_files:
+                fp_temp = 'atomic-coords-{:03d}.xyz'
+                for frame in range(self.eff_coord.nframes):
+                    fp = os.path.join(zpvc_dir, fp_temp.format(frame))
+                    comment = 'Vibrational averaged positions for T={:.2f} K'
+                    with open(fp, 'w') as fn:
+                        t = self.eff_coord.groupby('frame') \
+                                .get_group(frame)['temp'].unique()[0]
+                        kwargs = dict(header=True, frame=frame,
+                                      comments=comment.format(t))
+                        text = self.eff_coord.to_xyz(**kwargs)
+                        fn.write(text)
         cols = ['property', 'zpvc', 'zpva', 'tot_anharm',
-                'tot_curva', 'temp', 'atom']
+                'tot_curva', 'temp', 'atom', 'frame']
         # save data as class attributes
         self.zpvc_results = pd.DataFrame(zpvc_dfs, columns=cols)
         self.vib_average = pd.concat(va_dfs, ignore_index=True)
         if write_out_files:
             # write the zpvc results to file
             formatters = ['{:12.5f}'.format] + ['{:12.7f}'.format]*4 \
-                         + ['{:9.3f}'.format] + ['{:8d}'.format]
+                         + ['{:9.3f}'.format] + ['{:8d}'.format, '{:4d}'.format]
             fp = os.path.join(zpvc_dir, 'results')
             self.zpvc_results.to_csv(fp+'.csv')
             dataframe_to_txt(self.zpvc_results, ncols=6, fp=fp+'.txt',
@@ -728,7 +755,7 @@ class ZPVC:
             # write the full vibrational average table to file
             formatters = ['{:10.3f}'.format]*2+['{:8d}'.format] \
                          + ['{:12.7f}'.format]*3 + ['{:9.3f}'.format] \
-                         + ['{:8d}'.format]
+                         + ['{:8d}'.format, '{:4d}'.format]
             fp = os.path.join(zpvc_dir, 'vibrational-average')
             self.vib_average.to_csv(fp+'.csv')
             dataframe_to_txt(self.vib_average, ncols=6, fp=fp+'.txt',
