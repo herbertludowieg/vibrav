@@ -24,6 +24,15 @@ import pandas as pd
 import os
 import warnings
 
+_zpvc_result = '''\
+========Results from Vibrational Averaging at {temp:.2f} K==========
+----Result of ZPVC calculation for {snmodes:d} of {nmodes:d} frequencies
+    - Total Anharmonicity:   {anharm:+.6f}
+    - Total Curvature:       {curva:+.6f}
+    - Zero Point Vib. Corr.: {zpvc:+.6f}
+    - Zero Point Vib. Avg.:  {zpva:+.6f}
+'''
+
 class ZPVC:
     '''
     Class to calculate the Zero-point vibrational corrections of a certain property.
@@ -53,10 +62,12 @@ class ZPVC:
     |                 | of the nuclei.                                      |                |
     +-----------------+-----------------------------------------------------+----------------+
     '''
-    _required_inputs = {'number_of_modes': int, 'number_of_nuclei': int, 'property_file': str,
-                        'gradient_file': str, 'property_atoms': (list, int),
-                        'property_column': str}
-    _default_inputs = {'smatrix_file': ('smatrix.dat', str), 'eqcoord_file': ('eqcoord.dat', str),
+    _required_inputs = {'number_of_modes': int, 'number_of_nuclei': int,
+                        'property_file': str, 'gradient_file': str,
+                        'property_atoms': (list, int), 'property_column': str,
+                        'temperature': (list, float)}
+    _default_inputs = {'smatrix_file': ('smatrix.dat', str),
+                       'eqcoord_file': ('eqcoord.dat', str),
                        'atom_order_file': ('atom_order.dat', str)}
 
     @staticmethod
@@ -83,8 +94,9 @@ class ZPVC:
                                          np.setdiff1d(neg_file.values, intersect)), axis=None))
         rdf = df.copy()
         if len(diff) > 0:
-            print("Seems that we are missing one of the {} outputs for frequency {} ".format(prop, diff)+ \
-                  "we will ignore the {} data for these frequencies.".format(prop))
+            msg = "Seems that we are missing one of the {} outputs for frequency {} " \
+                  +"we will ignore the {} data for these frequencies."
+            print(msg.format(prop, diff, prop))
             rdf = rdf[~rdf['file'].isin(diff)]
             rdf = rdf[~rdf['file'].isin(diff+nmodes)]
         return rdf
@@ -118,7 +130,8 @@ class ZPVC:
         grad_minus = grouped.filter(lambda x: x['file'].unique() in range(nmodes+1, 2*nmodes+1))
         # TODO: Check if we can make use of numba to speed up this code
         delfq_zero = freq.groupby('freqdx')[['dx', 'dy', 'dz']].apply(lambda x:
-                                    np.sum(np.multiply(grad_0[['fx', 'fy', 'fz']].values, x.values))).values
+                                    np.sum(np.multiply(grad_0[['fx', 'fy', 'fz']].values,
+                                                       x.values))).values
         # we extend the size of this 1d array as we will perform some matrix summations with the
         # other outputs from this method
         delfq_zero = np.tile(delfq_zero, nmodes).reshape(nmodes, nmodes)
@@ -174,8 +187,8 @@ class ZPVC:
         frequencies = np.sqrt(vqi).reshape(nmodes,)*conv.Ha2inv_cm
         return frequencies
 
-    def zpvc(self, temperature=None, geometry=True, print_results=False,
-             write_out_files=True):
+    def zpvc(self, geometry=True, print_results=False,
+             write_out_files=True, debug=False):
         """
         Method to compute the Zero-Point Vibrational Corrections. We implement the equations as
         outlined in the paper *J. Phys. Chem. A* 2005, **109**, 8617-8623 (doi:10.1021/jp051685y).
@@ -382,26 +395,30 @@ class ZPVC:
             if not os.path.exists(zpvc_dir):
                 os.mkdir(zpvc_dir)
         config = self.config
-        gradient = pd.read_csv(config.gradient_file, index_col=0).sort_values(by=['file', 'atom'])
-        property = pd.read_csv(config.property_file, index_col=0).sort_values(by=['file', 'atom'])
+        gradient = pd.read_csv(config.gradient_file, index_col=0) \
+                                .sort_values(by=['file', 'atom'])
+        property = pd.read_csv(config.property_file, index_col=0) \
+                                .sort_values(by=['file', 'atom'])
+        grouped = property.groupby('atom').get_group
+        temperature = config.temperature
+        pcol = config.property_column
         coor_dfs = []
         zpvc_dfs = []
         va_dfs = []
         for atom in config.property_atoms:
-            property = property.groupby('atom').get_group(atom)[[config.property_column, 'file']]
-            if property.shape[1] != 2:
+            prop_vals = grouped(atom)[[pcol, 'file']]
+            if prop_vals.shape[1] != 2:
                 raise ValueError("Property dataframe must have a second dimension of 2 not " \
                                  +"{}".format(property.shape[1]))
-            if temperature is None: temperature = [0]
             # get the total number of normal modes
             nmodes = config.number_of_modes
-            if property.shape[0] != 2*nmodes+1:
+            if prop_vals.shape[0] != 2*nmodes+1:
                 raise ValueError("The number of entries in the property data frame must " \
                                  +"be twice the number of normal modes plus one, currently " \
                                  +"{}".format(property.shape[0]))
             # check for any missing files and remove the respective counterpart
             grad = self._check_file_continuity(gradient.copy(), 'gradient', nmodes)
-            prop = self._check_file_continuity(property.copy(), 'property', nmodes)
+            prop = self._check_file_continuity(prop_vals.copy(), 'property', nmodes)
             # check that the equlibrium coordinates are included
             # these are required for the three point difference methods
             try:
@@ -484,46 +501,49 @@ class ZPVC:
             # calculate derivatives
             dprop_dq = (prop_plus - prop_minus) / (2*delta)
             d2prop_dq2 = (prop_plus - 2*prop_zero + prop_minus) / (delta**2)
-            # write debug files for comparisons
-            fp = os.path.join(zpvc_dir, 'kqijj')
-            df = pd.DataFrame(kqijj)
-            df.columns.name = 'cols'
-            df.index.name = 'rows'
+            # write output files for comparisons
             if write_out_files:
+                # write the anharmonic cubic constant matrix
+                fp = os.path.join(zpvc_dir, 'kqijj')
+                df = pd.DataFrame(kqijj)
+                df.columns.name = 'cols'
+                df.index.name = 'rows'
                 df.to_csv(fp+'.csv')
                 dataframe_to_txt(df=df, ncols=4, fp=fp+'.txt')
-            fp = os.path.join(zpvc_dir, 'kqiii')
-            df = pd.DataFrame(kqiii.reshape(1,-1))
-            if write_out_files:
+                # write the cubic force constant
+                fp = os.path.join(zpvc_dir, 'kqiii')
+                df = pd.DataFrame(kqiii.reshape(1,-1))
                 df.to_csv(fp+'.csv')
                 dataframe_to_txt(df=df, ncols=4, fp=fp+'.txt')
-            fp = os.path.join(zpvc_dir, 'dprop-dq')
-            df = pd.DataFrame([dprop_dq]).T
-            df.index.name = 'freqdx'
-            if write_out_files:
-                df.to_csv(fp+'.csv')
-                dataframe_to_txt(df=df, fp=fp+'.txt')
-            fp = os.path.join(zpvc_dir, 'd2prop-dq2')
-            df = pd.DataFrame([d2prop_dq2]).T
-            df.index.name = 'freqdx'
-            if write_out_files:
-                df.to_csv(fp+'.csv')
-                dataframe_to_txt(df=df, fp=fp+'.txt')
-            fp = os.path.join(zpvc_dir, 'delfq-zero')
-            df = pd.DataFrame(delfq_zero)
-            if write_out_files:
-                df.to_csv(fp+'.csv')
-                dataframe_to_txt(df=df, fp=fp+'.txt')
-            fp = os.path.join(zpvc_dir, 'delfq-plus')
-            df = pd.DataFrame(delfq_plus)
-            if write_out_files:
-                df.to_csv(fp+'.csv')
-                dataframe_to_txt(df=df, fp=fp+'.txt')
-            fp = os.path.join(zpvc_dir, 'delfq-minus')
-            df = pd.DataFrame(delfq_minus)
-            if write_out_files:
-                df.to_csv(fp+'.csv')
-                dataframe_to_txt(df=df, fp=fp+'.txt')
+                if debug:
+                    # write the first derivative of the property
+                    fp = os.path.join(zpvc_dir, 'dprop-dq')
+                    df = pd.DataFrame([dprop_dq]).T
+                    df.index.name = 'freqdx'
+                    df.to_csv(fp+'.csv')
+                    dataframe_to_txt(df=df, fp=fp+'.txt')
+                    # write the second derivative of the property
+                    fp = os.path.join(zpvc_dir, 'd2prop-dq2')
+                    df = pd.DataFrame([d2prop_dq2]).T
+                    df.index.name = 'freqdx'
+                    df.to_csv(fp+'.csv')
+                    dataframe_to_txt(df=df, fp=fp+'.txt')
+                    # write the gradients in terms of the normal modes
+                    # equilibrium structure
+                    fp = os.path.join(zpvc_dir, 'delfq-zero')
+                    df = pd.DataFrame(delfq_zero)
+                    df.to_csv(fp+'.csv')
+                    dataframe_to_txt(df=df, fp=fp+'.txt')
+                    # positive displacments
+                    fp = os.path.join(zpvc_dir, 'delfq-plus')
+                    df = pd.DataFrame(delfq_plus)
+                    df.to_csv(fp+'.csv')
+                    dataframe_to_txt(df=df, fp=fp+'.txt')
+                    # negative displacements
+                    fp = os.path.join(zpvc_dir, 'delfq-minus')
+                    df = pd.DataFrame(delfq_minus)
+                    df.to_csv(fp+'.csv')
+                    dataframe_to_txt(df=df, fp=fp+'.txt')
             # done with setting up everything
             # moving on to the actual calculations
             atom_order = eqcoord['symbol']
@@ -537,9 +557,12 @@ class ZPVC:
                         # calculate the contribution of each vibration
                         temp_fac = self._get_temp_factor(t, frequencies[j])
                         # sum over the first index
-                        temp1 += kqijj[j][i]/(frequencies[j]*rmass[j]*np.sqrt(rmass[i]))*temp_fac
-                    # sum over the second index and set anharmonicity at each vibrational mode
-                    anharm[i] = -0.25*dprop_dq[i]/(frequencies[i]**2*np.sqrt(rmass[i]))*temp1
+                        temp1 += kqijj[j][i]/(frequencies[j]*rmass[j] \
+                                              *np.sqrt(rmass[i]))*temp_fac
+                    # sum over the second index and set anharmonicity at
+                    # each vibrational mode
+                    anharm[i] = -0.25*dprop_dq[i]/(frequencies[i]**2 \
+                                                    *np.sqrt(rmass[i]))*temp1
                 # calculate curvature of property
                 curva = np.zeros(snmodes)
                 for i in range(nmodes):
@@ -548,24 +571,21 @@ class ZPVC:
                     # set the curvature at each vibrational mode
                     curva[i] = 0.25*d2prop_dq2[i]/(frequencies[i]*rmass[i])*temp_fac
                 # generate one of the zpvc dataframes
-                va_dfs.append(pd.DataFrame.from_dict({'frequency': frequencies*conv.Ha2inv_cm,
-                                                      'num_frequency': num_freqs, 'freqdx': range(nmodes),
-                                                      'anharm': anharm, 'curva': curva, 'sum': anharm+curva,
-                                                      'temp': np.repeat(t, nmodes),
-                                                      'atom': np.repeat(atom, nmodes)}))
+                dict_df = dict(frequency=frequencies*conv.Ha2inv_cm,
+                               num_frequency=num_freqs, freqdx=range(nmodes),
+                               anharm=anharm, curva=curva, sum=anharm+curva,
+                               temp=np.repeat(t, nmodes),
+                               atom=np.repeat(atom, nmodes))
+                va_dfs.append(pd.DataFrame.from_dict(dict_df))
                 zpvc = np.sum(anharm+curva)
                 tot_anharm = np.sum(anharm)
                 tot_curva = np.sum(curva)
                 zpvc_dfs.append([prop_zero[0], zpvc, prop_zero[0] + zpvc, tot_anharm,
                                  tot_curva, t, atom])
                 if print_results:
-                    print("========Results from Vibrational Averaging at {} K==========".format(t))
-                    # print results to stdout
-                    print("----Result of ZPVC calculation for {} of {} frequencies".format(snmodes, nmodes))
-                    print("    - Total Anharmonicity:   {:+.6f}".format(tot_anharm))
-                    print("    - Total Curvature:       {:+.6f}".format(tot_curva))
-                    print("    - Zero Point Vib. Corr.: {:+.6f}".format(zpvc))
-                    print("    - Zero Point Vib. Avg.:  {:+.6f}".format(prop_zero[0] + zpvc))
+                    print(_zpvc_results.format(temp=t, snmodes=snmodes, nmodes=nmodes,
+                                               anharm=tot_anharm, curva=tot_curva,
+                                               zpvc=zpvc, zpva=prop_zero[0]+zpvc))
         for t in temperature:
             if geometry:
                 # calculate the effective geometry
@@ -603,26 +623,36 @@ class ZPVC:
                     xyz['y'] *= Length['au', 'Angstrom']
                     xyz['z'] *= Length['au', 'Angstrom']
                     stargs = {'columns': None, 'header': False, 'index': False,
-                              'formatters': {'symbol': '{:<5}'.format}, 'float_format': '{:6f}'.format}
+                              'formatters': {'symbol': '{:<5}'.format},
+                              'float_format': '{:6f}'.format}
                     print(xyz.to_string(**stargs))
         if geometry:
             self.eff_coord = pd.concat(coor_dfs, ignore_index=True)
-        self.zpvc_results = pd.DataFrame(zpvc_dfs, columns=['property', 'zpvc', 'zpva', 'tot_anharm', 
-                                                            'tot_curva', 'temp', 'atom'])
-        formatters = ['{:12.5f}'.format] + ['{:12.7f}'.format]*4 + ['{:9.3f}'.format] + ['{:8d}'.format]
-        fp = os.path.join(zpvc_dir, 'results')
-        if write_out_files:
-            self.zpvc_results.to_csv(fp+'.csv')
-            dataframe_to_txt(self.zpvc_results, ncols=6, fp=fp+'.txt', float_format=formatters)
+        cols = ['property', 'zpvc', 'zpva', 'tot_anharm',
+                'tot_curva', 'temp', 'atom']
+        # save data as class attributes
+        self.zpvc_results = pd.DataFrame(zpvc_dfs, columns=cols)
         self.vib_average = pd.concat(va_dfs, ignore_index=True)
-        formatters = ['{:10.3f}'.format]*2+['{:8d}'.format] + ['{:12.7f}'.format]*3 + ['{:9.3f}'.format] + ['{:8d}'.format]
-        fp = os.path.join(zpvc_dir, 'vibrational-average')
         if write_out_files:
+            # write the zpvc results to file
+            formatters = ['{:12.5f}'.format] + ['{:12.7f}'.format]*4 \
+                         + ['{:9.3f}'.format] + ['{:8d}'.format]
+            fp = os.path.join(zpvc_dir, 'results')
+            self.zpvc_results.to_csv(fp+'.csv')
+            dataframe_to_txt(self.zpvc_results, ncols=6, fp=fp+'.txt',
+                             float_format=formatters)
+            # write the full vibrational average table to file
+            formatters = ['{:10.3f}'.format]*2+['{:8d}'.format] \
+                         + ['{:12.7f}'.format]*3 + ['{:9.3f}'.format] \
+                         + ['{:8d}'.format]
+            fp = os.path.join(zpvc_dir, 'vibrational-average')
             self.vib_average.to_csv(fp+'.csv')
-            dataframe_to_txt(self.vib_average, ncols=6, fp=fp+'.txt', float_format=formatters)
+            dataframe_to_txt(self.vib_average, ncols=6, fp=fp+'.txt',
+                             float_format=formatters)
 
     def __init__(self, config_file, *args, **kwargs):
         config = Config.open_config(config_file, self._required_inputs,
                                     defaults=self._default_inputs)
+        config.temperature = tuple(sorted(config.temperature))
         self.config = config
 
