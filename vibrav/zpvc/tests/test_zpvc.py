@@ -40,8 +40,7 @@ def test_zpvc(zpvc_results, zpvc_geometry, temp):
     zpvc = ZPVC(config_file=resource('nitromal-zpvc-va.conf'))
     zpvc.zpvc(temperature=temp, write_out_files=False)
     cols = ['tot_anharm', 'tot_curva', 'zpvc', 'zpva']
-    for col in cols:
-        assert np.allclose(zpvc_results[col].values, zpvc.zpvc_results[col].values)
+    assert np.allclose(zpvc_results[cols].values, zpvc.zpvc_results[cols].values)
     cols = ['x', 'y', 'z']
     for t in temp:
         assert np.allclose(zpvc_geometry.get_group(t)[cols],

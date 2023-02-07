@@ -20,7 +20,7 @@ from exatomic.core.atom import Atom
 from exatomic.exa.core.container import TypedMeta
 from exatomic.exa.util.units import Length
 
-def gen_delta(freq, delta_type, disp=None, norms=None):
+def gen_delta(freq, delta_type, disp=None, norm=None):
     """
     Function to compute the delta parameter to be used for the maximum distortion
     of the molecule along the normal mode.
@@ -52,29 +52,31 @@ def gen_delta(freq, delta_type, disp=None, norms=None):
 
     Examples:
     """
+    if not type(norm) == list:
+        norm = [norm]
     data = freq.copy()
     nat = data['label'].drop_duplicates().shape[0]
     freqdx = data['freqdx'].unique()
     nmode = freqdx.shape[0]
     deltas = []
-    for norm in norms:
+    for n in norm:
         # global avrage displacement of 0.04 bohr for all atom displacements
         if delta_type == 0:
             d = np.sum(np.linalg.norm(
                 data[['dx', 'dy', 'dz']].values, axis=1))
-            delta = norm * nat * nmode / (np.sqrt(3) * d)
+            delta = n * nat * nmode / (np.sqrt(3) * d)
             delta = np.repeat(delta, nmode)
         # average displacement of 0.04 bohr for each normal mode
         elif delta_type == 1:
             d = data.groupby(['freqdx', 'frame']).apply(
                 lambda x: np.sum(np.linalg.norm(
                     x[['dx', 'dy', 'dz']].values, axis=1))).values
-            delta = norm * nat / d
+            delta = n * nat / d
         # maximum displacement of 0.04 bohr for any atom in each normal mode
         elif delta_type == 2:
             d = data.groupby(['freqdx', 'frame']).apply(lambda x:
                 np.amax(abs(np.linalg.norm(x[['dx', 'dy', 'dz']].values, axis=1)))).values
-            delta = norm / d
+            delta = n / d
         elif delta_type == 3:
             if disp is not None:
                 delta = np.repeat(disp, nmode)
@@ -82,64 +84,10 @@ def gen_delta(freq, delta_type, disp=None, norms=None):
                 raise ValueError("Must provide a displacement value through the disp variable for " \
                                  +"delta_type = 3")
         delta = pd.DataFrame.from_dict({'delta': delta, 'freqdx': freqdx})
-        delta['norm'] = norm
+        delta['norm'] = n
         deltas.append(delta)
     delta = pd.concat(deltas, ignore_index=True)
     return delta
-
-def gen_displaced_cartesian(atom_df, delta=0.01, include_zeroth=True,
-                            exclude=None):
-    """
-    Function to generate displaced coordinates in cartesian space. Will generate
-    a total of 3N displacements with N being the number of atoms. If you desire
-    the functionality to displace along the calculated normal modes please see
-    :func:`vibrav.util.gen_displaced.Displace.gen_displaced`. We use the
-    convention where nat*3 + j + nat*3*sign
-    """
-    # get needed data from dataframes
-    # atom coordinates should be in Bohr
-    atom = atom_df.last_frame
-    eqcoord = atom[['x', 'y', 'z']].values
-    symbols = atom['symbol'].values
-    nat = atom.shape[0]
-    delta_au = delta*Length['Angstrom', 'au']
-    # gaussian Fchk class uses Zeff where the Output class uses Z
-    # add try block to account for the possible exception
-    try:
-        znums = atom['Zeff'].values
-    except KeyError:
-        try:
-            znums = atom['Z'].values
-        except KeyError:
-            pass
-    # chop all values less than tolerance
-    eqcoord[abs(eqcoord) < 1e-6] = 0.0
-    modes = np.eye(3)
-    disp = []
-    for idx in range(nat):
-        for jdx, vec in enumerate(modes):
-            for ndx, sign in enumerate([1, -1]):
-                coord = eqcoord.copy()
-                if exclude is not None:
-                    if (idx, jdx) != exclude:
-                        coord[idx] += sign*vec*delta_au
-                else:
-                    coord[idx] += sign*vec*delta_au
-                df = pd.DataFrame(coord, columns=['x', 'y', 'z'])
-                df['symbol'] = symbols
-                df['frame'] = idx*3+jdx+ndx*3*nat+1
-                df['set'] = range(nat)
-                disp.append(df)
-    if include_zeroth:
-        df = pd.DataFrame(eqcoord, columns=['x', 'y', 'z'])
-        df['symbol'] = symbols
-        df['frame'] = 0
-        df['set'] = range(nat)
-        disp.append(df)
-    disp = Atom(pd.concat(disp, ignore_index=True))
-    disp.sort_values(by=['frame', 'set'], inplace=True)
-    disp.reset_index(drop=True, inplace=True)
-    return disp
 
 class DispMeta(TypedMeta):
     disp = Atom
@@ -148,8 +96,8 @@ class DispMeta(TypedMeta):
 
 class Displace(metaclass=DispMeta):
     """
-    Supporting class for Vibrational Averaging that will generate input files
-    for a selected program under a certain displacement parameter.
+    Supporting class for Vibrational Averaging that will displace the input atomic
+    coordinates along its normal modes (:func:`~vibrav.Displace.gen_displaced`).
 
     Computes displaced coordinates for all available normal modes from the equilibrium
     position by using the displacement vector components contained in the
@@ -288,14 +236,68 @@ class Displace(metaclass=DispMeta):
         print("Done with check")
         return Atom(displaced)
 
+    def gen_displaced_cartesian(self, atom_df, delta=0.01, include_zeroth=True,
+                                exclude=None):
+        """
+        Function to generate displaced coordinates in cartesian space. Will generate
+        a total of 3N displacements with N being the number of atoms. If you desire
+        the functionality to displace along the calculated normal modes please see
+        :func:`vibrav.util.gen_displaced.Displace.gen_displaced`. We use the
+        convention where nat*3 + j + nat*3*sign
+        """
+        # get needed data from dataframes
+        # atom coordinates should be in Bohr
+        atom = atom_df.last_frame
+        eqcoord = atom[['x', 'y', 'z']].values
+        symbols = atom['symbol'].values
+        nat = atom.shape[0]
+        delta_au = delta*Length['Angstrom', 'au']
+        # gaussian Fchk class uses Zeff where the Output class uses Z
+        # add try block to account for the possible exception
+        try:
+            znums = atom['Zeff'].values
+        except KeyError:
+            try:
+                znums = atom['Z'].values
+            except KeyError:
+                pass
+        # chop all values less than tolerance
+        eqcoord[abs(eqcoord) < 1e-6] = 0.0
+        modes = np.eye(3)
+        disp = []
+        for idx in range(nat):
+            for jdx, vec in enumerate(modes):
+                for ndx, sign in enumerate([1, -1]):
+                    coord = eqcoord.copy()
+                    if exclude is not None:
+                        if (idx, jdx) != exclude:
+                            coord[idx] += sign*vec*delta_au
+                    else:
+                        coord[idx] += sign*vec*delta_au
+                    df = pd.DataFrame(coord, columns=['x', 'y', 'z'])
+                    df['symbol'] = symbols
+                    df['frame'] = idx*3+jdx+ndx*3*nat+1
+                    df['set'] = range(nat)
+                    disp.append(df)
+        if include_zeroth:
+            df = pd.DataFrame(eqcoord, columns=['x', 'y', 'z'])
+            df['symbol'] = symbols
+            df['frame'] = 0
+            df['set'] = range(nat)
+            disp.append(df)
+        disp = Atom(pd.concat(disp, ignore_index=True))
+        disp.sort_values(by=['frame', 'set'], inplace=True)
+        disp.reset_index(drop=True, inplace=True)
+        return disp
+
     @staticmethod
     def _write_data_file(path, array, fn):
         with open(os.path.join(path, fn), 'w') as f:
             for item in array:
                 f.write("{}\n".format(item))
 
-    def create_data_files(self, freq, atom, norms, path=None,
-                          config=None):
+    def create_data_files(self, freq, atom, norm, cart_disp, disp,
+                          path=None, config=None):
         '''
         Method to create the .dat files that are needed to perform the calculations for
         vibrational averaging.
@@ -320,7 +322,7 @@ class Displace(metaclass=DispMeta):
         nat = atom.shape[0]
         fdxs = freq['freqdx'].drop_duplicates().index.values
         nmodes = fdxs.shape[0]
-        nnorms = len(norms)
+        nnorms = len(norm)
         # construct delta data file
         fn = "delta.dat"
         delta = self.delta['delta'].values
@@ -378,8 +380,13 @@ class Displace(metaclass=DispMeta):
         text += template("NUMBER_OF_NUCLEI", nat)
         text += template("NUMBER_OF_MODES", nmodes)
         text += template("NUMBER_OF_NORMS", nnorms)
-        text += template("NORM_FACTORS",
-                         ' '.join(list(map(str, norms))))
+        if not cart_disp:
+            text += template("NORM_FACTORS",
+                             ' '.join(list(map(str, norm))))
+        else:
+            text += template("NORM_FACTORS",
+                             ' '.join(list(map(str, [disp]))))
+        text += template("CARTESIAN_DISP", int(cart_disp))
         if config is None:
             with open(os.path.join(path, 'va.conf'), 'w') as fn:
                 fn.write(text)
@@ -388,27 +395,43 @@ class Displace(metaclass=DispMeta):
                 fn.write(text)
 
     def __init__(self, cls, *args, **kwargs):
-        if not hasattr(cls, 'frequency'):
-            raise AttributeError("Frequency dataframe cannot be found in universe")
         delta_type = kwargs.pop("delta_type", 0)
         fdx = kwargs.pop("fdx", -1)
         disp = kwargs.pop("disp", None)
-        norms = sorted(kwargs.pop("norm", [0.04]))
+        norm = sorted(kwargs.pop("norm", [0.04]))
         config = kwargs.pop("config", None)
         mwc = kwargs.pop("mwc", False)
         path = kwargs.pop("path", None)
+        cart_disp = kwargs.pop("cart_disp", False)
+        atom_file = kwargs.pop("atom_file", None)
+        freq_file = kwargs.pop("freq_file", None)
+        write_files = kwargs.pop("write_files", True)
+        csv_props = kwargs.pop("csv_props", False)
+        if not csv_props:
+            atom = cls.atom.copy()
+            freq = cls.frequency.copy()
+        else:
+            from exatomic.core import Atom, Frequency
+            atom = Atom(pd.read_csv(atom_file))
+            freq = Frequency(pd.read_csv(freq_file))
         if isinstance(fdx, int):
             fdx = [fdx]
-        freq = cls.frequency.copy()
-        if mwc:
-            freq[['dx', 'dy', 'dz']] /= np.sqrt(freq['r_mass'].values).reshape(-1,1)
-            text = "We are dividing the normal modes by the sqrt of the " \
-                   +"reduced mass. This is not implemented into any " \
-                   +"of the scripts in VIBRAV and is untested."
-            warnings.warn(text, Warning)
-        atom = cls.atom.copy()
-        self.delta = gen_delta(freq, delta_type, disp, norms)
-        self.disp = self.gen_displaced(freq, atom, fdx)
-        self.create_data_files(atom=atom.last_frame, freq=freq, config=config,
-                               norms=norms, path=path)
+        if not cart_disp:
+            if mwc:
+                freq[['dx', 'dy', 'dz']] /= np.sqrt(freq['r_mass'].values).reshape(-1,1)
+                text = "We are dividing the normal modes by the sqrt of the " \
+                       +"reduced mass. This is not implemented into any " \
+                       +"of the scripts in VIBRAV and is untested."
+                warnings.warn(text, Warning)
+            self.delta = gen_delta(freq, delta_type, disp, norm)
+            self.disp = self.gen_displaced(freq, atom, fdx)
+        else:
+            nat = atom.last_frame.shape[0]
+            delta_dict = dict(delta=[disp*Length['Angstrom', 'au']]*nat)
+            self.delta = pd.DataFrame.from_dict(delta_dict)
+            self.disp = self.gen_displaced_cartesian(atom, disp)
+        if write_files:
+            self.create_data_files(atom=atom.last_frame, freq=freq, config=config,
+                                   norm=norm, path=path, cart_disp=cart_disp,
+                                   disp=disp)
 

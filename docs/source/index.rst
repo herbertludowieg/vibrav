@@ -6,6 +6,11 @@
 Welcome to the VIBRational AVeraging (VIBRAV) documentation!
 ============================================================
 
+Research Publications:
+----------------------
+
+
+
 Examples:
 ---------
 .. toctree::

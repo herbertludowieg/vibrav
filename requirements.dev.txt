@@ -1,0 +1,4 @@
+coveralls
+coverage
+pytest
+pytest-cov
