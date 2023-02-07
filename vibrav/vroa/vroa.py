@@ -360,8 +360,6 @@ class VROA():
                 raman_int *= kp
                 backscat_vroa *= kp
                 forwscat_vroa *= kp
-            ## we set this just so it is easier to view the data
-            #pd.options.display.float_format = '{:.6f}'.format
             # generate dataframe with all pertinent data for vroa scatter
             df = pd.DataFrame.from_dict({"freq": sel_freq, "freqdx": select_freq, "beta_g*1e6":beta_g*1e6,
                                         "beta_A*1e6": beta_A*1e6, "alpha_g*1e6": alpha_g*1e6,
