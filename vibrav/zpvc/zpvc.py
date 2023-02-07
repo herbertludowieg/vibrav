@@ -39,28 +39,85 @@ class ZPVC:
 
     Required inputs in configuration file.
 
-    +------------------+-----------------------------------------+------------+
-    | Attribute        | Description                             | Data Type  |
-    +==================+=========================================+============+
-    | number_of_modes  | Number of normal modes in the molecule. | :obj:`int` |
-    +------------------+-----------------------------------------+------------+
-    | number_of_nuclei | Number of nuclei in the molecule.       | :obj:`int` |
-    +------------------+-----------------------------------------+------------+
+    +------------------+-----------------------------------------+--------------+
+    | Attribute        | Description                             | Data Type    |
+    +==================+=========================================+==============+
+    | number_of_modes  | Number of normal modes in the molecule. | :obj:`int`   |
+    +------------------+-----------------------------------------+--------------+
+    | number_of_nuclei | Number of nuclei in the molecule.       | :obj:`int`   |
+    +------------------+-----------------------------------------+--------------+
+    | property_file    | Path to the CSV formatted file with the | :obj:`str`   |
+    |                  | property information. Must have a       |              |
+    |                  | header with the columns `'file'`,       |              |
+    |                  | `'atom'` and the selected property      |              |
+    |                  | column. In addition, it must have an    |              |
+    |                  | index column.                           |              |
+    +------------------+-----------------------------------------+--------------+
+    | gradient_file    | Path to the CSV formatted file with the | :obj:`str`   |
+    |                  | gradient information. Must have a       |              |
+    |                  | header with the columns                 |              |
+    |                  | `['file', 'atom', 'fx', 'fy', 'fz']`.   |              |
+    |                  | In addition, it must have an index      |              |
+    |                  | column.                                 |              |
+    +------------------+-----------------------------------------+--------------+
+    | property_atoms   | Atomic index of the atom/s of interest. | :obj:`int`   |
+    |                  | Can be given as multiple space          |              |
+    |                  | separated integers.                     |              |
+    +------------------+-----------------------------------------+--------------+
+    | property_column  | Column name with the data of interest   | :obj:`str`   |
+    |                  | in the property file.                   |              |
+    +------------------+-----------------------------------------+--------------+
+    | temperature      | Temperature/s in Kelvin. Can be given   | :obj:`float` |
+    |                  | as a space separated list of floats.    |              |
+    +------------------+-----------------------------------------+--------------+
 
     Default inputs in the configuration file.
 
-    +-----------------+-----------------------------------------------------+----------------+
-    | Attribute       | Description                                         | Default Value  |
-    +=================+=====================================================+================+
-    | smatrix_file    | Filepath containing all of the information of the   | smatrix.dat    |
-    |                 | normal mode displacements.                          |                |
-    +-----------------+-----------------------------------------------------+----------------+
-    | eqcoord_file    | Filepath containing the coordinates of the          | eqcoord.dat    |
-    |                 | equilibrium structure.                              |                |
-    +-----------------+-----------------------------------------------------+----------------+
-    | atom_order_file | Filepath containing the atomic symbols and ordering | atom_order.dat |
-    |                 | of the nuclei.                                      |                |
-    +-----------------+-----------------------------------------------------+----------------+
+    +-----------------+------------------------------------------+----------------+
+    | Attribute       | Description                              | Default Value  |
+    +=================+==========================================+================+
+    | smatrix_file    | Filepath containing all of the           | smatrix.dat    |
+    |                 | information of the normal mode           |                |
+    |                 | displacements.                           |                |
+    +-----------------+------------------------------------------+----------------+
+    | eqcoord_file    | Filepath containing the coordinates of   | eqcoord.dat    |
+    |                 | the equilibrium structure.               |                |
+    +-----------------+------------------------------------------+----------------+
+    | atom_order_file | Filepath containing the atomic symbols   | atom_order.dat |
+    |                 | and ordering of the nuclei.              |                |
+    +-----------------+------------------------------------------+----------------+
+
+    We implement the equations as outlined in the paper
+    *J. Phys. Chem. A* 2005, **109**, 8617-8623
+    (doi:`10.1021/jp051685y <https://doi.org/10.1021/jp051685y>`_).
+    Where we can compute the Zero-Point Vibrational corrections with
+
+    .. math::
+        \\text{ZPVC} = -\\frac{1}{4}\\sum_{i=1}^m\\frac{1}{\\omega_i^2\\sqrt{\\mu_i}}
+                        \\left(\\frac{\\partial P}{\\partial Q_i}\\right)
+                        \\sum_{j=1}^m\\frac{k_{ijj}}{\\omega_j\\mu_j\\sqrt{\\mu_i}}
+                       +\\frac{1}{4}\sum_{i=1}^m\\frac{1}{\\omega_i\\mu_i}
+                        \\left(\\frac{\\partial^2 P}{\\partial Q_i^2}\\right)
+
+    Where, :math:`m` represents the total number of normal modes,
+    :math:`\\omega_i` is the frequency of the :math:`i`th normal mode,
+    and :math:`\\mu_i` is the reduced mass, in atomic units. The
+    derivatives of the property (:math:`P`) are taken with respect to
+    the normal coordinates, :math:`Q_i`, for a given normal mode
+    :math:`i`. The anharmonic cubic constant, :math:`k_{ijj}`, is
+    defined as the mixed third-energy derivative, and calculated as,
+
+    .. math::
+        k_{ijj} = \\frac{\\partial^3 E}{\\partial Q_i \\partial Q_j^2}
+
+    The calculated energy gradients in terms of the normal modes can be
+    obtained from the Cartesian gradients by,
+
+    .. math::
+        \\frac{\\partial E_{+/0/-}}{\\partial Q_i} =
+            \\sum_{\\alpha=1}^{3n} \\frac{\\partial E_{+/0/-}}{\\partial x_{\\alpha}}
+                S_{\\alpha j}
+
     '''
     _required_inputs = {'number_of_modes': int, 'number_of_nuclei': int,
                         'property_file': str, 'gradient_file': str,
@@ -79,13 +136,32 @@ class ZPVC:
             # this should be taken care of by the conditional but always good to
             # take care of explicitly
             except ZeroDivisionError:
-                raise ZeroDivisionError("Something seems to have gone wrong with the sinh function")
+                raise ZeroDivisionError("Something seems to have gone wrong " \
+                                        +"with the sinh function")
         else:
             temp_fac = 1.
         return temp_fac
 
     @staticmethod
     def _check_file_continuity(df, prop, nmodes):
+        '''
+        Make sure that the input data frame has a positive and negative
+        displacement.
+
+        Note:
+            The input data frame must have a column named `'file'`.
+
+        Args:
+            df (:class:`pandas.DataFrame`): Data frame containing the
+                data of interest. Must have a `'file'` column.
+            prop (:obj:`str`): String for better debugging to know
+                which data frame it failed on.
+            nmodes (:obj:`int`): Number of normal modes.
+
+        Returns:
+            rdf (:class:`pandas.DataFrame`): Data frame after extracting
+                the frequencies that are missing data points.
+        '''
         files = df['file'].drop_duplicates()
         pos_file = files[files.isin(range(1,nmodes+1))]
         neg_file = files[files.isin(range(nmodes+1, 2*nmodes+1))]-nmodes
@@ -104,18 +180,26 @@ class ZPVC:
     @staticmethod
     def get_pos_neg_gradients(grad, freq, nmodes):
         '''
-        Here we get the gradients of the equilibrium, positive and negative displaced structures.
-        We extract them from the gradient dataframe and convert them into normal coordinates
-        by multiplying them by the frequency normal mode displacement values.
+        Calculate the energy gradients in terms of the respective normal
+        modes for the given displacement.
+
+        Note:
+            The input data frames `grad` and `freq` must have the columns
+            `['fx', 'fy', 'fz']` and `['dx', 'dy', 'dz']`, respectively.
 
         Args:
-            grad (:class:`exatomic.gradient.Gradient`): DataFrame containing all of the gradient data
-            freq (:class:`exatomic.atom.Frquency`): DataFrame containing all of the frequency data
+            grad (:class:`pandas.DataFrame`): DataFrame containing all
+                of the gradient data
+            freq (:class:`pandas.DataFrame`): DataFrame containing all
+                of the frequency data
 
         Returns:
-            delfq_zero (pandas.DataFrame): Normal mode converted gradients of equilibrium structure
-            delfq_plus (pandas.DataFrame): Normal mode converted gradients of positive displaced structure
-            delfq_minus (pandas.DataFrame): Normal mode converted gradients of negative displaced structure
+            delfq_zero (:class:`pandas.DataFrame`): Normal mode
+                converted gradients of equilibrium structure
+            delfq_plus (:class:`pandas.DataFrame`): Normal mode
+                converted gradients of positive displaced structure
+            delfq_minus (:class:`pandas.DataFrame`): Normal mode
+                converted gradients of negative displaced structure
         '''
         grouped = grad.groupby('file')
         # generate delta dataframe
@@ -146,24 +230,32 @@ class ZPVC:
     @staticmethod
     def calculate_frequencies(delfq_plus, delfq_minus, redmass, nmodes, delta):
         '''
-        Here we calculated the frequencies from the gradients calculated for each of the
-        displaced structures along the normal mode. In principle this should give the same or
-        nearly the same frequency value as that from a frequency calculation.
+        Here we calculated the frequencies from the gradients calculated
+        for each of the displaced structures along the normal mode. In
+        principle this should give the same or nearly the same frequency
+        value as that from a frequency calculation.
 
         Args:
-            delfq_0 (numpy.ndarray): Array that holds all of the information about the gradient
-                                     derivative of the equlilibrium coordinates
-            delfq_plus (numpy.ndarray): Array that holds all of the information about the gradient
-                                        derivative of the positive displaced coordinates
-            delfq_minus (numpy.ndarray): Array that holds all of the information about the gradient
-                                         derivative of the negative displaced coordinates
-            redmass (numpy.ndarray): Array that holds all of the reduced masses. We can handle both
-                                     a subset of the entire values or all of the values
-            select_freq (numpy.ndarray): Array that holds the selected frequency indexes
-            delta (numpy.ndarray): Array that has the delta values used in the displaced structures
+            delfq_0 (numpy.ndarray): Array that holds all of the
+                information about the gradient derivative of the
+                equlilibrium coordinates.
+            delfq_plus (numpy.ndarray): Array that holds all of the
+                information about the gradient derivative of the
+                positive displaced coordinates.
+            delfq_minus (numpy.ndarray): Array that holds all of the
+                information about the gradient derivative of the
+                negative displaced coordinates.
+            redmass (numpy.ndarray): Array that holds all of the
+                reduced masses. We can handle both a subset of the
+                entire values or all of the values.
+            select_freq (numpy.ndarray): Array that holds the selected
+                frequency indexes.
+            delta (numpy.ndarray): Array that has the delta values used
+                in the displaced structures.
 
         Returns:
-            frequencies (numpy.ndarray): Frequency array from the calculation
+            frequencies (numpy.ndarray): Frequency array from the
+                calculation.
         '''
         # calculate force constants
         kqi = np.zeros(nmodes)
@@ -190,30 +282,22 @@ class ZPVC:
     def zpvc(self, geometry=True, print_results=False,
              write_out_files=True, debug=False):
         """
-        Method to compute the Zero-Point Vibrational Corrections. We implement the equations as
-        outlined in the paper *J. Phys. Chem. A* 2005, **109**, 8617-8623 (doi:10.1021/jp051685y).
-        Here we compute the effect of vibrations on a specified property given as a n x 2 array
-        where one of the columns are the file indexes and the other is the property.
-        We use a two and three point difference method to calculate the first and second derivatives
-        respectively.
-
-        We have also implemented a way to calculate the ZPVC and effective geometries at
-        different temperatures given in Kelvin.
-
-        Note:
-            The code has been designed such that the property input array must have one column
-            labeled file corresponding to the file indexes.
+        Method to compute the Zero-Point Vibrational Corrections.
 
         Args:
-            gradient (:class:`pandas.DataFrame`): Data frame of the gradients from the calculations.
-            property (:class:`pandas.DataFrame`): Data frame of the properties that were calculated.
-            temperature (:obj:`list`, optional): List object containing all of the temperatures of
-                                                 interest. Defaults to :code:`None` (sets temperature
-                                                 to 0).
-            geometry (:obj:`bool`, optional): Bool value that tells the program to also calculate the
-                                              effective geometry. Defaults to :code:`True`.
-            print_results(:obj:`bool`, optional): Bool value to print the results from the zpvc
-                                                  calcualtion to stdout. Defaults to :code:`False`.
+            geometry (:obj:`bool`, optional): Bool value that tells the
+                program to also calculate the effective geometry.
+                Defaults to :code:`True`.
+            print_results (:obj:`bool`, optional): Bool value to print
+                the results from the zpvc calcualtion to stdout.
+                Defaults to :code:`False`.
+            write_out_files (:obj:`bool`, optional): Bool value to
+                write files with the final results to a CSV formatted
+                and txt file. Defaults to :code:`True`.
+            debug (:obj:`bool`, optional): Bool value to write extra
+                matrices with debug information to a file including the
+                gradients expressed in terms of the normal modes, and
+                the first and second derivatives of the property.
 
         Examples:
             This example will use some of the resource files that are used in the tests. This is
