@@ -24,7 +24,7 @@ import sphinx_bootstrap_theme
 # -- Project information -----------------------------------------------------
 
 project = 'vibrav'
-copyright = ("2020, Herbert D Ludowieg. Project structure based on the "
+copyright = ("2023, Herbert D Ludowieg. Project structure based on the "
              "Computational Molecular Science Python Cookiecutter version 1.1")
 author = 'Herbert D Ludowieg'
 
