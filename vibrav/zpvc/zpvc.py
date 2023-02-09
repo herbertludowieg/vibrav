@@ -712,19 +712,9 @@ class ZPVC:
                     df.loc[df[col].abs() < 1e-6, col] = 0
                 df = Atom(df)
                 coor_dfs.append(df)
-                #coor_df = Atom(df)
                 # print out the effective geometry in Angstroms
                 if print_results:
                     print(eff_geo.format(t, df.to_xyz()))
-                    #print("----Effective geometry in Angstroms")
-                    #xyz = coor_dfs[-1][['symbol','x','y','z']].copy()
-                    #xyz['x'] *= Length['au', 'Angstrom']
-                    #xyz['y'] *= Length['au', 'Angstrom']
-                    #xyz['z'] *= Length['au', 'Angstrom']
-                    #stargs = {'columns': None, 'header': False, 'index': False,
-                    #          'formatters': {'symbol': '{:<5}'.format},
-                    #          'float_format': '{:6f}'.format}
-                    #print(xyz.to_string(**stargs))
         if geometry:
             self.eff_coord = Atom(pd.concat(coor_dfs, ignore_index=True))
             if write_out_files:
