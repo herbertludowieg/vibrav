@@ -90,12 +90,12 @@ class Vibronic:
     _required_inputs = {'number_of_multiplicity': int, 'spin_multiplicity': (tuple, int),
                         'number_of_states': (tuple, int), 'number_of_nuclei': int,
                         'number_of_modes': int, 'zero_order_file': str}
+    _skip_defaults = ['smatrix_file', 'eqcoord_file', 'atom_order_file']
     _default_inputs = {'sf_energies_file': ('', str), 'so_energies_file': ('', str),
-                       'angmom_file': ('angmom', str), 'dipole_file': ('dipole', str),
-                       'spin_file': ('spin', str), 'quadrupole_file': ('quadrupole', str),
                        'degen_delta': (1e-7, float), 'eigvectors_file': ('eigvectors.txt', str),
                        'so_cont_tol': (None, float), 'sparse_hamiltonian': (False, bool),
-                       'states': (None, int)}
+                       'states': (None, int), 'read_hamil': (False, bool),
+                       'hamil_csv_file': (None, str)}
     @staticmethod
     def check_size(data, size, var_name, dataframe=False):
         '''
@@ -177,7 +177,7 @@ class Vibronic:
         return incl_states
 
     def get_hamiltonian_deriv(self, select_fdx, delta, redmass, nmodes, use_sqrt_rmass,
-                              sparse_hamiltonian):
+                              sparse_hamiltonian, read_hamil=False, hamil_file=None):
         '''
         Find and read all of the Hamiltonian txt files in the different confg
         directories.
@@ -213,6 +213,7 @@ class Vibronic:
         plus_matrix = []
         minus_matrix = []
         found_modes = []
+        dir_temp = 'confg{:03d}'.format
         if isinstance(select_fdx, (list, tuple, np.ndarray)):
             if select_fdx[0] == -1 and len(select_fdx) == 1:
                 select_fdx = select_fdx[0]
@@ -227,40 +228,56 @@ class Vibronic:
             if isinstance(select_fdx, int): select_fdx = [select_fdx]
             freq_range = np.array(select_fdx) + 1
         nselected = len(freq_range)
-        for idx in freq_range:
-            # error catching serves the purpose to know which
-            # of the hamiltonian files are missing
-            try:
-                plus = open_txt(os.path.join('confg'+str(idx).zfill(padding), 'ham-sf.txt'),
-                                fill=sparse_hamiltonian)
+        if read_hamil:
+            for idx in freq_range:
+                # error catching serves the purpose to know which
+                # of the hamiltonian files are missing
                 try:
-                    minus = open_txt(os.path.join('confg'+str(idx+nmodes).zfill(padding),
-                                                  'ham-sf.txt'), fill=sparse_hamiltonian)
+                    plus = open_txt(os.path.join(dir_temp(idx), 'ham-sf.txt'),
+                                    fill=sparse_hamiltonian)
+                    try:
+                        minus = open_txt(os.path.join(dir_temp(idx+nmodes), 'ham-sf.txt'),
+                                         fill=sparse_hamiltonian)
+                    except FileNotFoundError:
+                        warnings.warn("Could not find ham-sf.txt file for in directory " \
+                                      +dir_temp(idx+nmodes) \
+                                      +". Ignoring frequency index {}".format(idx), Warning)
+                        continue
                 except FileNotFoundError:
                     warnings.warn("Could not find ham-sf.txt file for in directory " \
-                                  +'confg'+str(idx+nmodes).zfill(padding) \
-                                  +"\nIgnoring frequency index {}".format(idx), Warning)
+                                  +dir_temp(idx) \
+                                  +". Ignoring frequency index {}".format(idx), Warning)
                     continue
-            except FileNotFoundError:
-                warnings.warn("Could not find ham-sf.txt file for in directory " \
-                              +'confg'+str(idx).zfill(padding) \
-                              +"\nIgnoring frequency index {}".format(idx), Warning)
-                continue
-            # put it all together only if both plus and minus
-            # ham-sf.txt files are found
-            plus_matrix.append(plus)
-            minus_matrix.append(minus)
-            found_modes.append(idx-1)
-        ham_plus = pd.concat(plus_matrix, ignore_index=True)
-        ham_minus = pd.concat(minus_matrix, ignore_index=True)
+                # put it all together only if both plus and minus
+                # ham-sf.txt files are found
+                plus['freqdx'] = idx
+                minus['freqdx'] = idx+nmodes
+                plus_matrix.append(plus)
+                minus_matrix.append(minus)
+                found_modes.append(idx-1)
+            ham_plus = pd.concat(plus_matrix, ignore_index=True)
+            ham_minus = pd.concat(minus_matrix, ignore_index=True)
+        else:
+            def filt_func(df, idxs):
+                return df['freqdx'].unique() in idxs
+            full_ham = pd.read_csv(hamil_file, header=0, index_col=0)
+            ham_plus = full_ham.groupby('freqdx') \
+                            .filter(filt_func, idxs=range(1,nmodes+1)) \
+                            .reset_index(drop=True)
+            ham_minus = full_ham.groupby('freqdx') \
+                            .filter(filt_func, idxs=range(nmodes+1,2*nmodes+1)) \
+                            .reset_index(drop=True)
+            found_modes = ham_plus['freqdx'].unique() - 1
         dham_dq = ham_plus - ham_minus
+        dham_dq['freqdx'] = np.repeat(found_modes, dham_dq.shape[1]-1)
+        data_cols = dham_dq.columns[dham_dq.columns != 'freqdx']
         if nselected != len(found_modes):
             warnings.warn("Number of selected normal modes is not equal to found modes, " \
                          +"currently, {} and {}\n".format(nselected, len(found_modes)) \
                          +"Overwriting the number of selceted normal modes by the number "\
                          +"of found modes.", Warning)
             nselected = len(found_modes)
-        self.check_size(dham_dq, (self.nstates_sf*nselected, self.nstates_sf), 'dham_dq')
+        self.check_size(dham_dq, (self.nstates_sf*nselected, self.nstates_sf+1), 'dham_dq')
         # TODO: this division by the sqrt of the mass needs to be verified
         #       left as is for the time being as it was in the original code
         sf_sqrt_rmass = np.repeat(np.sqrt(redmass.loc[found_modes].values*(1/conv.amu2u)),
@@ -274,62 +291,9 @@ class Vibronic:
                           Warning)
             to_dq = 2 * sf_delta
         # convert to normal coordinates
-        dham_dq = dham_dq / to_dq
+        dham_dq[data_cols] = dham_dq[data_cols] / to_dq
         # add a frequency index reference
-        dham_dq['freqdx'] = np.repeat(found_modes, self.nstates_sf)
         return dham_dq
-
-    def magnetic_oscillator(self):
-        raise NotImplementedError("Needs to be fixed!!!")
-        #config = self.config
-        #nstates = self.nstates
-        #oscil_states = int(config.oscillator_spin_states)
-        #speed_of_light_au = speed_of_light * Length['m', 'au'] / Time['s', 'au']
-        ## read in the spin-orbit energies
-        #energies_so = pd.read_csv(config.so_energies_file, header=None,
-        #                          comment='#').values.reshape(-1,)
-        ## read in all of the angular momentum data and check size
-        #ang_x = open_txt('angmom-1.txt').values
-        #self.check_size(ang_x, (nstates, nstates), 'ang_x')
-        #ang_y = open_txt('angmom-2.txt').values
-        #self.check_size(ang_y, (nstates, nstates), 'ang_y')
-        #ang_z = open_txt('angmom-3.txt').values
-        #self.check_size(ang_z, (nstates, nstates), 'ang_z')
-        ## read in all of the spin data and check size
-        #spin_x = open_txt('spin-1.txt').values
-        #self.check_size(spin_x, (nstates, nstates), 'spin_x')
-        #spin_y = open_txt('spin-2.txt').values
-        #self.check_size(spin_y, (nstates, nstates), 'spin_y')
-        #spin_z = open_txt('spin-3.txt').values
-        #self.check_size(spin_z, (nstates, nstates), 'spin_z')
-        ## allocate data for x y and z components of magnetic dipoles
-        #mx = np.zeros((nstates, nstates), dtype=np.complex128)
-        #my = np.zeros((nstates, nstates), dtype=np.complex128)
-        #mz = np.zeros((nstates, nstates), dtype=np.complex128)
-        ## calclulate each element
-        #mx = (1/2) * (ang_x*1j + 2*spin_x)
-        #my = (1/2) * (ang_y*1j + 2j*spin_y)
-        #mz = (1/2) * (ang_z*1j + 2*spin_z)
-        ## allocate memory for magnetic dipoles
-        #mdip = np.zeros((nstates, nstates), dtype=np.float64)
-        ## calculate the magnetic dipoles
-        #mdip = self._abs2(mx) + self._abs2(my) + self._abs2(mz)
-        ## allocate memory for magnetic oscillator strengths
-        #oscil = np.zeros((oscil_states, oscil_states), dtype=np.float64)
-        #delta_E = np.zeros((oscil_states, oscil_states), dtype=np.float64)
-        ## calculate the magnetic oscillator strengths
-        #osc_prefac = (2/3) * (1/speed_of_light_au**2)
-        #compute_mag_oscil_str(oscil_states, energies_so, 0, osc_prefac, mx, my, mz, oscil, delta_E)
-        ##oscil = (2/3) * (1/speed_of_light_au**2) \
-        ##            * np.repeat(ed.soc_energies['e_cm^-1'], nstates).reshape(nstates, nstates) \
-        ##            * Energy['cm^-1', 'Ha'] * mdip
-        #initial = np.repeat(range(oscil_states), oscil_states)
-        #final = np.tile(range(oscil_states), oscil_states)
-        #delta_E *= Energy['Ha', 'cm^-1']
-        #df = pd.DataFrame.from_dict({'initial': initial, 'final': final,
-        #                             'delta_E': delta_E.reshape(-1,),
-        #                             'oscillator': oscil.reshape(-1,)})
-        #self.mag_oscil = df
 
     def vibronic_coupling(self, property, write_property=True, write_energy=True, write_oscil=True,
                           print_stdout=True, temp=298, eq_cont=False, verbose=False,
@@ -524,8 +488,12 @@ class Vibronic:
                 print(df.to_string(index=False))
         self.check_size(eigvectors, (nstates, nstates), 'eigvectors')
         # get the hamiltonian derivatives
-        dham_dq = self.get_hamiltonian_deriv(select_fdx, delta, rmass, nmodes,
-                                             use_sqrt_rmass, config.sparse_hamiltonian)
+        hamil_kwargs = dict(select_fdx=select_fdx, delta=delta, redmass=rmass,
+                            nmodes=nmodes, use_sqrt_rmass=use_sqrt_rmass,
+                            sparse_hamiltonian=config.sparse_hamiltonian,
+                            read_hamil=config.read_hamil,
+                            hamil_file=config.hamil_csv_file)
+        dham_dq = self.get_hamiltonian_deriv(**hamil_kwargs)
         found_modes = dham_dq['freqdx'].unique()
         # TODO: it would be really cool if we could just input a list of properties to compute
         #       and the program will take care of the rest
@@ -538,7 +506,7 @@ class Vibronic:
             self.check_size(ed.sf_dipole_moment, (nstates_sf*3, nstates_sf+1), 'sf_dipole_moment')
             grouped_data = ed.sf_dipole_moment.groupby('component')
             out_file = 'dipole'
-            so_file = config.dipole_file
+            #so_file = config.dipole_file
             idx_map = {1: 'x', 2: 'y', 3: 'z'}
         elif property.replace('_', '-') == 'electric-quadrupole':
             ed.parse_sf_quadrupole_moment()
@@ -546,14 +514,14 @@ class Vibronic:
                              'sf_quadrupole_moment')
             grouped_data = ed.sf_quadrupole_moment.groupby('component')
             out_file = 'quadrupole'
-            so_file = config.quadrupole_file
+            #so_file = config.quadrupole_file
             idx_map = {1: 'xx', 2: 'xy', 3: 'xz', 4: 'yy', 5: 'yz', 6: 'zz'}
         elif property.replace('_', '-') == 'magnetic-dipole':
             ed.parse_sf_angmom()
             self.check_size(ed.sf_angmom, (nstates_sf*3, nstates_sf+1), 'sf_angmom')
             grouped_data = ed.sf_angmom.groupby('component')
             out_file = 'angmom'
-            so_file = config.angmom_file
+            #so_file = config.angmom_file
             idx_map = {1: 'x', 2: 'y', 3: 'z'}
         else:
             raise NotImplementedError("Sorry the attribute that you are trying to use is not " \
@@ -687,19 +655,13 @@ class Vibronic:
                 dprop_dq_sf *= tdm_prefac
                 dprop_dq_so *= tdm_prefac
                 # generate the full property vibronic states following equation S3 for the reference
-                if eq_cont and False:
-                    # deprecated
-                    so_prop = so_props.groupby('component').get_group(key).drop('component', axis=1)
-                    vib_prop_plus = fc*(so_prop + dprop_dq)
-                    vib_prop_minus = fc*(so_prop - dprop_dq)
-                else:
-                    # store the transpose as it will make some things easier down the line
-                    vib_prop_plus = fc*dprop_dq.T
-                    vib_prop_minus = fc*-dprop_dq.T
-                    vib_prop_sf_plus = fc*dprop_dq_sf.T
-                    vib_prop_sf_minus = fc*-dprop_dq_sf.T
-                    vib_prop_sf_so_len_plus = fc*dprop_dq_so.T
-                    vib_prop_sf_so_len_minus = fc*-dprop_dq_so.T
+                # store the transpose as it will make some things easier down the line
+                vib_prop_plus = fc*dprop_dq.T
+                vib_prop_minus = fc*-dprop_dq.T
+                vib_prop_sf_plus = fc*dprop_dq_sf.T
+                vib_prop_sf_minus = fc*-dprop_dq_sf.T
+                vib_prop_sf_so_len_plus = fc*dprop_dq_so.T
+                vib_prop_sf_so_len_minus = fc*-dprop_dq_so.T
                 # store in array
                 vib_prop[0][idx_map_rev[key]-1] = vib_prop_minus
                 vib_prop[1][idx_map_rev[key]-1] = vib_prop_plus
@@ -968,7 +930,8 @@ class Vibronic:
 
     def __init__(self, config_file, *args, **kwargs):
         config = Config.open_config(config_file, self._required_inputs,
-                                    defaults=self._default_inputs)
+                                    defaults=self._default_inputs,
+                                    skip_defaults=self._skip_defaults)
         # check that the number of multiplicities and states are the same
         if len(config.spin_multiplicity) != len(config.number_of_states):
             print(config.spin_multiplicity, config.number_of_states)
@@ -988,122 +951,4 @@ class Vibronic:
         self.config = config
         self.nstates = nstates
         self.nstates_sf = nstates_sf
-
-#def combine_ham_files(paths, nmodes, out_path='confg{:03d}', debug=False):
-#    '''
-#    Helper script to combine the Hamiltonian files of several claculations.
-#    This is helpful as one can calculate the Hamiltonian elements of a
-#    displaced structure separately for each spin as the Hamiltonian elements
-#    between different spin-multiplicities are 0 by definition and this can
-#    drastically reduce the computational complexity. This function can grab
-#    the different `'ham-sf.txt'` files in each of the specified paths and
-#    combine them into one gigantic `'ham-sf.txt'` file. The resulting
-#    `'ham-sf.txt'` files will be written to the given path with the same
-#    indexing scheme.
-#
-#    Note:
-#        The ordering of the multiplicities will be inferred from the ordering
-#        of the paths. That is to say, whichever order the paths are given will
-#        be the order of the multiplicities.
-#
-#    Args:
-#        paths (:obj:`list`): List of the paths to where the `'ham-sf.txt'` files
-#                             are located for each of the multiplicites to combine.
-#                             **Must be able to use the python format function for
-#                             these and the proper padding for the indexing must be
-#                             used. NOTHING is assumed.**
-#        nmodes (:obj:`int`): Number of normal modes in the molecule.
-#        out_path (:obj:`str`, optional): String object to folders where the new
-#                                         `'ham-sf.txt'` files will be written to.
-#                                         **Must be in the format to use the
-#                                         python `format` function**. Defaults to
-#                                         `'confg{:03d}'`.
-#        debug (:obj:`bool`, optional): Turn on some light debug text.
-#    '''
-#    from vibrav.util.io import open_txt
-#    import pandas as pd
-#    import warnings
-#    import os
-#    class FileNotFound(Exception):
-#        pass
-#    # loop over all of the displaced structures that there should exist
-#    for idx in range(2*nmodes + 1):
-#        size_count = 0
-#        dfs = []
-#        try:
-#            # loop over the given paths one by one to build the array of data
-#            for path in paths:
-#                # check if the given path is contains the file name or they are
-#                # just the directory names
-#                if not path.endswith('ham-sf.txt'):
-#                    dir = path.format(idx)
-#                else:
-#                    dir = os.path.join(*path.split(os.sep)[:-1])
-#                    dir = dir.format(idx)
-#                # check that the directory exists
-#                if not os.path.exists(dir):
-#                    text = "Directory {} not found. Skipping index...."
-#                    warnings.warn(text.format(dir), Warning)
-#                    raise FileNotFound
-#                # check that the ham-sf.txt file exists
-#                file = os.path.join(dir, 'ham-sf.txt')
-#                if not os.path.exists(file):
-#                    text = "Missing 'ham-sf.txt' file in path {} for index {}. Skipping index...."
-#                    warnings.warn(text.format(dir, idx), Warning)
-#                    raise FileNotFound
-#                # read the data
-#                data = open_txt(file, rearrange=False)
-#                # ensure that the data has the right number of columns
-#                # can be a possibility if Molcas decides to change something with
-#                # writing the ham-sf.txt output files
-#                if data.columns.shape[0] != 4:
-#                    text = "Did not find exactly four column labels in file {}"
-#                    raise ValueError(text.format(file))
-#                if not all(data.columns == ['nrow', 'ncol', 'real', 'imag']):
-#                    text = "Found an inconsistency in the column labels for file {}"
-#                    if debug:
-#                        print(data.columns)
-#                        print(data.columns == ['nrow', 'ncol', 'real', 'imag'])
-#                    raise ValueError(text.format(file))
-#                size_count += data.shape[0]
-#                if not dfs:
-#                    # append if there is nothing in the dfs array we initialize it
-#                    # with the very first entry
-#                    dfs.append(data)
-#                else:
-#                    # otherwise change the values of nrow and ncol to be placed on the
-#                    # hamiltonian matrix correctly
-#                    # we get the max values from the last array as that is the starting
-#                    # point for the next one
-#                    max_row = dfs[-1]['nrow'].max() + 1
-#                    max_col = dfs[-1]['ncol'].max() + 1
-#                    nrow = data['nrow'].unique().shape[0]
-#                    ncol = data['ncol'].unique().shape[0]
-#                    data['nrow'] = np.tile(range(max_row, max_row + nrow), ncol)
-#                    data['ncol'] = np.repeat(range(max_col, max_col + ncol), nrow)
-#                    dfs.append(data)
-#            # put it all together
-#            df = pd.concat(dfs, ignore_index=True)
-#            df['nrow'] += 1
-#            df['ncol'] += 1
-#            # ensure that we have the right size
-#            if df.shape[0] != size_count:
-#                text = "The final size of the Hamiltonian matrix does not match the sum of " \
-#                       +"the parts. Currently {}, expected {}"
-#                raise ValueError(text.format(df.shape[0], size_count))
-#            # write the data to file
-#            if not os.path.exists(out_path.format(idx)):
-#                os.mkdir(out_path.format(idx))
-#            filename = os.path.join(out_path.format(idx), 'ham-sf.txt')
-#            if debug:
-#                text = "Writting 'ham-sf.txt' file to {}".format(filename)
-#                print(text)
-#            head_temp = '{:<6s}  {:<6s}  {:>23s}  {:>23s}\n'
-#            data_temp = '{:>6d}  {:>6d}  {:>23.16E}  {:>23.16E}\n'
-#            with open(filename, 'w') as fn:
-#                fn.write(head_temp.format('#NROW', 'NCOL', 'REAL', 'IMAG'))
-#                for row, col, real, imag in zip(df.nrow, df.ncol, df.real, df.imag):
-#                    fn.write(data_temp.format(row, col, real, imag))
-#        except FileNotFound:
-#            continue
 

@@ -84,7 +84,7 @@ class Config(Series):
                 'use_resource': (0, bool)}
 
     @classmethod
-    def open_config(cls, fp, required=None, defaults=None):
+    def open_config(cls, fp, required=None, defaults=None, skip_defaults=None):
         '''
         Open and read the config file that is given.
     
@@ -225,6 +225,8 @@ class Config(Series):
             defaults.update(cls._default)
         else:
             defaults = cls._default
+        if skip_defaults is None:
+            skip_defaults = []
         config = {}
         found_defaults = []
         found_required = []
@@ -246,7 +248,10 @@ class Config(Series):
                 else:
                     # try to set the type of default value
                     try:
-                        config[key] = defaults[key][1](d[1])
+                        if defaults[key][1] == bool:
+                            config[key] = defaults[key][1](int(d[1]))
+                        else:
+                            config[key] = defaults[key][1](d[1])
                     except ValueError as e:
                         raise ValueError(str(e) \
                                          + ' when reading {} in configuration file'.format(key))
@@ -290,7 +295,8 @@ class Config(Series):
         # availabel in the defaults dict
         missing_default = list(filter(lambda x: x not in found_defaults, defaults.keys()))
         for missing in missing_default:
-            config[missing] = defaults[missing][0]
+            if missing not in skip_defaults:
+                config[missing] = defaults[missing][0]
         if config['use_resource']:
             for key, val in config.items():
                 if '_file' in key:

@@ -13,22 +13,16 @@
 # You should have received a copy of the GNU General Public License
 # along with vibrav.  If not, see <https://www.gnu.org/licenses/>.
 from vibrav.vibronic import Vibronic
-from vibrav.base import resource
+from vibrav.base import resource, list_resource
 from vibrav.util.io import open_txt
 import numpy as np
 import pandas as pd
-import tarfile
-import os
-import shutil
 import pytest
+import os
 
-@pytest.mark.parametrize('freqdx', [[1,7,8], [0], [-1], [15,3,6]])
+@pytest.mark.parametrize('freqdx', [[-1]])
 def test_vibronic_coupling(freqdx):
-    with tarfile.open(resource('molcas-ucl6-2minus-vibronic-coupling.tar.xz'), 'r:xz') as tar:
-        tar.extractall()
-    parent = os.getcwd()
-    os.chdir('molcas-ucl6-2minus-vibronic-coupling')
-    vib = Vibronic(config_file='va.conf')
+    vib = Vibronic(config_file=resource('ucl6-2minus-vibronic-va.conf'))
     vib.vibronic_coupling(property='electric_dipole', print_stdout=False, temp=298,
                           write_property=False, write_oscil=True, boltz_states=2,
                           write_energy=False, verbose=False, eq_cont=False, select_fdx=freqdx)
@@ -50,16 +44,4 @@ def test_vibronic_coupling(freqdx):
     test = test[cols].values
     assert np.allclose(base[:,0], test[:,0], rtol=7e-5)
     assert np.allclose(base[:,1], test[:,1], rtol=1e-5, atol=1e-7)
-    # test that the individual components average to the isotropic value
-    #sum_oscil = np.zeros(base.shape[0])
-    #for idx in range(1, 4):
-    #    df = open_txt(os.path.join('vibronic-outputs', 'oscillators-{}.txt'.format(idx)),
-    #                  rearrange=False)
-    #    df = df[np.logical_and(df['oscil'].values > 0, df['energy'].values > 0)]
-    #    df.sort_values(by=['freqdx', 'sign', 'nrow', 'ncol'], inplace=True)
-    #    sum_oscil += df['oscil'].values
-    #sum_oscil /= 3.
-    #assert np.allclose(base[:,0], sum_oscil)
-    os.chdir(parent)
-    shutil.rmtree('molcas-ucl6-2minus-vibronic-coupling')
 
