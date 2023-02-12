@@ -20,13 +20,17 @@ def get_triu(arr, k=0):
     Get the upper triangular indeces of the input matrix
 
     Args:
-        arr (:obj:`numpy.array`): Array to parse the upper triangular elements
-        k (:obj:`int`): k parameter that goes into the `np.triu_indices_from` function. Refer to
+        arr (:obj:`numpy.array`): Array to parse the upper
+                        triangular elements
+        k (:obj:`int`): k parameter that goes into the
+                        `np.triu_indices_from` function. Refer to
                         numpy documentation for more information.
 
     Returns:
         triu_arr (:obj:`numpy.array`): 1D array with the upper triangular elements
     '''
+    if isinstance(arr, (list, tuple)):
+        arr = np.array(arr)
     # get the elements in the upper triangular
     triu = np.triu_indices_from(arr, k=k)
     # return the elements as a 1d array
@@ -38,13 +42,17 @@ def get_tril(arr, k=0):
     Get the lower triangular indeces of the input matrix
 
     Args:
-        arr (:obj:`numpy.array`): Array to parse the lower triangular elements
-        k (:obj:`int`): k parameter that goes into the `np.tril_indices_from` function. Refer to
-                        numpy documentation for more information.
+        arr (:obj:`numpy.array`): Array to parse the
+                lower triangular elements
+        k (:obj:`int`): k parameter that goes into the
+                `np.tril_indices_from` function. Refer to
+                numpy documentation for more information.
 
     Returns:
         triu_arr (:obj:`numpy.array`): 1D array with the lower triangular elements
     '''
+    if isinstance(arr, (list, tuple)):
+        arr = np.array(arr)
     # get the elements in the upper triangular
     tril = np.tril_indices_from(arr, k=k)
     # return the elements as a 1d array

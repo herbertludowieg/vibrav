@@ -14,7 +14,6 @@
 # along with vibrav.  If not, see <https://www.gnu.org/licenses/>.
 from vibrav.util.io import open_txt
 import pandas as pd
-import os
 
 def block_diagonal(paths, out_file=None, pad=False):
     '''

@@ -12,9 +12,8 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with vibrav.  If not, see <https://www.gnu.org/licenses/>.
-from vibrav.util.io import open_txt
-import pandas as pd
-import numpy as np
+from vibrav.util.block_diagonal import block_diagonal
+from vibrav.util.io import write_txt
 import warnings
 import os
 
@@ -87,5 +86,5 @@ def combine_ham_files(paths, nmodes, out_path='confg{:03d}', debug=False):
         if debug:
             text = "Writting 'ham-sf.txt' file to {}".format(filename)
             print(text)
-        write_txt(filename, non_matrix=True)
+        write_txt(df, filename, non_matrix=True)
 

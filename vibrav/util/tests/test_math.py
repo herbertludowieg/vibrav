@@ -12,9 +12,10 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with vibrav.  If not, see <https://www.gnu.org/licenses/>.
+from vibrav.util.math import (ishermitian, isantihermitian, issymmetric,
+                              isantisymmetric, get_triu, get_tril, abs2)
 import numpy as np
 import pytest
-from vibrav.util.math import ishermitian, isantihermitian, issymmetric, isantisymmetric
 
 @pytest.mark.parametrize('arr', [([[1, -4], [-4, -3]]),
                                  ([[1, 7+3j], [7-3j, 7]])])
@@ -43,4 +44,28 @@ def test_isantisymmetric(arr):
     else:
         with pytest.raises(TypeError):
             assert isantisymmetric(arr)
+
+@pytest.mark.parametrize('arr,k,actual', [([[1,2], [3,4]], 0, [1,2,4]),
+                                   ([[1,2,3],[4,5,6],[7,8,9]], 0, [1,2,3,5,6,9]),
+                                   ([[1,2,3],[4,5,6],[7,8,9]], 1, [2,3,6]),
+                                   ([[1,2,3],[4,5,6],[7,8,9]], -1, [1,2,3,4,5,6,8,9]),
+                                   ([[1,2,3],[4,5,6]], 0, [1,2,3,5,6])])
+def test_get_triu(arr, k, actual):
+    triu_arr = get_triu(arr, k)
+    assert np.allclose(triu_arr, actual)
+
+@pytest.mark.parametrize('arr,k,actual', [([[1,2], [3,4]], 0, [1,3,4]),
+                                   ([[1,2,3],[4,5,6],[7,8,9]], 0, [1,4,5,7,8,9]),
+                                   ([[1,2,3],[4,5,6],[7,8,9]], 1, [1,2,4,5,6,7,8,9]),
+                                   ([[1,2,3],[4,5,6],[7,8,9]], -1, [4,7,8]),
+                                   ([[1,2,3],[4,5,6]], 0, [1,4,5])])
+def test_get_tril(arr, k, actual):
+    tril_arr = get_tril(arr, k)
+    assert np.allclose(tril_arr, actual)
+
+@pytest.mark.parametrize('val,actual', [(1+2j, 5), (2j, 4), (4, 16),
+                                        (4j+2, 20)])
+def test_abs2(val, actual):
+    test = abs2(val)
+    assert np.allclose(test, actual)
 
