@@ -12,6 +12,11 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with vibrav.  If not, see <https://www.gnu.org/licenses/>.
+from vibrav.util.io import open_txt
+import pandas as pd
+import numpy as np
+import warnings
+import os
 
 def combine_ham_files(paths, nmodes, out_path='confg{:03d}', debug=False):
     '''
@@ -44,11 +49,6 @@ def combine_ham_files(paths, nmodes, out_path='confg{:03d}', debug=False):
                                          `'confg{:03d}'`.
         debug (:obj:`bool`, optional): Turn on some light debug text.
     '''
-    from vibrav.util.io import open_txt
-    import pandas as pd
-    import numpy as np
-    import warnings
-    import os
     class FileNotFound(Exception):
         pass
     # loop over all of the displaced structures that there should exist
@@ -104,8 +104,8 @@ def combine_ham_files(paths, nmodes, out_path='confg{:03d}', debug=False):
                     max_col = dfs[-1]['ncol'].max() + 1
                     nrow = data['nrow'].unique().shape[0]
                     ncol = data['ncol'].unique().shape[0]
-                    data['nrow'] = np.tile(range(max_row, max_row + nrow), ncol)
-                    data['ncol'] = np.repeat(range(max_col, max_col + ncol), nrow)
+                    data['nrow'] = np.repeat(range(max_row, max_row + nrow), ncol)
+                    data['ncol'] = np.tile(range(max_col, max_col + ncol), nrow)
                     dfs.append(data)
             # put it all together
             df = pd.concat(dfs, ignore_index=True)
