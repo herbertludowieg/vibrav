@@ -14,6 +14,7 @@
 # along with vibrav.  If not, see <https://www.gnu.org/licenses/>.
 from vibrav.core import Config
 from vibrav.util.print import dataframe_to_txt
+from vibrav.util.io import read_data_file
 from exatomic.util import conversions as conv
 from exatomic.util.constants import Boltzmann_constant as boltzmann
 from exatomic.core.atom import Atom
@@ -321,6 +322,21 @@ class ZPVC:
         grouped = property.groupby('atom').get_group
         temperature = config.temperature
         pcol = config.property_column
+        nmodes = config.number_of_modes
+        nat = config.number_of_nuclei
+        delta = read_data_file(config.delta_file, nmodes)
+        rmass = read_data_file(config.reduced_mass_file, nmodes)
+        rmass /= conv.amu2u
+        frequencies = read_data_file(config.frequency_file, nmodes)
+        frequencies *= conv.inv_cm2Ha
+        smat = read_data_file(config.smatrix_file, nmodes, smat=True, nat=nat)
+        atom_symbols = read_data_file(config.atom_order_file, nat)
+        eqcoord = pd.read_csv(config.eqcoord_file, header=None).values.reshape(-1,)
+        eqcoord = eqcoord.reshape(nat, 3)
+        eqcoord = pd.DataFrame(eqcoord, columns=['x', 'y', 'z'])
+        eqcoord['symbol'] = atom_symbols
+        eqcoord['frame'] = 0
+        eqcoord = Atom(eqcoord)
         coor_dfs = []
         zpvc_dfs = []
         va_dfs = []
@@ -330,7 +346,6 @@ class ZPVC:
                 raise ValueError("Property dataframe must have a second dimension of 2 not " \
                                  +"{}".format(property.shape[1]))
             # get the total number of normal modes
-            nmodes = config.number_of_modes
             if prop_vals.shape[0] != 2*nmodes+1:
                 raise ValueError("The number of entries in the property data frame must " \
                                  +"be twice the number of normal modes plus one, currently " \
@@ -370,30 +385,10 @@ class ZPVC:
                 raise NotImplementedError("We do not currently have support to handle missing frequencies")
             # get the actual frequencies
             # TODO: check if we should use the real or calculated frequencies
-            frequencies = pd.read_csv(config.frequency_file, header=None).values.reshape(-1,)
-            frequencies *= conv.inv_cm2Ha
             if any(frequencies < 0):
                 text = "Negative frequencies were found in {}. Make sure that the geometry " \
                        +"optimization and frequency calculations proceeded correctly."
                 warnings.warn(text.format(config.frequency_file, Warning))
-            rmass = pd.read_csv(config.reduced_mass_file, header=None).values.reshape(-1,)
-            rmass /= conv.amu2u
-            delta = pd.read_csv(config.delta_file, header=None).values.reshape(-1,)
-            eqcoord = pd.read_csv(config.eqcoord_file, header=None).values.reshape(-1,)
-            nat = int(eqcoord.shape[0]/3)
-            if nat != eqcoord.shape[0]/3.:
-                raise ValueError("Something is wrong with the eqcoord file.")
-            eqcoord = eqcoord.reshape(nat, 3)
-            atom_symbols = pd.read_csv(config.atom_order_file, header=None).values.reshape(-1,)
-            eqcoord = pd.DataFrame(eqcoord, columns=['x', 'y', 'z'])
-            eqcoord['symbol'] = atom_symbols
-            eqcoord['frame'] = 0
-            eqcoord = Atom(eqcoord)
-            smat = pd.read_csv(config.smatrix_file, header=None).values
-            smat = smat.reshape(nmodes*nat, 3)
-            smat = pd.DataFrame.from_dict(smat)
-            smat.columns = ['dx', 'dy', 'dz']
-            smat['freqdx'] = np.repeat(range(nmodes), nat)
             # get the gradients multiplied by the normal modes
             delfq_zero, delfq_plus, delfq_minus = self.get_pos_neg_gradients(grad, smat, nmodes)
             # check the gradients by calculating the freuqncies numerically

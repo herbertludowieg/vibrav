@@ -233,7 +233,6 @@ class VROA():
         delta = read_data_file(config.delta_file, nmodes)
         rmass = read_data_file(config.reduced_mass_file, nmodes)
         freq = read_data_file(config.frequency_file, nmodes)
-        smat = read_data_file(config.smatrix_file, nmodes, smat=True, nat=nat)
         # grab the data that was already parsed for the ROA and gradients
         roa = pd.read_csv(config.roa_file)
         grad = pd.read_csv(config.grad_file)
