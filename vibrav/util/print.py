@@ -12,7 +12,6 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with vibrav.  If not, see <https://www.gnu.org/licenses/>.
-import numpy as np
 
 def dataframe_to_txt(df, columns=None, ncols=4, fp=None, float_format='{:10.6E}'.format):
     # TODO: implement the columns parameter for more generalization

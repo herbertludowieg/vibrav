@@ -19,6 +19,40 @@ import warnings
 import re
 import lzma
 
+def read_data_file(fp, nmodes, smat=False, nat=None):
+    '''
+    Open a data file generated when creating the displaced coordinates.
+
+    Note:
+        If `smat=True` the script will return a data frame object
+    Args:
+        fp (:obj:`str`): Filepath to file.
+        nmodes (:obj:`int`):  Give the number of normal modes in
+            the molecule.
+        smat (:obj:`bool`, optional): Is the data from the smatrix
+            file. This file is special as it needs to be transformed
+            into three columns.
+        nat (:obj:`int`, optional): Required when `smat=True`.
+            Give the number of atoms in the molecule.
+
+    Returns:
+        arr (:class:`numpy.ndarray`): Array with the values.
+    '''
+    if not smat:
+        arr = pd.read_csv(fp, header=None).values.reshape(-1)
+        if arr.shape[0] != nmodes:
+            msg = "There was a problem with the size of the parsed " \
+                  +"data in file {}. Expected {} elements, but got {}."
+            raise ValueError(msg.format(fp, nmodes, arr.shape[0]))
+    else:
+        df = pd.read_csv(fp, header=None)
+        df['groups'] = np.tile([0,1,2], nmodes*nat)
+        tmp = df.groupby('groups').apply(lambda x: x[0].values).to_dict()
+        arr = pd.DataFrame.from_dict(tmp)
+        arr.columns = ['dx', 'dy', 'dz']
+        arr['freqdx'] = np.repeat(range(nmodes), nat)
+    return arr
+
 def open_txt(fp, rearrange=True, get_complex=False, fill=False, is_complex=True,
              tol=None, get_magnitude=False, **kwargs):
     '''

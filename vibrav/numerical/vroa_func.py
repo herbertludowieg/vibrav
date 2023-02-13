@@ -12,7 +12,7 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with vibrav.  If not, see <https://www.gnu.org/licenses/>.
-from numba import jit, prange, vectorize, float64
+from numba import jit, prange, float64
 import numpy as np
 
 #@vectorize([float64(float64, float64)])
@@ -46,7 +46,7 @@ def forwscat(alpha_g, beta_g, beta_A):
     return 4.* (180 * alpha_g + 4 * beta_g - 4 * beta_A)
 
 @jit(nopython=True, parallel=False, cache=True)
-def _make_derivatives(dalpha_dq, dg_dq, dA_dq, omega, epsilon, nmodes, au2angs, C_au, assume_real):
+def make_derivatives(dalpha_dq, dg_dq, dA_dq, omega, epsilon, nmodes, au2angs, C_au, assume_real):
     alpha_squared = np.zeros(nmodes,dtype=np.complex128)
     for fdx in prange(nmodes):
         for al in prange(3):

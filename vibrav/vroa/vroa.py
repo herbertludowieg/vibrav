@@ -12,15 +12,12 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with vibrav.  If not, see <https://www.gnu.org/licenses/>.
+from exatomic.util import conversions, constants
+from vibrav.numerical.vroa_func import backscat, forwscat, make_derivatives
+from vibrav.core.config import Config
+from vibrav.util.io import read_data_file
 import numpy as np
 import pandas as pd
-import warnings
-#from exa.util.constants import (speed_of_light_in_vacuum as C,
-#                                Planck_constant as H,
-#                                Boltzmann_constant as KB)
-from exatomic.util import conversions, constants
-from vibrav.numerical.vroa_func import backscat, forwscat, _make_derivatives
-from vibrav.core.config import Config
 
 class VROA():
     '''
@@ -190,9 +187,9 @@ class VROA():
         '''
         grouped = df.groupby('type')
         cols = [x+y for x in ['x', 'y', 'z'] for y in ['x', 'y', 'z']]
-        complex = grouped.get_group('real')[cols].values \
+        complex_val = grouped.get_group('real')[cols].values \
                   + 1j*grouped.get_group('imag')[cols].values
-        new_df = pd.DataFrame(complex, columns=cols)
+        new_df = pd.DataFrame(complex_val, columns=cols)
         #new_df['file'] = df['file'].unique()[0]
         new_df['exc_freq'] = df['exc_freq'].unique()[0]
         new_df['exc_idx'] = df['exc_idx'].unique()[0]
@@ -231,21 +228,12 @@ class VROA():
         scatter = []
         raman = []
         # grab the data from the respective files given in the config file
-        delta = pd.read_csv(config.delta_file,
-                            header=None).values.reshape(-1)
-        rmass = pd.read_csv(config.reduced_mass_file,
-                            header=None).values.reshape(-1)
-        freq = pd.read_csv(config.frequency_file,
-                           header=None).values.reshape(-1)
         nmodes = config.number_of_modes
         nat = config.number_of_nuclei
-        smat = pd.read_csv(config.smatrix_file, header=None)
-        # rearrange the smatrix to a 3 x N*(3*N-6) matrix
-        smat['groups'] = np.tile([0,1,2], nmodes*nat)
-        tmp = smat.groupby('groups').apply(lambda x: x[0].values).to_dict()
-        smat = pd.DataFrame.from_dict(tmp)
-        smat.columns = ['dx', 'dy', 'dz']
-        smat['freqdx'] = np.repeat(range(nmodes), nat)
+        delta = read_data_file(config.delta_file, nmodes)
+        rmass = read_data_file(config.reduced_mass_file, nmodes)
+        freq = read_data_file(config.frequency_file, nmodes)
+        smat = read_data_file(config.smatrix_file, nmodes, smat=True, nat=nat)
         # grab the data that was already parsed for the ROA and gradients
         roa = pd.read_csv(config.roa_file)
         grad = pd.read_csv(config.grad_file)
@@ -324,7 +312,7 @@ class VROA():
             tmp = complex_roa.loc[index, cols].reset_index(drop=True).to_dict()
             g_prime = pd.DataFrame.from_dict(tmp)
             # determine the derivatives of the gradients
-            grad_derivs = self.get_pos_neg_gradients(grad_data, smat, nmodes)
+            #grad_derivs = self.get_pos_neg_gradients(grad_data, smat, nmodes)
             # separate tensors into positive and negative displacements
             # highly dependent on the value of the index
             # we neglect the equilibrium coordinates
@@ -345,7 +333,7 @@ class VROA():
             # generate properties as shown on equations 5-9 in paper
             # J. Chem. Phys. 2007, 127, 134101
             au2angs = constants.atomic_unit_of_length*1e10
-            alpha_squared, beta_alpha, beta_g, beta_A, alpha_g = _make_derivatives(dalpha_dq,
+            alpha_squared, beta_alpha, beta_g, beta_A, alpha_g = make_derivatives(dalpha_dq,
                                   dg_dq, dA_dq, exc_freq, epsilon, snmodes, au2angs**4, C_au, assume_real)
             # calculate Raman intensities
             raman_int = 4 * (45 * alpha_squared + 8 * beta_alpha)

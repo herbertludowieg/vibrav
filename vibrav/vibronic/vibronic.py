@@ -28,7 +28,6 @@ from vibrav.numerical.boltzmann import boltz_dist
 from vibrav.util.io import open_txt
 from vibrav.util.math import get_triu, ishermitian, isantihermitian, abs2
 from vibrav.util.print import dataframe_to_txt
-from glob import glob
 from datetime import datetime, timedelta
 from time import time
 
@@ -209,7 +208,6 @@ class Vibronic:
         '''
         # read the hamiltonian files in each of the confg??? directories
         # it is assumed that the directories are named confg with a 3-fold padded number (000)
-        padding = 3
         plus_matrix = []
         minus_matrix = []
         found_modes = []
@@ -370,7 +368,6 @@ class Vibronic:
         # if the error is not documented or thrown by something other than
         # this program feel free to contact the administrators on github
         # to look into the issue
-        sparse = True
         store_gs_degen = True
         # for program running ststistics
         program_start = time()

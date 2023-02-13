@@ -12,8 +12,6 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with vibrav.  If not, see <https://www.gnu.org/licenses/>.
-import pandas as pd
-import numpy as np
 from exatomic.exa.core.numerical import Series
 from vibrav.base import resource
 
@@ -87,13 +85,13 @@ class Config(Series):
     def open_config(cls, fp, required=None, defaults=None, skip_defaults=None):
         '''
         Open and read the config file that is given.
-    
+
         Args:
             fp (:obj:`str`): Filepath to the config file
             required (:obj:`list`): Required arguments that must be present in the config file
             defaults (:obj:`list`, optional): Default arguments for the config file that are
                                                   not necessary. Defaults to :code:`None`
-    
+
         Returns:
             config (:obj:`dict`): Dictionary with all of the elements in the config as keys
 
@@ -230,13 +228,11 @@ class Config(Series):
         config = {}
         found_defaults = []
         found_required = []
-        for idx, line in enumerate(lines):
+        for line in lines:
             # get the data on the line and deal with whitespace
-            if not line.strip():
-                continue
+            if not line.strip(): continue
             # ignore '#' as comments
-            elif line[0] == '#':
-                continue
+            elif line[0] == '#': continue
             d = line.split()
             key, val = [d[0].lower(), d[1:]]
             # start by checking if the key is a default value
@@ -265,7 +261,7 @@ class Config(Series):
                     # make sure if the entry will need to be iterated over
                     # this must be specified by giving a two element required param. value in the dict
                     if isinstance(required[key], (list, tuple)):
-                        config[key] = tuple(map(lambda x: required[key][1](x), d[1:]))
+                        config[key] = tuple(map(required[key][1], d[1:]))
                     # when the requirement value passed is not two elements but the data on the
                     # config file has more than one element
                     elif not isinstance(required[key], (list, tuple)) and len(d[1:]) > 1:
@@ -277,7 +273,8 @@ class Config(Series):
                     # if all else fails
                     # this should never execute
                     else:
-                        raise Exception("Something strange is going on here")
+                        raise Exception("Failed when trying to determine the data " \
+                                        +"type of the required key.")
             # all other inputs
             # TODO: make some extras input thing that will take care of these
             #       we do not want to throw them out as it may be useful at some point
@@ -300,7 +297,7 @@ class Config(Series):
         if config['use_resource']:
             for key, val in config.items():
                 if '_file' in key:
-                    if type(val) == list:
+                    if isinstance(val, (list, tuple)):
                         config[key] = [resource(x) for x in val]
                     else:
                         config[key] = resource(val)

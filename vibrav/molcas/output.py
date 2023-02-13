@@ -44,7 +44,7 @@ class Output(Editor):
             n = int(np.ceil(data_length/4))
             dfs = []
             # grab all of the data
-            for ndx, (start, stop) in enumerate(zip(starts[:n], stops[:n])):
+            for start, stop in zip(starts[:n], stops[:n]):
                 ncols = len(self[start-2].split())
                 df = self.pandas_dataframe(start, stop, ncol=ncols)
                 df[0] -= 1
@@ -102,7 +102,7 @@ class Output(Editor):
         data_length = stop - props[0] - 5
         # get the data
         stdm = self._property_parsing(props, data_length)
-        stdm['component'] = np.repeat(['x', 'y', 'z'], data_length)
+        stdm['component'] = stdm['component'].map(component_map)
         self.sf_dipole_moment = stdm
 
     def parse_sf_quadrupole_moment(self):
@@ -429,7 +429,7 @@ class Output(Editor):
             text = "Could not find the energy ordering in the RASSCF output. " \
                    +"Make sure that you used print level 5."
             raise ValueError(text)
-        size = int(self[found[0]+2].split()[-1])
+        #size = int(self[found[0]+2].split()[-1])
         start = found[0]+4
         end = start
         while self[end].strip(): end += 1
