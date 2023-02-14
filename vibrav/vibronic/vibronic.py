@@ -737,15 +737,15 @@ class Vibronic:
                     oscil = boltz_factor * 2./3. * compute_oscil_str(np.sum(absorption, axis=0),
                                                                      energy)
                     # write to file
-                    template = ' '.join(['{:>5d}']*2 + ['{:>24.16E}']*2 \
-                                        + ['{:>6d}', '{:>7s}'])
+                    template = ['{:>5d}']*2 + ['{:>24.16E}']*2 \
+                                        + ['{:>6d}', '{:>7s}']
                     filename = os.path.join('vibronic-outputs', 'oscillators-0.txt')
                     start = time()
                     df = pd.DataFrame.from_dict({'nrow': nrow, 'ncol': ncol, 'oscil': oscil,
                                                  'energy': energy})
                     df['freqdx'] = founddx
                     df['sign'] = sign
-                    write_txt(df, filename, non_matrix=True, mode='a')
+                    write_txt(df, filename, non_matrix=True, mode='a', formatter=template)
                     if print_stdout:
                         text = " Wrote isotropic oscillators to {} for sign {} in {:.2f} s"
                         print(text.format(filename, sign, time() - start))
@@ -760,7 +760,7 @@ class Vibronic:
                                                      'energy': energy})
                         df['freqdx'] = founddx
                         df['sign'] = sign
-                        write_txt(df, filename, non_matrix=True, mode='a')
+                        write_txt(df, filename, non_matrix=True, mode='a', formatter=template)
                         start = time()
                         if print_stdout:
                             text = " Wrote oscillators for {} component to {} for sign " \
@@ -793,7 +793,7 @@ class Vibronic:
                                                  'energy': energy})
                     df['freqdx'] = founddx
                     df['sign'] = sign
-                    write_txt(df, filename, non_matrix=True, mode='a')
+                    write_txt(df, filename, non_matrix=True, mode='a', formatter=template)
                     if print_stdout:
                         text = " Wrote isotropic oscillators to {} for sign {} in {:.2f} s"
                         print(text.format(filename, sign, time() - start))
@@ -809,7 +809,7 @@ class Vibronic:
                                                      'energy': energy})
                         df['freqdx'] = founddx
                         df['sign'] = sign
-                        write_txt(df, filename, non_matrix=True, mode='a')
+                        write_txt(df, filename, non_matrix=True, mode='a', formatter=template)
                         if print_stdout:
                             text = " Wrote oscillators for {} component to {} for sign " \
                                    +"{} in {:.2f} s"
