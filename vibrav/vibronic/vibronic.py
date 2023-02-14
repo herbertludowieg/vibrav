@@ -21,11 +21,12 @@ from exatomic.exa.util.units import Time, Length
 from exatomic.util.constants import (speed_of_light_in_vacuum as speed_of_light,
                                 Planck_constant as planck_constant)
 from exatomic.util import conversions as conv
-from vibrav.numerical.vibronic_func import *
+from vibrav.numerical.vibronic_func import (compute_oscil_str, compute_d_dq_sf,
+                                            sf_to_so, compute_d_dq)
 from vibrav.core.config import Config
 from vibrav.numerical.degeneracy import energetic_degeneracy
 from vibrav.numerical.boltzmann import boltz_dist
-from vibrav.util.io import open_txt
+from vibrav.util.io import open_txt, write_txt
 from vibrav.util.math import get_triu, ishermitian, isantihermitian, abs2
 from vibrav.util.print import dataframe_to_txt
 from datetime import datetime, timedelta
@@ -55,9 +56,6 @@ class Vibronic:
     | zero_order_file        | Filepath of the calculation at the equilibrium   | :obj:`str`                 |
     |                        | coordinate. Must contain the spin-free property  |                            |
     |                        | of interest.                                     |                            |
-    +------------------------+--------------------------------------------------+----------------------------+
-    | oscillator_spin_states | Number of oscillators to calculate from the      | :obj:`int`                 |
-    |                        | ground state.                                    |                            |
     +------------------------+--------------------------------------------------+----------------------------+
 
     Default arguments in configuration file.
@@ -675,32 +673,16 @@ class Vibronic:
             # no calculations from this point onward
             # just a whole lot of file writing
             if write_property:
-                for idx, (minus, plus) in enumerate(zip(*vib_prop)):
-                    plus_T = plus.flatten()
-                    real = np.real(plus_T)
-                    imag = np.imag(plus_T)
-                    dir_name = os.path.join('vib'+str(founddx+1).zfill(3), 'plus')
-                    if not os.path.exists(dir_name):
-                        os.makedirs(dir_name, 0o755, exist_ok=True)
-                    filename = os.path.join(dir_name, out_file+'-{}.txt'.format(idx+1))
-                    with open(filename, 'w') as fn:
-                        fn.write('{:>5s}  {:>6s}  {:>18s}  {:>18s}\n'.format('#NROW', 'NCOL',
-                                                                             'REAL', 'IMAG'))
-                        for i in range(nstates*nstates):
-                            fn.write(template(initial[i], final[i], real[i], imag[i]))
-                    minus_T = minus.flatten()
-                    real = np.real(minus_T)
-                    imag = np.imag(minus_T)
-                    dir_name = os.path.join('vib'+str(founddx+1).zfill(3), 'minus')
-                    if not os.path.exists(dir_name):
-                        os.makedirs(dir_name, 0o755)
-                    filename = os.path.join(dir_name, out_file+'-{}.txt'.format(idx+1))
-                    with open(filename, 'w') as fn:
-                        fn.write('{:>5s}  {:>6s}  {:>10s}  {:>10s}\n'.format('#NROW', 'NCOL',
-                                                                             'REAL', 'IMAG'))
-                        for i in range(nstates*nstates):
-                            fn.write(template(initial[i], final[i], real[i], imag[i]))
-                dir_name = os.path.join('vib'+str(founddx+1).zfill(3), 'minus')
+                dtemp = 'vib{:03d}'.format
+                fname = out_file+'-{}.txt'.format
+                for idx, arr in enumerate(zip(*vib_prop)):
+                    for ndx, name in enumerate(['minus', 'plus']):
+                        dir_name = os.path.join(dtemp(founddx+1), name)
+                        if not os.path.exists(dir_name):
+                            os.makedirs(dir_name, 0o755, exist_ok=True)
+                        filename = os.path.join(dir_name, fname(idx+1))
+                        write_txt(arr, filename)
+                dir_name = os.path.join(dtemp(founddx+1), 'minus')
                 with open(os.path.join(dir_name, 'energies.txt'), 'w') as fn:
                     fn.write('# {} (atomic units)\n'.format(nstates))
                     energies = energies_so + (1./2.)*evib - energies_so[0]
@@ -708,7 +690,7 @@ class Vibronic:
                                                         - energies_so[0] + (3./2.)*evib
                     for energy in energies:
                         fn.write('{:.9E}\n'.format(energy))
-                dir_name = os.path.join('vib'+str(founddx+1).zfill(3), 'plus')
+                dir_name = os.path.join(dtemp(founddx+1), 'plus')
                 with open(os.path.join(dir_name, 'energies.txt'), 'w') as fn:
                     fn.write('# {} (atomic units)\n'.format(nstates))
                     energies = energies_so + (3./2.)*evib - energies_so[0]
@@ -717,75 +699,35 @@ class Vibronic:
                     for energy in energies:
                         fn.write('{:.9E}\n'.format(energy))
             if write_sf_property:
-                initial = np.tile(range(nstates_sf), nstates_sf)+1
-                final = np.repeat(range(nstates_sf), nstates_sf)+1
-                for idx, (minus, plus) in enumerate(zip(*vib_prop_sf)):
-                    plus_T = plus.flatten()
-                    real = np.real(plus_T)
-                    imag = np.imag(plus_T)
-                    dir_name = os.path.join('vib'+str(founddx+1).zfill(3), 'plus')
-                    if not os.path.exists(dir_name):
-                        os.makedirs(dir_name, 0o755, exist_ok=True)
-                    filename = os.path.join(dir_name, out_file+'-sf-{}.txt'.format(idx+1))
-                    with open(filename, 'w') as fn:
-                        fn.write('{:>5s}  {:>6s}  {:>18s}  {:>18s}\n'.format('#NROW', 'NCOL',
-                                                                             'REAL', 'IMAG'))
-                        for i in range(nstates_sf*nstates_sf):
-                            fn.write(template(initial[i], final[i], real[i], imag[i]))
-                    minus_T = minus.flatten()
-                    real = np.real(minus_T)
-                    imag = np.imag(minus_T)
-                    dir_name = os.path.join('vib'+str(founddx+1).zfill(3), 'minus')
-                    if not os.path.exists(dir_name):
-                        os.makedirs(dir_name, 0o755)
-                    filename = os.path.join(dir_name, out_file+'-sf-{}.txt'.format(idx+1))
-                    with open(filename, 'w') as fn:
-                        fn.write('{:>5s}  {:>6s}  {:>10s}  {:>10s}\n'.format('#NROW', 'NCOL',
-                                                                             'REAL', 'IMAG'))
-                        for i in range(nstates_sf*nstates_sf):
-                            fn.write(template(initial[i], final[i], real[i], imag[i]))
+                dtemp = 'vib{:03d}'.format
+                fname = out_file+'-sf-{}.txt'.format
+                for idx, arr in enumerate(zip(*vib_prop_sf)):
+                    for ndx, name in enumerate(['minus', 'plus']):
+                        dir_name = os.path.join(dtemp(founddx+1), name)
+                        if not os.path.exists(dir_name):
+                            os.makedirs(dir_name, 0o755, exist_ok=True)
+                        filename = os.path.join(dir_name, fname(idx+1))
+                        write_txt(arr, filename)
             if write_sf_property:
-                initial = np.tile(range(nstates), nstates)+1
-                final = np.repeat(range(nstates), nstates)+1
-                for idx, (minus, plus) in enumerate(zip(*vib_prop_sf_so_len)):
-                    plus_T = plus.flatten()
-                    real = np.real(plus_T)
-                    imag = np.imag(plus_T)
-                    dir_name = os.path.join('vib'+str(founddx+1).zfill(3), 'plus')
-                    if not os.path.exists(dir_name):
-                        os.makedirs(dir_name, 0o755, exist_ok=True)
-                    filename = os.path.join(dir_name, out_file+'-sf-so-len-{}.txt'.format(idx+1))
-                    with open(filename, 'w') as fn:
-                        fn.write('{:>5s}  {:>6s}  {:>18s}  {:>18s}\n'.format('#NROW', 'NCOL',
-                                                                             'REAL', 'IMAG'))
-                        for i in range(nstates*nstates):
-                            fn.write(template(initial[i], final[i], real[i], imag[i]))
-                    minus_T = minus.flatten()
-                    real = np.real(minus_T)
-                    imag = np.imag(minus_T)
-                    dir_name = os.path.join('vib'+str(founddx+1).zfill(3), 'minus')
-                    if not os.path.exists(dir_name):
-                        os.makedirs(dir_name, 0o755)
-                    filename = os.path.join(dir_name, out_file+'-sf-so-len-{}.txt'.format(idx+1))
-                    with open(filename, 'w') as fn:
-                        fn.write('{:>5s}  {:>6s}  {:>10s}  {:>10s}\n'.format('#NROW', 'NCOL',
-                                                                             'REAL', 'IMAG'))
-                        for i in range(nstates*nstates):
-                            fn.write(template(initial[i], final[i], real[i], imag[i]))
+                dtemp = 'vib{:03d}'.format
+                fname = out_file+'-sf-so-len-{}.txt'.format
+                for idx, arr in enumerate(zip(*vib_prop_sf_so_len)):
+                    for ndx, name in enumerate(['minus', 'plus']):
+                        dir_name = os.path.join(dtemp(founddx+1), name)
+                        if not os.path.exists(dir_name):
+                            os.makedirs(dir_name, 0o755, exist_ok=True)
+                        filename = os.path.join(dir_name, fname(idx+1))
+                        write_txt(arr, filename)
             if write_dham_dq:
+                dtemp = 'vib{:03d}'.format
+                fname = 'hamiltonian-derivs.txt'
                 initial = np.tile(range(nstates_sf), nstates_sf)+1
                 final = np.repeat(range(nstates_sf), nstates_sf)+1
-                dir_name = os.path.join('vib'+str(founddx+1).zfill(3))
+                dir_name = dtemp(founddx+1)
                 if not os.path.exists(dir_name):
                     os.makedirs(dir_name, 0o755)
-                filename = os.path.join(dir_name, 'hamiltonian-derivs.txt')
-                real = np.real(dham_dq_mode.flatten(order='F'))
-                imag = np.imag(dham_dq_mode.flatten(order='F'))
-                with open(filename, 'w') as fn:
-                    fn.write('{:>5s}  {:>6s}  {:>10s}  {:>10s}\n'.format('#NROW', 'NCOL',
-                                                                         'REAL', 'IMAG'))
-                    for i in range(nstates_sf*nstates_sf):
-                        fn.write(template(initial[i], final[i], real[i], imag[i]))
+                filename = os.path.join(dir_name, fname)
+                write_txt(dham_dq_mode, filename)
             if (property.replace('_', '-') == 'electric-dipole') and write_oscil:
                 mapper = {0: 'iso', 1: 'x', 2: 'y', 3: 'z'}
                 # finally get the oscillator strengths from equation S12
