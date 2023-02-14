@@ -185,7 +185,7 @@ def write_txt(df, fp, formatter=None, header=None, order='F',
     '''
     if formatter is None:
         formatter = ['{:6d}']*2+['{:25.16E}']*2
-    if header is None:
+    if header is None and mode == 'w':
         text = '{:<6s} {:<6s} {:>25s} {:>25s}\n'
         header = text.format('#NROW', 'NCOL', 'REAL', 'IMAG')
     #if len(formatter) != 4 and not non_matrix:
@@ -247,6 +247,8 @@ def write_txt(df, fp, formatter=None, header=None, order='F',
         with open(fp, mode) as fn:
             if header:
                 fn.write(header)
+            if mode == 'a':
+                fn.write('\n')
             formatter = list(map(lambda x: x.format, formatter))
             df_copy = df.copy()
             df_copy[['nrow', 'ncol']] += [1,1]

@@ -722,8 +722,8 @@ class Vibronic:
                 mapper = {0: 'iso', 1: 'x', 2: 'y', 3: 'z'}
                 # finally get the oscillator strengths from equation S12
                 to_drop = ['component', 'freqdx', 'sign', 'prop']
-                nrow = np.tile(range(nstates), nstates) + 1
-                ncol = np.repeat(range(nstates), nstates) + 1
+                nrow = np.tile(range(nstates), nstates)
+                ncol = np.repeat(range(nstates), nstates)
                 for idx, (val, sign) in enumerate(zip([-1, 1], ['minus', 'plus'])):
                     boltz_factor = boltz.loc[founddx, sign]
                     absorption = abs2(vib_prop[idx].reshape(ncomp, nstates*nstates))
@@ -770,8 +770,8 @@ class Vibronic:
                 mapper = {0: 'iso', 1: 'x', 2: 'y', 3: 'z'}
                 # finally get the oscillator strengths from equation S12
                 to_drop = ['component', 'freqdx', 'sign', 'prop']
-                nrow = np.tile(range(nstates_sf), nstates_sf) + 1
-                ncol = np.repeat(range(nstates_sf), nstates_sf) + 1
+                nrow = np.tile(range(nstates_sf), nstates_sf)
+                ncol = np.repeat(range(nstates_sf), nstates_sf)
                 for idx, (val, sign) in enumerate(zip([-1, 1], ['minus', 'plus'])):
                     boltz_factor = boltz.loc[founddx, sign]
                     absorption = abs2(vib_prop_sf[idx].reshape(ncomp, nstates_sf*nstates_sf))
