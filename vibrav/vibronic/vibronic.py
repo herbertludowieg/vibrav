@@ -569,27 +569,17 @@ class Vibronic:
             header = "{:>5s} {:>5s} {:>24s} {:>24s} {:>6s} {:>7s}".format
             oscil_formatters = ['{:>5d}'.format]*2+['{:>24.16E}'.format]*2 \
                                +['{:>6d}'.format, '{:>7s}'.format]
-            with open(os.path.join(vib_dir, osc_tmp(0)), 'w') as fn:
-                fn.write(header('#NROW', 'NCOL', 'OSCIL', 'ENERGY', 'FREQDX', 'SIGN'))
-            with open(os.path.join(vib_dir, osc_tmp(1)), 'w') as fn:
-                fn.write(header('#NROW', 'NCOL', 'OSCIL', 'ENERGY', 'FREQDX', 'SIGN'))
-            with open(os.path.join(vib_dir, osc_tmp(2)), 'w') as fn:
-                fn.write(header('#NROW', 'NCOL', 'OSCIL', 'ENERGY', 'FREQDX', 'SIGN'))
-            with open(os.path.join(vib_dir, osc_tmp(3)), 'w') as fn:
-                fn.write(header('#NROW', 'NCOL', 'OSCIL', 'ENERGY', 'FREQDX', 'SIGN'))
+            for idx in [0,1,2,3]:
+                with open(os.path.join(vib_dir, osc_tmp(idx)), 'w') as fn:
+                    fn.write(header('#NROW', 'NCOL', 'OSCIL', 'ENERGY', 'FREQDX', 'SIGN'))
         if write_sf_oscil and property.replace('_', '-') == 'electric-dipole':
             osc_tmp = 'oscillators-sf-{}.txt'.format
             header = "{:>5s} {:>5s} {:>24s} {:>24s} {:>6s} {:>7s}".format
             oscil_formatters = ['{:>5d}'.format]*2+['{:>24.16E}'.format]*2 \
                                +['{:>6d}'.format, '{:>7s}'.format]
-            with open(os.path.join(vib_dir, osc_tmp(0)), 'w') as fn:
-                fn.write(header('#NROW', 'NCOL', 'OSCIL', 'ENERGY', 'FREQDX', 'SIGN'))
-            with open(os.path.join(vib_dir, osc_tmp(1)), 'w') as fn:
-                fn.write(header('#NROW', 'NCOL', 'OSCIL', 'ENERGY', 'FREQDX', 'SIGN'))
-            with open(os.path.join(vib_dir, osc_tmp(2)), 'w') as fn:
-                fn.write(header('#NROW', 'NCOL', 'OSCIL', 'ENERGY', 'FREQDX', 'SIGN'))
-            with open(os.path.join(vib_dir, osc_tmp(3)), 'w') as fn:
-                fn.write(header('#NROW', 'NCOL', 'OSCIL', 'ENERGY', 'FREQDX', 'SIGN'))
+            for idx in [0,1,2,3]:
+                with open(os.path.join(vib_dir, osc_tmp(idx)), 'w') as fn:
+                    fn.write(header('#NROW', 'NCOL', 'OSCIL', 'ENERGY', 'FREQDX', 'SIGN'))
         for fdx, founddx in enumerate(found_modes):
             vib_prop = np.zeros((2, ncomp, nstates, nstates), dtype=np.complex128)
             vib_prop_sf = np.zeros((2, ncomp, nstates_sf, nstates_sf), dtype=np.float64)
@@ -676,7 +666,7 @@ class Vibronic:
                 dtemp = 'vib{:03d}'.format
                 fname = out_file+'-{}.txt'.format
                 for idx, arr in enumerate(zip(*vib_prop)):
-                    for ndx, name in enumerate(['minus', 'plus']):
+                    for name in ['minus', 'plus']:
                         dir_name = os.path.join(dtemp(founddx+1), name)
                         if not os.path.exists(dir_name):
                             os.makedirs(dir_name, 0o755, exist_ok=True)
@@ -702,7 +692,7 @@ class Vibronic:
                 dtemp = 'vib{:03d}'.format
                 fname = out_file+'-sf-{}.txt'.format
                 for idx, arr in enumerate(zip(*vib_prop_sf)):
-                    for ndx, name in enumerate(['minus', 'plus']):
+                    for name in ['minus', 'plus']:
                         dir_name = os.path.join(dtemp(founddx+1), name)
                         if not os.path.exists(dir_name):
                             os.makedirs(dir_name, 0o755, exist_ok=True)
@@ -712,7 +702,7 @@ class Vibronic:
                 dtemp = 'vib{:03d}'.format
                 fname = out_file+'-sf-so-len-{}.txt'.format
                 for idx, arr in enumerate(zip(*vib_prop_sf_so_len)):
-                    for ndx, name in enumerate(['minus', 'plus']):
+                    for name in ['minus', 'plus']:
                         dir_name = os.path.join(dtemp(founddx+1), name)
                         if not os.path.exists(dir_name):
                             os.makedirs(dir_name, 0o755, exist_ok=True)
@@ -751,16 +741,11 @@ class Vibronic:
                                         + ['{:>6d}', '{:>7s}'])
                     filename = os.path.join('vibronic-outputs', 'oscillators-0.txt')
                     start = time()
-                    with open(filename, 'a') as fn:
-                        text = ''
-                        # use a for loop instead of a df.to_string() as it is significantly faster
-                        for nr, nc, osc, eng in zip(nrow, ncol, oscil, energy):
-                            if not write_all_oscil:
-                                if osc > 0 and eng > 0:
-                                    text += '\n'+template.format(nr, nc, osc, eng, founddx, sign)
-                            else:
-                                text += '\n'+template.format(nr, nc, osc, eng, founddx, sign)
-                        fn.write(text)
+                    df = pd.DataFrame.from_dict({'nrow': nrow, 'ncol': ncol, 'oscil': oscil,
+                                                 'energy': energy})
+                    df['freqdx'] = founddx
+                    df['sign'] = sign
+                    write_txt(df, filename, non_matrix=True, mode='a')
                     if print_stdout:
                         text = " Wrote isotropic oscillators to {} for sign {} in {:.2f} s"
                         print(text.format(filename, sign, time() - start))
@@ -771,17 +756,12 @@ class Vibronic:
                         oscil = boltz_factor * 2. * compute_oscil_str(component, energy)
                         filename = os.path.join('vibronic-outputs',
                                                 'oscillators-{}.txt'.format(idx+1))
+                        df = pd.DataFrame.from_dict({'nrow': nrow, 'ncol': ncol, 'oscil': oscil,
+                                                     'energy': energy})
+                        df['freqdx'] = founddx
+                        df['sign'] = sign
+                        write_txt(df, filename, non_matrix=True, mode='a')
                         start = time()
-                        with open(filename, 'a') as fn:
-                            text = ''
-                            for nr, nc, osc, eng in zip(nrow, ncol, oscil, energy):
-                                if not write_all_oscil:
-                                    if osc > 0 and eng > 0:
-                                        text += '\n'+template.format(nr, nc, osc, eng, founddx,
-                                                                     sign)
-                                else:
-                                    text += '\n'+template.format(nr, nc, osc, eng, founddx, sign)
-                            fn.write(text)
                         if print_stdout:
                             text = " Wrote oscillators for {} component to {} for sign " \
                                    +"{} in {:.2f} s"
@@ -809,16 +789,11 @@ class Vibronic:
                                         + ['{:>6d}', '{:>7s}'])
                     filename = os.path.join('vibronic-outputs', 'oscillators-sf-0.txt')
                     start = time()
-                    with open(filename, 'a') as fn:
-                        text = ''
-                        # use a for loop instead of a df.to_string() as it is significantly faster
-                        for nr, nc, osc, eng in zip(nrow, ncol, oscil, energy):
-                            if write_all_oscil:
-                                if osc > 0 and eng > 0:
-                                    text += '\n'+template.format(nr, nc, osc, eng, founddx, sign)
-                            else:
-                                text += '\n'+template.format(nr, nc, osc, eng, founddx, sign)
-                        fn.write(text)
+                    df = pd.DataFrame.from_dict({'nrow': nrow, 'ncol': ncol, 'oscil': oscil,
+                                                 'energy': energy})
+                    df['freqdx'] = founddx
+                    df['sign'] = sign
+                    write_txt(df, filename, non_matrix=True, mode='a')
                     if print_stdout:
                         text = " Wrote isotropic oscillators to {} for sign {} in {:.2f} s"
                         print(text.format(filename, sign, time() - start))
@@ -830,16 +805,11 @@ class Vibronic:
                         filename = os.path.join('vibronic-outputs',
                                                 'oscillators-sf-{}.txt'.format(idx+1))
                         start = time()
-                        with open(filename, 'a') as fn:
-                            text = ''
-                            for nr, nc, osc, eng in zip(nrow, ncol, oscil, energy):
-                                if write_all_oscil:
-                                    if osc > 0 and eng > 0:
-                                        text += '\n'+template.format(nr, nc, osc, eng, founddx,
-                                                                     sign)
-                                else:
-                                    text += '\n'+template.format(nr, nc, osc, eng, founddx, sign)
-                            fn.write(text)
+                        df = pd.DataFrame.from_dict({'nrow': nrow, 'ncol': ncol, 'oscil': oscil,
+                                                     'energy': energy})
+                        df['freqdx'] = founddx
+                        df['sign'] = sign
+                        write_txt(df, filename, non_matrix=True, mode='a')
                         if print_stdout:
                             text = " Wrote oscillators for {} component to {} for sign " \
                                    +"{} in {:.2f} s"

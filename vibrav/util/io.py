@@ -169,7 +169,7 @@ def open_txt(fp, rearrange=True, get_complex=False, fill=False, is_complex=True,
     return matrix
 
 def write_txt(df, fp, formatter=None, header=None, order='F',
-              non_matrix=False):
+              non_matrix=False, mode='w'):
     '''
     Function to write the input data as a txt file with the set format
     to be read by external codes in the MCD suite.
@@ -188,8 +188,8 @@ def write_txt(df, fp, formatter=None, header=None, order='F',
     if header is None:
         text = '{:<6s} {:<6s} {:>25s} {:>25s}\n'
         header = text.format('#NROW', 'NCOL', 'REAL', 'IMAG')
-    if len(formatter) != 4 and not non_matrix:
-        raise NotImplementedError('Do not currently support custom number of columns')
+    #if len(formatter) != 4 and not non_matrix:
+    #    raise NotImplementedError('Do not currently support custom number of columns')
     if not non_matrix:
         shape = df.shape
         # check data consistency
@@ -239,13 +239,14 @@ def write_txt(df, fp, formatter=None, header=None, order='F',
         data_template = ' '.join(formatter)
         data_template += '\n'
         arr = zip(real, imag, nrow, ncol)
-        with open(fp, 'w') as fn:
+        with open(fp, mode) as fn:
             fn.write(header)
             for r, i, nr, nc in arr:
                 fn.write(data_template.format(nr, nc, r, i))
     else:
-        with open(fp, 'w') as fn:
-            fn.write(header)
+        with open(fp, mode) as fn:
+            if header:
+                fn.write(header)
             formatter = list(map(lambda x: x.format, formatter))
             df_copy = df.copy()
             df_copy[['nrow', 'ncol']] += [1,1]
