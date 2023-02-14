@@ -785,8 +785,8 @@ class Vibronic:
                     oscil = boltz_factor * 2./3. * compute_oscil_str(np.sum(absorption, axis=0),
                                                                      energy)
                     # write to file
-                    template = ' '.join(['{:>5d}']*2 + ['{:>24.16E}']*2 \
-                                        + ['{:>6d}', '{:>7s}'])
+                    template = ['{:>5d}']*2 + ['{:>24.16E}']*2 \
+                                        + ['{:>6d}', '{:>7s}']
                     filename = os.path.join('vibronic-outputs', 'oscillators-sf-0.txt')
                     start = time()
                     df = pd.DataFrame.from_dict({'nrow': nrow, 'ncol': ncol, 'oscil': oscil,
