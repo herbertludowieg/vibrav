@@ -15,6 +15,9 @@
 from exatomic.exa.core.numerical import Series
 from vibrav.base import resource
 
+class MissingRequiredInput(Exception):
+    pass
+
 class Config(Series):
     '''
     Base class to read the configuration file given at the start of the different Vibrational
@@ -284,10 +287,10 @@ class Config(Series):
             # check for missing required arguments
             missing_required = list(filter(lambda x: x not in found_required, required.keys()))
             if missing_required:
-                raise AttributeError("There is a required input parameter missing." \
-                                    +"\nThe required parameters in the config file for this " \
-                                    +"calculation are:" \
-                                    +"{}".format('\n - '.join(['']+list(required.keys()))))
+                miss_text = '\n - '.join(['']+missing_required)
+                msg = "We are missing the following parameters in the " \
+                      +"input file: {}"
+                raise MissingRequiredInput(msg.format(miss_text))
         # check for missing default arguments and fill in with the default values
         # availabel in the defaults dict
         missing_default = list(filter(lambda x: x not in found_defaults, defaults.keys()))

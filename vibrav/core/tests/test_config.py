@@ -12,9 +12,10 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with vibrav.  If not, see <https://www.gnu.org/licenses/>.
-from vibrav.core import Config
+from vibrav.core.config import Config, MissingRequiredInput
 from vibrav.base import resource
 import pandas as np
+import pytest
 import os
 
 def test_config():
@@ -38,6 +39,9 @@ def test_config():
             'atom_order_file': 'atom_order.dat'}
     for key, val in base.items():
         assert val == config[key]
+    with pytest.raises(MissingRequiredInput):
+        config = Config.open_config(resource('molcas-ucl6-2minus-vibronic-config'),
+                                    required={'to_fail': str})
 
 def test_config_resource():
     required = {'number_of_modes': int, 'number_of_nuclei': int, 'property_file': str,
