@@ -293,7 +293,8 @@ class Config(Series):
                 raise MissingRequiredInput(msg.format(miss_text))
         # check for missing default arguments and fill in with the default values
         # availabel in the defaults dict
-        missing_default = list(filter(lambda x: x not in found_defaults, defaults.keys()))
+        missing_default = list(filter(lambda x: x not in found_defaults,
+                                      defaults.keys()))
         for missing in missing_default:
             if missing not in skip_defaults:
                 config[missing] = defaults[missing][0]

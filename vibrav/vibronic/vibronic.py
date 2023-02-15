@@ -126,6 +126,19 @@ class Vibronic:
             if np.any(pd.isnull(data)):
                 raise TypeError("NaN values were found in the data for '{}'".format(var_name))
 
+    @staticmethod
+    def _get_states(energies, states):
+        df = pd.DataFrame.from_dict({'energies': energies, 'sdx': range(len(energies))})
+        df.sort_values(by=['energies'], inplace=True)
+        df.reset_index(drop=True, inplace=True)
+        incl_states = np.zeros(df.shape[0])
+        incl_states[range(states)] = 1
+        incl_states = incl_states.astype(bool)
+        df['incl_states'] = incl_states
+        df.sort_values(by=['sdx'], inplace=True)
+        incl_states = df['incl_states'].values
+        return incl_states
+
     def _parse_energies(self, ed, sf_file='', so_file=''):
         # parse the energies from the output is the energy files are not available
         if sf_file != '':
@@ -160,21 +173,9 @@ class Vibronic:
         self.check_size(energies_so, (self.nstates,), 'energies_so')
         return energies_sf, energies_so
 
-    @staticmethod
-    def _get_states(energies, states):
-        df = pd.DataFrame.from_dict({'energies': energies, 'sdx': range(len(energies))})
-        df.sort_values(by=['energies'], inplace=True)
-        df.reset_index(drop=True, inplace=True)
-        incl_states = np.zeros(df.shape[0])
-        incl_states[range(states)] = 1
-        incl_states = incl_states.astype(bool)
-        df['incl_states'] = incl_states
-        df.sort_values(by=['sdx'], inplace=True)
-        incl_states = df['incl_states'].values
-        return incl_states
-
-    def get_hamiltonian_deriv(self, select_fdx, delta, redmass, nmodes, use_sqrt_rmass,
-                              sparse_hamiltonian, read_hamil=False, hamil_file=None):
+    def get_hamiltonian_deriv(self, delta, redmass, nmodes, select_fdx=-1,
+                              use_sqrt_rmass=True, sparse_hamiltonian=False,
+                              read_hamil=False, hamil_file=None):
         '''
         Find and read all of the Hamiltonian txt files in the different confg
         directories.
@@ -184,20 +185,30 @@ class Vibronic:
             SF Hamiltonian files as `'ham-sf.txt'`.
 
         Args:
-            select_fdx (int):
-            delta (pd.DataFrame): Data frame with all the delta values
-                        used for each of the normal mode displacements.
-                        Read from the given `delta_file` input in the
-                        configuration file.
-            redmass (pd.DataFrame): Data frame with all of the reduced
-                        masses for each of the normal modes. Read from
-                        the given `redmass_file` input in the
-                        configuration file.
+            delta (:class:`pd.DataFrame`): Data frame with all the delta
+                    values used for each of the normal mode displacements.
+                    Read from the given `delta_file` input in the
+                    configuration file.
+             redmass (:class:`pd.DataFrame`): Data frame with all of the
+                    reduced masses for each of the normal modes. Read from
+                    the given `redmass_file` input in the configuration
+                    file.
             nmodes (int): The number of normal modes in the molecule.
-            use_sqrt_rmass (bool):
-            sparse_hamiltonian (bool): Tell the program that the input
-                        Hamiltonian files are sparse matrices made up
-                        of block diagonal values.
+            select_fdx (:obj:`list`, optional):
+            use_sqrt_rmass (:obj:`bool`, optional): The calculations used
+                    mass-weighted normal modes for the displaced
+                    structures. This should always be the case. Defaults
+                    to `True`.
+            sparse_hamiltonian (:obj:`bool`, optional): Input Hamiltonian
+                    files are sparse matrices made up of block diagonal
+                    values. Defaults to `False`.
+            read_hamil (:obj:`bool`, optional): Read the Hamiltonians from
+                    a CSV file. Defaults to `False`.
+            hamil_file (:obj:`str`, optional): Path to the CSV file with
+                    the Hamiltonian data. It expects that there will be an
+                    index column and header row. In addition we expect
+                    there to be a column called `freqdx` which is an index
+                    spanning 0 to 2*nmodes. Defaults to `None`.
 
         Returns:
             dham_dq (pd.DataFrame): Data frame with the derivative of
