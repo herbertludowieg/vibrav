@@ -139,6 +139,16 @@ class Vibronic:
         incl_states = df['incl_states'].values
         return incl_states
 
+    @staticmethod
+    def _init_oscil_file(fp):
+        header = "{:>5s} {:>5s} {:>24s} {:>24s} {:>6s} {:>7s}".format
+        oscil_formatters = ['{:>5d}'.format]*2+['{:>24.16E}'.format]*2 \
+                           +['{:>6d}'.format, '{:>7s}'.format]
+        for idx in [0,1,2,3]:
+            with open(fp.format(idx), 'w') as fn:
+                fn.write(header('#NROW', 'NCOL', 'OSCIL',
+                                'ENERGY', 'FREQDX', 'SIGN'))
+
     def _parse_energies(self, ed, sf_file='', so_file=''):
         # parse the energies from the output is the energy files are not available
         if sf_file != '':
@@ -302,7 +312,7 @@ class Vibronic:
         # add a frequency index reference
         return dham_dq
 
-    def vibronic_coupling(self, property, write_property=True, write_energy=True, write_oscil=True,
+    def vibronic_coupling(self, prop_name, write_property=True, write_energy=True, write_oscil=True,
                           print_stdout=True, temp=298, eq_cont=False, verbose=False,
                           use_sqrt_rmass=True, select_fdx=-1, boltz_states=None, boltz_tol=1e-6,
                           write_sf_oscil=False, write_sf_property=False, write_dham_dq=False,
@@ -328,7 +338,7 @@ class Vibronic:
             per-system basis. **We make no guarantees everything will work out of the box**.
 
         Args:
-            property (:obj:`str`): Property of interest to calculate.
+            prop_name (:obj:`str`): Property of interest to calculate.
             write_property (:obj:`bool`, optional): Write the calculated vibronic property values to file.
                                                     Defaults to `True`.
             write_energy (:obj:`bool`, optional): Write the vibronic energies to file.
@@ -507,14 +517,14 @@ class Vibronic:
         # get the property of choice from the zero order file given in the config file
         # the extra column in each of the parsed properties comes from the component column
         # in the molcas output parser
-        if property.replace('_', '-') == 'electric-dipole':
+        if prop_name.replace('_', '-') == 'electric-dipole':
             ed.parse_sf_dipole_moment()
             self.check_size(ed.sf_dipole_moment, (nstates_sf*3, nstates_sf+1), 'sf_dipole_moment')
             grouped_data = ed.sf_dipole_moment.groupby('component')
             out_file = 'dipole'
             #so_file = config.dipole_file
             idx_map = {1: 'x', 2: 'y', 3: 'z'}
-        elif property.replace('_', '-') == 'electric-quadrupole':
+        elif prop_name.replace('_', '-') == 'electric-quadrupole':
             ed.parse_sf_quadrupole_moment()
             self.check_size(ed.sf_quadrupole_moment, (nstates_sf*6, nstates_sf+1),
                              'sf_quadrupole_moment')
@@ -522,7 +532,7 @@ class Vibronic:
             out_file = 'quadrupole'
             #so_file = config.quadrupole_file
             idx_map = {1: 'xx', 2: 'xy', 3: 'xz', 4: 'yy', 5: 'yz', 6: 'zz'}
-        elif property.replace('_', '-') == 'magnetic-dipole':
+        elif prop_name.replace('_', '-') == 'magnetic-dipole':
             ed.parse_sf_angmom()
             self.check_size(ed.sf_angmom, (nstates_sf*3, nstates_sf+1), 'sf_angmom')
             grouped_data = ed.sf_angmom.groupby('component')
@@ -575,22 +585,12 @@ class Vibronic:
             print("--------------------------------------------")
         if store_gs_degen: self.gs_degeneracy = gs_degeneracy
         # initialize the oscillator files
-        if write_oscil and property.replace('_', '-') == 'electric-dipole':
-            osc_tmp = 'oscillators-{}.txt'.format
-            header = "{:>5s} {:>5s} {:>24s} {:>24s} {:>6s} {:>7s}".format
-            oscil_formatters = ['{:>5d}'.format]*2+['{:>24.16E}'.format]*2 \
-                               +['{:>6d}'.format, '{:>7s}'.format]
-            for idx in [0,1,2,3]:
-                with open(os.path.join(vib_dir, osc_tmp(idx)), 'w') as fn:
-                    fn.write(header('#NROW', 'NCOL', 'OSCIL', 'ENERGY', 'FREQDX', 'SIGN'))
-        if write_sf_oscil and property.replace('_', '-') == 'electric-dipole':
-            osc_tmp = 'oscillators-sf-{}.txt'.format
-            header = "{:>5s} {:>5s} {:>24s} {:>24s} {:>6s} {:>7s}".format
-            oscil_formatters = ['{:>5d}'.format]*2+['{:>24.16E}'.format]*2 \
-                               +['{:>6d}'.format, '{:>7s}'.format]
-            for idx in [0,1,2,3]:
-                with open(os.path.join(vib_dir, osc_tmp(idx)), 'w') as fn:
-                    fn.write(header('#NROW', 'NCOL', 'OSCIL', 'ENERGY', 'FREQDX', 'SIGN'))
+        if write_oscil and prop_name.replace('_', '-') == 'electric-dipole':
+            osc_tmp = 'oscillators-{}.txt'
+            self._init_oscil_file(os.path.join(vib_dir, osc_tmp))
+        if write_sf_oscil and prop_name.replace('_', '-') == 'electric-dipole':
+            osc_tmp = 'oscillators-sf-{}.txt'
+            self._init_oscil_file(os.path.join(vib_dir, osc_tmp))
         for fdx, founddx in enumerate(found_modes):
             vib_prop = np.zeros((2, ncomp, nstates, nstates), dtype=np.complex128)
             vib_prop_sf = np.zeros((2, ncomp, nstates_sf, nstates_sf), dtype=np.float64)
@@ -628,7 +628,7 @@ class Vibronic:
                 sf_to_so(nstates_sf, nstates, multiplicity, dprop_dq_sf, dprop_dq_so)
                 compute_d_dq(nstates, eigvectors, dprop_dq_so, dprop_dq)
                 # check if the array is hermitian
-                if property == 'electric_dipole':
+                if prop_name == 'electric_dipole':
                     if not ishermitian(dprop_dq):
                         text = "The vibronic electric dipole at frequency {} for component {} " \
                                +"was not found to be hermitian."
@@ -637,12 +637,12 @@ class Vibronic:
                         text = "The vibronic electric dipole at frequency {} for component {} " \
                                +"was not found to be hermitian."
                         raise ValueError(text.format(fdx, key))
-                elif property == 'magnetic_dipole':
+                elif prop_name == 'magnetic_dipole':
                     if not isantihermitian(dprop_dq):
                         text = "The vibronic magentic dipole at frequency {} for component {} " \
                                +"was not found to be non-hermitian."
                         raise ValueError(text.format(fdx, key))
-                elif property == 'electric_quadrupole':
+                elif prop_name == 'electric_quadrupole':
                     if not ishermitian(dprop_dq):
                         text = "The vibronic electric quadrupole at frequency {} for " \
                                +"component {} was not found to be hermitian."
@@ -729,7 +729,7 @@ class Vibronic:
                     os.makedirs(dir_name, 0o755)
                 filename = os.path.join(dir_name, fname)
                 write_txt(dham_dq_mode, filename)
-            if (property.replace('_', '-') == 'electric-dipole') and write_oscil:
+            if (prop_name.replace('_', '-') == 'electric-dipole') and write_oscil:
                 mapper = {0: 'iso', 1: 'x', 2: 'y', 3: 'z'}
                 # finally get the oscillator strengths from equation S12
                 to_drop = ['component', 'freqdx', 'sign', 'prop']
@@ -756,6 +756,10 @@ class Vibronic:
                                                  'energy': energy})
                     df['freqdx'] = founddx
                     df['sign'] = sign
+                    if not write_all_oscil:
+                        idxs = np.logical_and(df['oscil'].values > 0,
+                                              df['energy'].values > 0)
+                        df = df.loc[idxs]
                     write_txt(df, filename, non_matrix=True, mode='a', formatter=template)
                     if print_stdout:
                         text = " Wrote isotropic oscillators to {} for sign {} in {:.2f} s"
@@ -771,13 +775,17 @@ class Vibronic:
                                                      'energy': energy})
                         df['freqdx'] = founddx
                         df['sign'] = sign
+                        if not write_all_oscil:
+                            idxs = np.logical_and(df['oscil'].values > 0,
+                                                  df['energy'].values > 0)
+                            df = df.loc[idxs]
                         write_txt(df, filename, non_matrix=True, mode='a', formatter=template)
                         start = time()
                         if print_stdout:
                             text = " Wrote oscillators for {} component to {} for sign " \
                                    +"{} in {:.2f} s"
                             print(text.format(mapper[idx+1], filename, sign, time() - start))
-            if (property.replace('_', '-') == 'electric-dipole') and write_sf_oscil:
+            if (prop_name.replace('_', '-') == 'electric-dipole') and write_sf_oscil:
                 mapper = {0: 'iso', 1: 'x', 2: 'y', 3: 'z'}
                 # finally get the oscillator strengths from equation S12
                 to_drop = ['component', 'freqdx', 'sign', 'prop']
@@ -804,6 +812,10 @@ class Vibronic:
                                                  'energy': energy})
                     df['freqdx'] = founddx
                     df['sign'] = sign
+                    if not write_all_oscil:
+                        idxs = np.logical_and(df['oscil'].values > 0,
+                                              df['energy'].values > 0)
+                        df = df.loc[idxs]
                     write_txt(df, filename, non_matrix=True, mode='a', formatter=template)
                     if print_stdout:
                         text = " Wrote isotropic oscillators to {} for sign {} in {:.2f} s"
@@ -820,6 +832,10 @@ class Vibronic:
                                                      'energy': energy})
                         df['freqdx'] = founddx
                         df['sign'] = sign
+                        if not write_all_oscil:
+                            idxs = np.logical_and(df['oscil'].values > 0,
+                                                  df['energy'].values > 0)
+                            df = df.loc[idxs]
                         write_txt(df, filename, non_matrix=True, mode='a', formatter=template)
                         if print_stdout:
                             text = " Wrote oscillators for {} component to {} for sign " \

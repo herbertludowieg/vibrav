@@ -23,7 +23,7 @@ import os
 @pytest.mark.parametrize('freqdx', [[-1]])
 def test_vibronic_coupling(freqdx):
     vib = Vibronic(config_file=resource('ucl6-2minus-vibronic-va.conf'))
-    vib.vibronic_coupling(property='electric_dipole', print_stdout=False, temp=298,
+    vib.vibronic_coupling(prop_name='electric_dipole', print_stdout=False, temp=298,
                           write_property=False, write_oscil=True, boltz_states=2,
                           write_energy=False, verbose=False, eq_cont=False, select_fdx=freqdx)
     base_oscil = open_txt(resource('molcas-ucl6-2minus-oscillators.txt.xz'), compression='xz',
