@@ -20,7 +20,7 @@ import pandas as pd
 import pytest
 import os
 
-@pytest.mark.parametrize('freqdx', [[-1]])
+@pytest.mark.parametrize('freqdx', [[-1], [0,3,5], [10,3], [8]])
 def test_vibronic_coupling(freqdx):
     vib = Vibronic(config_file=resource('ucl6-2minus-vibronic-va.conf'))
     vib.vibronic_coupling(prop_name='electric_dipole', print_stdout=False, temp=298,
@@ -44,4 +44,11 @@ def test_vibronic_coupling(freqdx):
     test = test[cols].values
     assert np.allclose(base[:,0], test[:,0], rtol=7e-5)
     assert np.allclose(base[:,1], test[:,1], rtol=1e-5, atol=1e-7)
+
+def test_vibronic_coupling_fail():
+    vib = Vibronic(config_file=resource('ucl6-2minus-vibronic-va.conf'))
+    with pytest.raises(ValueError):
+        vib.vibronic_coupling(prop_name='electric_dipole', print_stdout=False, temp=298,
+                              write_property=False, write_oscil=True, boltz_states=2,
+                              write_energy=False, verbose=False, eq_cont=False, select_fdx=[1,2,100])
 

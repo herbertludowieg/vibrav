@@ -240,7 +240,7 @@ class Vibronic:
                 raise ValueError("The all condition for selecting frequencies (-1) was passed " \
                                 +"along with other frequencies.")
         if select_fdx == -1:
-            freq_range = list(range(1, nmodes+1))
+            freq_range = np.array(list(range(1, nmodes+1)))
         else:
             if isinstance(select_fdx, int): select_fdx = [select_fdx]
             freq_range = np.array(select_fdx) + 1
@@ -278,6 +278,10 @@ class Vibronic:
             def filt_func(df, idxs):
                 return df['freqdx'].unique() in idxs
             full_ham = pd.read_csv(hamil_file, header=0, index_col=0)
+            if select_fdx != -1:
+                full_ham = full_ham.groupby('freqdx') \
+                            .filter(filt_func, idxs=list(freq_range) \
+                                        + [x+nmodes for x in freq_range])
             ham_plus = full_ham.groupby('freqdx') \
                             .filter(filt_func, idxs=range(1,nmodes+1)) \
                             .reset_index(drop=True)
@@ -285,6 +289,14 @@ class Vibronic:
                             .filter(filt_func, idxs=range(nmodes+1,2*nmodes+1)) \
                             .reset_index(drop=True)
             found_modes = ham_plus['freqdx'].unique() - 1
+            found_modes_min = ham_minus['freqdx'].unique()
+            if len(found_modes) != len(freq_range):
+                raise ValueError("Could not find all of the selected normal modes " \
+                                 +"in the given Hamiltonian CSV file.")
+            if len(found_modes) != len(found_modes_min):
+                raise ValueError("Could not find all of the selected normal modes " \
+                                 +"in the plus and minus configuration when reading " \
+                                 +"from the Hamiltonian CSV file.")
         dham_dq = ham_plus - ham_minus
         dham_dq['freqdx'] = np.repeat(found_modes, dham_dq.shape[1]-1)
         data_cols = dham_dq.columns[dham_dq.columns != 'freqdx']
