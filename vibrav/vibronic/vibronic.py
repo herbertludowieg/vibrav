@@ -151,10 +151,10 @@ class Vibronic:
                                 'ENERGY', 'FREQDX', 'SIGN'))
 
     @staticmethod
-    def _write_prop_files(arr, dtemp, fname):
+    def _write_prop_files(arr, dtemp, fname, fdx):
         for idx, arr in enumerate(zip(*arr)):
             for name in ['minus', 'plus']:
-                dir_name = os.path.join(dtemp(founddx+1), name)
+                dir_name = os.path.join(dtemp(fdx+1), name)
                 if not os.path.exists(dir_name):
                     os.makedirs(dir_name, 0o755, exist_ok=True)
                 filename = os.path.join(dir_name, fname(idx+1))
@@ -355,7 +355,6 @@ class Vibronic:
                             .filter(filt_func, idxs=range(nmodes+1,2*nmodes+1)) \
                             .reset_index(drop=True)
             found_modes = ham_plus['freqdx'].unique() - 1
-            found_modes_min = ham_minus['freqdx'].unique()
             if len(found_modes) != len(freq_range):
                 raise ValueError("Could not find all of the selected normal modes " \
                                  +"in the given Hamiltonian CSV file.")
@@ -741,16 +740,13 @@ class Vibronic:
                 vib_prop_sf_so_len[1][idx_map_rev[key]-1] = vib_prop_sf_so_len_plus
             # calculate the oscillator strengths
             evib = freq[founddx]*conv.inv_m2Ha*100
-            initial = np.tile(range(nstates), nstates)+1
-            final = np.repeat(range(nstates), nstates)+1
-            template = "{:6d}  {:6d}  {:>18.9E}  {:>18.9E}\n".format
             # TODO: This needs some revisions. Whole lot of spaghetti code.
             # no calculations from this point onward
             # just a whole lot of file writing
             if write_property:
                 dtemp = 'vib{:03d}'.format
                 fname = out_file+'-{}.txt'.format
-                self._write_prop_files(vib_prop, dtemp, fname)
+                self._write_prop_files(vib_prop, dtemp, fname,fdx)
                 signs = ['minus', 'plus']
                 facs = [[1/2, 3/2], [3/2, 1/2]]
                 for sign, fac in zip(signs, facs):
@@ -765,11 +761,11 @@ class Vibronic:
             if write_sf_property:
                 dtemp = 'vib{:03d}'.format
                 fname = out_file+'-sf-{}.txt'.format
-                self._write_prop_files(vib_prop_sf, dtemp, fname)
+                self._write_prop_files(vib_prop_sf, dtemp, fname, fdx)
             if write_sf_property:
                 dtemp = 'vib{:03d}'.format
                 fname = out_file+'-sf-so-len-{}.txt'.format
-                self._write_prop_files(vib_prop_sf_so_len, dtemp, fname)
+                self._write_prop_files(vib_prop_sf_so_len, dtemp, fname, fdx)
             if write_dham_dq:
                 dtemp = 'vib{:03d}'.format
                 fname = 'hamiltonian-derivs.txt'
