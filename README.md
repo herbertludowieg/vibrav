@@ -49,13 +49,16 @@ to reference (1). We currently support the calculation of the following properti
 * magnetic dipole
 * electric quadrupoles
 
-## Coming Soon!!!
-* Zero-point vibrational corrections (zpvc)
-* Vibrational Raman Optical activity (vroa)
+### Zero-point vibrational corrections
+
+### Vibrational Raman Optical Activity
 
 ### Copyright
 
-Copyright (c) 2020, Herbert D Ludowieg
+## Research Publications:
+1. Abella, L; Ludowieg, H D; Autschbach, J. Theoretical Study of the Raman Optical Activity Spectra of $\left[M\left(en\right)_3\right]^{3+}$ with M = Co, Rh. *Chirality* **2020**, 32 (6), 741 - 752. DOI: [10.1002/chir.23194](https://doi.org/10.1002/chir.23194)
+
+Copyright (c) 2023, Herbert D Ludowieg
 
 ## References:
 1. [J. Phys. Chem. Lett. 2018, 9, 4, 887-894](https://doi.org/10.1021/acs.jpclett.7b03441)
