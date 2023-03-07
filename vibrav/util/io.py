@@ -166,6 +166,8 @@ def open_txt(fp, rearrange=True, get_complex=False, fill=False, is_complex=True,
             from vibrav.numerical.phases import get_mag
             matrix['magnitude'] = get_mag(matrix['real'].values,
                                           matrix['imag'].values)
+        matrix['nrow'] = matrix['nrow'].astype(np.uint16)
+        matrix['ncol'] = matrix['ncol'].astype(np.uint16)
     return matrix
 
 def write_txt(df, fp, formatter=None, header=None, order='F',
