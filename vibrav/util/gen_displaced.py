@@ -398,7 +398,10 @@ class Displace(metaclass=DispMeta):
         delta_type = kwargs.pop("delta_type", 0)
         fdx = kwargs.pop("fdx", -1)
         disp = kwargs.pop("disp", None)
-        norm = sorted(kwargs.pop("norm", [0.04]))
+        norm = kwargs.pop("norm", [0.04])
+        if not isinstance(norm, (list, tuple)):
+            norm = [norm]
+        norm = sorted(norm)
         config = kwargs.pop("config", None)
         mwc = kwargs.pop("mwc", False)
         path = kwargs.pop("path", None)
