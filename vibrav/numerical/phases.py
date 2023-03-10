@@ -16,11 +16,13 @@ from numba import jit, vectorize, float64
 import pandas as pd
 import numpy as np
 
+_nopython = True
+
 @vectorize([float64(float64, float64)])
 def get_mag(real, imag):
     return np.sqrt(np.square(real) + np.square(imag))
 
-@jit(nopython=True)
+@jit(nopython=_nopython)
 def get_theta(real, imag, exc, nexc, ncomps, tol):
     '''
     Determine the theta angle to rotate the input data by. Here,
@@ -82,7 +84,7 @@ def _insert_values(arr, idx, mag, ncol, nrow, comp, prop):
     arr[idx][5] = comp
     arr[idx][6] = prop
 
-@jit(nopython=True)
+@jit(nopython=_nopython)
 def perform_phase(dip_real, dip_imag, mag_real, mag_imag,
                   quad_real, quad_imag, nexc, state):
     '''
