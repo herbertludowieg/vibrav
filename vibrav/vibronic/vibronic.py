@@ -179,8 +179,7 @@ class Vibronic:
                 filename = os.path.join(dir_name, fname(idx+1))
                 write_txt(arr, filename)
 
-    @staticmethod
-    def _parse_energies(ed, sf_file='', so_file=''):
+    def _parse_energies(self, ed, sf_file='', so_file=''):
         '''
         Parse the spin-free or spin-orbit energies from file. Will change
         depending on which file is given in the function call.

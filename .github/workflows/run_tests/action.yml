@@ -9,9 +9,16 @@ inputs:
 runs:
   using: "composite"
   steps:
-    - name: Run tests
+    - name: Run tests (Nix)
       shell: bash -l {0}
+      if: (runner.os == 'Linux') || (runner.os == 'macOS')
       run: pytest -v --cov coveralls --cov-report term --cov=vibrav --cov-report xml vibrav
+
+    - name: Run tests (Windows)
+      shell: pwsh
+      if: runner.os == 'Windows'
+      run: pytest -v
+
     - name: Upload Coverage
       if: (runner.os == 'Linux') && (matrix.python-version == '3.8') && (always())
       uses: actions/upload-artifact@v2
@@ -19,3 +26,4 @@ runs:
         name: code-coverage-report-${{ inputs.coverage-artifact-name }}
         path: coverage.xml
         retention-days: 1
+
