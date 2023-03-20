@@ -28,6 +28,10 @@ jobs:
         with:
           repository: exa-analytics/exatomic
           path: './exatomic'
+      - name: Use Node.js version 16
+        uses: actions/setup-node@v3
+        with:
+          node-version: "16.19.1"
       - name: Install dev exatomic
         run: |
           pip install -e ./exatomic
