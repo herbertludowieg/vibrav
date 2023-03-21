@@ -15,6 +15,9 @@
 from vibrav.core import Config
 from vibrav.util.print import dataframe_to_txt
 from vibrav.util.io import read_data_file
+from vibrav.util.file_checking import _check_file_continuity
+from vibrav.numerical.derivatives import get_pos_neg_gradients
+from vibrav.numerical.frequencies import numerical_frequencies
 from exatomic.util import conversions as conv
 from exatomic.util.constants import Boltzmann_constant as boltzmann
 from exatomic.core.atom import Atom
@@ -147,146 +150,36 @@ class ZPVC:
             temp_fac = 1.
         return temp_fac
 
-    @staticmethod
-    def _check_file_continuity(df, prop, nmodes):
+    def _p1_inner_sum(self, kqijj, freq, rmass, temp, nmodes, i):
         '''
-        Make sure that the input data frame has a positive and negative
-        displacement.
-
-        Note:
-            The input data frame must have a column named `'file'`.
+        Calculate the inner sum of the P1 equation.
 
         Args:
-            df (:class:`pandas.DataFrame`): Data frame containing the
-                data of interest. Must have a `'file'` column.
-            prop (:obj:`str`): String for better debugging to know
-                which data frame it failed on.
-            nmodes (:obj:`int`): Number of normal modes.
+            kqijj (:class:`numpy.ndarray`): Anharmonic cubic force
+                constant matrix.
+            freq (:class:`numpy.ndarray`): Harmonic frequencies in
+                Hartree.
+            rmass (:class:`numpy.ndarray`): Reduced masses in atomic unit
+                of mass.
+            temp (:obj:`float`): Temperature in Kelvin.
+            nmodes (:obj:`int`): Total number of normal modes.
+            i (:obj:`int`): Index of outer sum.
 
         Returns:
-            rdf (:class:`pandas.DataFrame`): Data frame after extracting
-                the frequencies that are missing data points.
+            in_sum (:obj:`float`): Final result of internal sum.
         '''
-        files = df['file'].drop_duplicates()
-        pos_file = files[files.isin(range(1,nmodes+1))]
-        neg_file = files[files.isin(range(nmodes+1, 2*nmodes+1))]-nmodes
-        intersect = np.intersect1d(pos_file.values, neg_file.values)
-        diff = np.unique(np.concatenate((np.setdiff1d(pos_file.values, intersect),
-                                         np.setdiff1d(neg_file.values, intersect)), axis=None))
-        rdf = df.copy()
-        if len(diff) > 0:
-            msg = "Seems that we are missing one of the {} outputs for frequency {} " \
-                  +"we will ignore the {} data for these frequencies."
-            print(msg.format(prop, diff, prop))
-            rdf = rdf[~rdf['file'].isin(diff)]
-            rdf = rdf[~rdf['file'].isin(diff+nmodes)]
-        return rdf
-
-    @staticmethod
-    def get_pos_neg_gradients(grad, freq, nmodes):
-        '''
-        Calculate the energy gradients in terms of the respective normal
-        modes for the given displacement.
-
-        Note:
-            The input data frames `grad` and `freq` must have the columns
-            `['fx', 'fy', 'fz']` and `['dx', 'dy', 'dz']`, respectively.
-
-        Args:
-            grad (:class:`pandas.DataFrame`): DataFrame containing all
-                of the gradient data
-            freq (:class:`pandas.DataFrame`): DataFrame containing all
-                of the frequency data
-
-        Returns:
-            delfq_zero (:class:`pandas.DataFrame`): Normal mode
-                converted gradients of equilibrium structure
-            delfq_plus (:class:`pandas.DataFrame`): Normal mode
-                converted gradients of positive displaced structure
-            delfq_minus (:class:`pandas.DataFrame`): Normal mode
-                converted gradients of negative displaced structure
-        '''
-        grouped = grad.groupby('file')
-        # generate delta dataframe
-        # TODO: make something so delta can be set
-        #       possible issues are a user using a different type of delta
-        #nmodes = len(smat)
-        # get gradient of the equilibrium coordinates
-        grad_0 = grouped.get_group(0)
-        # get gradients of the displaced coordinates in the positive direction
-        grad_plus = grouped.filter(lambda x: x['file'].unique() in range(1,nmodes+1))
-        # get gradients of the displaced coordinates in the negative direction
-        grad_minus = grouped.filter(lambda x: x['file'].unique() in range(nmodes+1, 2*nmodes+1))
-        # TODO: Check if we can make use of numba to speed up this code
-        delfq_zero = freq.groupby('freqdx')[['dx', 'dy', 'dz']].apply(lambda x:
-                                    np.sum(np.multiply(grad_0[['fx', 'fy', 'fz']].values,
-                                                       x.values))).values
-        # we extend the size of this 1d array as we will perform some matrix summations with the
-        # other outputs from this method
-        delfq_zero = np.tile(delfq_zero, nmodes).reshape(nmodes, nmodes)
-        delfq_plus = grad_plus.groupby('file')[['fx', 'fy', 'fz']].apply(lambda x:
-                                freq.groupby('freqdx')[['dx', 'dy', 'dz']].apply(lambda y:
-                                    np.sum(np.multiply(y.values, x.values)))).values
-        delfq_minus = grad_minus.groupby('file')[['fx', 'fy', 'fz']].apply(lambda x:
-                                freq.groupby('freqdx')[['dx', 'dy', 'dz']].apply(lambda y:
-                                    np.sum(np.multiply(y.values, x.values)))).values
-        return [delfq_zero, delfq_plus, delfq_minus]
-
-    @staticmethod
-    def calculate_frequencies(delfq_plus, delfq_minus, redmass, nmodes, delta):
-        '''
-        Here we calculated the frequencies from the gradients calculated
-        for each of the displaced structures along the normal mode. In
-        principle this should give the same or nearly the same frequency
-        value as that from a frequency calculation.
-
-        Args:
-            delfq_0 (numpy.ndarray): Array that holds all of the
-                information about the gradient derivative of the
-                equlilibrium coordinates.
-            delfq_plus (numpy.ndarray): Array that holds all of the
-                information about the gradient derivative of the
-                positive displaced coordinates.
-            delfq_minus (numpy.ndarray): Array that holds all of the
-                information about the gradient derivative of the
-                negative displaced coordinates.
-            redmass (numpy.ndarray): Array that holds all of the
-                reduced masses. We can handle both a subset of the
-                entire values or all of the values.
-            select_freq (numpy.ndarray): Array that holds the selected
-                frequency indexes.
-            delta (numpy.ndarray): Array that has the delta values used
-                in the displaced structures.
-
-        Returns:
-            frequencies (numpy.ndarray): Frequency array from the
-                calculation.
-        '''
-        # calculate force constants
-        kqi = np.zeros(nmodes)
-        #print(redmass_sel.shape)
-        for fdx in range(nmodes):
-            kqi[fdx] = (delfq_plus[fdx][fdx] - delfq_minus[fdx][fdx]) / (2.0*delta[fdx])
-        vqi = np.divide(kqi, redmass.reshape(nmodes,))
-        # TODO: Check if we want to exit the program if we get a negative force constant
-        n_force_warn = vqi[vqi < 0.]
-        if n_force_warn.any() == True:
-            # TODO: point to exactly which frequencies are negative
-            negative = np.where(vqi<0)[0]
-            text = ''
-            # frequencies are base 0
-            for n in negative[:-1]: text += str(n)+', '
-            text += str(negative[-1])
-            warnings.warn("Negative force constants have been calculated for frequencies " \
-                          +"{} be wary of results".format(text),
-                          Warning)
-        # return calculated frequencies
-        frequencies = np.sqrt(vqi).reshape(nmodes,)*conv.Ha2inv_cm
-        return frequencies
+        in_sum = 0.0
+        for j in range(nmodes):
+            # calculate the contribution of each vibration
+            temp_fac = self._get_temp_factor(temp, freq[j])
+            in_sum += kqijj[j][i]/(freq[j]*rmass[j] \
+                                  *np.sqrt(rmass[i])) \
+                        * temp_fac
+        return in_sum
 
     def zpvc(self, geometry=True, print_results=False,
              write_out_files=True, debug=False):
-        """
+        '''
         Method to compute the Zero-Point Vibrational Corrections.
 
         Args:
@@ -303,7 +196,7 @@ class ZPVC:
                 matrices with debug information to a file including the
                 gradients expressed in terms of the normal modes, and
                 the first and second derivatives of the property.
-        """
+        '''
         zpvc_dir = 'zpvc-outputs'
         if write_out_files:
             if not os.path.exists(zpvc_dir):
@@ -351,8 +244,8 @@ class ZPVC:
                                  +"be twice the number of normal modes plus one, currently " \
                                  +"{}".format(property.shape[0]))
             # check for any missing files and remove the respective counterpart
-            grad = self._check_file_continuity(gradient.copy(), 'gradient', nmodes)
-            prop = self._check_file_continuity(prop_vals.copy(), 'property', nmodes)
+            grad = _check_file_continuity(gradient.copy(), 'gradient', nmodes)
+            prop = _check_file_continuity(prop_vals.copy(), 'property', nmodes)
             # check that the equlibrium coordinates are included
             # these are required for the three point difference methods
             try:
@@ -373,7 +266,7 @@ class ZPVC:
                 print("Length mismatch of gradient and property arrays.")
                 # we create a dataframe to make use of the existing file continuity checker
                 df = pd.DataFrame(np.concatenate([grad_files, prop_files]), columns=['file'])
-                df = self._check_file_continuity(df, 'grad/prop', nmodes)
+                df = _check_file_continuity(df, 'grad/prop', nmodes)
                 # overwrite the property and gradient dataframes
                 grad = grad[grad['file'].isin(df['file'])]
                 prop = prop[prop['file'].isin(df['file'])]
@@ -390,9 +283,10 @@ class ZPVC:
                        +"optimization and frequency calculations proceeded correctly."
                 warnings.warn(text.format(config.frequency_file, Warning))
             # get the gradients multiplied by the normal modes
-            delfq_zero, delfq_plus, delfq_minus = self.get_pos_neg_gradients(grad, smat, nmodes)
+            delfq_zero, delfq_plus, delfq_minus = get_pos_neg_gradients(grad, smat, nmodes)
             # check the gradients by calculating the freuqncies numerically
-            num_freqs = self.calculate_frequencies(delfq_plus, delfq_minus, rmass, nmodes, delta)
+            num_freqs = numerical_frequencies(delfq_plus, delfq_minus, rmass,
+                                              nmodes, delta)
             # calculate anharmonic cubic force constant
             # this will have nmodes rows and nmodes cols
             kqijj = []
@@ -466,13 +360,7 @@ class ZPVC:
                 # calculate anharmonicity in the potential energy surface
                 anharm = np.zeros(snmodes)
                 for i in range(nmodes):
-                    temp1 = 0.0
-                    for j in range(nmodes):
-                        # calculate the contribution of each vibration
-                        temp_fac = self._get_temp_factor(t, frequencies[j])
-                        # sum over the first index
-                        temp1 += kqijj[j][i]/(frequencies[j]*rmass[j] \
-                                              *np.sqrt(rmass[i]))*temp_fac
+                    temp1 = self._p1_inner_sum(kqijj, frequencies, rmass, t, nmodes, i)
                     # sum over the second index and set anharmonicity at
                     # each vibrational mode
                     anharm[i] = -0.25*dprop_dq[i]/(frequencies[i]**2 \
@@ -507,11 +395,7 @@ class ZPVC:
                 # we do not check this at the beginning as it will not always be computed
                 sum_to_eff_geo = np.zeros((eqcoord.shape[0], 3))
                 for i in range(snmodes):
-                    temp1 = 0.0
-                    for j in range(nmodes):
-                        # calculate the contribution of each vibration
-                        temp_fac = self._get_temp_factor(t, frequencies[j])
-                        temp1 += kqijj[j][i]/(frequencies[j]*rmass[j]*np.sqrt(rmass[i])) * temp_fac
+                    temp1 = self._p1_inner_sum(kqijj, frequencies, rmass, t, nmodes, i)
                     # get the temperature correction to the geometry in Bohr
                     sum_to_eff_geo += -0.25 * temp1 / (frequencies[i]**2 * np.sqrt(rmass[i])) * \
                                         smat.groupby('freqdx').get_group(i)[['dx','dy','dz']].values

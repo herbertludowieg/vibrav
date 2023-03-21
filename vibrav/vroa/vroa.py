@@ -16,6 +16,7 @@ from exatomic.util import conversions, constants
 from vibrav.numerical.vroa_func import backscat, forwscat, make_derivatives
 from vibrav.core.config import Config
 from vibrav.util.io import read_data_file
+from vibrav.util.file_checking import _check_file_continuity
 import numpy as np
 import pandas as pd
 
@@ -86,89 +87,6 @@ class VROA():
         variables = (lambda_0 - lambda_p)**4/lambda_p
         kp = variables * const * boltz * (au2m**4 / u2Kg) * 16 / 45. * 100**2
         return kp
-
-    @staticmethod
-    def _check_file_continuity(df, prop, nmodes):
-        '''
-        Verifies that we have all of the displacements included in
-        the dataframe. This is necessary as we require that both the
-        positive and negative are present. If one is missing we will
-        ignore that normal mode index.
-
-        Args:
-            df (pandas.DataFrame): Data frame with all of the pertinent
-                                   data. Must have a 'file' column.
-            prop (str): Name of the property for printing the message
-                        and better knowing what went wrong.
-            nmodes (int): Number of normal modes in the molecule.
-
-        Returns:
-            rdf (pandas.DataFrame): Data frame that contains all of the
-                                    data that was determined to have the
-                                    positive and negative displacement
-                                    pair.
-        '''
-        # grab the file indeces
-        files = df['file'].drop_duplicates()
-        # sort the files by what we know to be the positive and
-        # negative displacements
-        pos_file = files[files.isin(range(1,nmodes+1))]
-        neg_file = files[files.isin(range(nmodes+1, 2*nmodes+1))]-nmodes
-        # determine where the values are the same
-        intersect = np.intersect1d(pos_file.values, neg_file.values)
-        # determine which files indeces are missing from the intersection
-        diff = np.unique(np.concatenate((np.setdiff1d(pos_file.values, intersect),
-                                         np.setdiff1d(neg_file.values, intersect)), axis=None))
-        rdf = df.copy()
-        # if there is a difference then we will grab only those indeces
-        # for which there is a positive and negative displacement pair
-        if len(diff) > 0:
-            print("Seems that we are missing one of the {} outputs for frequency {} ".format(prop, diff)+ \
-                  "we will ignore the {} data for these frequencies.".format(prop))
-            rdf = rdf[~rdf['file'].isin(diff)]
-            rdf = rdf[~rdf['file'].isin(diff+nmodes)]
-        return rdf
-
-    @staticmethod
-    def get_pos_neg_gradients(grad, freq, nmodes):
-        '''
-        Here we get the gradients of the equilibrium, positive and negative displaced structures.
-        We extract them from the gradient dataframe and convert them into normal coordinates
-        by multiplying them by the frequency normal mode displacement values.
-
-        Args:
-            grad (:class:`exatomic.gradient.Gradient`): DataFrame containing all of the gradient data
-            freq (:class:`exatomic.atom.Frquency`): DataFrame containing all of the frequency data
-            nmodes (int): Number of normal modes in the molecule.
-
-        Returns:
-            delfq_zero (pandas.DataFrame): Normal mode converted gradients of equilibrium structure
-            delfq_plus (pandas.DataFrame): Normal mode converted gradients of positive displaced structure
-            delfq_minus (pandas.DataFrame): Normal mode converted gradients of negative displaced structure
-        '''
-        grouped = grad.groupby('file')
-        # get gradient of the equilibrium coordinates
-        grad_0 = grouped.get_group(0)
-        # get gradients of the displaced coordinates in the positive direction
-        grad_plus = grouped.filter(lambda x: x['file'].drop_duplicates().values in
-                                                                        range(1,nmodes+1))
-        snmodes = len(grad_plus['file'].drop_duplicates().values)
-        # get gradients of the displaced coordinates in the negative direction
-        grad_minus = grouped.filter(lambda x: x['file'].drop_duplicates().values in
-                                                                        range(nmodes+1, 2*nmodes+1))
-        delfq_zero = freq.groupby('freqdx')[['dx', 'dy', 'dz']].apply(lambda x:
-                                    np.sum(np.multiply(grad_0[['fx', 'fy', 'fz']].values, x.values))).values
-        # we extend the size of this 1d array as we will perform some matrix summations with the
-        # other outputs from this method
-        delfq_zero = np.tile(delfq_zero, snmodes).reshape(snmodes, nmodes)
-        delfq_plus = grad_plus.groupby('file')[['fx', 'fy', 'fz']].apply(lambda x:
-                                freq.groupby('freqdx')[['dx', 'dy', 'dz']].apply(lambda y:
-                                    np.sum(np.multiply(y.values, x.values)))).values
-        delfq_minus = grad_minus.groupby('file')[['fx', 'fy', 'fz']].apply(lambda x:
-                                freq.groupby('freqdx')[['dx', 'dy', 'dz']].apply(lambda y:
-                                    np.sum(np.multiply(y.values, x.values)))).values
-        return [delfq_zero, delfq_plus, delfq_minus]
-
 
     @staticmethod
     def make_complex(df):
@@ -267,8 +185,8 @@ class VROA():
                 raise ZeroDivisionError(text)
             # check to see that we have a positive and negative displacement
             # for each of the normal modes
-            roa_data = self._check_file_continuity(roa_data, "ROA", nmodes)
-            grad_data = self._check_file_continuity(grad_data, "Gradient", nmodes)
+            roa_data = _check_file_continuity(roa_data, "ROA", nmodes)
+            grad_data = _check_file_continuity(grad_data, "Gradient", nmodes)
             # get which of the frequencies we have
             select_freq = roa_data['file'].sort_values().drop_duplicates().values-1
             mask = select_freq > nmodes-1
