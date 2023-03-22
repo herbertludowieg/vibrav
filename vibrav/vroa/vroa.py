@@ -19,6 +19,7 @@ from vibrav.util.io import read_data_file
 from vibrav.util.file_checking import _check_file_continuity
 import numpy as np
 import pandas as pd
+import warnings
 
 class VROA():
     '''
@@ -32,6 +33,11 @@ class VROA():
     | number_of_nuclei       | Number of nuclei in the system.                  | :obj:`int`                 |
     +------------------------+--------------------------------------------------+----------------------------+
     | number_of_modes        | Number of normal modes in the molecule.          | :obj:`int`                 |
+    +------------------------+--------------------------------------------------+----------------------------+
+    | incident_frequency     | The incident frequency used in the calculation.  | :obj:`list` of             |
+    |                        | This should have the same number of elements as  | :obj:`float`               |
+    |                        | the unique labels in the `exc_idx` column.       |                            |
+    |                        | Expected to be in units of nanometer.            |                            |
     +------------------------+--------------------------------------------------+----------------------------+
 
     Default arguments in configuration file specific to this class.
@@ -49,7 +55,8 @@ class VROA():
     Other default arguments are taken care of with the :func:`vibrav.core.config.Config` class.
 
     '''
-    _required_inputs = {'number_of_modes': int, 'number_of_nuclei': int}
+    _required_inputs = {'number_of_modes': int, 'number_of_nuclei': int,
+                        'incident_frequency': (list, float)}
     _default_inputs = {'roa_file': ('roa.csv', str),
                        'grad_file': ('grad.csv', str)}
     @staticmethod
@@ -109,7 +116,6 @@ class VROA():
                   + 1j*grouped.get_group('imag')[cols].values
         new_df = pd.DataFrame(complex_val, columns=cols)
         #new_df['file'] = df['file'].unique()[0]
-        new_df['exc_freq'] = df['exc_freq'].unique()[0]
         new_df['exc_idx'] = df['exc_idx'].unique()[0]
         return new_df
 
@@ -172,14 +178,20 @@ class VROA():
         for _, ((idx, roa_data), (_, grad_data)) in enumerate(arr):
             # convert the excitation frequency to a.u.
             try:
-                tmp = roa_data['exc_freq'].unique()
-                if tmp.shape[0] > 1:
-                    raise ValueError("More than one excitation frequency was found " \
-                                     +"with the same index.")
-                exc_wave = tmp[0]
+                #tmp = roa_data['exc_freq'].unique()
+                #if tmp.shape[0] > 1:
+                #    raise ValueError("More than one excitation frequency was found " \
+                #                     +"with the same index.")
+                exc_wave = config.incident_frequency[idx]
+                if exc_wave > 3000:
+                    msg = "Detected very long wavelength values for " \
+                          +"the incident frequency {} nm. Will " \
+                          +"continue with the calculation with this " \
+                          +"value."
+                    warnings.warn(msg.format(exc_wave), Warning)
                 if print_stdout:
                     print("Found excitation wavelength of {:.2f} nm".format(exc_wave))
-                exc_freq = 1e9/tmp[0]*conversions.inv_m2Ha
+                exc_freq = 1e9/exc_wave*conversions.inv_m2Ha
             except ZeroDivisionError:
                 text = "The excitation frequency detected was close to zero"
                 raise ZeroDivisionError(text)
