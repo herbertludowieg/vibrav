@@ -30,6 +30,9 @@ def get_triu(arr, k=0):
     '''
     if isinstance(arr, (list, tuple)):
         arr = np.array(arr)
+    if arr.shape[0] != arr.shape[1]:
+        raise ValueError("The input matrix must be square to get " \
+                         +"the upper triangular elements")
     # get the elements in the upper triangular
     triu = np.triu_indices_from(arr, k=k)
     # return the elements as a 1d array
@@ -52,6 +55,9 @@ def get_tril(arr, k=0):
     '''
     if isinstance(arr, (list, tuple)):
         arr = np.array(arr)
+    if arr.shape[0] != arr.shape[1]:
+        raise ValueError("The input matrix must be square to get " \
+                         +"the lower triangular elements")
     # get the elements in the upper triangular
     tril = np.tril_indices_from(arr, k=k)
     # return the elements as a 1d array

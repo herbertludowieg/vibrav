@@ -49,19 +49,27 @@ def test_isantisymmetric(arr):
                                    ([[1,2,3],[4,5,6],[7,8,9]], 0, [1,2,3,5,6,9]),
                                    ([[1,2,3],[4,5,6],[7,8,9]], 1, [2,3,6]),
                                    ([[1,2,3],[4,5,6],[7,8,9]], -1, [1,2,3,4,5,6,8,9]),
-                                   ([[1,2,3],[4,5,6]], 0, [1,2,3,5,6])])
+                                   ([[1,2,3],[4,5,6]], 0, None)])
 def test_get_triu(arr, k, actual):
-    triu_arr = get_triu(arr, k)
-    assert np.allclose(triu_arr, actual)
+    if actual is not None:
+        triu_arr = get_triu(arr, k)
+        assert np.allclose(triu_arr, actual)
+    else:
+        with pytest.raises(ValueError):
+            _ = get_triu(arr, k)
 
 @pytest.mark.parametrize('arr,k,actual', [([[1,2], [3,4]], 0, [1,3,4]),
                                    ([[1,2,3],[4,5,6],[7,8,9]], 0, [1,4,5,7,8,9]),
                                    ([[1,2,3],[4,5,6],[7,8,9]], 1, [1,2,4,5,6,7,8,9]),
                                    ([[1,2,3],[4,5,6],[7,8,9]], -1, [4,7,8]),
-                                   ([[1,2,3],[4,5,6]], 0, [1,4,5])])
+                                   ([[1,2,3],[4,5,6]], 0, None)])
 def test_get_tril(arr, k, actual):
-    tril_arr = get_tril(arr, k)
-    assert np.allclose(tril_arr, actual)
+    if actual is not None:
+        tril_arr = get_tril(arr, k)
+        assert np.allclose(tril_arr, actual)
+    else:
+        with pytest.raises(ValueError):
+            _ = get_tril(arr, k)
 
 @pytest.mark.parametrize('val,actual', [(1+2j, 5), (2j, 4), (4, 16),
                                         (4j+2, 20)])
