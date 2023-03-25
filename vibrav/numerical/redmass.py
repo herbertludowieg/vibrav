@@ -15,6 +15,34 @@
 from exatomic.base import sym2isomass
 import numpy as np
 
+def _init_data(data, symbol):
+    '''
+    Helper function to get the displacements and mass data
+    for calculating the reduced mass.
+
+    Args:
+        data (:class:`pandas.DataFrame`): Data frame the has the
+                non-mass-weighted cartesian normal modes.
+        symbol (:obj:`list`): List-like object that has the atomic
+                symbols.
+
+    Returns:
+        disps (:class:`numpy.ndarray`): Array with the displacement data
+                from the input data.
+        mass (:class:`numpy.ndarray`): Array with the isotopic masses
+                based on the atomic symbols.
+    '''
+    cols = ['dx', 'dy', 'dz']
+    # get the isotopic masses of the unique atoms
+    mapper = sym2isomass(symbol)
+    # get a list of the isotopic masses for the given symbols
+    mass = list(map(mapper.get, symbol))
+    # makes it easier to multiply into the normal modes later
+    mass = np.repeat(mass, 3).astype(float)
+    mass = mass.reshape(data[cols].shape)
+    disps = data[cols].values
+    return disps, mass
+
 def rmass_mwc(data, symbol):
     '''
     Calculate the reduced masses from the mass-weighted normal modes. With
@@ -71,15 +99,7 @@ def rmass_mwc(data, symbol):
         addition the :code:`symbols` parameter must have all of the atomic symbols that
         exists, including ones that are repeated.
     '''
-    cols = ['dx', 'dy', 'dz']
-    # get the isotopic masses of the unique atoms
-    mapper = sym2isomass(symbol)
-    # get a list of the isotopic masses for the given symbols
-    mass = list(map(mapper.get, symbol))
-    # makes it easier to multiply into the normal modes later
-    mass = np.repeat(mass, 3).astype(float)
-    mass = mass.reshape(data[cols].shape)
-    disps = data[cols].values
+    disps, mass = _init_data(data, symbol)
     # get the reduced masses
     r_mass = np.sum(np.square(disps)/mass)
     r_mass = 1/r_mass
@@ -140,15 +160,7 @@ def rmass_cart(data, symbol):
         addition the :code:`symbols` parameter must have all of the atomic symbols that
         exists, including ones that are repeated.
     '''
-    cols = ['dx', 'dy', 'dz']
-    # get the isotopic masses of the unique atoms
-    mapper = sym2isomass(symbol)
-    # get a list of the isotopic masses for the given symbols
-    mass = list(map(mapper.get, symbol))
-    # makes it easier to multiply into the normal modes later
-    mass = np.repeat(mass, 3).astype(float)
-    mass = mass.reshape(data[cols].shape)
-    disps = data[cols].values
+    disps, mass = _init_data(data, symbol)
     # get the normalization constants
     norms = np.linalg.norm(disps*np.sqrt(mass))
     # unormalize the normal modes

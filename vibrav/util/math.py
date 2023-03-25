@@ -18,6 +18,9 @@ def get_triu(arr, k=0):
     '''
     Get the upper triangular indeces of the input matrix
 
+    Note:
+        This has a constraint for square matrices.
+
     Args:
         arr (:obj:`numpy.array`): Array to parse the upper
                         triangular elements
@@ -42,6 +45,9 @@ def get_triu(arr, k=0):
 def get_tril(arr, k=0):
     '''
     Get the lower triangular indeces of the input matrix
+
+    Note:
+        This has a constraint for square matrices.
 
     Args:
         arr (:obj:`numpy.array`): Array to parse the

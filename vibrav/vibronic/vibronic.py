@@ -207,7 +207,7 @@ class Vibronic:
                 text = "The file {} was not found. Reading the spin-free " \
                        +"energies directly from the zero order output file {}."
                 warnings.warn(text.format(self.config.sf_energies_file,
-                                          config.zero_order_file), Warning)
+                                          self.config.zero_order_file), Warning)
                 ed.parse_sf_energy()
                 energies_sf = ed.sf_energy['energy'].values
         else:
@@ -222,7 +222,7 @@ class Vibronic:
                 text = "The file {} was not found. Reading the spin-orbit " \
                        +"energies directly from the zero order output file {}."
                 warnings.warn(text.format(self.config.so_energies_file,
-                                          config.zero_order_file), Warning)
+                                          self.config.zero_order_file), Warning)
                 ed.parse_so_energy()
                 energies_so = ed.so_energy['energy'].values
         else:
@@ -231,7 +231,8 @@ class Vibronic:
         check_size(energies_so, (self.nstates,), 'energies_so')
         return energies_sf, energies_so
 
-    def _write_oscil_file(self, fp_temp, boltz, arr, energies, evib, nstates,
+    @staticmethod
+    def _write_oscil_file(fp_temp, boltz, arr, energies, evib, nstates,
                           fdx, ncomp, write_all_oscil, print_stdout):
         '''
         Method for writting the oscillators to file. This was created as the

@@ -257,7 +257,7 @@ def write_txt(df, fp, formatter=None, header=None, order='F',
             fn.write(df_copy.to_string(formatters=formatter, header=False,
                                        index=False))
 
-def get_all_data(cls, path, property, f_start='', f_end=''):
+def get_all_data(cls, path, method, f_start='', f_end=''):
     '''
     Function to get all of the data from the files in a specific directory.
     It will look for all of the files that match the given `f_start`
@@ -278,7 +278,7 @@ def get_all_data(cls, path, property, f_start='', f_end=''):
         cls (class object): Class object of the output parser of choice.
         path (:obj:`str`): Path to the directory containing all of the
                            output files.
-        property (:obj:`str`): Property of interest to parse.
+        method (:obj:`str`): Parsing method to use in the given class.
         f_start (:obj:`str`): Starting string to match the output files.
                               Defaults to :code:`''`.
         f_end (:obj:`str`): Ending string to match the output files.
@@ -298,9 +298,11 @@ def get_all_data(cls, path, property, f_start='', f_end=''):
             if os.path.isfile(filename) and file.startswith(f_start) and file.endswith(f_end):
                 ed = cls(filename)
                 try:
-                    df = getattr(ed, property)
+                    df = getattr(ed, method)
                 except AttributeError:
-                    print("The property {} cannot be found in the output {}.".format(property, filename))
+                    msg = "The class {} could not find the data with the " \
+                          +"parsing method {} in file {}."
+                    print(msg.format(clas, method, filename))
                     continue
                 fdx = list(map(int, re.findall('\d+', file.replace(f_start, '').replace(f_end, ''))))
                 if len(fdx) > 1:

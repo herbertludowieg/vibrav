@@ -12,7 +12,7 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with vibrav.  If not, see <https://www.gnu.org/licenses/>.
-from numba import jit, prange, float64
+from numba import jit, prange
 import numpy as np
 
 #@vectorize([float64(float64, float64)])
