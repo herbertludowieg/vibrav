@@ -59,7 +59,7 @@ jobs:
       - uses: actions/checkout@v2
       - uses: actions/setup-python@v2
         with:
-          python-version: 3.8
+          python-version: 3.9
       - name: Install Pandoc
         run: sudo apt-get install -y pandoc
       - name: Install Dependencies
@@ -70,16 +70,6 @@ jobs:
           rm -rf docs/source/*.txt
           SPINX_APIDOC_OPTIONS=members,undoc-members,show-inheritance sphinx-apidoc -eM -s txt -o docs/source/ -d 3 vibrav *test*
           sphinx-build docs/source _build
-      #- name: Publish Docs
-      #  run: |
-      #    rm -rf docs/source/*.txt
-      #    SPINX_APIDOC_OPTIONS=members,undoc-members,show-inheritance sphinx-apidoc -eM -s txt -o docs/source/ -d 3 vibrav *test*
-      #    travis-sphinx build
-      ##    travis-sphinx deploy
-      - name: Debug
-        run: |
-          pwd
-          ls -la
       - name: Deploy
         uses: peaceiris/actions-gh-pages@v3
         if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/master' }}
