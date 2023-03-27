@@ -18,8 +18,7 @@ import os
 import warnings
 from vibrav.molcas import Output
 from exatomic.exa.util.units import Time, Length
-from exatomic.util.constants import (speed_of_light_in_vacuum as speed_of_light,
-                                Planck_constant as planck_constant)
+from exatomic.util.constants import speed_of_light_in_vacuum as speed_of_light
 from exatomic.util import conversions as conv
 from vibrav.numerical.vibronic_func import (compute_oscil_str, compute_d_dq_sf,
                                             sf_to_so, compute_d_dq)
@@ -27,11 +26,11 @@ from vibrav.core.config import Config
 from vibrav.numerical.degeneracy import energetic_degeneracy
 from vibrav.numerical.boltzmann import boltz_dist
 from vibrav.util.io import open_txt, write_txt
-from vibrav.util.math import get_triu, ishermitian, isantihermitian, abs2
+from vibrav.util.math import ishermitian, isantihermitian, abs2
 from vibrav.util.print import dataframe_to_txt
 from vibrav.util.file_checking import _check_file_continuity
 from vibrav.util.data_checking import check_size
-from datetime import datetime, timedelta
+#from datetime import datetime, timedelta
 from time import time
 
 class Vibronic:
@@ -162,8 +161,6 @@ class Vibronic:
     @staticmethod
     def _init_oscil_file(fp):
         header = "{:>5s} {:>5s} {:>24s} {:>24s} {:>6s} {:>7s}".format
-        oscil_formatters = ['{:>5d}'.format]*2+['{:>24.16E}'.format]*2 \
-                           +['{:>6d}'.format, '{:>7s}'.format]
         for idx in [0,1,2,3]:
             with open(fp.format(idx), 'w') as fn:
                 fn.write(header('#NROW', 'NCOL', 'OSCIL',
@@ -712,11 +709,11 @@ class Vibronic:
         else:
             incl_states = None
         # timing things
-        time_setup = time() - program_start
+        #time_setup = time() - program_start
         # counter just for timing statistics
-        vib_times = []
+        #vib_times = []
         grouped = dham_dq.groupby('freqdx')
-        iter_times = []
+        #iter_times = []
         prefactor = []
         degeneracy = energetic_degeneracy(energies_so, config.degen_delta)
         gs_degeneracy = degeneracy.loc[0, 'degen']
@@ -736,7 +733,7 @@ class Vibronic:
             vib_prop = np.zeros((2, ncomp, nstates, nstates), dtype=np.complex128)
             vib_prop_sf = np.zeros((2, ncomp, nstates_sf, nstates_sf), dtype=np.float64)
             vib_prop_sf_so_len = np.zeros((2, ncomp, nstates, nstates), dtype=np.float64)
-            vib_start = time()
+            #vib_start = time()
             if print_stdout:
                 print("*******************************************")
                 print("*     RUNNING VIBRATIONAL MODE: {:5d}     *".format(founddx+1))
@@ -751,7 +748,7 @@ class Vibronic:
             prefactor.append(tdm_prefac)
             # iterate over all of the available components
             for idx, (key, val) in enumerate(grouped_data):
-                start = time()
+                #start = time()
                 # get the values of the specific component
                 prop = val.drop('component', axis=1).values
                 check_size(prop, (nstates_sf, nstates_sf), 'prop_{}'.format(key))
@@ -808,7 +805,6 @@ class Vibronic:
                 vib_prop_sf_so_len[1][idx_map_rev[key]-1] = vib_prop_sf_so_len_plus
             # calculate the oscillator strengths
             evib = freq[founddx]*conv.inv_m2Ha*100
-            # TODO: This needs some revisions. Whole lot of spaghetti code.
             # no calculations from this point onward
             # just a whole lot of file writing
             if write_property:

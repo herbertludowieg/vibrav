@@ -153,7 +153,6 @@ class VROA():
         raman = []
         # grab the data from the respective files given in the config file
         nmodes = config.number_of_modes
-        nat = config.number_of_nuclei
         delta = read_data_file(config.delta_file, nmodes)
         rmass = read_data_file(config.reduced_mass_file, nmodes)
         freq = read_data_file(config.frequency_file, nmodes)
@@ -219,14 +218,10 @@ class VROA():
             complex_roa.drop('level_2', axis=1, inplace=True)
             # get the data for the dipole-quadrupole polarizability
             cols = [x+y for x in ['x', 'y', 'z'] for y in ['x', 'y', 'z']]
-            # get the indeces of where those values are in the ROA dataframe
-            # there are three cartesian directions as it is a 3D tensor
-            index = list(map(lambda x: x == 'Ax', complex_roa['label']))
-            index = np.logical_or(list(map(lambda x: x == 'Ay',
-                                           complex_roa['label'])), index)
-            index = np.logical_or(list(map(lambda x: x == 'Az',
-                                           complex_roa['label'])), index)
-            grouped = complex_roa.loc[index].groupby('file')
+            labels = ['Ax', 'Ay', 'Az']
+            grouped = complex_roa.groupby('label') \
+                        .filter(lambda x: x['label'].unique()[0] in labels) \
+                        .groupby('file')
             tmp = grouped.apply(lambda x: np.array(
                                     [x[cols].values[0], x[cols].values[1],
                                      x[cols].values[2]]).flatten())
@@ -234,11 +229,12 @@ class VROA():
             A = pd.DataFrame.from_dict(tmp).T
             # get the data for the electric dipole-dipole polarizability
             index = list(map(lambda x: x == 'alpha', complex_roa['label']))
-            tmp = complex_roa.loc[index, cols].reset_index(drop=True).to_dict()
+            tmp = complex_roa.groupby('label').get_group('alpha')[cols] \
+                        .reset_index(drop=True).to_dict()
             alpha = pd.DataFrame.from_dict(tmp)
             # get the data for the electric dipole-magnetic dipole polarizability
-            index = list(map(lambda x: x == 'g_prime', complex_roa['label']))
-            tmp = complex_roa.loc[index, cols].reset_index(drop=True).to_dict()
+            tmp = complex_roa.groupby('label').get_group('g_prime')[cols] \
+                        .reset_index(drop=True).to_dict()
             g_prime = pd.DataFrame.from_dict(tmp)
             # determine the derivatives of the gradients
             #grad_derivs = self.get_pos_neg_gradients(grad_data, smat, nmodes)
@@ -248,22 +244,27 @@ class VROA():
             # 0 corresponds to equilibrium coordinates
             # 1 - nmodes corresponds to positive displacements
             # nmodes+1 - 2*nmodes corresponds to negative displacements
-            alpha_plus = np.divide(alpha.loc[range(0,snmodes)].values, np.sqrt(sel_rmass))
-            alpha_minus = np.divide(alpha.loc[range(snmodes, 2*snmodes)].values, np.sqrt(sel_rmass))
-            g_prime_plus = np.divide(g_prime.loc[range(0,snmodes)].values, np.sqrt(sel_rmass))
-            g_prime_minus = np.divide(g_prime.loc[range(snmodes, 2*snmodes)].values, np.sqrt(sel_rmass))
+            alpha_plus = np.divide(alpha.loc[range(0,snmodes)].values,
+                                   np.sqrt(sel_rmass))
+            alpha_minus = np.divide(alpha.loc[range(snmodes, 2*snmodes)].values,
+                                    np.sqrt(sel_rmass))
+            g_prime_plus = np.divide(g_prime.loc[range(0,snmodes)].values,
+                                     np.sqrt(sel_rmass))
+            g_prime_minus = np.divide(g_prime.loc[range(snmodes, 2*snmodes)].values,
+                                      np.sqrt(sel_rmass))
             A_plus = np.divide(A.loc[range(0, snmodes)].values, np.sqrt(sel_rmass))
             A_minus = np.divide(A.loc[range(snmodes, 2*snmodes)].values, np.sqrt(sel_rmass))
             # generate derivatives by two point central finite difference method
             dalpha_dq = np.divide((alpha_plus - alpha_minus), 2 * sel_delta)
             dg_dq = np.divide((g_prime_plus - g_prime_minus), 2 * sel_delta)
             dA_dq = np.array([np.divide((A_plus[i] - A_minus[i]), 2 * sel_delta[i])
-                                                                    for i in range(snmodes)])
+                                                            for i in range(snmodes)])
             # generate properties as shown on equations 5-9 in paper
             # J. Chem. Phys. 2007, 127, 134101
             au2angs = constants.atomic_unit_of_length*1e10
-            alpha_squared, beta_alpha, beta_g, beta_A, alpha_g = make_derivatives(dalpha_dq,
-                                  dg_dq, dA_dq, exc_freq, epsilon, snmodes, au2angs**4, C_au, assume_real)
+            arrs = make_derivatives(dalpha_dq, dg_dq, dA_dq, exc_freq, epsilon,
+                                    snmodes, au2angs**4, C_au, assume_real)
+            alpha_squared, beta_alpha, beta_g, beta_A, alpha_g = arrs
             # calculate Raman intensities
             raman_int = 4 * (45 * alpha_squared + 8 * beta_alpha)
             # calculate VROA back scattering and forward scattering intensities
@@ -273,7 +274,8 @@ class VROA():
             if not atomic_units:
                 lambda_0 = exc_freq*conversions.Ha2inv_m
                 lambda_p = sel_freq*100
-                kp = self.raman_int_units(lambda_0=lambda_0, lambda_p=lambda_p, temp=temp)*100**2
+                kp = self.raman_int_units(lambda_0=lambda_0, lambda_p=lambda_p, temp=temp)
+                kp *= 100**2
                 raman_int *= kp
                 backscat_vroa *= kp
                 forwscat_vroa *= kp

@@ -353,7 +353,7 @@ class Output(Editor):
             if df.shape[0] != size:
                 text = "Parsed Eigenvalues do not have the right number of elements. " \
                        +"Expected {}, currently {}"
-                raise ValueError(text.format(size, sr.shape[0]))
+                raise ValueError(text.format(size, df.shape[0]))
             self.eigenvalues = df
         else:
             for idx, (start, end) in enumerate(zip(starts, ends)):
@@ -368,7 +368,7 @@ class Output(Editor):
                 if df.shape[0] != size:
                     text = "Parsed Eigenvalues do not have the right number of elements. " \
                            +"Expected {}, currently {}"
-                    raise ValueError(text.format(size, sr.shape[0]))
+                    raise ValueError(text.format(size, df.shape[0]))
                 # add a frame column to keep track of stuff
                 df['frame'] = idx
                 dfs.append(df)

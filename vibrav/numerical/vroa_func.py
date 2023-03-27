@@ -45,8 +45,8 @@ def forwscat(alpha_g, beta_g, beta_A):
     '''
     return 4.* (180 * alpha_g + 4 * beta_g - 4 * beta_A)
 
-@jit(nopython=True, parallel=False, cache=True)
-def make_derivatives(dalpha_dq, dg_dq, dA_dq, omega, epsilon, nmodes, au2angs, C_au, assume_real):
+@jit(nopython=True, cache=True)
+def _calculate_alpha_squared(nmodes, au2angs, dalpha_dq):
     alpha_squared = np.zeros(nmodes,dtype=np.complex128)
     for fdx in prange(nmodes):
         for al in prange(3):
@@ -54,7 +54,10 @@ def make_derivatives(dalpha_dq, dg_dq, dA_dq, omega, epsilon, nmodes, au2angs, C
                 alpha_squared[fdx] += (1./9.)*(dalpha_dq[fdx][al*3+al]* \
                                                     np.conj(dalpha_dq[fdx][be*3+be]))
     alpha_squared = np.real(alpha_squared).astype(np.float64)*au2angs
+    return alpha_squared
 
+@jit(nopython=True, cache=True)
+def _calculate_beta_alpha(nmodes, au2angs, dalpha_dq):
     beta_alpha = np.zeros(nmodes,dtype=np.complex128)
     for fdx in prange(nmodes):
         for al in prange(3):
@@ -62,15 +65,31 @@ def make_derivatives(dalpha_dq, dg_dq, dA_dq, omega, epsilon, nmodes, au2angs, C
                 beta_alpha[fdx] += 0.5*(3*dalpha_dq[fdx][al*3+be]*np.conj(dalpha_dq[fdx][al*3+be])- \
                                             dalpha_dq[fdx][al*3+al]*np.conj(dalpha_dq[fdx][be*3+be]))
     beta_alpha = np.real(beta_alpha).astype(np.float64)*au2angs
+    return beta_alpha
 
+@jit(nopython=True, cache=True)
+def _calculate_beta_g(nmodes, au2angs, C_au, dalpha_dq, dg_dq, assume_real):
     beta_g = np.zeros(nmodes,dtype=np.complex128)
-    beta_A = np.zeros(nmodes,dtype=np.complex128)
     if not assume_real:
         for fdx in prange(nmodes):
             for al in prange(3):
                 for be in prange(3):
                     beta_g[fdx] += 0.5*(3*dalpha_dq[fdx][al*3+be]*np.conj(dg_dq[fdx][al*3+be])- \
                                                dalpha_dq[fdx][al*3+al]*np.conj(dg_dq[fdx][be*3+be]))
+    else:
+        for fdx in prange(nmodes):
+            for al in prange(3):
+                for be in prange(3):
+                    beta_g[fdx] += 0.5*(3*np.real(dalpha_dq[fdx][al*3+be])*np.real(dg_dq[fdx][al*3+be])- \
+                                               np.real(dalpha_dq[fdx][al*3+al])*np.real(dg_dq[fdx][be*3+be]))
+    beta_g = np.real(beta_g).astype(np.float64)*au2angs/C_au
+    return beta_g
+
+@jit(nopython=True, cache=True)
+def _calculate_beta_A(nmodes, au2angs, C_au, omega, epsilon,
+                      dalpha_dq, dA_dq, assume_real):
+    beta_A = np.zeros(nmodes,dtype=np.complex128)
+    if not assume_real:
         for fdx in prange(nmodes):
             for al in prange(3):
                 for be in prange(3):
@@ -82,19 +101,15 @@ def make_derivatives(dalpha_dq, dg_dq, dA_dq, omega, epsilon, nmodes, au2angs, C
         for fdx in prange(nmodes):
             for al in prange(3):
                 for be in prange(3):
-                    beta_g[fdx] += 0.5*(3*np.real(dalpha_dq[fdx][al*3+be])*np.real(dg_dq[fdx][al*3+be])- \
-                                               np.real(dalpha_dq[fdx][al*3+al])*np.real(dg_dq[fdx][be*3+be]))
-        for fdx in prange(nmodes):
-            for al in prange(3):
-                for be in prange(3):
                     for ga in prange(3):
                         for de in prange(3):
                             beta_A[fdx] += 0.5*omega*np.real(dalpha_dq[fdx][al*3+be])* \
                                            epsilon[al][ga*3+de]*np.real(dA_dq[fdx][ga*9+de*3+be])
-
-    beta_g = np.real(beta_g).astype(np.float64)*au2angs/C_au
     beta_A = np.real(beta_A).astype(np.float64)*au2angs/C_au
+    return beta_A
 
+@jit(nopython=True, cache=True)
+def _calculate_alpha_g(nmodes, au2angs, C_au, dalpha_dq, dg_dq):
     alpha_g = np.zeros(nmodes, dtype=np.complex128)
     for fdx in prange(nmodes):
         for al in prange(3):
@@ -104,5 +119,15 @@ def make_derivatives(dalpha_dq, dg_dq, dA_dq, omega, epsilon, nmodes, au2angs, C
                 # This equation matches what is on the listed paper in the docs (equation 9)
                 alpha_g[fdx] += dalpha_dq[fdx][al*3+al]*np.conj(dg_dq[fdx][be*3+be])/9.
     alpha_g = np.real(alpha_g).astype(np.float64)*au2angs/C_au
+    return alpha_g
+
+@jit(nopython=True, parallel=False, cache=True)
+def make_derivatives(dalpha_dq, dg_dq, dA_dq, omega, epsilon, nmodes, au2angs, C_au, assume_real):
+    alpha_squared = _calculate_alpha_squared(nmodes, au2angs, dalpha_dq)
+    beta_alpha = _calculate_beta_alpha(nmodes, au2angs, dalpha_dq)
+    beta_g = _calculate_beta_g(nmodes, au2angs, C_au, dalpha_dq, dg_dq, assume_real)
+    beta_A = _calculate_beta_A(nmodes, au2angs, C_au, omega, epsilon,
+                               dalpha_dq, dA_dq, assume_real)
+    alpha_g = _calculate_alpha_g(nmodes, au2angs, C_au, dalpha_dq, dg_dq)
     return alpha_squared, beta_alpha, beta_g, beta_A, alpha_g
 
