@@ -90,22 +90,31 @@ class Config(Series):
         Open and read the config file that is given.
 
         Args:
-            fp (:obj:`str`): Filepath to the config file
-            required (:obj:`list`): Required arguments that must be present in the config file
-            defaults (:obj:`list`, optional): Default arguments for the config file that are
-                                                  not necessary. Defaults to :code:`None`
+            fp (:obj:`str`): Filepath to the config file.
+            required (:obj:`list`): Required arguments that must be
+                    present in the config file.
+            defaults (:obj:`list`, optional): Default arguments for the
+                    config file that are not necessary. Defaults to
+                    :code:`None`.
+            skip_defaults (:obj:`list`, optional): Skip the given
+                    default arguments. This is helpful for unit testing
+                    as all of the default files may not be available.
+                    Defaults to :code:`None`.
 
         Returns:
             config (:obj:`dict`): Dictionary with all of the elements in the config as keys
 
         Raises:
-            AttributeError: When there is more than one value for a default argument, having more
-                            than  one value when the input dictionaries say it should be one value,
-                            or when there is a missing required parameter.
-            Exception: Default catch when the required parameter is not interpreted correctly and
-                       does not fall within any of the coded parameters.
-            ValueError: When it cannot set the type that has been given as an input. I.e. converting
-                        string character into a number.
+            AttributeError: When there is more than one value for a
+                    default argument, having more than  one value when
+                    the input dictionaries say it should be one value,
+                    or when there is a missing required parameter.
+            Exception: Default catch when the required parameter is not
+                    interpreted correctly and does not fall within any
+                    of the coded parameters.
+            ValueError: When it cannot set the type that has been given
+                    as an input. I.e. converting string character into a
+                    number.
 
         Examples:
             The usage of this module can be as follows.
@@ -170,17 +179,20 @@ class Config(Series):
             >>> print(type(config.spin_multiplicity), type(config.spin_multiplicity[0]))
             <class 'tuple'> <class 'int'>
 
-            Now the required inputs that we gave the function are of the specified types. The
-            `required` parameter has to take a dictionary where single values in the input file
-            will have a single data type defined in the `required` dictionary. Parameters in the
-            input file with more than one input, such as the 'spin_multiplicity' input, will have
-            a :obj:`list` or :obj:`tuple` of data types where the first one defined what type of
-            list-like object it will be and the second parameter is the data type of the individual
-            entries.
+            Now the required inputs that we gave the function are of the
+            specified types. The `required` parameter has to take a
+            dictionary where single values in the input file will have a
+            single data type defined in the `required` dictionary.
+            Parameters in the input file with more than one input, such
+            as the 'spin_multiplicity' input, will have a :obj:`list` or
+            :obj:`tuple` of data types where the first one defined what
+            type of list-like object it will be and the second parameter
+            is the data type of the individual entries.
 
-            If additional default values are to be passed, the `defaults` parameter must be used. We
-            will create a new dummy argument, `test`, that will default to `'Hi I am a string'` as a
-            :obj:`str`.
+            If additional default values are to be passed, the
+            `defaults` parameter must be used. We will create a new
+            dummy argument, `test`, that will default to `'Hi I am a
+            string'` as a :obj:`str`.
 
             >>> from vibrav.base import resource
             >>> required = {'number_of_multiplicity': int, 'spin_multiplicity': (tuple, int),
@@ -209,14 +221,19 @@ class Config(Series):
             >>> print(type(config.test))
             <class 'str'>
 
-            We can see that we have added a default argument to the input file that is called `test` with
-            a :obj:`str` value of `'Hi I am a string'`. The format of the default parameter that must
-            be given is a dictionary where every value is a :obj:`tuple` of 2 objects. The first one
-            defines the default value, the second one defines the data type of the default value.
+            We can see that we have added a default argument to the
+            input file that is called `test` with a :obj:`str` value of
+            `'Hi I am a string'`. The format of the default parameter
+            that must be given is a dictionary where every value is a
+            :obj:`tuple` of 2 objects. The first one defines the default
+            value, the second one defines the data type of the default
+            value.
 
-            Any other input that is not defined as a default or required argument is saved in the config
-            object as a :obj;`list` of string/s. An example if the `freq_data_file` input in the above
-            examples. These are saved in case they are needed later on rather than being deleted as a whole.
+            Any other input that is not defined as a default or required
+            argument is saved in the config object as a :obj;`list` of
+            string/s. An example if the `freq_data_file` input in the
+            above examples. These are saved in case they are needed
+            later on rather than being deleted as a whole.
         '''
         with open(fp, 'r') as fn:
             # get the lines and replace all newline characters

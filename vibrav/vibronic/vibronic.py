@@ -527,7 +527,7 @@ class Vibronic:
         # to look into the issue
         store_gs_degen = True
         # for program running ststistics
-        program_start = time()
+        #program_start = time()
         # to reduce typing
         nstates = self.nstates
         nstates_sf = self.nstates_sf

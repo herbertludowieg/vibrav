@@ -228,7 +228,6 @@ class VROA():
             tmp = tmp.reset_index(drop=True).to_dict()
             A = pd.DataFrame.from_dict(tmp).T
             # get the data for the electric dipole-dipole polarizability
-            index = list(map(lambda x: x == 'alpha', complex_roa['label']))
             tmp = complex_roa.groupby('label').get_group('alpha')[cols] \
                         .reset_index(drop=True).to_dict()
             alpha = pd.DataFrame.from_dict(tmp)

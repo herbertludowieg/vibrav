@@ -16,19 +16,25 @@ import numpy as np
 
 def get_pos_neg_gradients(grad, freq, nmodes):
     '''
-    Here we get the gradients of the equilibrium, positive and negative displaced structures.
-    We extract them from the gradient dataframe and convert them into normal coordinates
-    by multiplying them by the frequency normal mode displacement values.
+    Here we get the gradients of the equilibrium, positive and negative
+    displaced structures.  We extract them from the gradient dataframe
+    and convert them into normal coordinates by multiplying them by the
+    frequency normal mode displacement values.
 
     Args:
-        grad (:class:`exatomic.gradient.Gradient`): DataFrame containing all of the gradient data
-        freq (:class:`exatomic.atom.Frquency`): DataFrame containing all of the frequency data
+        grad (:class:`exatomic.gradient.Gradient`): DataFrame containing
+                all of the gradient data
+        freq (:class:`exatomic.atom.Frquency`): DataFrame containing all
+                of the frequency data
         nmodes (int): Number of normal modes in the molecule.
 
     Returns:
-        delfq_zero (pandas.DataFrame): Normal mode converted gradients of equilibrium structure
-        delfq_plus (pandas.DataFrame): Normal mode converted gradients of positive displaced structure
-        delfq_minus (pandas.DataFrame): Normal mode converted gradients of negative displaced structure
+        delfq_zero (pandas.DataFrame): Normal mode converted gradients
+                of equilibrium structure
+        delfq_plus (pandas.DataFrame): Normal mode converted gradients
+                of positive displaced structure
+        delfq_minus (pandas.DataFrame): Normal mode converted gradients
+                of negative displaced structure
     '''
     grouped = grad.groupby('file')
     # get gradient of the equilibrium coordinates
