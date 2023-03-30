@@ -113,7 +113,7 @@ def two_point_1d(plus, minus, delta):
         delta (:obj:`float`): Displacement parameter used.
 
     Returns:
-        deriv (:obj:`float`): Array with the derivative values.
+        deriv (:obj:`float`): Numerical first derivative for given data.
     '''
     deriv = (plus - minus)/(2*delta)
     return deriv
@@ -131,7 +131,7 @@ def four_point_1d(plus, minus, delta):
         delta (:obj:`float`): Displacement parameter used.
 
     Returns:
-        deriv (:obj:`float`): Array with the derivative values.
+        deriv (:obj:`float`): Numerical first derivative for given data.
     '''
     # make sure that the input data is of the right size
     _check_array_size(plus, 2, 'positive')
@@ -154,7 +154,7 @@ def six_point_1d(plus, minus, delta):
         delta (:obj:`float`): Displacement parameter used.
 
     Returns:
-        deriv (:obj:`float`): Array with the derivative values.
+        deriv (:obj:`float`): Numerical first derivative for given data.
     '''
     # make sure that the input data is of the right size
     _check_array_size(plus, 3, 'positive')
@@ -178,10 +178,10 @@ def _determine_prefactors(p, d):
     n = len(p)
     eqs = [2/np.math.factorial(x)*np.sum(p*d**x) \
                for x in range(1, 2*n, 2)]
-    eqs[0] -= get_prefac(p, d)
+    eqs[0] -= _get_prefac(p, d)
     return eqs
 
-def arb_disps_1d(plus, minus, x, delta):
+def arb_disps_1d(plus, minus, disp_steps, delta):
     '''
     Unlike the functions
     :func:`vibrav.numerical.derivatives.four_point_1d`,
@@ -189,7 +189,35 @@ def arb_disps_1d(plus, minus, x, delta):
     serves to calculate a derivative when the displacements are not
     constant.
 
-    :Purpose:
-        To approximate the first derivative with the five
-        point stencil we have the following equation
+    Note:
+        This requires that the steps are symmetric. Meaning, the
+        steps that are taken in the positive direction must be the
+        same as in the negative direction.
+
+    Args:
+        plus (:class:`numpy.ndarray`): Array with the positive
+                displacement data.
+        minus (:class:`numpy.ndarray`): Array with the negative
+                displacement data.
+        disp_steps (:class:`numpy.ndarray`): Array with the displacement
+                step size taken.
+        delta (:obj:`float`): Displacement taken for first diaplacement
+                step.
+
+    Returns:
+        deriv (:obj:`float`): Numerical first derivative for given data.
     '''
+    from scipy.optimize import root
+    # TODO: for now we just assume that the given
+    #       data has the right size
+    n = plus.shape[0]
+    x0 = np.array([0.5]*n)
+    steps = disp_steps/delta
+    if not np.allclose(steps, list(map(int, steps))):
+        raise ValueError("There is an issue with the given steps taken.")
+    res = root(_determine_prefactors, x0=x0, args=steps)
+    prefac = _get_prefac(res.x, steps)
+    coeffs = res.x/prefac
+    deriv = _perform_derivative(plus, minus, coeffs, delta)
+    return deriv
+
