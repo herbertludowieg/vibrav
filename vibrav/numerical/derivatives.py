@@ -59,3 +59,137 @@ def get_pos_neg_gradients(grad, freq, nmodes):
                                 np.sum(np.multiply(y.values, x.values)))).values
     return [delfq_zero, delfq_plus, delfq_minus]
 
+def _perform_derivative(plus, minus, coeffs, delta):
+    '''
+    Calculate the derivative. This is generalized for any finite
+    difference method as long as the prefactors for each of the steps is
+    given.
+
+    Note:
+        This assumes that the data is ordered such that the first
+        element in the coefficients (`coeffs`) aligns with the first
+        element in the data arrays (`plus` and `minus`).
+
+    Args:
+        plus (:class:`numpy.ndarray`): Array with the values for the
+                positive displacement.
+        minus (:class:`numpy.ndarray`): Array with the values for the
+                negative displacement.
+        coeffs (:obj:`list` of list-like): Coefficient prefactors to be
+                used in the numerical differentiation. These are the
+                scaling factors when performing the different types of
+                central finite difference calculations.
+        delta (:obj:`float`): Displacment parameter used.
+
+    Returns:
+        deriv (:obj:`float`): Numerical derivative of the given data
+                sets.
+    '''
+    deriv = 0
+    arrs = np.array([plus, minus]).T
+    for idx, arr in enumerate(zip(*arrs)):
+        for jdx, coeff in enumerate(coeffs):
+            deriv += (-1)**idx*coeff*arr[jdx]
+    deriv /= delta
+    return deriv
+
+def _check_array_size(arr, size, label):
+    msg = "Did not detect the right number of elements in the given " \
+          +"array for the {} displacements. Expected {}, but got {}."
+    if arr.shape[0] != size:
+        raise ValueError(msg.format(label, size, arr.shape[0]))
+
+
+def two_point_1d(plus, minus, delta):
+    '''
+    Two point central finite difference method to approximate the first
+    derivative of the input data.
+
+    Args:
+        plus (:obj:`float`): Data frame with the positive displacement
+                data.
+        minus (:obj:`float`): Data frame with the negative displacement
+                data.
+        delta (:obj:`float`): Displacement parameter used.
+
+    Returns:
+        deriv (:obj:`float`): Array with the derivative values.
+    '''
+    deriv = (plus - minus)/(2*delta)
+    return deriv
+
+def four_point_1d(plus, minus, delta):
+    '''
+    Four point central finite difference method to approximate the first
+    derivative of the input data, also know as the five point stencil.
+
+    Args:
+        plus (:obj:`float`): Data frame with the positive displacement
+                data.
+        minus (:obj:`float`): Data frame with the negative displacement
+                data.
+        delta (:obj:`float`): Displacement parameter used.
+
+    Returns:
+        deriv (:obj:`float`): Array with the derivative values.
+    '''
+    # make sure that the input data is of the right size
+    _check_array_size(plus, 2, 'positive')
+    _check_array_size(minus, 2, 'negative')
+    # calculated coefficient prefactors for each displacement
+    coeffs = [2./3, -1./12]
+    deriv = _perform_derivative(plus, minus, coeffs, delta)
+    return deriv
+
+def six_point_1d(plus, minus, delta):
+    '''
+    Six point central finite difference method to approximate the first
+    derivative of the input data.
+
+    Args:
+        plus (:obj:`float`): Data frame with the positive displacement
+                data.
+        minus (:obj:`float`): Data frame with the negative displacement
+                data.
+        delta (:obj:`float`): Displacement parameter used.
+
+    Returns:
+        deriv (:obj:`float`): Array with the derivative values.
+    '''
+    # make sure that the input data is of the right size
+    _check_array_size(plus, 3, 'positive')
+    _check_array_size(minus, 3, 'negative')
+    # calculated coefficient prefactors for each displacement
+    coeffs = [3./4, -3./20, 1./60]
+    deriv = _perform_derivative(plus, minus, coeffs, delta)
+    return deriv
+
+def _get_prefac(p, d):
+    '''
+    Simple function to get the common divisible factor on all the
+    displacements. Mainly useful when trying to get the prefactors with
+    the root finding algorithm in
+    :func:`vibrav.numerical.derivatives._determine_prefactors`.
+    '''
+    prefacs = np.sum([2*x*y for x, y in zip(p, d)])
+    return prefacs
+
+def _determine_prefactors(p, d):
+    n = len(p)
+    eqs = [2/np.math.factorial(x)*np.sum(p*d**x) \
+               for x in range(1, 2*n, 2)]
+    eqs[0] -= get_prefac(p, d)
+    return eqs
+
+def arb_disps_1d(plus, minus, x, delta):
+    '''
+    Unlike the functions
+    :func:`vibrav.numerical.derivatives.four_point_1d`,
+    :func:`vibrav.numerical.derivatives.six_point_1d`. This function
+    serves to calculate a derivative when the displacements are not
+    constant.
+
+    :Purpose:
+        To approximate the first derivative with the five
+        point stencil we have the following equation
+    '''
