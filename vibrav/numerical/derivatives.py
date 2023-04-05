@@ -181,6 +181,25 @@ def _determine_prefactors(p, d):
     eqs[0] -= _get_prefac(p, d)
     return eqs
 
+def _get_arb_coeffs(steps):
+    '''
+    Calculate the coefficients for the arbitrary displacements.
+
+    Args:
+        steps (:class:`numpy.ndarray`): Array with the absolute step
+                increments taken. Should be made up of integers.
+
+    Returns:
+        coeffs (:class:`numpy.ndarray`): Coefficient prefactors to use
+                in the numerical derivative.
+    '''
+    from scipy.optimize import root
+    x0 = np.array([0.5]*steps.shape[0])
+    res = root(_determine_prefactors, x0=x0, args=steps)
+    prefac = _get_prefac(res.x, steps)
+    coeffs = res.x/prefac
+    return coeffs
+
 def arb_disps_1d(plus, minus, disp_steps, delta):
     '''
     Unlike the functions
@@ -207,17 +226,12 @@ def arb_disps_1d(plus, minus, disp_steps, delta):
     Returns:
         deriv (:obj:`float`): Numerical first derivative for given data.
     '''
-    from scipy.optimize import root
     # TODO: for now we just assume that the given
     #       data has the right size
-    n = plus.shape[0]
-    x0 = np.array([0.5]*n)
     steps = disp_steps/delta
     if not np.allclose(steps, list(map(int, steps))):
         raise ValueError("There is an issue with the given steps taken.")
-    res = root(_determine_prefactors, x0=x0, args=steps)
-    prefac = _get_prefac(res.x, steps)
-    coeffs = res.x/prefac
+    coeffs = _get_arb_coeffs(steps)
     deriv = _perform_derivative(plus, minus, coeffs, delta)
     return deriv
 
