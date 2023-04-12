@@ -59,11 +59,11 @@ def get_pos_neg_gradients(grad, freq, nmodes):
                                 np.sum(np.multiply(y.values, x.values)))).values
     return [delfq_zero, delfq_plus, delfq_minus]
 
-def _perform_derivative(plus, minus, coeffs, delta):
+def _perform_1d_derivative(plus, minus, coeffs, delta):
     '''
-    Calculate the derivative. This is generalized for any finite
-    difference method as long as the prefactors for each of the steps is
-    given.
+    Calculate the numerical first derivative. This is generalized for
+    any finite difference method as long as the prefactors for each of
+    the steps is given.
 
     Note:
         This assumes that the data is ordered such that the first
@@ -138,7 +138,7 @@ def four_point_1d(plus, minus, delta):
     _check_array_size(minus, 2, 'negative')
     # calculated coefficient prefactors for each displacement
     coeffs = [2./3, -1./12]
-    deriv = _perform_derivative(plus, minus, coeffs, delta)
+    deriv = _perform_1d_derivative(plus, minus, coeffs, delta)
     return deriv
 
 def six_point_1d(plus, minus, delta):
@@ -161,7 +161,7 @@ def six_point_1d(plus, minus, delta):
     _check_array_size(minus, 3, 'negative')
     # calculated coefficient prefactors for each displacement
     coeffs = [3./4, -3./20, 1./60]
-    deriv = _perform_derivative(plus, minus, coeffs, delta)
+    deriv = _perform_1d_derivative(plus, minus, coeffs, delta)
     return deriv
 
 def _get_prefac(p, d):
@@ -232,6 +232,6 @@ def arb_disps_1d(plus, minus, disp_steps, delta):
     if not np.allclose(steps, list(map(int, steps))):
         raise ValueError("There is an issue with the given steps taken.")
     coeffs = _get_arb_coeffs(steps)
-    deriv = _perform_derivative(plus, minus, coeffs, delta)
+    deriv = _perform_1d_derivative(plus, minus, coeffs, delta)
     return deriv
 
