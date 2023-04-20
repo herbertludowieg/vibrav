@@ -23,54 +23,25 @@ import glob
 
 @pytest.fixture
 def zpvc_results():
-    df = pd.read_csv(resource('nitromalonamide-zpvc-results.csv.xz'), compression='xz',
-                     index_col=False)
-    zpvc_results = df.groupby('temp')
+    df = pd.read_csv(resource('nitromal-zpvc-results.csv.xz'), compression='xz',
+                     index_col=0, header=0)
+    zpvc_results = df
     yield zpvc_results
 
 @pytest.fixture
 def zpvc_geometry():
-    df = pd.read_csv(resource('nitromalonamide-zpvc-geometry.csv.xz'), compression='xz',
+    df = pd.read_csv(resource('nitromal-zpvc-geometry.csv.xz'), compression='xz',
                      index_col=False)
     zpvc_geometry = df.groupby('temp')
     yield zpvc_geometry
 
-@pytest.fixture
-def grad(nat):
-    df = pd.read_csv(resource('nitromalonamide-zpvc-grad.dat.xz'), compression='xz',
-                     index_col=False, header=None)
-    tmp = df.values.reshape(nat*((nat*3-6)*2+1), 3).T
-    grad = pd.DataFrame.from_dict({'fx': tmp[0], 'fy': tmp[1], 'fz': tmp[2]})
-    grad['file'] = np.repeat(range((nat*3-6)*2+1), nat)
-    yield grad
-
-@pytest.fixture
-def prop():
-    df = pd.read_csv(resource('nitromalonamide-zpvc-prop.dat.xz'), compression='xz',
-                     index_col=False, header=None)
-    df['file'] = df.index
-    prop = df.copy()
-    yield prop
-
-# have to make a rtol input due to the test data accuracy
-@pytest.mark.parametrize("temp, nat, rtol", [([  0], 15, 1e-4), ([100], 15, 1e-5),
-                                        ([200], 15, 1e-5), ([300], 15, 1e-5),
-                                        ([400], 15, 1e-5), ([600], 15, 1e-5)])
-def test_zpvc(zpvc_results, zpvc_geometry, grad, prop, temp, nat, rtol):
-    zpvc = ZPVC(config_file=resource('nitromalonamide-zpvc-config.conf'))
-    zpvc.zpvc(gradient=grad, property=prop, temperature=temp, write_out_files=False)
-    test_cols = ['tot_anharm', 'tot_curva', 'zpvc', 'property', 'zpva']
-    exp_cols = ['anharm' ,'curv' ,'zpvc' ,'prop' ,'zpva']
-    print("Test values")
-    print(zpvc_results.get_group(temp[0])[exp_cols].values)
-    print("Calculated values")
-    print(zpvc.zpvc_results[test_cols].values)
-    print("Comparison with np.isclose(atol=1e-3, rtol=1e-4)")
-    print(np.isclose(zpvc_results.get_group(temp[0])[exp_cols].values,
-                       zpvc.zpvc_results[test_cols].values, atol=1e-3, rtol=1e-4))
-    print("Comparison with np.isclose(atol=1e-3, rtol=1e-5)")
-    print(np.isclose(zpvc_results.get_group(temp[0])[exp_cols].values,
-                       zpvc.zpvc_results[test_cols].values, atol=1e-3, rtol=1e-5))
-    assert np.allclose(zpvc_results.get_group(temp[0])[exp_cols].values,
-                       zpvc.zpvc_results[test_cols].values, atol=1e-3, rtol=rtol)
+def test_zpvc(zpvc_results, zpvc_geometry):
+    zpvc = ZPVC(config_file=resource('nitromal-zpvc-va.conf'))
+    zpvc.zpvc(write_out_files=False)
+    cols = ['tot_anharm', 'tot_curva', 'zpvc', 'zpva']
+    assert np.allclose(zpvc_results[cols].values, zpvc.zpvc_results[cols].values)
+    cols = ['x', 'y', 'z']
+    for t in zpvc.config.temperature:
+        assert np.allclose(zpvc_geometry.get_group(t)[cols],
+                           zpvc.eff_coord.groupby('temp').get_group(t)[cols])
 

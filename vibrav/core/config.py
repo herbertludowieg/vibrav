@@ -12,9 +12,11 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with vibrav.  If not, see <https://www.gnu.org/licenses/>.
-import pandas as pd
-import numpy as np
 from exatomic.exa.core.numerical import Series
+from vibrav.base import resource
+
+class MissingRequiredInput(Exception):
+    pass
 
 class Config(Series):
     '''
@@ -79,30 +81,40 @@ class Config(Series):
                 'delta_disp': (0, float),
                 'delta_algorithm': (2, int),
                 'delta_value': (0.04, float),
-                'freqdx': (-1, int)}
+                'freqdx': (-1, int),
+                'use_resource': (0, bool)}
 
     @classmethod
-    def open_config(cls, fp, required, defaults=None):
+    def open_config(cls, fp, required=None, defaults=None, skip_defaults=None):
         '''
         Open and read the config file that is given.
-    
+
         Args:
-            fp (:obj:`str`): Filepath to the config file
-            required (:obj:`list`): Required arguments that must be present in the config file
-            defaults (:obj:`list`, optional): Default arguments for the config file that are
-                                                  not necessary. Defaults to :code:`None`
-    
+            fp (:obj:`str`): Filepath to the config file.
+            required (:obj:`list`): Required arguments that must be
+                    present in the config file.
+            defaults (:obj:`list`, optional): Default arguments for the
+                    config file that are not necessary. Defaults to
+                    :code:`None`.
+            skip_defaults (:obj:`list`, optional): Skip the given
+                    default arguments. This is helpful for unit testing
+                    as all of the default files may not be available.
+                    Defaults to :code:`None`.
+
         Returns:
             config (:obj:`dict`): Dictionary with all of the elements in the config as keys
 
         Raises:
-            AttributeError: When there is more than one value for a default argument, having more
-                            than  one value when the input dictionaries say it should be one value,
-                            or when there is a missing required parameter.
-            Exception: Default catch when the required parameter is not interpreted correctly and
-                       does not fall within any of the coded parameters.
-            ValueError: When it cannot set the type that has been given as an input. I.e. converting
-                        string character into a number.
+            AttributeError: When there is more than one value for a
+                    default argument, having more than  one value when
+                    the input dictionaries say it should be one value,
+                    or when there is a missing required parameter.
+            Exception: Default catch when the required parameter is not
+                    interpreted correctly and does not fall within any
+                    of the coded parameters.
+            ValueError: When it cannot set the type that has been given
+                    as an input. I.e. converting string character into a
+                    number.
 
         Examples:
             The usage of this module can be as follows.
@@ -167,17 +179,20 @@ class Config(Series):
             >>> print(type(config.spin_multiplicity), type(config.spin_multiplicity[0]))
             <class 'tuple'> <class 'int'>
 
-            Now the required inputs that we gave the function are of the specified types. The
-            `required` parameter has to take a dictionary where single values in the input file
-            will have a single data type defined in the `required` dictionary. Parameters in the
-            input file with more than one input, such as the 'spin_multiplicity' input, will have
-            a :obj:`list` or :obj:`tuple` of data types where the first one defined what type of
-            list-like object it will be and the second parameter is the data type of the individual
-            entries.
+            Now the required inputs that we gave the function are of the
+            specified types. The `required` parameter has to take a
+            dictionary where single values in the input file will have a
+            single data type defined in the `required` dictionary.
+            Parameters in the input file with more than one input, such
+            as the 'spin_multiplicity' input, will have a :obj:`list` or
+            :obj:`tuple` of data types where the first one defined what
+            type of list-like object it will be and the second parameter
+            is the data type of the individual entries.
 
-            If additional default values are to be passed, the `defaults` parameter must be used. We
-            will create a new dummy argument, `test`, that will default to `'Hi I am a string'` as a
-            :obj:`str`.
+            If additional default values are to be passed, the
+            `defaults` parameter must be used. We will create a new
+            dummy argument, `test`, that will default to `'Hi I am a
+            string'` as a :obj:`str`.
 
             >>> from vibrav.base import resource
             >>> required = {'number_of_multiplicity': int, 'spin_multiplicity': (tuple, int),
@@ -206,14 +221,19 @@ class Config(Series):
             >>> print(type(config.test))
             <class 'str'>
 
-            We can see that we have added a default argument to the input file that is called `test` with
-            a :obj:`str` value of `'Hi I am a string'`. The format of the default parameter that must
-            be given is a dictionary where every value is a :obj:`tuple` of 2 objects. The first one
-            defines the default value, the second one defines the data type of the default value.
+            We can see that we have added a default argument to the
+            input file that is called `test` with a :obj:`str` value of
+            `'Hi I am a string'`. The format of the default parameter
+            that must be given is a dictionary where every value is a
+            :obj:`tuple` of 2 objects. The first one defines the default
+            value, the second one defines the data type of the default
+            value.
 
-            Any other input that is not defined as a default or required argument is saved in the config
-            object as a :obj;`list` of string/s. An example if the `freq_data_file` input in the above
-            examples. These are saved in case they are needed later on rather than being deleted as a whole.
+            Any other input that is not defined as a default or required
+            argument is saved in the config object as a :obj;`list` of
+            string/s. An example if the `freq_data_file` input in the
+            above examples. These are saved in case they are needed
+            later on rather than being deleted as a whole.
         '''
         with open(fp, 'r') as fn:
             # get the lines and replace all newline characters
@@ -223,16 +243,16 @@ class Config(Series):
             defaults.update(cls._default)
         else:
             defaults = cls._default
+        if skip_defaults is None:
+            skip_defaults = []
         config = {}
         found_defaults = []
         found_required = []
-        for idx, line in enumerate(lines):
+        for line in lines:
             # get the data on the line and deal with whitespace
-            if not line.strip():
-                continue
+            if not line.strip(): continue
             # ignore '#' as comments
-            elif line[0] == '#':
-                continue
+            elif line[0] == '#': continue
             d = line.split()
             key, val = [d[0].lower(), d[1:]]
             # start by checking if the key is a default value
@@ -244,7 +264,10 @@ class Config(Series):
                 else:
                     # try to set the type of default value
                     try:
-                        config[key] = defaults[key][1](d[1])
+                        if defaults[key][1] == bool:
+                            config[key] = defaults[key][1](int(d[1]))
+                        else:
+                            config[key] = defaults[key][1](d[1])
                     except ValueError as e:
                         raise ValueError(str(e) \
                                          + ' when reading {} in configuration file'.format(key))
@@ -252,40 +275,52 @@ class Config(Series):
             # this allows us to use this script in the different ways we need it and we just
             # pass it the parameters that are required for that specific calculation
             # it is not pretty but I think it is the most generalized way to do this
-            elif key in required.keys():
-                found_required.append(key)
-                # make sure if the entry will need to be iterated over
-                # this must be specified by giving a two element required param. value in the dict
-                if isinstance(required[key], (list, tuple)):
-                    config[key] = tuple(map(lambda x: required[key][1](x), d[1:]))
-                # when the requirement value passed is not two elements but the data on the
-                # config file has more than one element
-                elif not isinstance(required[key], (list, tuple)) and len(d[1:]) > 1:
-                    raise AttributeError("Found more than one element in input although it is " \
-                                        +"expected to be a single value")
-                # for a single element input
-                elif len(d[1:]) == 1:
-                    config[key] = required[key](d[1])
-                # if all else fails
-                # this should never execute
-                else:
-                    raise Exception("Something strange is going on here")
+            elif required is not None:
+                if key in required.keys():
+                    found_required.append(key)
+                    # make sure if the entry will need to be iterated over
+                    # this must be specified by giving a two element required param. value in the dict
+                    if isinstance(required[key], (list, tuple)):
+                        config[key] = tuple(map(required[key][1], d[1:]))
+                    # when the requirement value passed is not two elements but the data on the
+                    # config file has more than one element
+                    elif not isinstance(required[key], (list, tuple)) and len(d[1:]) > 1:
+                        raise AttributeError("Found more than one element in input although it is " \
+                                            +"expected to be a single value")
+                    # for a single element input
+                    elif len(d[1:]) == 1:
+                        config[key] = required[key](d[1])
+                    # if all else fails
+                    # this should never execute
+                    else:
+                        raise Exception("Failed when trying to determine the data " \
+                                        +"type of the required key.")
             # all other inputs
             # TODO: make some extras input thing that will take care of these
             #       we do not want to throw them out as it may be useful at some point
             else:
                 config[key] = d[1:]
-        # check for missing required arguments
-        missing_required = list(filter(lambda x: x not in found_required, required.keys()))
-        if missing_required:
-            raise AttributeError("There is a required input parameter missing." \
-                                +"\nThe required parameters in the config file for this " \
-                                +"calculation are:" \
-                                +"{}".format('\n - '.join(['']+list(required.keys()))))
+        if required is not None:
+            # check for missing required arguments
+            missing_required = list(filter(lambda x: x not in found_required, required.keys()))
+            if missing_required:
+                miss_text = '\n - '.join(['']+missing_required)
+                msg = "We are missing the following parameters in the " \
+                      +"input file: {}"
+                raise MissingRequiredInput(msg.format(miss_text))
         # check for missing default arguments and fill in with the default values
         # availabel in the defaults dict
-        missing_default = list(filter(lambda x: x not in found_defaults, defaults.keys()))
+        missing_default = list(filter(lambda x: x not in found_defaults,
+                                      defaults.keys()))
         for missing in missing_default:
-            config[missing] = defaults[missing][0]
+            if missing not in skip_defaults:
+                config[missing] = defaults[missing][0]
+        if config['use_resource']:
+            for key, val in config.items():
+                if '_file' in key:
+                    if isinstance(val, (list, tuple)):
+                        config[key] = [resource(x) for x in val]
+                    else:
+                        config[key] = resource(val)
         return cls(config)
 

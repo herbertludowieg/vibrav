@@ -64,14 +64,14 @@ def energetic_degeneracy(data_df, degen_delta, rtol=1e-12, numpy=True, original_
     if not numpy:
         df = pd.DataFrame.from_dict({'energy': data_df.values.flatten(),
                                      'sort': range(data_df.shape[0])})
-        sorted = df.sort_values(by=df.columns[0])
-        index = sorted.index.values
-        data = sorted['energy'].values
+        sorted_vals = df.sort_values(by=df.columns[0])
+        index = sorted_vals.index.values
+        data = sorted_vals['energy'].values
     else:
         df = pd.DataFrame.from_dict({'energy': data_df, 'sort': range(data_df.shape[0])})
-        sorted = df.sort_values(by=df.columns[0])
-        index = sorted.index.values
-        data = sorted['energy'].values
+        sorted_vals = df.sort_values(by=df.columns[0])
+        index = sorted_vals.index.values
+        data = sorted_vals['energy'].values
     original_data = pd.DataFrame.from_dict({'energy': data})
     original_data.index = index
     original_data['index'] = 0

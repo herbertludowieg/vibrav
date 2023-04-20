@@ -12,9 +12,11 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with vibrav.  If not, see <https://www.gnu.org/licenses/>.
-from vibrav.core import Config
+from vibrav.core.config import Config, MissingRequiredInput
 from vibrav.base import resource
 import pandas as np
+import pytest
+import os
 
 def test_config():
     required = {'number_of_multiplicity': int, 'spin_multiplicity': (tuple, int),
@@ -37,5 +39,19 @@ def test_config():
             'atom_order_file': 'atom_order.dat'}
     for key, val in base.items():
         assert val == config[key]
+    with pytest.raises(MissingRequiredInput):
+        config = Config.open_config(resource('molcas-ucl6-2minus-vibronic-config'),
+                                    required={'to_fail': str})
 
+def test_config_resource():
+    required = {'number_of_modes': int, 'number_of_nuclei': int, 'property_file': str,
+                'gradient_file': str, 'property_atoms': (list, int),
+                'property_column': str}
+    default = {'smatrix_file': ('smatrix.dat', str), 'eqcoord_file': ('eqcoord.dat', str),
+               'atom_order_file': ('atom_order.dat', str)}
+    config = Config.open_config(resource('nitromal-zpvc-va.conf'), required=required,
+                                defaults=default)
+    for key, val in config.items():
+        if key.endswith('_file'):
+            assert os.path.join('static', 'misc', 'zpvc-test') in val
 

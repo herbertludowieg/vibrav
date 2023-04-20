@@ -19,3 +19,8 @@ versions = get_versions()
 __version__ = versions['version']
 __git_version__ = versions['full-revisionid']
 del get_versions, versions
+
+from .zpvc import ZPVC
+from .vroa import VROA
+from .vibronic import Vibronic
+from .core import Config

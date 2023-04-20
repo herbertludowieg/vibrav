@@ -19,6 +19,40 @@ import warnings
 import re
 import lzma
 
+def read_data_file(fp, nmodes, smat=False, nat=None):
+    '''
+    Open a data file generated when creating the displaced coordinates.
+
+    Note:
+        If `smat=True` the script will return a data frame object
+    Args:
+        fp (:obj:`str`): Filepath to file.
+        nmodes (:obj:`int`):  Give the number of normal modes in
+            the molecule.
+        smat (:obj:`bool`, optional): Is the data from the smatrix
+            file. This file is special as it needs to be transformed
+            into three columns.
+        nat (:obj:`int`, optional): Required when `smat=True`.
+            Give the number of atoms in the molecule.
+
+    Returns:
+        arr (:class:`numpy.ndarray`): Array with the values.
+    '''
+    if not smat:
+        arr = pd.read_csv(fp, header=None).values.reshape(-1)
+        if arr.shape[0] != nmodes:
+            msg = "There was a problem with the size of the parsed " \
+                  +"data in file {}. Expected {} elements, but got {}."
+            raise ValueError(msg.format(fp, nmodes, arr.shape[0]))
+    else:
+        df = pd.read_csv(fp, header=None)
+        df['groups'] = np.tile([0,1,2], nmodes*nat)
+        tmp = df.groupby('groups').apply(lambda x: x[0].values).to_dict()
+        arr = pd.DataFrame.from_dict(tmp)
+        arr.columns = ['dx', 'dy', 'dz']
+        arr['freqdx'] = np.repeat(range(nmodes), nat)
+    return arr
+
 def open_txt(fp, rearrange=True, get_complex=False, fill=False, is_complex=True,
              tol=None, get_magnitude=False, **kwargs):
     '''
@@ -132,10 +166,12 @@ def open_txt(fp, rearrange=True, get_complex=False, fill=False, is_complex=True,
             from vibrav.numerical.phases import get_mag
             matrix['magnitude'] = get_mag(matrix['real'].values,
                                           matrix['imag'].values)
+        matrix['nrow'] = matrix['nrow'].astype(np.uint16)
+        matrix['ncol'] = matrix['ncol'].astype(np.uint16)
     return matrix
 
 def write_txt(df, fp, formatter=None, header=None, order='F',
-              non_matrix=False):
+              non_matrix=False, mode='w'):
     '''
     Function to write the input data as a txt file with the set format
     to be read by external codes in the MCD suite.
@@ -151,11 +187,11 @@ def write_txt(df, fp, formatter=None, header=None, order='F',
     '''
     if formatter is None:
         formatter = ['{:6d}']*2+['{:25.16E}']*2
-    if header is None:
+    if header is None and mode == 'w':
         text = '{:<6s} {:<6s} {:>25s} {:>25s}\n'
         header = text.format('#NROW', 'NCOL', 'REAL', 'IMAG')
-    if len(formatter) != 4 and not non_matrix:
-        raise NotImplementedError('Do not currently support custom number of columns')
+    #if len(formatter) != 4 and not non_matrix:
+    #    raise NotImplementedError('Do not currently support custom number of columns')
     if not non_matrix:
         shape = df.shape
         # check data consistency
@@ -205,20 +241,23 @@ def write_txt(df, fp, formatter=None, header=None, order='F',
         data_template = ' '.join(formatter)
         data_template += '\n'
         arr = zip(real, imag, nrow, ncol)
-        with open(fp, 'w') as fn:
+        with open(fp, mode) as fn:
             fn.write(header)
             for r, i, nr, nc in arr:
                 fn.write(data_template.format(nr, nc, r, i))
     else:
-        with open(fp, 'w') as fn:
-            fn.write(header)
+        with open(fp, mode) as fn:
+            if header:
+                fn.write(header)
+            if mode == 'a':
+                fn.write('\n')
             formatter = list(map(lambda x: x.format, formatter))
             df_copy = df.copy()
             df_copy[['nrow', 'ncol']] += [1,1]
             fn.write(df_copy.to_string(formatters=formatter, header=False,
                                        index=False))
 
-def get_all_data(cls, path, property, f_start='', f_end=''):
+def get_all_data(cls, path, method, f_start='', f_end=''):
     '''
     Function to get all of the data from the files in a specific directory.
     It will look for all of the files that match the given `f_start`
@@ -239,7 +278,7 @@ def get_all_data(cls, path, property, f_start='', f_end=''):
         cls (class object): Class object of the output parser of choice.
         path (:obj:`str`): Path to the directory containing all of the
                            output files.
-        property (:obj:`str`): Property of interest to parse.
+        method (:obj:`str`): Parsing method to use in the given class.
         f_start (:obj:`str`): Starting string to match the output files.
                               Defaults to :code:`''`.
         f_end (:obj:`str`): Ending string to match the output files.
@@ -259,9 +298,11 @@ def get_all_data(cls, path, property, f_start='', f_end=''):
             if os.path.isfile(filename) and file.startswith(f_start) and file.endswith(f_end):
                 ed = cls(filename)
                 try:
-                    df = getattr(ed, property)
+                    df = getattr(ed, method)
                 except AttributeError:
-                    print("The property {} cannot be found in the output {}.".format(property, filename))
+                    msg = "The class {} could not find the data with the " \
+                          +"parsing method {} in file {}."
+                    print(msg.format(clas, method, filename))
                     continue
                 fdx = list(map(int, re.findall('\d+', file.replace(f_start, '').replace(f_end, ''))))
                 if len(fdx) > 1:

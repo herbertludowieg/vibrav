@@ -17,9 +17,8 @@ Base module
 ###########
 Handles the resource files.
 '''
-import os
 import vibrav
-import numpy as np
+import os
 
 def _get_static_path():
     return os.sep.join(vibrav.__file__.split(os.sep)[:-1]+['static'])

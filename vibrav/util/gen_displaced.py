@@ -12,13 +12,13 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with vibrav.  If not, see <https://www.gnu.org/licenses/>.
+from exatomic.core.atom import Atom, Frequency
+from exatomic.exa.core.container import TypedMeta
+from exatomic.exa.util.units import Length
 import pandas as pd
 import numpy as np
 import warnings
 import os
-from exatomic.core.atom import Atom
-from exatomic.exa.core.container import TypedMeta
-from exatomic.exa.util.units import Length
 
 def gen_delta(freq, delta_type, disp=None, norm=None):
     """
@@ -52,7 +52,7 @@ def gen_delta(freq, delta_type, disp=None, norm=None):
 
     Examples:
     """
-    if not type(norm) == list:
+    if not isinstance(norm, (list, tuple)):
         norm = [norm]
     data = freq.copy()
     nat = data['label'].drop_duplicates().shape[0]
@@ -179,7 +179,7 @@ class Displace(metaclass=DispMeta):
         modes = freq_g.loc[unique_index, 'frequency'].values
         nat = eqcoord.shape[0]
         freqdx = freq_g['freqdx'].unique()
-        tnmodes = freq['freqdx'].unique().shape[0]
+        #tnmodes = freq['freqdx'].unique().shape[0]
         nmodes = freqdx.shape[0]
         grouped = freq_g.groupby('freqdx')
         cols = ['dx', 'dy', 'dz']
@@ -234,7 +234,7 @@ class Displace(metaclass=DispMeta):
                     msg = "There was an issue with the displacement {}"
                     raise ValueError(msg.format(group*nmodes+fdx+1))
         print("Done with check")
-        return Atom(displaced)
+        self.disp = Atom(displaced)
 
     def gen_displaced_cartesian(self, atom_df, delta=0.01, include_zeroth=True,
                                 exclude=None):
@@ -252,15 +252,6 @@ class Displace(metaclass=DispMeta):
         symbols = atom['symbol'].values
         nat = atom.shape[0]
         delta_au = delta*Length['Angstrom', 'au']
-        # gaussian Fchk class uses Zeff where the Output class uses Z
-        # add try block to account for the possible exception
-        try:
-            znums = atom['Zeff'].values
-        except KeyError:
-            try:
-                znums = atom['Z'].values
-            except KeyError:
-                pass
         # chop all values less than tolerance
         eqcoord[abs(eqcoord) < 1e-6] = 0.0
         modes = np.eye(3)
@@ -288,7 +279,7 @@ class Displace(metaclass=DispMeta):
         disp = Atom(pd.concat(disp, ignore_index=True))
         disp.sort_values(by=['frame', 'set'], inplace=True)
         disp.reset_index(drop=True, inplace=True)
-        return disp
+        self.disp = Atom(disp)
 
     @staticmethod
     def _write_data_file(path, array, fn):
@@ -414,7 +405,6 @@ class Displace(metaclass=DispMeta):
             atom = cls.atom.copy()
             freq = cls.frequency.copy()
         else:
-            from exatomic.core import Atom, Frequency
             atom = Atom(pd.read_csv(atom_file))
             freq = Frequency(pd.read_csv(freq_file))
         if isinstance(fdx, int):
@@ -427,12 +417,12 @@ class Displace(metaclass=DispMeta):
                        +"of the scripts in VIBRAV and is untested."
                 warnings.warn(text, Warning)
             self.delta = gen_delta(freq, delta_type, disp, norm)
-            self.disp = self.gen_displaced(freq, atom, fdx)
+            self.gen_displaced(freq, atom, fdx)
         else:
             nat = atom.last_frame.shape[0]
             delta_dict = dict(delta=[disp*Length['Angstrom', 'au']]*nat)
             self.delta = pd.DataFrame.from_dict(delta_dict)
-            self.disp = self.gen_displaced_cartesian(atom, disp)
+            self.gen_displaced_cartesian(atom, disp)
         if write_files:
             self.create_data_files(atom=atom.last_frame, freq=freq, config=config,
                                    norm=norm, path=path, cart_disp=cart_disp,

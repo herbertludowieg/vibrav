@@ -16,7 +16,6 @@ import numpy as np
 import pandas as pd
 import warnings
 from exatomic.util.constants import Boltzmann_constant_in_inverse_meter_per_kelvin as boltz_const
-from exatomic.exa.util.units import Energy
 
 def boltz_dist(energies, temp, tol=1e-6, states=None, ignore_max=False):
     '''
@@ -146,7 +145,7 @@ def boltz_dist(energies, temp, tol=1e-6, states=None, ignore_max=False):
     sorted_energies = pd.Series(energies).sort_values()
     boltz_factors = []
     partition = []
-    for idx, (fdx, freq) in enumerate(sorted_energies.items()):
+    for idx, (_, freq) in enumerate(sorted_energies.items()):
         boltz_factors.append([])
         nu = 0
         # using a while loop as it is easier to define multiple
