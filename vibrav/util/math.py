@@ -14,6 +14,10 @@
 # along with vibrav.  If not, see <https://www.gnu.org/licenses/>.
 import numpy as np
 
+levi_civita = np.array([[0,0,0,0,0,1,0,-1,0],
+                        [0,0,-1,0,0,0,1,0,0],
+                        [0,1,0,-1,0,0,0,0,0]])
+
 def get_triu(arr, k=0):
     '''
     Get the upper triangular indeces of the input matrix

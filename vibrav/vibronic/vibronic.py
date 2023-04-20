@@ -160,6 +160,7 @@ class Vibronic:
 
     @staticmethod
     def _init_oscil_file(fp):
+        ''' Initialize oscillator file header '''
         header = "{:>5s} {:>5s} {:>24s} {:>24s} {:>6s} {:>7s}".format
         for idx in [0,1,2,3]:
             with open(fp.format(idx), 'w') as fn:
@@ -168,6 +169,7 @@ class Vibronic:
 
     @staticmethod
     def _write_prop_files(arr, dtemp, fname, fdx):
+        ''' Write the property files '''
         for idx, arr in enumerate(zip(*arr)):
             for name in ['minus', 'plus']:
                 dir_name = os.path.join(dtemp(fdx+1), name)

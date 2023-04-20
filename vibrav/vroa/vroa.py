@@ -17,6 +17,7 @@ from vibrav.numerical.vroa_func import backscat, forwscat, make_derivatives
 from vibrav.core.config import Config
 from vibrav.util.io import read_data_file
 from vibrav.util.file_checking import _check_file_continuity
+from vibrav.util.math import levi_civita as epsilon
 import numpy as np
 import pandas as pd
 import warnings
@@ -25,7 +26,7 @@ class VROA():
     '''
     Main class to run vibrational Raman optical activity calculations.
 
-    Required arguments in the configuration file.
+    **Required arguments**
 
     +------------------------+--------------------------------------------------+----------------------------+
     | Argument               | Description                                      | Data Type                  |
@@ -40,7 +41,7 @@ class VROA():
     |                        | Expected to be in units of nanometer.            |                            |
     +------------------------+--------------------------------------------------+----------------------------+
 
-    Default arguments in configuration file specific to this class.
+    **Default arguments**
 
     +------------------+------------------------------------------------------------+----------------+
     | Argument         | Description                                                | Default Value  |
@@ -52,7 +53,7 @@ class VROA():
     |                  | calculation.                                               |                |
     +------------------+------------------------------------------------------------+----------------+
 
-    Other default arguments are taken care of with the :func:`vibrav.core.config.Config` class.
+    Other default arguments are taken care of with the :class:`vibrav.core.config.Config` class.
 
     '''
     _required_inputs = {'number_of_modes': int, 'number_of_nuclei': int,
@@ -170,11 +171,8 @@ class VROA():
         C = constants.speed_of_light_in_vacuum
         conv = constants.atomic_unit_of_time / constants.atomic_unit_of_length
         C_au = C * conv
-        epsilon = np.array([[0,0,0,0,0,1,0,-1,0],
-                            [0,0,-1,0,0,0,1,0,0],
-                            [0,1,0,-1,0,0,0,0,0]])
         arr = zip(roa.groupby('exc_idx'), grad.groupby('exc_idx'))
-        for _, ((idx, roa_data), (_, grad_data)) in enumerate(arr):
+        for (idx, roa_data), (_, grad_data) in arr:
             # convert the excitation frequency to a.u.
             try:
                 #tmp = roa_data['exc_freq'].unique()
