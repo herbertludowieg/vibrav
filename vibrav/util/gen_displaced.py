@@ -385,7 +385,8 @@ class Displace(metaclass=DispMeta):
             with open(os.path.join(path, config), 'a') as fn:
                 fn.write(text)
 
-    def __init__(self, cls, *args, **kwargs):
+    def __init__(self, *args, **kwargs):
+        cls = kwargs.pop("cls", None)
         delta_type = kwargs.pop("delta_type", 0)
         fdx = kwargs.pop("fdx", -1)
         disp = kwargs.pop("disp", None)

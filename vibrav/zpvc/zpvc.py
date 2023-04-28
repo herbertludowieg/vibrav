@@ -230,6 +230,8 @@ class ZPVC:
         eqcoord['symbol'] = atom_symbols
         eqcoord['frame'] = 0
         eqcoord = Atom(eqcoord)
+        nnorms = config.number_of_norms
+        norms = config.norm_factors
         coor_dfs = []
         zpvc_dfs = []
         va_dfs = []
