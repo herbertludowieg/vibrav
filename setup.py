@@ -18,6 +18,10 @@ try:
 except:
     long_description = "\n".join(short_description[2:])
 
+requirements = "requirements.txt"
+with open(requirements) as f:
+    dependencies = f.read().splitlines()
+
 
 setup(
     # Self-descriptive entries which should always be present
@@ -30,6 +34,7 @@ setup(
     version=versioneer.get_version(),
     cmdclass=versioneer.get_cmdclass(),
     license='LGPLv3',
+    install_requires=dependencies,
 
     # Which Python importable modules should be included when your package is installed
     # Handled automatically by setuptools. Use 'exclude' to prevent some specific
