@@ -29,7 +29,7 @@ jobs:
           path: './exatomic'
       - name: Install dev exatomic
         run: |
-          pip install -e ./exatomic
+          pip install --upgrade -r ./exatomic/requirements.txt -e ./exatomic
       - name: Run Tests
         uses: ./.github/workflows/run_tests
         with:
