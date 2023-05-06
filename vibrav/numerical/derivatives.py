@@ -12,6 +12,7 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with vibrav.  If not, see <https://www.gnu.org/licenses/>.
+import pandas as pd
 import numpy as np
 
 def get_pos_neg_gradients(grad, freq, nmodes):
@@ -57,6 +58,9 @@ def get_pos_neg_gradients(grad, freq, nmodes):
     delfq_minus = grad_minus.groupby('file')[['fx', 'fy', 'fz']].apply(lambda x:
                             freq.groupby('freqdx')[['dx', 'dy', 'dz']].apply(lambda y:
                                 np.sum(np.multiply(y.values, x.values)))).values
+    delfq_zero = pd.DataFrame(delfq_zero)
+    delfq_plus = pd.DataFrame(delfq_plus)
+    delfq_minus = pd.DataFrame(delfq_minus)
     return [delfq_zero, delfq_plus, delfq_minus]
 
 def _perform_1d_derivative(plus, minus, coeffs, delta):
@@ -162,6 +166,53 @@ def six_point_1d(plus, minus, delta):
     # calculated coefficient prefactors for each displacement
     coeffs = [3./4, -3./20, 1./60]
     deriv = _perform_1d_derivative(plus, minus, coeffs, delta)
+    return deriv
+
+def eight_point_1d(plus, minus, delta):
+    # make sure that the input data is of the right size
+    _check_array_size(plus, 4, 'positive')
+    _check_array_size(minus, 4, 'negative')
+    # calculated coefficient prefactors for each displacement
+    coeffs = [4./5, -1./5, 4./105, -1./280]
+    deriv = _perform_1d_derivative(plus, minus, coeffs, delta)
+    return deriv
+
+def _perform_2d_derivative(plus, minus, equil, coeffs, delta):
+    deriv = equil*coeffs[0]
+    arrs = np.array([plus, minus]).T
+    for arr in zip(*arrs):
+        for jdx, coeff in enumerate(coeffs[1:]):
+            deriv += coeff*arr[jdx]
+    deriv /= delta**2
+    return deriv
+
+def two_point_2d(plus, minus, equil, delta):
+    coeffs = [-2., 1.]
+    deriv = (plus - 2*equil + minus) / delta**2
+    return deriv
+
+def four_point_2d(plus, minus, equil, delta):
+    # make sure that the input data is of the right size
+    _check_array_size(plus, 2, 'positive')
+    _check_array_size(minus, 2, 'negative')
+    coeffs = [-5./2, 4./3, -1./12]
+    deriv = _perform_2d_derivative(plus, minus, equil, coeffs, delta)
+    return deriv
+
+def six_point_2d(plus, minus, equil, delta):
+    # make sure that the input data is of the right size
+    _check_array_size(plus, 3, 'positive')
+    _check_array_size(minus, 3, 'negative')
+    coeffs = [-49./18, 3./2, -3./20, 1./90]
+    deriv = _perform_2d_derivative(plus, minus, equil, coeffs, delta)
+    return deriv
+
+def eight_point_2d(plus, minus, equil, delta):
+    # make sure that the input data is of the right size
+    _check_array_size(plus, 4, 'positive')
+    _check_array_size(minus, 4, 'negative')
+    coeffs = [-205./72, 8./5, -1./5, 8./315, -1./560]
+    deriv = _perform_2d_derivative(plus, minus, equil, coeffs, delta)
     return deriv
 
 def _get_prefac(p, d):
