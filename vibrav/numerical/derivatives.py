@@ -119,7 +119,8 @@ def two_point_1d(plus, minus, delta):
     Returns:
         deriv (:obj:`float`): Numerical first derivative for given data.
     '''
-    deriv = (plus - minus)/(2*delta)
+    coeffs = [0.5]
+    deriv = _perform_1d_derivative(plus, minus, coeffs, delta)
     return deriv
 
 def four_point_1d(plus, minus, delta):
@@ -188,7 +189,7 @@ def _perform_2d_derivative(plus, minus, equil, coeffs, delta):
 
 def two_point_2d(plus, minus, equil, delta):
     coeffs = [-2., 1.]
-    deriv = (plus - 2*equil + minus) / delta**2
+    deriv = _perform_2d_derivative(plus, minus, equil, coeffs, delta)
     return deriv
 
 def four_point_2d(plus, minus, equil, delta):
