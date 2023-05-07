@@ -17,7 +17,7 @@ runs:
     - name: Run tests (Windows)
       shell: pwsh
       if: runner.os == 'Windows'
-      run: pytest -v
+      run: pytest -v vibrav
 
     - name: Upload Coverage
       if: (runner.os == 'Linux') && (matrix.python-version == '3.9') && (always())
