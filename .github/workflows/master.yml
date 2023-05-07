@@ -22,14 +22,6 @@ jobs:
       - name: Install Dependencies
         run: |
           pip install --upgrade --upgrade-strategy eager -r requirements.txt -r requirements.dev.txt -e .
-      - name: Check out dev exatomic
-        uses: actions/checkout@v3
-        with:
-          repository: exa-analytics/exatomic
-          path: './exatomic'
-      - name: Install dev exatomic
-        run: |
-          pip install --upgrade -r ./exatomic/requirements.txt -e ./exatomic
       - name: Run Tests
         uses: ./.github/workflows/run_tests
         with:
