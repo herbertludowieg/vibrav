@@ -1,0 +1,7 @@
+vibrav.numerical.degeneracy module
+==================================
+
+.. automodule:: vibrav.numerical.degeneracy
+   :members:
+   :undoc-members:
+   :show-inheritance:

@@ -1,0 +1,7 @@
+vibrav.util.block\_diagonal module
+==================================
+
+.. automodule:: vibrav.util.block_diagonal
+   :members:
+   :undoc-members:
+   :show-inheritance:

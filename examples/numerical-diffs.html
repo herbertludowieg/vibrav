@@ -1,0 +1,769 @@
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Using derivative module &#8212; vibrav  documentation</title>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/bootstrap-sphinx.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/nbsphinx-code-cells.css" />
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/sphinx_highlight.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Running vibronic calculations from a Molcas RASSI set of calculations" href="vibronic.html" />
+    <link rel="prev" title="Molcas parser API" href="molcas.html" />
+<meta charset='utf-8'>
+<meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
+<meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1'>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<script type="text/javascript" src="../_static/js/jquery-1.12.4.min.js"></script>
+<script type="text/javascript" src="../_static/js/jquery-fix.js"></script>
+<script type="text/javascript" src="../_static/bootstrap-3.4.1/js/bootstrap.min.js"></script>
+<script type="text/javascript" src="../_static/bootstrap-sphinx.js"></script>
+
+  </head><body>
+
+  <div id="navbar" class="navbar navbar-default navbar-fixed-top">
+    <div class="container">
+      <div class="navbar-header">
+        <!-- .btn-navbar is used as the toggle for collapsed navbar content -->
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".nav-collapse">
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        <a class="navbar-brand" href="../index.html">
+          vibrav</a>
+        <span class="navbar-text navbar-version pull-left"><b></b></span>
+      </div>
+
+        <div class="collapse navbar-collapse nav-collapse">
+          <ul class="nav navbar-nav">
+            
+            
+              <li class="dropdown globaltoc-container">
+  <a role="button"
+     id="dLabelGlobalToc"
+     data-toggle="dropdown"
+     data-target="#"
+     href="../index.html">Site <b class="caret"></b></a>
+  <ul class="dropdown-menu globaltoc"
+      role="menu"
+      aria-labelledby="dLabelGlobalToc"><ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="adf.html">ADF parser API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="gen-displaced.html">Generating the displaced structures from a Gaussian frequencies calculation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="molcas.html">Molcas parser API</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Using derivative module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="vibronic.html">Running vibronic calculations from a Molcas RASSI set of calculations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="vroa-h2o2.html">VROA intensities of hydrogen peroxide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="vroa-methyloxirane.html">VROA intensities of methyloxirane</a></li>
+<li class="toctree-l1"><a class="reference internal" href="zpvc.html">Tutorial for using the ZPVC module in VIBRAV</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../vibrav.html">vibrav package</a></li>
+</ul>
+</ul>
+</li>
+              
+                <li class="dropdown">
+  <a role="button"
+     id="dLabelLocalToc"
+     data-toggle="dropdown"
+     data-target="#"
+     href="#">Page <b class="caret"></b></a>
+  <ul class="dropdown-menu localtoc"
+      role="menu"
+      aria-labelledby="dLabelLocalToc"><ul>
+<li><a class="reference internal" href="#">Using derivative module</a><ul>
+<li><a class="reference internal" href="#Setting-x=7.8">Setting <span class="math notranslate nohighlight">\(x=7.8\)</span></a><ul>
+<li><a class="reference internal" href="#Numerical-first-derivative-for-delta-of-0.1,-0.5,-1.0,-and-1.5">Numerical first derivative for delta of 0.1, 0.5, 1.0, and 1.5</a></li>
+<li><a class="reference internal" href="#Numerical-second-derivative-for-delta-of-0.1,-0.5,-1.0,-and-1.5">Numerical second derivative for delta of 0.1, 0.5, 1.0, and 1.5</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#Setting-x=2.51">Setting <span class="math notranslate nohighlight">\(x=2.51\)</span></a><ul>
+<li><a class="reference internal" href="#Numerical-first-derivative-for-delta-of-0.1,-and-0.5">Numerical first derivative for delta of 0.1, and 0.5</a></li>
+<li><a class="reference internal" href="#Numerical-second-derivative-for-delta-of-0.1,-and-0.5">Numerical second derivative for delta of 0.1, and 0.5</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#Setting-x=0.51">Setting <span class="math notranslate nohighlight">\(x=0.51\)</span></a><ul>
+<li><a class="reference internal" href="#Numerical-first-derivative-for-delta-of-0.1">Numerical first derivative for delta of 0.1</a></li>
+<li><a class="reference internal" href="#Numerical-second-derivative-for-delta-of-0.1">Numerical second derivative for delta of 0.1</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</ul>
+</li>
+              
+            
+            
+              
+                
+  <li>
+    <a href="molcas.html" title="Previous Chapter: Molcas parser API"><span class="glyphicon glyphicon-chevron-left visible-sm"></span><span class="hidden-sm hidden-tablet">&laquo; Molcas parser API</span>
+    </a>
+  </li>
+  <li>
+    <a href="vibronic.html" title="Next Chapter: Running vibronic calculations from a Molcas RASSI set of calculations"><span class="glyphicon glyphicon-chevron-right visible-sm"></span><span class="hidden-sm hidden-tablet">Running vibro... &raquo;</span>
+    </a>
+  </li>
+              
+            
+            
+            
+            
+              <li class="hidden-sm">
+<div id="sourcelink">
+  <a href="../_sources/examples/numerical-diffs.ipynb.txt"
+     rel="nofollow">Source</a>
+</div></li>
+            
+          </ul>
+
+          
+            
+<form class="navbar-form navbar-right" action="../search.html" method="get">
+ <div class="form-group">
+  <input type="text" name="q" class="form-control" placeholder="Search" />
+ </div>
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+          
+        </div>
+    </div>
+  </div>
+
+<div class="container">
+  <div class="row">
+    <div class="body col-md-12 content" role="main">
+      
+  <section id="Using-derivative-module">
+<h1>Using derivative module<a class="headerlink" href="#Using-derivative-module" title="Permalink to this heading">¶</a></h1>
+<p>This contains a small script on how to perform multi-point first and second numercial derivates comparing them to the expected result. Here, we try to approximate the first and second derivatives of <span class="math notranslate nohighlight">\(y = ln(x)\)</span> with a displacement of 0.1, 0.5, 1.0, and 1.5. We then show the improvement of the numercial derivative as we start to include more data points to the derivative. We have implemented code to calculate the numerical derivative with two, four, six, and eight symmetric displacment
+points. For the second derivative there is an extra point as the data from the equilibrium position is required. We use <span class="math notranslate nohighlight">\(y=ln(x)\)</span> as it has a very simple analytical first and second derivative of <span class="math notranslate nohighlight">\(1/x\)</span> and <span class="math notranslate nohighlight">\(-1/x^2\)</span>, respectively.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">vibrav.numerical.derivatives</span> <span class="kn">import</span> <span class="p">(</span><span class="n">two_point_1d</span><span class="p">,</span> <span class="n">four_point_1d</span><span class="p">,</span> <span class="n">six_point_1d</span><span class="p">,</span> <span class="n">eight_point_1d</span><span class="p">,</span>
+                                          <span class="n">two_point_2d</span><span class="p">,</span> <span class="n">four_point_2d</span><span class="p">,</span> <span class="n">six_point_2d</span><span class="p">,</span> <span class="n">eight_point_2d</span><span class="p">)</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">do_derivs</span><span class="p">(</span><span class="n">delta</span><span class="p">,</span> <span class="n">base</span><span class="p">,</span> <span class="n">steps</span><span class="p">,</span> <span class="n">stdout</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">first</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">base</span><span class="o">-</span><span class="n">delta</span><span class="o">*</span><span class="n">steps</span><span class="o">/</span><span class="mi">2</span><span class="p">,</span><span class="n">base</span><span class="o">+</span><span class="n">delta</span><span class="o">*</span><span class="n">steps</span><span class="o">/</span><span class="mi">2</span><span class="p">,</span><span class="n">steps</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+    <span class="n">y_plus</span> <span class="o">=</span> <span class="n">y</span><span class="p">[</span><span class="o">-</span><span class="nb">int</span><span class="p">(</span><span class="n">steps</span><span class="o">/</span><span class="mi">2</span><span class="p">):]</span>
+    <span class="n">y_minus</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">flip</span><span class="p">(</span><span class="n">y</span><span class="p">[:</span><span class="nb">int</span><span class="p">(</span><span class="n">steps</span><span class="o">/</span><span class="mi">2</span><span class="p">)])</span>
+    <span class="n">y_equil</span> <span class="o">=</span> <span class="n">y</span><span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">steps</span><span class="o">/</span><span class="mi">2</span><span class="p">)]</span>
+    <span class="k">if</span> <span class="n">first</span><span class="p">:</span>
+        <span class="n">actual</span> <span class="o">=</span> <span class="mi">1</span><span class="o">/</span><span class="n">base</span>
+        <span class="n">d_eight</span> <span class="o">=</span> <span class="n">eight_point_1d</span><span class="p">(</span><span class="n">y_plus</span><span class="p">[:</span><span class="mi">4</span><span class="p">],</span> <span class="n">y_minus</span><span class="p">[:</span><span class="mi">4</span><span class="p">],</span> <span class="n">delta</span><span class="p">)</span>
+        <span class="n">d_six</span> <span class="o">=</span> <span class="n">six_point_1d</span><span class="p">(</span><span class="n">y_plus</span><span class="p">[:</span><span class="mi">3</span><span class="p">],</span> <span class="n">y_minus</span><span class="p">[:</span><span class="mi">3</span><span class="p">],</span> <span class="n">delta</span><span class="p">)</span>
+        <span class="n">d_four</span> <span class="o">=</span> <span class="n">four_point_1d</span><span class="p">(</span><span class="n">y_plus</span><span class="p">[:</span><span class="mi">2</span><span class="p">],</span> <span class="n">y_minus</span><span class="p">[:</span><span class="mi">2</span><span class="p">],</span> <span class="n">delta</span><span class="p">)</span>
+        <span class="n">d_two</span> <span class="o">=</span> <span class="n">two_point_1d</span><span class="p">(</span><span class="n">y_plus</span><span class="p">[:</span><span class="mi">1</span><span class="p">],</span> <span class="n">y_minus</span><span class="p">[:</span><span class="mi">1</span><span class="p">],</span> <span class="n">delta</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">actual</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span><span class="o">/</span><span class="n">base</span><span class="o">**</span><span class="mi">2</span>
+        <span class="n">d_eight</span> <span class="o">=</span> <span class="n">eight_point_2d</span><span class="p">(</span><span class="n">y_plus</span><span class="p">[:</span><span class="mi">4</span><span class="p">],</span> <span class="n">y_minus</span><span class="p">[:</span><span class="mi">4</span><span class="p">],</span> <span class="n">y_equil</span><span class="p">,</span> <span class="n">delta</span><span class="p">)</span>
+        <span class="n">d_six</span> <span class="o">=</span> <span class="n">six_point_2d</span><span class="p">(</span><span class="n">y_plus</span><span class="p">[:</span><span class="mi">3</span><span class="p">],</span> <span class="n">y_minus</span><span class="p">[:</span><span class="mi">3</span><span class="p">],</span> <span class="n">y_equil</span><span class="p">,</span> <span class="n">delta</span><span class="p">)</span>
+        <span class="n">d_four</span> <span class="o">=</span> <span class="n">four_point_2d</span><span class="p">(</span><span class="n">y_plus</span><span class="p">[:</span><span class="mi">2</span><span class="p">],</span> <span class="n">y_minus</span><span class="p">[:</span><span class="mi">2</span><span class="p">],</span> <span class="n">y_equil</span><span class="p">,</span> <span class="n">delta</span><span class="p">)</span>
+        <span class="n">d_two</span> <span class="o">=</span> <span class="n">two_point_2d</span><span class="p">(</span><span class="n">y_plus</span><span class="p">[:</span><span class="mi">1</span><span class="p">],</span> <span class="n">y_minus</span><span class="p">[:</span><span class="mi">1</span><span class="p">],</span> <span class="n">y_equil</span><span class="p">,</span> <span class="n">delta</span><span class="p">)</span>
+    <span class="n">cols</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;actual&#39;</span><span class="p">,</span> <span class="s1">&#39;delta&#39;</span><span class="p">]</span><span class="o">+</span><span class="p">[</span><span class="n">x</span><span class="o">+</span><span class="s1">&#39;-point&#39;</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;two&#39;</span><span class="p">,</span> <span class="s1">&#39;four&#39;</span><span class="p">,</span> <span class="s1">&#39;six&#39;</span><span class="p">,</span> <span class="s1">&#39;eight&#39;</span><span class="p">]]</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">([</span><span class="n">actual</span><span class="p">,</span> <span class="n">delta</span><span class="p">,</span> <span class="n">d_two</span><span class="p">,</span> <span class="n">d_four</span><span class="p">,</span> <span class="n">d_six</span><span class="p">,</span> <span class="n">d_eight</span><span class="p">],</span> <span class="n">index</span><span class="o">=</span><span class="n">cols</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">df</span>
+
+<span class="k">def</span> <span class="nf">gen_plot</span><span class="p">(</span><span class="n">fig_num</span><span class="p">,</span> <span class="n">deltas</span><span class="p">,</span> <span class="n">base</span><span class="p">,</span> <span class="n">steps</span><span class="p">):</span>
+    <span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">fig_num</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span><span class="mi">8</span><span class="p">),</span> <span class="n">dpi</span><span class="o">=</span><span class="mi">100</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">delta</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">deltas</span><span class="p">):</span>
+        <span class="n">ax</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">add_subplot</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">base</span><span class="o">-</span><span class="n">delta</span><span class="o">*</span><span class="n">steps</span><span class="o">/</span><span class="mi">2</span><span class="p">,</span><span class="n">base</span><span class="o">+</span><span class="n">delta</span><span class="o">*</span><span class="n">steps</span><span class="o">/</span><span class="mi">2</span><span class="p">,</span><span class="n">steps</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">axvline</span><span class="p">(</span><span class="n">base</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;k&#39;</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mf">0.7</span><span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Delta: </span><span class="si">{:.1f}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">delta</span><span class="p">))</span>
+        <span class="n">act_x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">base</span><span class="o">-</span><span class="n">delta</span><span class="o">*</span><span class="n">steps</span><span class="o">/</span><span class="mi">2</span><span class="p">,</span><span class="n">base</span><span class="o">+</span><span class="n">delta</span><span class="o">*</span><span class="n">steps</span><span class="o">/</span><span class="mi">2</span><span class="p">,</span><span class="mi">1000</span><span class="p">)</span>
+        <span class="n">act_y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">act_x</span><span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">act_x</span><span class="p">,</span> <span class="n">act_y</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Actual&quot;</span><span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">frameon</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">loc</span><span class="o">=</span><span class="s1">&#39;upper left&#39;</span><span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="mf">0.52</span><span class="p">,</span> <span class="mf">0.05</span><span class="p">,</span> <span class="s1">&#39;x = </span><span class="si">{:.2f}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">base</span><span class="p">),</span> <span class="n">va</span><span class="o">=</span><span class="s1">&#39;bottom&#39;</span><span class="p">,</span> <span class="n">ha</span><span class="o">=</span><span class="s1">&#39;left&#39;</span><span class="p">,</span>
+                <span class="n">transform</span><span class="o">=</span><span class="n">ax</span><span class="o">.</span><span class="n">transAxes</span><span class="p">,</span> <span class="n">fontweight</span><span class="o">=</span><span class="s1">&#39;bold&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<section id="Setting-x=7.8">
+<h2>Setting <span class="math notranslate nohighlight">\(x=7.8\)</span><a class="headerlink" href="#Setting-x=7.8" title="Permalink to this heading">¶</a></h2>
+<p><span class="math">\begin{equation}
+\frac{d}{dx}~ln(7.8) = 0.128205 ~~~~~~~~ \frac{d^2}{dx^2}~ln(7.8) = -0.016437
+\end{equation}</span> ### Plots with the numerical vs. actual values</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">gen_plot</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="p">[</span><span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mf">1.5</span><span class="p">],</span> <span class="mf">7.8</span><span class="p">,</span> <span class="mi">10</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/examples_numerical-diffs_4_0.png" src="../_images/examples_numerical-diffs_4_0.png" />
+</div>
+</div>
+<section id="Numerical-first-derivative-for-delta-of-0.1,-0.5,-1.0,-and-1.5">
+<h3>Numerical first derivative for delta of 0.1, 0.5, 1.0, and 1.5<a class="headerlink" href="#Numerical-first-derivative-for-delta-of-0.1,-0.5,-1.0,-and-1.5" title="Permalink to this heading">¶</a></h3>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">derivs_1d</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="k">for</span> <span class="n">d</span><span class="p">,</span> <span class="n">delta</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">([</span><span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mf">1.5</span><span class="p">]):</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">do_derivs</span><span class="p">(</span><span class="n">delta</span><span class="p">,</span> <span class="n">base</span><span class="o">=</span><span class="mf">7.8</span><span class="p">,</span> <span class="n">steps</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+    <span class="n">df</span><span class="p">[</span><span class="s1">&#39;index&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">d</span>
+    <span class="n">derivs_1d</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
+<span class="n">derivs_1d</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">derivs_1d</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">T</span>
+<span class="n">derivs_1d</span><span class="p">[</span><span class="s1">&#39;index&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">derivs_1d</span><span class="p">[</span><span class="s1">&#39;index&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+<span class="n">derivs_1d</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>actual</th>
+      <th>delta</th>
+      <th>two-point</th>
+      <th>four-point</th>
+      <th>six-point</th>
+      <th>eight-point</th>
+      <th>index</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>0.128205</td>
+      <td>0.1</td>
+      <td>0.128212</td>
+      <td>0.128205</td>
+      <td>0.128205</td>
+      <td>0.128205</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>0.128205</td>
+      <td>0.5</td>
+      <td>0.128381</td>
+      <td>0.128203</td>
+      <td>0.128205</td>
+      <td>0.128205</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>0.128205</td>
+      <td>1.0</td>
+      <td>0.128915</td>
+      <td>0.128176</td>
+      <td>0.128209</td>
+      <td>0.128204</td>
+      <td>2</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>0.128205</td>
+      <td>1.5</td>
+      <td>0.129822</td>
+      <td>0.128044</td>
+      <td>0.128258</td>
+      <td>0.128155</td>
+      <td>3</td>
+    </tr>
+  </tbody>
+</table>
+</div></div>
+</div>
+</section>
+<section id="Numerical-second-derivative-for-delta-of-0.1,-0.5,-1.0,-and-1.5">
+<h3>Numerical second derivative for delta of 0.1, 0.5, 1.0, and 1.5<a class="headerlink" href="#Numerical-second-derivative-for-delta-of-0.1,-0.5,-1.0,-and-1.5" title="Permalink to this heading">¶</a></h3>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">derivs_2d</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="k">for</span> <span class="n">d</span><span class="p">,</span> <span class="n">delta</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">([</span><span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="mf">1.5</span><span class="p">]):</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">do_derivs</span><span class="p">(</span><span class="n">delta</span><span class="p">,</span> <span class="n">base</span><span class="o">=</span><span class="mf">7.8</span><span class="p">,</span> <span class="n">steps</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">first</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">df</span><span class="p">[</span><span class="s1">&#39;index&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">d</span>
+    <span class="n">derivs_2d</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
+<span class="n">derivs_2d</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">derivs_2d</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">T</span>
+<span class="n">derivs_2d</span><span class="p">[</span><span class="s1">&#39;index&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">derivs_2d</span><span class="p">[</span><span class="s1">&#39;index&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+<span class="n">derivs_2d</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>actual</th>
+      <th>delta</th>
+      <th>two-point</th>
+      <th>four-point</th>
+      <th>six-point</th>
+      <th>eight-point</th>
+      <th>index</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>-0.016437</td>
+      <td>0.1</td>
+      <td>-0.016438</td>
+      <td>-0.016437</td>
+      <td>-0.016437</td>
+      <td>-0.016437</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>-0.016437</td>
+      <td>0.5</td>
+      <td>-0.016470</td>
+      <td>-0.016436</td>
+      <td>-0.016437</td>
+      <td>-0.016437</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>-0.016437</td>
+      <td>1.0</td>
+      <td>-0.016573</td>
+      <td>-0.016430</td>
+      <td>-0.016437</td>
+      <td>-0.016436</td>
+      <td>2</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>-0.016437</td>
+      <td>1.5</td>
+      <td>-0.016748</td>
+      <td>-0.016402</td>
+      <td>-0.016449</td>
+      <td>-0.016425</td>
+      <td>3</td>
+    </tr>
+  </tbody>
+</table>
+</div></div>
+</div>
+</section>
+</section>
+<section id="Setting-x=2.51">
+<h2>Setting <span class="math notranslate nohighlight">\(x=2.51\)</span><a class="headerlink" href="#Setting-x=2.51" title="Permalink to this heading">¶</a></h2>
+<p><span class="math">\begin{equation}
+\frac{d}{dx}~ln(2.51) = 0.398406 ~~~~~~~~ \frac{d^2}{dx^2}~ln(2.51) = -0.158728
+\end{equation}</span> ### Plots with the numerical vs. actual values</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">gen_plot</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="p">[</span><span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">],</span> <span class="mf">2.8</span><span class="p">,</span> <span class="mi">10</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/examples_numerical-diffs_10_0.png" src="../_images/examples_numerical-diffs_10_0.png" />
+</div>
+</div>
+<section id="Numerical-first-derivative-for-delta-of-0.1,-and-0.5">
+<h3>Numerical first derivative for delta of 0.1, and 0.5<a class="headerlink" href="#Numerical-first-derivative-for-delta-of-0.1,-and-0.5" title="Permalink to this heading">¶</a></h3>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">derivs_1d</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="k">for</span> <span class="n">d</span><span class="p">,</span> <span class="n">delta</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">([</span><span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">]):</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">do_derivs</span><span class="p">(</span><span class="n">delta</span><span class="p">,</span> <span class="n">base</span><span class="o">=</span><span class="mf">2.51</span><span class="p">,</span> <span class="n">steps</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+    <span class="n">df</span><span class="p">[</span><span class="s1">&#39;index&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">d</span>
+    <span class="n">derivs_1d</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
+<span class="n">derivs_1d</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">derivs_1d</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">T</span>
+<span class="n">derivs_1d</span><span class="p">[</span><span class="s1">&#39;index&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">derivs_1d</span><span class="p">[</span><span class="s1">&#39;index&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+<span class="n">derivs_1d</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>actual</th>
+      <th>delta</th>
+      <th>two-point</th>
+      <th>four-point</th>
+      <th>six-point</th>
+      <th>eight-point</th>
+      <th>index</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>0.398406</td>
+      <td>0.1</td>
+      <td>0.398617</td>
+      <td>0.398406</td>
+      <td>0.398406</td>
+      <td>0.398406</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>0.398406</td>
+      <td>0.5</td>
+      <td>0.403805</td>
+      <td>0.397823</td>
+      <td>0.398617</td>
+      <td>0.398172</td>
+      <td>1</td>
+    </tr>
+  </tbody>
+</table>
+</div></div>
+</div>
+</section>
+<section id="Numerical-second-derivative-for-delta-of-0.1,-and-0.5">
+<h3>Numerical second derivative for delta of 0.1, and 0.5<a class="headerlink" href="#Numerical-second-derivative-for-delta-of-0.1,-and-0.5" title="Permalink to this heading">¶</a></h3>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">derivs_2d</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="k">for</span> <span class="n">d</span><span class="p">,</span> <span class="n">delta</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">([</span><span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">]):</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">do_derivs</span><span class="p">(</span><span class="n">delta</span><span class="p">,</span> <span class="n">base</span><span class="o">=</span><span class="mf">2.51</span><span class="p">,</span> <span class="n">steps</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">first</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">df</span><span class="p">[</span><span class="s1">&#39;index&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">d</span>
+    <span class="n">derivs_2d</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
+<span class="n">derivs_2d</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">derivs_2d</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">T</span>
+<span class="n">derivs_2d</span><span class="p">[</span><span class="s1">&#39;index&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">derivs_2d</span><span class="p">[</span><span class="s1">&#39;index&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+<span class="n">derivs_2d</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>actual</th>
+      <th>delta</th>
+      <th>two-point</th>
+      <th>four-point</th>
+      <th>six-point</th>
+      <th>eight-point</th>
+      <th>index</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>-0.158728</td>
+      <td>0.1</td>
+      <td>-0.158854</td>
+      <td>-0.158727</td>
+      <td>-0.158728</td>
+      <td>-0.158728</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>-0.158728</td>
+      <td>0.5</td>
+      <td>-0.161963</td>
+      <td>-0.158337</td>
+      <td>-0.158877</td>
+      <td>-0.158555</td>
+      <td>1</td>
+    </tr>
+  </tbody>
+</table>
+</div></div>
+</div>
+</section>
+</section>
+<section id="Setting-x=0.51">
+<h2>Setting <span class="math notranslate nohighlight">\(x=0.51\)</span><a class="headerlink" href="#Setting-x=0.51" title="Permalink to this heading">¶</a></h2>
+<p><span class="math">\begin{equation}
+\frac{d}{dx}~ln(0.51) = 1.960784 ~~~~~~~~ \frac{d^2}{dx^2}~ln(0.51) = -3.844675
+\end{equation}</span> ### Plots with the numerical vs. actual values</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">gen_plot</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="p">[</span><span class="mf">0.1</span><span class="p">],</span> <span class="mf">0.51</span><span class="p">,</span> <span class="mi">10</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/examples_numerical-diffs_16_0.png" src="../_images/examples_numerical-diffs_16_0.png" />
+</div>
+</div>
+<section id="Numerical-first-derivative-for-delta-of-0.1">
+<h3>Numerical first derivative for delta of 0.1<a class="headerlink" href="#Numerical-first-derivative-for-delta-of-0.1" title="Permalink to this heading">¶</a></h3>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">derivs_1d</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="k">for</span> <span class="n">d</span><span class="p">,</span> <span class="n">delta</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">([</span><span class="mf">0.1</span><span class="p">]):</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">do_derivs</span><span class="p">(</span><span class="n">delta</span><span class="p">,</span> <span class="n">base</span><span class="o">=</span><span class="mf">0.51</span><span class="p">,</span> <span class="n">steps</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+    <span class="n">df</span><span class="p">[</span><span class="s1">&#39;index&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">d</span>
+    <span class="n">derivs_1d</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
+<span class="n">derivs_1d</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">derivs_1d</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">T</span>
+<span class="n">derivs_1d</span><span class="p">[</span><span class="s1">&#39;index&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">derivs_1d</span><span class="p">[</span><span class="s1">&#39;index&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+<span class="n">derivs_1d</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>actual</th>
+      <th>delta</th>
+      <th>two-point</th>
+      <th>four-point</th>
+      <th>six-point</th>
+      <th>eight-point</th>
+      <th>index</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>1.960784</td>
+      <td>0.1</td>
+      <td>1.986509</td>
+      <td>1.958101</td>
+      <td>1.961712</td>
+      <td>1.959824</td>
+      <td>0</td>
+    </tr>
+  </tbody>
+</table>
+</div></div>
+</div>
+</section>
+<section id="Numerical-second-derivative-for-delta-of-0.1">
+<h3>Numerical second derivative for delta of 0.1<a class="headerlink" href="#Numerical-second-derivative-for-delta-of-0.1" title="Permalink to this heading">¶</a></h3>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">derivs_2d</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="k">for</span> <span class="n">d</span><span class="p">,</span> <span class="n">delta</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">([</span><span class="mf">0.1</span><span class="p">]):</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">do_derivs</span><span class="p">(</span><span class="n">delta</span><span class="p">,</span> <span class="n">base</span><span class="o">=</span><span class="mf">0.51</span><span class="p">,</span> <span class="n">steps</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">first</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">df</span><span class="p">[</span><span class="s1">&#39;index&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">d</span>
+    <span class="n">derivs_2d</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
+<span class="n">derivs_2d</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">derivs_2d</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">T</span>
+<span class="n">derivs_2d</span><span class="p">[</span><span class="s1">&#39;index&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">derivs_2d</span><span class="p">[</span><span class="s1">&#39;index&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+<span class="n">derivs_2d</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>actual</th>
+      <th>delta</th>
+      <th>two-point</th>
+      <th>four-point</th>
+      <th>six-point</th>
+      <th>eight-point</th>
+      <th>index</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>-3.844675</td>
+      <td>0.1</td>
+      <td>-3.920533</td>
+      <td>-3.835843</td>
+      <td>-3.847904</td>
+      <td>-3.841204</td>
+      <td>0</td>
+    </tr>
+  </tbody>
+</table>
+</div></div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>
+</pre></div>
+</div>
+</div>
+</section>
+</section>
+</section>
+
+
+    </div>
+      
+  </div>
+</div>
+<footer class="footer">
+  <div class="container">
+    <p class="pull-right">
+      <a href="#">Back to top</a>
+      
+    </p>
+    <p>
+        &copy; Copyright 2023, Herbert D Ludowieg. Project structure based on the Computational Molecular Science Python Cookiecutter version 1.1.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 7.0.1.<br/>
+    </p>
+  </div>
+</footer>
+  </body>
+</html>

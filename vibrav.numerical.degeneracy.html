@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>vibrav.numerical.degeneracy module &#8212; vibrav  documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/bootstrap-sphinx.css" />
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/sphinx_highlight.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="vibrav.numerical.derivatives module" href="vibrav.numerical.derivatives.html" />
+    <link rel="prev" title="vibrav.numerical.boltzmann module" href="vibrav.numerical.boltzmann.html" />
+<meta charset='utf-8'>
+<meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
+<meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1'>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<script type="text/javascript" src="_static/js/jquery-1.12.4.min.js"></script>
+<script type="text/javascript" src="_static/js/jquery-fix.js"></script>
+<script type="text/javascript" src="_static/bootstrap-3.4.1/js/bootstrap.min.js"></script>
+<script type="text/javascript" src="_static/bootstrap-sphinx.js"></script>
+
+  </head><body>
+
+  <div id="navbar" class="navbar navbar-default navbar-fixed-top">
+    <div class="container">
+      <div class="navbar-header">
+        <!-- .btn-navbar is used as the toggle for collapsed navbar content -->
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".nav-collapse">
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        <a class="navbar-brand" href="index.html">
+          vibrav</a>
+        <span class="navbar-text navbar-version pull-left"><b></b></span>
+      </div>
+
+        <div class="collapse navbar-collapse nav-collapse">
+          <ul class="nav navbar-nav">
+            
+            
+              <li class="dropdown globaltoc-container">
+  <a role="button"
+     id="dLabelGlobalToc"
+     data-toggle="dropdown"
+     data-target="#"
+     href="index.html">Site <b class="caret"></b></a>
+  <ul class="dropdown-menu globaltoc"
+      role="menu"
+      aria-labelledby="dLabelGlobalToc"><ul>
+<li class="toctree-l1"><a class="reference internal" href="examples/adf.html">ADF parser API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples/gen-displaced.html">Generating the displaced structures from a Gaussian frequencies calculation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples/molcas.html">Molcas parser API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples/numerical-diffs.html">Using derivative module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples/vibronic.html">Running vibronic calculations from a Molcas RASSI set of calculations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples/vroa-h2o2.html">VROA intensities of hydrogen peroxide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples/vroa-methyloxirane.html">VROA intensities of methyloxirane</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples/zpvc.html">Tutorial for using the ZPVC module in VIBRAV</a></li>
+</ul>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="vibrav.html">vibrav package</a></li>
+</ul>
+</ul>
+</li>
+              
+                <li class="dropdown">
+  <a role="button"
+     id="dLabelLocalToc"
+     data-toggle="dropdown"
+     data-target="#"
+     href="#">Page <b class="caret"></b></a>
+  <ul class="dropdown-menu localtoc"
+      role="menu"
+      aria-labelledby="dLabelLocalToc"><ul>
+<li><a class="reference internal" href="#">vibrav.numerical.degeneracy module</a><ul>
+<li><a class="reference internal" href="#vibrav.numerical.degeneracy.energetic_degeneracy"><code class="docutils literal notranslate"><span class="pre">energetic_degeneracy()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</ul>
+</li>
+              
+            
+            
+              
+                
+  <li>
+    <a href="vibrav.numerical.boltzmann.html" title="Previous Chapter: vibrav.numerical.boltzmann module"><span class="glyphicon glyphicon-chevron-left visible-sm"></span><span class="hidden-sm hidden-tablet">&laquo; vibrav.numeri...</span>
+    </a>
+  </li>
+  <li>
+    <a href="vibrav.numerical.derivatives.html" title="Next Chapter: vibrav.numerical.derivatives module"><span class="glyphicon glyphicon-chevron-right visible-sm"></span><span class="hidden-sm hidden-tablet">vibrav.numeri... &raquo;</span>
+    </a>
+  </li>
+              
+            
+            
+            
+            
+              <li class="hidden-sm">
+<div id="sourcelink">
+  <a href="_sources/vibrav.numerical.degeneracy.txt"
+     rel="nofollow">Source</a>
+</div></li>
+            
+          </ul>
+
+          
+            
+<form class="navbar-form navbar-right" action="search.html" method="get">
+ <div class="form-group">
+  <input type="text" name="q" class="form-control" placeholder="Search" />
+ </div>
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+          
+        </div>
+    </div>
+  </div>
+
+<div class="container">
+  <div class="row">
+    <div class="body col-md-12 content" role="main">
+      
+  <section id="module-vibrav.numerical.degeneracy">
+<span id="vibrav-numerical-degeneracy-module"></span><h1>vibrav.numerical.degeneracy module<a class="headerlink" href="#module-vibrav.numerical.degeneracy" title="Permalink to this heading">¶</a></h1>
+<dl class="py function">
+<dt class="sig sig-object py" id="vibrav.numerical.degeneracy.energetic_degeneracy">
+<span class="sig-prename descclassname"><span class="pre">vibrav.numerical.degeneracy.</span></span><span class="sig-name descname"><span class="pre">energetic_degeneracy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data_df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">degen_delta</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rtol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-12</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">numpy</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">original_order</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_sort</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">original_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/vibrav/numerical/degeneracy.html#energetic_degeneracy"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#vibrav.numerical.degeneracy.energetic_degeneracy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the energetic degeneracies within the energy tolerance given by the
+<cite>degen_delta</cite> parameter. This is mean to keep track of the indeces at which
+the energies are degenerate which helps when the input energies are not
+sorted in increasing order of energy. This is largely due to the way the
+function is set up.</p>
+<p>The returned data frame has the columns ‘value’, ‘degen’, and ‘index’ for
+the energies, electronic degeneracies, and indeces where the degenerate
+energies are based on the input array locations.</p>
+<p>If the input data is in ‘Hartree’ we recommend a degeneracy parameter of
+1e-5 Ha. For data that is in ‘wavenumbers’ we recommend a degeneracy
+parameter of 1 cm^{-1}</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>There is no kind of sanity checking with the tolerance values that are
+given. Meaning, that if the user gives an un-physical degeneracy
+tolerance parameter this function will blindly calculate it.</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>data_df</strong> (<code class="xref py py-obj docutils literal notranslate"><span class="pre">pandas.DataFrame</span></code> or <code class="xref py py-obj docutils literal notranslate"><span class="pre">numpy.ndarray</span></code>) – Data frame or array of the energies. If it is a numpy array
+must set the <cite>numpy</cite> parameter to <code class="code docutils literal notranslate"><span class="pre">True</span></code>.</p></li>
+<li><p><strong>degen_delta</strong> (<code class="xref py py-obj docutils literal notranslate"><span class="pre">float</span></code>) – Absolute value for determining two levels
+are degenerate. Must be in the same units
+as the input energies.</p></li>
+<li><p><strong>rtol</strong> (<code class="xref py py-obj docutils literal notranslate"><span class="pre">float</span></code>, optional) – Relative tolerance value for the
+differences in energy. Defaults to
+<code class="code docutils literal notranslate"><span class="pre">1e-12</span></code> so the it is more dependent on
+the <cite>degen_delta</cite> parameter.</p></li>
+<li><p><strong>numpy</strong> (<code class="xref py py-obj docutils literal notranslate"><span class="pre">bool</span></code>, optional) – Tell the program that the input data is
+a numpy array instead of a pandas data
+frame. Defaults to <code class="code docutils literal notranslate"><span class="pre">True</span></code>.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><p>degeneracy (<code class="xref py py-obj docutils literal notranslate"><span class="pre">pandas.DataFrame</span></code>) –</p>
+<dl class="simple">
+<dt>Data frame containing the</dt><dd><p>degenerate energies.</p>
+</dd>
+</dl>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+
+
+    </div>
+      
+  </div>
+</div>
+<footer class="footer">
+  <div class="container">
+    <p class="pull-right">
+      <a href="#">Back to top</a>
+      
+    </p>
+    <p>
+        &copy; Copyright 2023, Herbert D Ludowieg. Project structure based on the Computational Molecular Science Python Cookiecutter version 1.1.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 7.0.1.<br/>
+    </p>
+  </div>
+</footer>
+  </body>
+</html>

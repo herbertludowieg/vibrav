@@ -1,0 +1,7 @@
+vibrav.util.math module
+=======================
+
+.. automodule:: vibrav.util.math
+   :members:
+   :undoc-members:
+   :show-inheritance:

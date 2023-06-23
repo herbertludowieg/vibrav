@@ -1,0 +1,7 @@
+vibrav.vibronic.vibronic module
+===============================
+
+.. automodule:: vibrav.vibronic.vibronic
+   :members:
+   :undoc-members:
+   :show-inheritance:

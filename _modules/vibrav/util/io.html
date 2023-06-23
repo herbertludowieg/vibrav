@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>vibrav.util.io &#8212; vibrav  documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/bootstrap-sphinx.css" />
+    <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+    <script src="../../../_static/doctools.js"></script>
+    <script src="../../../_static/sphinx_highlight.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+<meta charset='utf-8'>
+<meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
+<meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1'>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<script type="text/javascript" src="../../../_static/js/jquery-1.12.4.min.js"></script>
+<script type="text/javascript" src="../../../_static/js/jquery-fix.js"></script>
+<script type="text/javascript" src="../../../_static/bootstrap-3.4.1/js/bootstrap.min.js"></script>
+<script type="text/javascript" src="../../../_static/bootstrap-sphinx.js"></script>
+
+  </head><body>
+
+  <div id="navbar" class="navbar navbar-default navbar-fixed-top">
+    <div class="container">
+      <div class="navbar-header">
+        <!-- .btn-navbar is used as the toggle for collapsed navbar content -->
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".nav-collapse">
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        <a class="navbar-brand" href="../../../index.html">
+          vibrav</a>
+        <span class="navbar-text navbar-version pull-left"><b></b></span>
+      </div>
+
+        <div class="collapse navbar-collapse nav-collapse">
+          <ul class="nav navbar-nav">
+            
+            
+              <li class="dropdown globaltoc-container">
+  <a role="button"
+     id="dLabelGlobalToc"
+     data-toggle="dropdown"
+     data-target="#"
+     href="../../../index.html">Site <b class="caret"></b></a>
+  <ul class="dropdown-menu globaltoc"
+      role="menu"
+      aria-labelledby="dLabelGlobalToc"><ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../examples/adf.html">ADF parser API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../examples/gen-displaced.html">Generating the displaced structures from a Gaussian frequencies calculation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../examples/molcas.html">Molcas parser API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../examples/numerical-diffs.html">Using derivative module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../examples/vibronic.html">Running vibronic calculations from a Molcas RASSI set of calculations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../examples/vroa-h2o2.html">VROA intensities of hydrogen peroxide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../examples/vroa-methyloxirane.html">VROA intensities of methyloxirane</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../examples/zpvc.html">Tutorial for using the ZPVC module in VIBRAV</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../vibrav.html">vibrav package</a></li>
+</ul>
+</ul>
+</li>
+              
+                <li class="dropdown">
+  <a role="button"
+     id="dLabelLocalToc"
+     data-toggle="dropdown"
+     data-target="#"
+     href="#">Page <b class="caret"></b></a>
+  <ul class="dropdown-menu localtoc"
+      role="menu"
+      aria-labelledby="dLabelLocalToc"></ul>
+</li>
+              
+            
+            
+              
+                
+              
+            
+            
+            
+            
+              <li class="hidden-sm"></li>
+            
+          </ul>
+
+          
+            
+<form class="navbar-form navbar-right" action="../../../search.html" method="get">
+ <div class="form-group">
+  <input type="text" name="q" class="form-control" placeholder="Search" />
+ </div>
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+          
+        </div>
+    </div>
+  </div>
+
+<div class="container">
+  <div class="row">
+    <div class="body col-md-12 content" role="main">
+      
+  <h1>Source code for vibrav.util.io</h1><div class="highlight"><pre>
+<span></span><span class="c1"># This file is part of vibrav.</span>
+<span class="c1">#</span>
+<span class="c1"># vibrav is free software: you can redistribute it and/or modify</span>
+<span class="c1"># it under the terms of the GNU General Public License as published by</span>
+<span class="c1"># the Free Software Foundation, either version 3 of the License, or</span>
+<span class="c1"># (at your option) any later version.</span>
+<span class="c1">#</span>
+<span class="c1"># vibrav is distributed in the hope that it will be useful,</span>
+<span class="c1"># but WITHOUT ANY WARRANTY; without even the implied warranty of</span>
+<span class="c1"># MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the</span>
+<span class="c1"># GNU General Public License for more details.</span>
+<span class="c1">#</span>
+<span class="c1"># You should have received a copy of the GNU General Public License</span>
+<span class="c1"># along with vibrav.  If not, see &lt;https://www.gnu.org/licenses/&gt;.</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">warnings</span>
+<span class="kn">import</span> <span class="nn">re</span>
+<span class="kn">import</span> <span class="nn">lzma</span>
+
+<div class="viewcode-block" id="read_data_file"><a class="viewcode-back" href="../../../vibrav.util.io.html#vibrav.util.io.read_data_file">[docs]</a><span class="k">def</span> <span class="nf">read_data_file</span><span class="p">(</span><span class="n">fp</span><span class="p">,</span> <span class="n">nmodes</span><span class="p">,</span> <span class="n">smat</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">nat</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Open a data file generated when creating the displaced coordinates.</span>
+
+<span class="sd">    Note:</span>
+<span class="sd">        If `smat=True` the script will return a data frame object</span>
+<span class="sd">    Args:</span>
+<span class="sd">        fp (:obj:`str`): Filepath to file.</span>
+<span class="sd">        nmodes (:obj:`int`):  Give the number of normal modes in</span>
+<span class="sd">            the molecule.</span>
+<span class="sd">        smat (:obj:`bool`, optional): Is the data from the smatrix</span>
+<span class="sd">            file. This file is special as it needs to be transformed</span>
+<span class="sd">            into three columns.</span>
+<span class="sd">        nat (:obj:`int`, optional): Required when `smat=True`.</span>
+<span class="sd">            Give the number of atoms in the molecule.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        arr (:class:`numpy.ndarray`): Array with the values.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">smat</span><span class="p">:</span>
+        <span class="n">arr</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">fp</span><span class="p">,</span> <span class="n">header</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">arr</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="n">nmodes</span><span class="p">:</span>
+            <span class="n">msg</span> <span class="o">=</span> <span class="s2">&quot;There was a problem with the size of the parsed &quot;</span> \
+                  <span class="o">+</span><span class="s2">&quot;data in file </span><span class="si">{}</span><span class="s2">. Expected </span><span class="si">{}</span><span class="s2"> elements, but got </span><span class="si">{}</span><span class="s2">.&quot;</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">msg</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">fp</span><span class="p">,</span> <span class="n">nmodes</span><span class="p">,</span> <span class="n">arr</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">fp</span><span class="p">,</span> <span class="n">header</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+        <span class="n">df</span><span class="p">[</span><span class="s1">&#39;groups&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">tile</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">],</span> <span class="n">nmodes</span><span class="o">*</span><span class="n">nat</span><span class="p">)</span>
+        <span class="n">tmp</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s1">&#39;groups&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">)</span><span class="o">.</span><span class="n">to_dict</span><span class="p">()</span>
+        <span class="n">arr</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">tmp</span><span class="p">)</span>
+        <span class="n">arr</span><span class="o">.</span><span class="n">columns</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;dx&#39;</span><span class="p">,</span> <span class="s1">&#39;dy&#39;</span><span class="p">,</span> <span class="s1">&#39;dz&#39;</span><span class="p">]</span>
+        <span class="n">arr</span><span class="p">[</span><span class="s1">&#39;freqdx&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">repeat</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">nmodes</span><span class="p">),</span> <span class="n">nat</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">arr</span></div>
+
+<div class="viewcode-block" id="open_txt"><a class="viewcode-back" href="../../../vibrav.util.io.html#vibrav.util.io.open_txt">[docs]</a><span class="k">def</span> <span class="nf">open_txt</span><span class="p">(</span><span class="n">fp</span><span class="p">,</span> <span class="n">rearrange</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">get_complex</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">fill</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">is_complex</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+             <span class="n">tol</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">get_magnitude</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Method to open a .txt file that has a separator of &#39; &#39; with the first</span>
+<span class="sd">    columns ordered as [&#39;nrow&#39;, &#39;ncol&#39;, &#39;real&#39;, &#39;imag&#39;]. We take care of</span>
+<span class="sd">    adding the two values to generate a complex number. The program will</span>
+<span class="sd">    take your data and automatically generate a matrix of complex values</span>
+<span class="sd">    that has the size of the maximum of the unique values in the &#39;nrow&#39;</span>
+<span class="sd">    column and the maximum in the &#39;ncol&#39; column. tha being said if there</span>
+<span class="sd">    are missing values the program will throw &#39;ValueError&#39; as it will not</span>
+<span class="sd">    be able to determine the size of the  new matrix. This works for both</span>
+<span class="sd">    square and non-square matrices. We assume that the indexing is</span>
+<span class="sd">    non-pythonic hence the subtraction of &#39;nrow&#39; and &#39;ncol&#39; columns.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        fp (str): Filepath of the file you want to open.</span>
+<span class="sd">        rearrange (bool, optional): If you want to rearrange the data</span>
+<span class="sd">            into a square complex matrix. Defaults to `True`.</span>
+<span class="sd">        fill (:obj:`bool`, optional): Fill the missing indeces with zeros.</span>
+<span class="sd">        is_complex (:obj:`bool`, optional): The input data is complex.</span>
+<span class="sd">        tol (:obj:`float`, optional): Ignore any values in the matrix that</span>
+<span class="sd">            are less than this threshold. Defaults to `None` (no values are</span>
+<span class="sd">            discarded).</span>
+<span class="sd">        get_magnitude (:obj:`bool`, optional): Calculate the magnitude of</span>
+<span class="sd">            the data. Only applicable when the input data is complex. Will</span>
+<span class="sd">            be ignored if `rearrange=True`. Defaults to `False`.</span>
+<span class="sd">        sep (str, optional): Delimiter value. Will default to `&#39; &#39;`.</span>
+<span class="sd">        skipinitialspace (bool, optional): Pandas skipinitialspace argument</span>
+<span class="sd">            in the `pandas.read_csv` method. Defaults to `True`.</span>
+<span class="sd">        **kwargs (optional): Arguments that will be passed into</span>
+<span class="sd">            :code:`pandas.read_csv`.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        matrix (pandas.DataFrame): Re-sized complex square matrix with the</span>
+<span class="sd">            appropriate size.</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">        TypeError: When there are null values found. A common place this has</span>
+<span class="sd">            been an issue is when the first two columns in the &#39;.txt&#39; files</span>
+<span class="sd">            read have merged due to too many states. This was found to happen</span>
+<span class="sd">            when there were over 1000 spin-orbit states.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">keys</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
+    <span class="c1"># make sure certain defaults keys are kwargs</span>
+    <span class="k">if</span> <span class="s1">&#39;skipinitialspace&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">keys</span><span class="p">:</span>
+        <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;skipinitialspace&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+    <span class="k">if</span> <span class="s1">&#39;sep&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">keys</span><span class="p">:</span>
+        <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;sep&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39; &#39;</span>
+    <span class="k">if</span> <span class="s1">&#39;index_col&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">keys</span><span class="p">:</span>
+        <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;index_col&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">fp</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">pd</span><span class="o">.</span><span class="n">isnull</span><span class="p">(</span><span class="n">df</span><span class="p">)</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">any</span><span class="p">():</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">isnull</span><span class="p">(</span><span class="n">df</span><span class="p">)))</span>
+        <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;Null values where found while reading </span><span class="si">{fp}</span><span class="s2"> &quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">fp</span><span class="o">=</span><span class="n">fp</span><span class="p">)</span> \
+                       <span class="o">+</span><span class="s2">&quot;a common issue is if the ncol and nrow values have merged&quot;</span><span class="p">)</span>
+    <span class="c1"># this is an assumption that only works in the context of this program as the</span>
+    <span class="c1"># txt files that the program is looking for have four columns</span>
+    <span class="c1"># TODO: might be nice to give a conditional to check if the data is real or complex</span>
+    <span class="c1">#       and only read the first three columns but that might be more work for nothing</span>
+    <span class="n">df</span><span class="o">.</span><span class="n">columns</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;#&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">),</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">))</span>
+    <span class="n">df</span><span class="p">[</span><span class="s1">&#39;nrow&#39;</span><span class="p">]</span> <span class="o">-=</span> <span class="mi">1</span>
+    <span class="n">df</span><span class="p">[</span><span class="s1">&#39;ncol&#39;</span><span class="p">]</span> <span class="o">-=</span> <span class="mi">1</span>
+    <span class="c1"># rearrange the data to a matrix ordered by the rows and columns</span>
+    <span class="k">if</span> <span class="n">rearrange</span><span class="p">:</span>
+        <span class="n">nrow</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s1">&#39;nrow&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">()</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">ncol</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s1">&#39;ncol&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">()</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">df</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">nrow</span><span class="o">*</span><span class="n">ncol</span><span class="p">:</span>
+            <span class="n">matrix</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s1">&#39;nrow&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span>
+                                  <span class="n">x</span><span class="p">[</span><span class="s1">&#39;real&#39;</span><span class="p">]</span><span class="o">+</span><span class="mi">1</span><span class="n">j</span><span class="o">*</span><span class="n">x</span><span class="p">[</span><span class="s1">&#39;imag&#39;</span><span class="p">])</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">nrow</span><span class="p">,</span> <span class="n">ncol</span><span class="p">))</span>
+        <span class="k">elif</span> <span class="n">fill</span><span class="p">:</span>
+            <span class="n">matrix</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">nrow</span><span class="p">,</span> <span class="n">ncol</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">complex128</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">row</span><span class="p">,</span> <span class="n">col</span><span class="p">,</span> <span class="n">real</span><span class="p">,</span> <span class="n">imag</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">nrow</span><span class="p">,</span> <span class="n">df</span><span class="o">.</span><span class="n">ncol</span><span class="p">,</span> <span class="n">df</span><span class="o">.</span><span class="n">real</span><span class="p">,</span> <span class="n">df</span><span class="o">.</span><span class="n">imag</span><span class="p">):</span>
+                <span class="n">matrix</span><span class="p">[</span><span class="n">row</span><span class="p">,</span> <span class="n">col</span><span class="p">]</span> <span class="o">=</span> <span class="n">real</span> <span class="o">+</span> <span class="mi">1</span><span class="n">j</span><span class="o">*</span><span class="n">imag</span>
+            <span class="n">matrix</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">matrix</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">text</span> <span class="o">=</span> <span class="s2">&quot;The given matrix is not square with </span><span class="si">{}</span><span class="s2"> elements and &quot;</span> \
+                   <span class="o">+</span><span class="s2">&quot;(nrow, ncol) (</span><span class="si">{}</span><span class="s2">, </span><span class="si">{}</span><span class="s2">). If the input matrix is sparse &quot;</span> \
+                   <span class="o">+</span><span class="s2">&quot;then use the &#39;fill=True&#39; as this will fill the matrix &quot;</span> \
+                   <span class="o">+</span><span class="s2">&quot;with zeros.&quot;</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">text</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">nrow</span><span class="p">,</span> <span class="n">ncol</span><span class="p">))</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">is_complex</span><span class="p">:</span>
+            <span class="n">imag</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">imag</span><span class="p">(</span><span class="n">matrix</span><span class="o">.</span><span class="n">values</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span><span class="n">imag</span><span class="p">,</span> <span class="mi">0</span><span class="p">):</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;The input data was detected to be complex &quot;</span> \
+                                 <span class="o">+</span><span class="s2">&quot;but the kwarg &#39;is_complex&#39; was set to &quot;</span> \
+                                 <span class="o">+</span><span class="s2">&quot;&#39;False&#39;&quot;</span><span class="p">)</span>
+            <span class="n">matrix</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">real</span><span class="p">(</span><span class="n">matrix</span><span class="o">.</span><span class="n">values</span><span class="p">))</span>
+        <span class="n">matrix</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s1">&#39;ncol&#39;</span>
+        <span class="n">matrix</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s1">&#39;nrow&#39;</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">matrix</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">tol</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">index</span> <span class="o">=</span> <span class="n">matrix</span><span class="p">[</span><span class="s1">&#39;real&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">abs</span><span class="p">()</span> <span class="o">&lt;</span> <span class="n">tol</span>
+            <span class="n">matrix</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">index</span><span class="p">,</span> <span class="s1">&#39;real&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.0</span>
+            <span class="n">index</span> <span class="o">=</span> <span class="n">matrix</span><span class="p">[</span><span class="s1">&#39;imag&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">abs</span><span class="p">()</span> <span class="o">&lt;</span> <span class="n">tol</span>
+            <span class="n">matrix</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">index</span><span class="p">,</span> <span class="s1">&#39;imag&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.0</span>
+        <span class="k">if</span> <span class="n">get_complex</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">is_complex</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Keywords &#39;get_complex&#39; and &#39;is_complex&#39; clash &quot;</span> \
+                             <span class="o">+</span><span class="s2">&quot;as they were set to &#39;True&#39; and &#39;False&#39;, &quot;</span> \
+                             <span class="o">+</span><span class="s2">&quot;respectively. Cannot calculate the complex &quot;</span> \
+                             <span class="o">+</span><span class="s2">&quot;values if they are not complex.&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">get_complex</span><span class="p">:</span>
+            <span class="n">matrix</span><span class="p">[</span><span class="s1">&#39;complex&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">matrix</span><span class="p">[</span><span class="s1">&#39;real&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span><span class="n">j</span><span class="o">*</span><span class="n">matrix</span><span class="p">[</span><span class="s1">&#39;imag&#39;</span><span class="p">]</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">is_complex</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span><span class="n">matrix</span><span class="p">[</span><span class="s1">&#39;imag&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="mi">0</span><span class="p">):</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;The input data was detected to be complex &quot;</span> \
+                                 <span class="o">+</span><span class="s2">&quot;but the kwarg &#39;is_complex&#39; was set to &quot;</span> \
+                                 <span class="o">+</span><span class="s2">&quot;&#39;False&#39;&quot;</span><span class="p">)</span>
+            <span class="n">matrix</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="s1">&#39;imag&#39;</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">get_magnitude</span> <span class="ow">and</span> <span class="n">is_complex</span><span class="p">:</span>
+            <span class="kn">from</span> <span class="nn">vibrav.numerical.phases</span> <span class="kn">import</span> <span class="n">get_mag</span>
+            <span class="n">matrix</span><span class="p">[</span><span class="s1">&#39;magnitude&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">get_mag</span><span class="p">(</span><span class="n">matrix</span><span class="p">[</span><span class="s1">&#39;real&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">,</span>
+                                          <span class="n">matrix</span><span class="p">[</span><span class="s1">&#39;imag&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">)</span>
+        <span class="n">matrix</span><span class="p">[</span><span class="s1">&#39;nrow&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">matrix</span><span class="p">[</span><span class="s1">&#39;nrow&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">uint16</span><span class="p">)</span>
+        <span class="n">matrix</span><span class="p">[</span><span class="s1">&#39;ncol&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">matrix</span><span class="p">[</span><span class="s1">&#39;ncol&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">uint16</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">matrix</span></div>
+
+<div class="viewcode-block" id="write_txt"><a class="viewcode-back" href="../../../vibrav.util.io.html#vibrav.util.io.write_txt">[docs]</a><span class="k">def</span> <span class="nf">write_txt</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">fp</span><span class="p">,</span> <span class="n">formatter</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">header</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">order</span><span class="o">=</span><span class="s1">&#39;F&#39;</span><span class="p">,</span>
+              <span class="n">non_matrix</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;w&#39;</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Function to write the input data as a txt file with the set format</span>
+<span class="sd">    to be read by external codes in the MCD suite.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        df (pandas.DataFrame or numpy.ndarray): Input data</span>
+<span class="sd">        fp (str): File to write data to</span>
+<span class="sd">        formatter (:obj:`list`, optional): List of formatting strings.</span>
+<span class="sd">        header (:obj:`str`, optional): Header to place on the file.</span>
+<span class="sd">        order (:obj:`str`, optional): Flattening order. See</span>
+<span class="sd">                                      numpy.ndarray.flatten for more</span>
+<span class="sd">                                      information.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="k">if</span> <span class="n">formatter</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">formatter</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;</span><span class="si">{:6d}</span><span class="s1">&#39;</span><span class="p">]</span><span class="o">*</span><span class="mi">2</span><span class="o">+</span><span class="p">[</span><span class="s1">&#39;</span><span class="si">{:25.16E}</span><span class="s1">&#39;</span><span class="p">]</span><span class="o">*</span><span class="mi">2</span>
+    <span class="k">if</span> <span class="n">header</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">mode</span> <span class="o">==</span> <span class="s1">&#39;w&#39;</span><span class="p">:</span>
+        <span class="n">text</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">{:&lt;6s}</span><span class="s1"> </span><span class="si">{:&lt;6s}</span><span class="s1"> </span><span class="si">{:&gt;25s}</span><span class="s1"> </span><span class="si">{:&gt;25s}</span><span class="se">\n</span><span class="s1">&#39;</span>
+        <span class="n">header</span> <span class="o">=</span> <span class="n">text</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="s1">&#39;#NROW&#39;</span><span class="p">,</span> <span class="s1">&#39;NCOL&#39;</span><span class="p">,</span> <span class="s1">&#39;REAL&#39;</span><span class="p">,</span> <span class="s1">&#39;IMAG&#39;</span><span class="p">)</span>
+    <span class="c1">#if len(formatter) != 4 and not non_matrix:</span>
+    <span class="c1">#    raise NotImplementedError(&#39;Do not currently support custom number of columns&#39;)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">non_matrix</span><span class="p">:</span>
+        <span class="n">shape</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">shape</span>
+        <span class="c1"># check data consistency</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">shape</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">2</span><span class="p">:</span>
+                <span class="n">text</span> <span class="o">=</span> <span class="s2">&quot;The input array must be 2-dimensional, currently </span><span class="si">{}</span><span class="s2"> dimensional&quot;</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">text</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">shape</span><span class="p">)))</span>
+        <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">AttributeError</span><span class="p">(</span><span class="s2">&quot;The input array must be of type numpy.ndarray or pandas.DataFrame&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]:</span>
+            <span class="n">text</span> <span class="o">=</span> <span class="s2">&quot;The input data is not square will assume that this is correct&quot;</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="ne">Warning</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">):</span>
+            <span class="n">cols</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;nrow&#39;</span><span class="p">,</span> <span class="s1">&#39;ncol&#39;</span><span class="p">,</span> <span class="s1">&#39;real&#39;</span><span class="p">,</span> <span class="s1">&#39;imag&#39;</span><span class="p">]</span>
+            <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">,</span> <span class="n">cols</span><span class="p">))):</span>
+                <span class="n">msg</span> <span class="o">=</span> <span class="s2">&quot;We detected the input data as having the &quot;</span> \
+                      <span class="o">+</span><span class="s2">&quot;ordered columns to be written to file. &quot;</span> \
+                      <span class="o">+</span><span class="s2">&quot;If this is, true add the &#39;non_matrix=True&#39; &quot;</span> \
+                      <span class="o">+</span><span class="s2">&quot;to your script. If not, please submit a &quot;</span> \
+                      <span class="o">+</span><span class="s2">&quot;bug report.&quot;</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+            <span class="n">arr</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">values</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
+            <span class="n">arr</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="c1"># check that the array is not made of strings</span>
+        <span class="c1"># can get away with this by checking the (0,0) element</span>
+        <span class="c1"># as if one value in a numpy array is a string then all</span>
+        <span class="c1"># others will be strings as well</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">arr</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Sorry one of the values in the input array &quot;</span> \
+                             <span class="o">+</span><span class="s2">&quot;is a string&quot;</span><span class="p">)</span>
+        <span class="c1"># flatten the array to have a single column data</span>
+        <span class="c1"># the order is set to Fortran style as the original</span>
+        <span class="c1"># code does this</span>
+        <span class="k">if</span> <span class="n">order</span> <span class="o">==</span> <span class="s1">&#39;F&#39;</span><span class="p">:</span>
+            <span class="n">nrow</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">tile</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span><span class="o">+</span><span class="mi">1</span>
+            <span class="n">ncol</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">repeat</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span> <span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="o">+</span><span class="mi">1</span>
+        <span class="k">elif</span> <span class="n">order</span> <span class="o">==</span> <span class="s1">&#39;C&#39;</span><span class="p">:</span>
+            <span class="n">nrow</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">repeat</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span><span class="o">+</span><span class="mi">1</span>
+            <span class="n">ncol</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">tile</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span> <span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="o">+</span><span class="mi">1</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;Sorry we only support flattening by C or Fortran style&quot;</span><span class="p">)</span>
+        <span class="n">flat</span> <span class="o">=</span> <span class="n">arr</span><span class="o">.</span><span class="n">flatten</span><span class="p">(</span><span class="n">order</span><span class="o">=</span><span class="n">order</span><span class="p">)</span>
+        <span class="n">real</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">real</span><span class="p">(</span><span class="n">flat</span><span class="p">)</span>
+        <span class="n">imag</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">imag</span><span class="p">(</span><span class="n">flat</span><span class="p">)</span>
+        <span class="c1"># write out data</span>
+        <span class="n">data_template</span> <span class="o">=</span> <span class="s1">&#39; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">formatter</span><span class="p">)</span>
+        <span class="n">data_template</span> <span class="o">+=</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span>
+        <span class="n">arr</span> <span class="o">=</span> <span class="nb">zip</span><span class="p">(</span><span class="n">real</span><span class="p">,</span> <span class="n">imag</span><span class="p">,</span> <span class="n">nrow</span><span class="p">,</span> <span class="n">ncol</span><span class="p">)</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">fp</span><span class="p">,</span> <span class="n">mode</span><span class="p">)</span> <span class="k">as</span> <span class="n">fn</span><span class="p">:</span>
+            <span class="n">fn</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">header</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">r</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">nr</span><span class="p">,</span> <span class="n">nc</span> <span class="ow">in</span> <span class="n">arr</span><span class="p">:</span>
+                <span class="n">fn</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">data_template</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">nr</span><span class="p">,</span> <span class="n">nc</span><span class="p">,</span> <span class="n">r</span><span class="p">,</span> <span class="n">i</span><span class="p">))</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">fp</span><span class="p">,</span> <span class="n">mode</span><span class="p">)</span> <span class="k">as</span> <span class="n">fn</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">header</span><span class="p">:</span>
+                <span class="n">fn</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">header</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">mode</span> <span class="o">==</span> <span class="s1">&#39;a&#39;</span><span class="p">:</span>
+                <span class="n">fn</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+            <span class="n">formatter</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">format</span><span class="p">,</span> <span class="n">formatter</span><span class="p">))</span>
+            <span class="n">df_copy</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+            <span class="n">df_copy</span><span class="p">[[</span><span class="s1">&#39;nrow&#39;</span><span class="p">,</span> <span class="s1">&#39;ncol&#39;</span><span class="p">]]</span> <span class="o">+=</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span>
+            <span class="n">fn</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">df_copy</span><span class="o">.</span><span class="n">to_string</span><span class="p">(</span><span class="n">formatters</span><span class="o">=</span><span class="n">formatter</span><span class="p">,</span> <span class="n">header</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                                       <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="get_all_data"><a class="viewcode-back" href="../../../vibrav.util.io.html#vibrav.util.io.get_all_data">[docs]</a><span class="k">def</span> <span class="nf">get_all_data</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">method</span><span class="p">,</span> <span class="n">f_start</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">f_end</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Function to get all of the data from the files in a specific directory.</span>
+<span class="sd">    It will look for all of the files that match the given `f_start`</span>
+<span class="sd">    and `f_end` input parameters and try to extract the information</span>
+<span class="sd">    for the given `property` with the `cls` parser class.</span>
+
+<span class="sd">    Note:</span>
+<span class="sd">        We recommend that the convention used in creating the different</span>
+<span class="sd">        files is such that there is an idex to each file to keep track of</span>
+<span class="sd">        the data that corresponds to the specific file. The program, when</span>
+<span class="sd">        attempting to find the index of the file, will find all of the</span>
+<span class="sd">        integers in the filename and assume that the last entry is the</span>
+<span class="sd">        file index. It will give a warning if it finds more than one</span>
+<span class="sd">        integer group in the filename to tell the user that it will</span>
+<span class="sd">        assume that the last group of integers found is the file index.</span>
+
+<span class="sd">    Parameters:</span>
+<span class="sd">        cls (class object): Class object of the output parser of choice.</span>
+<span class="sd">        path (:obj:`str`): Path to the directory containing all of the</span>
+<span class="sd">                           output files.</span>
+<span class="sd">        method (:obj:`str`): Parsing method to use in the given class.</span>
+<span class="sd">        f_start (:obj:`str`): Starting string to match the output files.</span>
+<span class="sd">                              Defaults to :code:`&#39;&#39;`.</span>
+<span class="sd">        f_end (:obj:`str`): Ending string to match the output files.</span>
+<span class="sd">                            Defaults to :code:`&#39;&#39;`.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        data (:class:`pandas.DataFrame`): Data frame with all of the parsed data.</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">        ValueError: If the program cannot find any data or files that</span>
+<span class="sd">                    match the input parameters.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">dfs</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="p">(</span><span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">files</span><span class="p">)</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">walk</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">file</span> <span class="ow">in</span> <span class="n">files</span><span class="p">:</span>
+            <span class="n">filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">file</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span> <span class="ow">and</span> <span class="n">file</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="n">f_start</span><span class="p">)</span> <span class="ow">and</span> <span class="n">file</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="n">f_end</span><span class="p">):</span>
+                <span class="n">ed</span> <span class="o">=</span> <span class="bp">cls</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">df</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">ed</span><span class="p">,</span> <span class="n">method</span><span class="p">)</span>
+                <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
+                    <span class="n">msg</span> <span class="o">=</span> <span class="s2">&quot;The class </span><span class="si">{}</span><span class="s2"> could not find the data with the &quot;</span> \
+                          <span class="o">+</span><span class="s2">&quot;parsing method </span><span class="si">{}</span><span class="s2"> in file </span><span class="si">{}</span><span class="s2">.&quot;</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="n">msg</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">clas</span><span class="p">,</span> <span class="n">method</span><span class="p">,</span> <span class="n">filename</span><span class="p">))</span>
+                    <span class="k">continue</span>
+                <span class="n">fdx</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s1">&#39;\d+&#39;</span><span class="p">,</span> <span class="n">file</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">f_start</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">f_end</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">))))</span>
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">fdx</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+                    <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;More than one index was found in the filename. Will assume that the &quot;</span> \
+                                  <span class="o">+</span><span class="s2">&quot;file index is the last number found.&quot;</span><span class="p">,</span> <span class="ne">Warning</span><span class="p">)</span>
+                <span class="n">df</span><span class="p">[</span><span class="s1">&#39;file&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">fdx</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">continue</span>
+            <span class="n">dfs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">dfs</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;No data was found in the directory </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">path</span><span class="p">))</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">dfs</span><span class="p">,</span> <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">data</span></div>
+
+<div class="viewcode-block" id="uncompress_file"><a class="viewcode-back" href="../../../vibrav.util.io.html#vibrav.util.io.uncompress_file">[docs]</a><span class="k">def</span> <span class="nf">uncompress_file</span><span class="p">(</span><span class="n">fp</span><span class="p">,</span> <span class="n">compression</span><span class="o">=</span><span class="s1">&#39;xz&#39;</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">compression</span> <span class="o">==</span> <span class="s1">&#39;xz&#39;</span><span class="p">:</span>
+        <span class="n">decomp</span> <span class="o">=</span> <span class="n">fp</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">sep</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">][:</span><span class="o">-</span><span class="mi">3</span><span class="p">]</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">decomp</span><span class="p">,</span> <span class="s1">&#39;wb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">new_file</span><span class="p">,</span> <span class="n">lzma</span><span class="o">.</span><span class="n">LZMAFile</span><span class="p">(</span><span class="n">fp</span><span class="p">,</span> <span class="s1">&#39;rb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">file</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">data</span> <span class="ow">in</span> <span class="nb">iter</span><span class="p">(</span><span class="k">lambda</span> <span class="p">:</span> <span class="n">file</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="mi">100</span> <span class="o">*</span><span class="mi">1024</span><span class="p">),</span> <span class="sa">b</span><span class="s1">&#39;&#39;</span><span class="p">):</span>
+                <span class="n">new_file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">decomp</span></div>
+
+</pre></div>
+
+    </div>
+      
+  </div>
+</div>
+<footer class="footer">
+  <div class="container">
+    <p class="pull-right">
+      <a href="#">Back to top</a>
+      
+    </p>
+    <p>
+        &copy; Copyright 2023, Herbert D Ludowieg. Project structure based on the Computational Molecular Science Python Cookiecutter version 1.1.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 7.0.1.<br/>
+    </p>
+  </div>
+</footer>
+  </body>
+</html>

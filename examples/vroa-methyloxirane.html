@@ -1,0 +1,620 @@
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>VROA intensities of methyloxirane &#8212; vibrav  documentation</title>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/bootstrap-sphinx.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/nbsphinx-code-cells.css" />
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/sphinx_highlight.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Tutorial for using the ZPVC module in VIBRAV" href="zpvc.html" />
+    <link rel="prev" title="VROA intensities of hydrogen peroxide" href="vroa-h2o2.html" />
+<meta charset='utf-8'>
+<meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
+<meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1'>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<script type="text/javascript" src="../_static/js/jquery-1.12.4.min.js"></script>
+<script type="text/javascript" src="../_static/js/jquery-fix.js"></script>
+<script type="text/javascript" src="../_static/bootstrap-3.4.1/js/bootstrap.min.js"></script>
+<script type="text/javascript" src="../_static/bootstrap-sphinx.js"></script>
+
+  </head><body>
+
+  <div id="navbar" class="navbar navbar-default navbar-fixed-top">
+    <div class="container">
+      <div class="navbar-header">
+        <!-- .btn-navbar is used as the toggle for collapsed navbar content -->
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".nav-collapse">
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        <a class="navbar-brand" href="../index.html">
+          vibrav</a>
+        <span class="navbar-text navbar-version pull-left"><b></b></span>
+      </div>
+
+        <div class="collapse navbar-collapse nav-collapse">
+          <ul class="nav navbar-nav">
+            
+            
+              <li class="dropdown globaltoc-container">
+  <a role="button"
+     id="dLabelGlobalToc"
+     data-toggle="dropdown"
+     data-target="#"
+     href="../index.html">Site <b class="caret"></b></a>
+  <ul class="dropdown-menu globaltoc"
+      role="menu"
+      aria-labelledby="dLabelGlobalToc"><ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="adf.html">ADF parser API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="gen-displaced.html">Generating the displaced structures from a Gaussian frequencies calculation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="molcas.html">Molcas parser API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="numerical-diffs.html">Using derivative module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="vibronic.html">Running vibronic calculations from a Molcas RASSI set of calculations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="vroa-h2o2.html">VROA intensities of hydrogen peroxide</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">VROA intensities of methyloxirane</a></li>
+<li class="toctree-l1"><a class="reference internal" href="zpvc.html">Tutorial for using the ZPVC module in VIBRAV</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../vibrav.html">vibrav package</a></li>
+</ul>
+</ul>
+</li>
+              
+                <li class="dropdown">
+  <a role="button"
+     id="dLabelLocalToc"
+     data-toggle="dropdown"
+     data-target="#"
+     href="#">Page <b class="caret"></b></a>
+  <ul class="dropdown-menu localtoc"
+      role="menu"
+      aria-labelledby="dLabelLocalToc"><ul>
+<li><a class="reference internal" href="#">VROA intensities of methyloxirane</a><ul>
+<li><a class="reference internal" href="#Run-the-VROA-code">Run the VROA code</a></li>
+<li><a class="reference internal" href="#Plot-the-calculated-intensities">Plot the calculated intensities</a></li>
+</ul>
+</li>
+</ul>
+</ul>
+</li>
+              
+            
+            
+              
+                
+  <li>
+    <a href="vroa-h2o2.html" title="Previous Chapter: VROA intensities of hydrogen peroxide"><span class="glyphicon glyphicon-chevron-left visible-sm"></span><span class="hidden-sm hidden-tablet">&laquo; VROA intensit...</span>
+    </a>
+  </li>
+  <li>
+    <a href="zpvc.html" title="Next Chapter: Tutorial for using the ZPVC module in VIBRAV"><span class="glyphicon glyphicon-chevron-right visible-sm"></span><span class="hidden-sm hidden-tablet">Tutorial for ... &raquo;</span>
+    </a>
+  </li>
+              
+            
+            
+            
+            
+              <li class="hidden-sm">
+<div id="sourcelink">
+  <a href="../_sources/examples/vroa-methyloxirane.ipynb.txt"
+     rel="nofollow">Source</a>
+</div></li>
+            
+          </ul>
+
+          
+            
+<form class="navbar-form navbar-right" action="../search.html" method="get">
+ <div class="form-group">
+  <input type="text" name="q" class="form-control" placeholder="Search" />
+ </div>
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+          
+        </div>
+    </div>
+  </div>
+
+<div class="container">
+  <div class="row">
+    <div class="body col-md-12 content" role="main">
+      
+  <section id="VROA-intensities-of-methyloxirane">
+<h1>VROA intensities of methyloxirane<a class="headerlink" href="#VROA-intensities-of-methyloxirane" title="Permalink to this heading">¶</a></h1>
+<p>Here we show an example of how to calculate the VROA intensities of methyloxirane calculated with an incident wavelength of 488.9 nm.</p>
+<section id="Run-the-VROA-code">
+<h2>Run the VROA code<a class="headerlink" href="#Run-the-VROA-code" title="Permalink to this heading">¶</a></h2>
+<p>First import any packages that we need. Mainly just need the VROA class from vibrav.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">vibrav.base</span> <span class="kn">import</span> <span class="n">resource</span>
+<span class="kn">from</span> <span class="nn">vibrav</span> <span class="kn">import</span> <span class="n">VROA</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+</pre></div>
+</div>
+</div>
+<p>Initialize the class and print the elements in the configuration file</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">resource</span><span class="p">(</span><span class="s1">&#39;methyloxirane-vroa-va.conf&#39;</span><span class="p">),</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fn</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">fn</span><span class="o">.</span><span class="n">read</span><span class="p">())</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+DELTA_FILE                    methyloxirane-vroa-delta.dat.xz
+SMATRIX_FILE                  methyloxirane-vroa-smatrix.dat.xz
+ATOM_ORDER_FILE               methyloxirane-vroa-atom_order.dat.xz
+REDUCED_MASS_FILE             methyloxirane-vroa-redmass.dat.xz
+FREQUENCY_FILE                methyloxirane-vroa-freq.dat.xz
+EQCOORD_FILE                  methyloxirane-vroa-eqcoord.dat.xz
+ROA_FILE                      methyloxirane-vroa-roa.csv.xz
+GRAD_FILE                     methyloxirane-vroa-grad.csv.xz
+NUMBER_OF_MODES               24
+NUMBER_OF_NUCLEI              10
+USE_RESOURCE                  1
+
+</pre></div></div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">vroa</span> <span class="o">=</span> <span class="n">VROA</span><span class="p">(</span><span class="n">config_file</span><span class="o">=</span><span class="n">resource</span><span class="p">(</span><span class="s1">&#39;methyloxirane-vroa-va.conf&#39;</span><span class="p">))</span>
+</pre></div>
+</div>
+</div>
+<p>Run the <code class="docutils literal notranslate"><span class="pre">vroa</span></code> method to calculate the intensities. Internally we read the ROA and gradient data from the lines in the configuration file corresponding to <code class="docutils literal notranslate"><span class="pre">roa_file</span></code> and <code class="docutils literal notranslate"><span class="pre">grad_file</span></code>. These have to be created prior to the run and are simple csv files generated by the python library, pandas.</p>
+<p>For more information about how we parse the outputs you can refer to the tutorial on parsing the NWChem outputs using exatomic.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">vroa</span><span class="o">.</span><span class="n">vroa</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<p>Print the VROA intensities and other pertinent information</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">vroa</span><span class="o">.</span><span class="n">scatter</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>freq</th>
+      <th>freqdx</th>
+      <th>beta_g*1e6</th>
+      <th>beta_A*1e6</th>
+      <th>alpha_g*1e6</th>
+      <th>backscatter</th>
+      <th>forwardscatter</th>
+      <th>exc_freq</th>
+      <th>exc_idx</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>200.247393</td>
+      <td>0</td>
+      <td>3.656216</td>
+      <td>-0.273074</td>
+      <td>0.040271</td>
+      <td>0.000342</td>
+      <td>0.000092</td>
+      <td>488.9</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>354.450962</td>
+      <td>1</td>
+      <td>-35.948619</td>
+      <td>-4.790522</td>
+      <td>-0.202244</td>
+      <td>-0.003604</td>
+      <td>-0.000644</td>
+      <td>488.9</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>398.589617</td>
+      <td>2</td>
+      <td>2.472626</td>
+      <td>4.730142</td>
+      <td>-1.325064</td>
+      <td>0.000389</td>
+      <td>-0.000990</td>
+      <td>488.9</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>719.359726</td>
+      <td>3</td>
+      <td>132.090769</td>
+      <td>38.915333</td>
+      <td>2.796307</td>
+      <td>0.013926</td>
+      <td>0.003504</td>
+      <td>488.9</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>798.974164</td>
+      <td>4</td>
+      <td>-170.470297</td>
+      <td>-21.596906</td>
+      <td>-1.259120</td>
+      <td>-0.017056</td>
+      <td>-0.003289</td>
+      <td>488.9</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>5</th>
+      <td>875.765502</td>
+      <td>5</td>
+      <td>-179.496773</td>
+      <td>-85.647522</td>
+      <td>0.856508</td>
+      <td>-0.019972</td>
+      <td>-0.000885</td>
+      <td>488.9</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>6</th>
+      <td>930.279028</td>
+      <td>6</td>
+      <td>43.652907</td>
+      <td>13.460119</td>
+      <td>4.053168</td>
+      <td>0.004621</td>
+      <td>0.003401</td>
+      <td>488.9</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>7</th>
+      <td>1007.463980</td>
+      <td>7</td>
+      <td>42.888944</td>
+      <td>22.644693</td>
+      <td>1.396536</td>
+      <td>0.004842</td>
+      <td>0.001329</td>
+      <td>488.9</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>8</th>
+      <td>1090.810610</td>
+      <td>8</td>
+      <td>-20.942816</td>
+      <td>-10.046244</td>
+      <td>-1.407385</td>
+      <td>-0.002332</td>
+      <td>-0.001188</td>
+      <td>488.9</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>9</th>
+      <td>1111.217660</td>
+      <td>9</td>
+      <td>111.839344</td>
+      <td>10.336868</td>
+      <td>0.211851</td>
+      <td>0.011067</td>
+      <td>0.001777</td>
+      <td>488.9</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>10</th>
+      <td>1124.140810</td>
+      <td>10</td>
+      <td>11.552339</td>
+      <td>13.400895</td>
+      <td>-0.161749</td>
+      <td>0.001538</td>
+      <td>-0.000146</td>
+      <td>488.9</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>11</th>
+      <td>1149.661160</td>
+      <td>11</td>
+      <td>-115.650502</td>
+      <td>-30.017963</td>
+      <td>2.671025</td>
+      <td>-0.012063</td>
+      <td>0.000553</td>
+      <td>488.9</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>12</th>
+      <td>1248.157950</td>
+      <td>12</td>
+      <td>50.434903</td>
+      <td>-3.105703</td>
+      <td>-7.331371</td>
+      <td>0.004742</td>
+      <td>-0.004422</td>
+      <td>488.9</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>13</th>
+      <td>1370.356780</td>
+      <td>13</td>
+      <td>15.428338</td>
+      <td>-8.882977</td>
+      <td>-0.118462</td>
+      <td>0.001197</td>
+      <td>0.000304</td>
+      <td>488.9</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>14</th>
+      <td>1389.679630</td>
+      <td>14</td>
+      <td>-56.263793</td>
+      <td>-25.389564</td>
+      <td>-5.371933</td>
+      <td>-0.006214</td>
+      <td>-0.004362</td>
+      <td>488.9</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>15</th>
+      <td>1447.995300</td>
+      <td>15</td>
+      <td>-108.852976</td>
+      <td>-9.084926</td>
+      <td>-0.441561</td>
+      <td>-0.010741</td>
+      <td>-0.001914</td>
+      <td>488.9</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>16</th>
+      <td>1462.169630</td>
+      <td>16</td>
+      <td>270.411325</td>
+      <td>92.294289</td>
+      <td>-0.617040</td>
+      <td>0.028913</td>
+      <td>0.002406</td>
+      <td>488.9</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>17</th>
+      <td>1484.006190</td>
+      <td>17</td>
+      <td>-79.691973</td>
+      <td>-11.972509</td>
+      <td>0.002530</td>
+      <td>-0.008034</td>
+      <td>-0.001082</td>
+      <td>488.9</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>18</th>
+      <td>2955.233120</td>
+      <td>18</td>
+      <td>-135.170825</td>
+      <td>38.082939</td>
+      <td>-28.831868</td>
+      <td>-0.011758</td>
+      <td>-0.023531</td>
+      <td>488.9</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>19</th>
+      <td>2996.254680</td>
+      <td>19</td>
+      <td>979.837908</td>
+      <td>-38.224550</td>
+      <td>49.152893</td>
+      <td>0.092841</td>
+      <td>0.051679</td>
+      <td>488.9</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>20</th>
+      <td>3003.433440</td>
+      <td>20</td>
+      <td>-1954.768108</td>
+      <td>-415.801685</td>
+      <td>-60.440709</td>
+      <td>-0.200963</td>
+      <td>-0.068141</td>
+      <td>488.9</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>21</th>
+      <td>3006.058620</td>
+      <td>21</td>
+      <td>-260.461289</td>
+      <td>-480.375629</td>
+      <td>5.705709</td>
+      <td>-0.040376</td>
+      <td>0.007627</td>
+      <td>488.9</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>22</th>
+      <td>3031.862470</td>
+      <td>22</td>
+      <td>783.244711</td>
+      <td>360.553324</td>
+      <td>-23.132314</td>
+      <td>0.086729</td>
+      <td>-0.009892</td>
+      <td>488.9</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>23</th>
+      <td>3074.662670</td>
+      <td>23</td>
+      <td>490.996556</td>
+      <td>303.938290</td>
+      <td>40.039345</td>
+      <td>0.056862</td>
+      <td>0.031821</td>
+      <td>488.9</td>
+      <td>0</td>
+    </tr>
+  </tbody>
+</table>
+</div></div>
+</div>
+</section>
+<section id="Plot-the-calculated-intensities">
+<h2>Plot the calculated intensities<a class="headerlink" href="#Plot-the-calculated-intensities" title="Permalink to this heading">¶</a></h2>
+<p>We use a full-width at half-maximum of 20 wavenumbers.</p>
+<p>For this example we use ‘atomic’ units where the calculated VROA units are in <span class="math notranslate nohighlight">\(\unicode{xC5}^4/\text{amu}\)</span></p>
+<p>Set up the lineshape function</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">lorentz</span><span class="p">(</span><span class="n">omega</span><span class="p">,</span> <span class="n">omega_0</span><span class="p">,</span> <span class="n">fwhm</span><span class="p">):</span>
+    <span class="k">return</span> <span class="p">(</span><span class="mi">1</span><span class="o">/</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">)</span> <span class="o">*</span> <span class="mf">05.</span><span class="o">*</span><span class="n">fwhm</span> <span class="o">/</span> <span class="p">((</span><span class="n">omega</span><span class="o">-</span><span class="n">omega_0</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="mf">0.25</span><span class="o">*</span><span class="n">fwhm</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1800</span><span class="p">,</span> <span class="mi">1000</span><span class="p">)</span>
+<span class="n">y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="mi">1000</span><span class="p">)</span>
+<span class="n">arr</span> <span class="o">=</span> <span class="nb">zip</span><span class="p">(</span><span class="n">vroa</span><span class="o">.</span><span class="n">scatter</span><span class="p">[</span><span class="s1">&#39;freq&#39;</span><span class="p">],</span> <span class="n">vroa</span><span class="o">.</span><span class="n">scatter</span><span class="p">[</span><span class="s1">&#39;forwardscatter&#39;</span><span class="p">])</span>
+<span class="k">for</span> <span class="n">omega_0</span><span class="p">,</span> <span class="n">inten</span> <span class="ow">in</span> <span class="n">arr</span><span class="p">:</span>
+    <span class="n">y</span> <span class="o">+=</span> <span class="n">lorentz</span><span class="p">(</span><span class="n">omega</span><span class="o">=</span><span class="n">x</span><span class="p">,</span> <span class="n">omega_0</span><span class="o">=</span><span class="n">omega_0</span><span class="p">,</span> <span class="n">fwhm</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span><span class="o">*</span><span class="n">inten</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span><span class="mi">3</span><span class="p">),</span> <span class="n">dpi</span><span class="o">=</span><span class="mi">200</span><span class="p">)</span>
+<span class="n">ax</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">add_subplot</span><span class="p">(</span><span class="mi">111</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">axhline</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;k&#39;</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mf">0.7</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="mf">1e3</span><span class="o">*</span><span class="n">y</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mf">1.0</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;Wavenumber / cm$^{-1}$&#39;</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;$\Delta d\sigma/d\Omega\left(180^</span><span class="si">{o}</span><span class="s2">\right)$ / $10^{-3}~\AA^</span><span class="si">{4}</span><span class="s2">$/amu&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/examples_vroa-methyloxirane_16_0.png" src="../_images/examples_vroa-methyloxirane_16_0.png" />
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>
+</pre></div>
+</div>
+</div>
+</section>
+</section>
+
+
+    </div>
+      
+  </div>
+</div>
+<footer class="footer">
+  <div class="container">
+    <p class="pull-right">
+      <a href="#">Back to top</a>
+      
+    </p>
+    <p>
+        &copy; Copyright 2023, Herbert D Ludowieg. Project structure based on the Computational Molecular Science Python Cookiecutter version 1.1.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 7.0.1.<br/>
+    </p>
+  </div>
+</footer>
+  </body>
+</html>

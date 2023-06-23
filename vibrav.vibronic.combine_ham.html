@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>vibrav.vibronic.combine_ham module &#8212; vibrav  documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/bootstrap-sphinx.css" />
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/sphinx_highlight.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="vibrav.vibronic.vibronic module" href="vibrav.vibronic.vibronic.html" />
+    <link rel="prev" title="vibrav.vibronic package" href="vibrav.vibronic.html" />
+<meta charset='utf-8'>
+<meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
+<meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1'>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<script type="text/javascript" src="_static/js/jquery-1.12.4.min.js"></script>
+<script type="text/javascript" src="_static/js/jquery-fix.js"></script>
+<script type="text/javascript" src="_static/bootstrap-3.4.1/js/bootstrap.min.js"></script>
+<script type="text/javascript" src="_static/bootstrap-sphinx.js"></script>
+
+  </head><body>
+
+  <div id="navbar" class="navbar navbar-default navbar-fixed-top">
+    <div class="container">
+      <div class="navbar-header">
+        <!-- .btn-navbar is used as the toggle for collapsed navbar content -->
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".nav-collapse">
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        <a class="navbar-brand" href="index.html">
+          vibrav</a>
+        <span class="navbar-text navbar-version pull-left"><b></b></span>
+      </div>
+
+        <div class="collapse navbar-collapse nav-collapse">
+          <ul class="nav navbar-nav">
+            
+            
+              <li class="dropdown globaltoc-container">
+  <a role="button"
+     id="dLabelGlobalToc"
+     data-toggle="dropdown"
+     data-target="#"
+     href="index.html">Site <b class="caret"></b></a>
+  <ul class="dropdown-menu globaltoc"
+      role="menu"
+      aria-labelledby="dLabelGlobalToc"><ul>
+<li class="toctree-l1"><a class="reference internal" href="examples/adf.html">ADF parser API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples/gen-displaced.html">Generating the displaced structures from a Gaussian frequencies calculation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples/molcas.html">Molcas parser API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples/numerical-diffs.html">Using derivative module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples/vibronic.html">Running vibronic calculations from a Molcas RASSI set of calculations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples/vroa-h2o2.html">VROA intensities of hydrogen peroxide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples/vroa-methyloxirane.html">VROA intensities of methyloxirane</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples/zpvc.html">Tutorial for using the ZPVC module in VIBRAV</a></li>
+</ul>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="vibrav.html">vibrav package</a></li>
+</ul>
+</ul>
+</li>
+              
+                <li class="dropdown">
+  <a role="button"
+     id="dLabelLocalToc"
+     data-toggle="dropdown"
+     data-target="#"
+     href="#">Page <b class="caret"></b></a>
+  <ul class="dropdown-menu localtoc"
+      role="menu"
+      aria-labelledby="dLabelLocalToc"><ul>
+<li><a class="reference internal" href="#">vibrav.vibronic.combine_ham module</a><ul>
+<li><a class="reference internal" href="#vibrav.vibronic.combine_ham.combine_ham_files"><code class="docutils literal notranslate"><span class="pre">combine_ham_files()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</ul>
+</li>
+              
+            
+            
+              
+                
+  <li>
+    <a href="vibrav.vibronic.html" title="Previous Chapter: vibrav.vibronic package"><span class="glyphicon glyphicon-chevron-left visible-sm"></span><span class="hidden-sm hidden-tablet">&laquo; vibrav.vibron...</span>
+    </a>
+  </li>
+  <li>
+    <a href="vibrav.vibronic.vibronic.html" title="Next Chapter: vibrav.vibronic.vibronic module"><span class="glyphicon glyphicon-chevron-right visible-sm"></span><span class="hidden-sm hidden-tablet">vibrav.vibron... &raquo;</span>
+    </a>
+  </li>
+              
+            
+            
+            
+            
+              <li class="hidden-sm">
+<div id="sourcelink">
+  <a href="_sources/vibrav.vibronic.combine_ham.txt"
+     rel="nofollow">Source</a>
+</div></li>
+            
+          </ul>
+
+          
+            
+<form class="navbar-form navbar-right" action="search.html" method="get">
+ <div class="form-group">
+  <input type="text" name="q" class="form-control" placeholder="Search" />
+ </div>
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+          
+        </div>
+    </div>
+  </div>
+
+<div class="container">
+  <div class="row">
+    <div class="body col-md-12 content" role="main">
+      
+  <section id="module-vibrav.vibronic.combine_ham">
+<span id="vibrav-vibronic-combine-ham-module"></span><h1>vibrav.vibronic.combine_ham module<a class="headerlink" href="#module-vibrav.vibronic.combine_ham" title="Permalink to this heading">¶</a></h1>
+<dl class="py function">
+<dt class="sig sig-object py" id="vibrav.vibronic.combine_ham.combine_ham_files">
+<span class="sig-prename descclassname"><span class="pre">vibrav.vibronic.combine_ham.</span></span><span class="sig-name descname"><span class="pre">combine_ham_files</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">paths</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nmodes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">out_path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'confg{:03d}'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">debug</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/vibrav/vibronic/combine_ham.html#combine_ham_files"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#vibrav.vibronic.combine_ham.combine_ham_files" title="Permalink to this definition">¶</a></dt>
+<dd><p>Helper script to combine the Hamiltonian files of several claculations.
+This is helpful as one can calculate the Hamiltonian elements of a
+displaced structure separately for each spin as the Hamiltonian elements
+between different spin-multiplicities are 0 by definition and this can
+drastically reduce the computational complexity. This function can grab
+the different <cite>‘ham-sf.txt’</cite> files in each of the specified paths and
+combine them into one gigantic <cite>‘ham-sf.txt’</cite> file. The resulting
+<cite>‘ham-sf.txt’</cite> files will be written to the given path with the same
+indexing scheme.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The ordering of the multiplicities will be inferred from the ordering
+of the paths. That is to say, whichever order the paths are given will
+be the order of the multiplicities.</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>paths</strong> (<code class="xref py py-obj docutils literal notranslate"><span class="pre">list</span></code>) – List of the paths to where the <cite>‘ham-sf.txt’</cite> files
+are located for each of the multiplicites to combine.
+<strong>Must be able to use the python format function for
+these and the proper padding for the indexing must be
+used. NOTHING is assumed.</strong></p></li>
+<li><p><strong>nmodes</strong> (<code class="xref py py-obj docutils literal notranslate"><span class="pre">int</span></code>) – Number of normal modes in the molecule.</p></li>
+<li><p><strong>out_path</strong> (<code class="xref py py-obj docutils literal notranslate"><span class="pre">str</span></code>, optional) – String object to folders where the new
+<cite>‘ham-sf.txt’</cite> files will be written to.
+<strong>Must be in the format to use the
+python `format` function</strong>. Defaults to
+<cite>‘confg{:03d}’</cite>.</p></li>
+<li><p><strong>debug</strong> (<code class="xref py py-obj docutils literal notranslate"><span class="pre">bool</span></code>, optional) – Turn on some light debug text.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+
+
+    </div>
+      
+  </div>
+</div>
+<footer class="footer">
+  <div class="container">
+    <p class="pull-right">
+      <a href="#">Back to top</a>
+      
+    </p>
+    <p>
+        &copy; Copyright 2023, Herbert D Ludowieg. Project structure based on the Computational Molecular Science Python Cookiecutter version 1.1.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 7.0.1.<br/>
+    </p>
+  </div>
+</footer>
+  </body>
+</html>

@@ -1,0 +1,1316 @@
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Tutorial for using the ZPVC module in VIBRAV &#8212; vibrav  documentation</title>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/bootstrap-sphinx.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/nbsphinx-code-cells.css" />
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/sphinx_highlight.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="vibrav package" href="../vibrav.html" />
+    <link rel="prev" title="VROA intensities of methyloxirane" href="vroa-methyloxirane.html" />
+<meta charset='utf-8'>
+<meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
+<meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1'>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<script type="text/javascript" src="../_static/js/jquery-1.12.4.min.js"></script>
+<script type="text/javascript" src="../_static/js/jquery-fix.js"></script>
+<script type="text/javascript" src="../_static/bootstrap-3.4.1/js/bootstrap.min.js"></script>
+<script type="text/javascript" src="../_static/bootstrap-sphinx.js"></script>
+
+  </head><body>
+
+  <div id="navbar" class="navbar navbar-default navbar-fixed-top">
+    <div class="container">
+      <div class="navbar-header">
+        <!-- .btn-navbar is used as the toggle for collapsed navbar content -->
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".nav-collapse">
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        <a class="navbar-brand" href="../index.html">
+          vibrav</a>
+        <span class="navbar-text navbar-version pull-left"><b></b></span>
+      </div>
+
+        <div class="collapse navbar-collapse nav-collapse">
+          <ul class="nav navbar-nav">
+            
+            
+              <li class="dropdown globaltoc-container">
+  <a role="button"
+     id="dLabelGlobalToc"
+     data-toggle="dropdown"
+     data-target="#"
+     href="../index.html">Site <b class="caret"></b></a>
+  <ul class="dropdown-menu globaltoc"
+      role="menu"
+      aria-labelledby="dLabelGlobalToc"><ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="adf.html">ADF parser API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="gen-displaced.html">Generating the displaced structures from a Gaussian frequencies calculation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="molcas.html">Molcas parser API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="numerical-diffs.html">Using derivative module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="vibronic.html">Running vibronic calculations from a Molcas RASSI set of calculations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="vroa-h2o2.html">VROA intensities of hydrogen peroxide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="vroa-methyloxirane.html">VROA intensities of methyloxirane</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Tutorial for using the ZPVC module in VIBRAV</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../vibrav.html">vibrav package</a></li>
+</ul>
+</ul>
+</li>
+              
+                <li class="dropdown">
+  <a role="button"
+     id="dLabelLocalToc"
+     data-toggle="dropdown"
+     data-target="#"
+     href="#">Page <b class="caret"></b></a>
+  <ul class="dropdown-menu localtoc"
+      role="menu"
+      aria-labelledby="dLabelLocalToc"><ul>
+<li><a class="reference internal" href="#">Tutorial for using the ZPVC module in VIBRAV</a><ul>
+<li><a class="reference internal" href="#Import-the-ZPVC-module-and-the-resource-function">Import the ZPVC module and the resource function</a></li>
+<li><a class="reference internal" href="#Start-load-the-ZPVC-class-and-initialize-the-configuration-file-options">Start load the ZPVC class and initialize the configuration file options</a></li>
+<li><a class="reference internal" href="#Contents-of-the-resource-configuration-file">Contents of the resource configuration file</a></li>
+<li><a class="reference internal" href="#Run-the-ZPVC-script">Run the ZPVC script</a></li>
+</ul>
+</li>
+</ul>
+</ul>
+</li>
+              
+            
+            
+              
+                
+  <li>
+    <a href="vroa-methyloxirane.html" title="Previous Chapter: VROA intensities of methyloxirane"><span class="glyphicon glyphicon-chevron-left visible-sm"></span><span class="hidden-sm hidden-tablet">&laquo; VROA intensit...</span>
+    </a>
+  </li>
+  <li>
+    <a href="../vibrav.html" title="Next Chapter: vibrav package"><span class="glyphicon glyphicon-chevron-right visible-sm"></span><span class="hidden-sm hidden-tablet">vibrav package &raquo;</span>
+    </a>
+  </li>
+              
+            
+            
+            
+            
+              <li class="hidden-sm">
+<div id="sourcelink">
+  <a href="../_sources/examples/zpvc.ipynb.txt"
+     rel="nofollow">Source</a>
+</div></li>
+            
+          </ul>
+
+          
+            
+<form class="navbar-form navbar-right" action="../search.html" method="get">
+ <div class="form-group">
+  <input type="text" name="q" class="form-control" placeholder="Search" />
+ </div>
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+          
+        </div>
+    </div>
+  </div>
+
+<div class="container">
+  <div class="row">
+    <div class="body col-md-12 content" role="main">
+      
+  <section id="Tutorial-for-using-the-ZPVC-module-in-VIBRAV">
+<h1>Tutorial for using the ZPVC module in VIBRAV<a class="headerlink" href="#Tutorial-for-using-the-ZPVC-module-in-VIBRAV" title="Permalink to this heading">¶</a></h1>
+<p>The intention of this is to give you a guide on how to use the ZPVC module from <code class="docutils literal notranslate"><span class="pre">vibrav.zpvc.zpvc.py</span></code> to run the post-processing script. Prior to using this script you should have already extracted the gradients and the property values of interest from your own calculations.</p>
+<p>Both the gradients and property values must be saved as a CSV file with column names. The row index is preffered, but if they are not available please set the <code class="docutils literal notranslate"><span class="pre">INDEX_COL</span></code> option in the configuration file to <code class="docutils literal notranslate"><span class="pre">0</span></code>.</p>
+<p>The gradient file must have the column names <code class="docutils literal notranslate"><span class="pre">['fx',</span> <span class="pre">'fy',</span> <span class="pre">'fz',</span> <span class="pre">'atom',</span> <span class="pre">'file']</span></code>. The property file must have the column names <code class="docutils literal notranslate"><span class="pre">['atom',</span> <span class="pre">'file',</span> <span class="pre">PCOL]</span></code>, where <code class="docutils literal notranslate"><span class="pre">PCOL</span></code> is the name of the column set in the configuration file as <code class="docutils literal notranslate"><span class="pre">PROPERTY_COLUMN</span></code>.</p>
+<section id="Import-the-ZPVC-module-and-the-resource-function">
+<h2>Import the ZPVC module and the resource function<a class="headerlink" href="#Import-the-ZPVC-module-and-the-resource-function" title="Permalink to this heading">¶</a></h2>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">vibrav.base</span> <span class="kn">import</span> <span class="n">resource</span>
+<span class="kn">from</span> <span class="nn">vibrav</span> <span class="kn">import</span> <span class="n">ZPVC</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="Start-load-the-ZPVC-class-and-initialize-the-configuration-file-options">
+<h2>Start load the ZPVC class and initialize the configuration file options<a class="headerlink" href="#Start-load-the-ZPVC-class-and-initialize-the-configuration-file-options" title="Permalink to this heading">¶</a></h2>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">zpvc</span> <span class="o">=</span> <span class="n">ZPVC</span><span class="p">(</span><span class="n">config_file</span><span class="o">=</span><span class="n">resource</span><span class="p">(</span><span class="s1">&#39;nitromal-zpvc-va.conf&#39;</span><span class="p">))</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="Contents-of-the-resource-configuration-file">
+<h2>Contents of the resource configuration file<a class="headerlink" href="#Contents-of-the-resource-configuration-file" title="Permalink to this heading">¶</a></h2>
+<p>For this example we are using the resource files in VIBRAV. We are running the script over the 6 temperatures that are specified for atom index 0. If you wish to run it for more atoms or different atoms you can change the values as a space separated list.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">resource</span><span class="p">(</span><span class="s1">&#39;nitromal-zpvc-va.conf&#39;</span><span class="p">),</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fn</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">fn</span><span class="o">.</span><span class="n">read</span><span class="p">())</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+DELTA_FILE                    nitromal-zpvc-delta.dat.xz
+SMATRIX_FILE                  nitromal-zpvc-smatrix.dat.xz
+ATOM_ORDER_FILE               nitromal-zpvc-atom_order.dat.xz
+REDUCED_MASS_FILE             nitromal-zpvc-redmass.dat.xz
+FREQUENCY_FILE                nitromal-zpvc-freq.dat.xz
+EQCOORD_FILE                  nitromal-zpvc-eqcoord.dat.xz
+PROPERTY_FILE                 nitromal-zpvc-nmr.csv.xz
+GRADIENT_FILE                 nitromal-zpvc-grad.csv.xz
+NUMBER_OF_MODES               39
+NUMBER_OF_NUCLEI              15
+PROPERTY_ATOMS                0
+PROPERTY_COLUMN               isotropic
+USE_RESOURCE                  1
+TEMPERATURE                   0 100 200 300 400 600
+
+</pre></div></div>
+</div>
+</section>
+<section id="Run-the-ZPVC-script">
+<h2>Run the ZPVC script<a class="headerlink" href="#Run-the-ZPVC-script" title="Permalink to this heading">¶</a></h2>
+<p>This will write output files to the zpvc-outputs directory. In there you would find the files - kqiii (Force constants) - kqijj (Anharmonic force constants) - results (Compact ZPVC result table) - vibrational-average (Verbose table with the contribution from each vibrational mode)</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">zpvc</span><span class="o">.</span><span class="n">zpvc</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<p>Compact ZPVC result table</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">zpvc</span><span class="o">.</span><span class="n">zpvc_results</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>property</th>
+      <th>zpvc</th>
+      <th>zpva</th>
+      <th>tot_anharm</th>
+      <th>tot_curva</th>
+      <th>temp</th>
+      <th>atom</th>
+      <th>frame</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>13.932882</td>
+      <td>-2.887802</td>
+      <td>11.045080</td>
+      <td>-3.748377</td>
+      <td>0.860575</td>
+      <td>0.0</td>
+      <td>0</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>13.932882</td>
+      <td>-2.804743</td>
+      <td>11.128138</td>
+      <td>-3.678383</td>
+      <td>0.873640</td>
+      <td>100.0</td>
+      <td>0</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>13.932882</td>
+      <td>-2.648282</td>
+      <td>11.284599</td>
+      <td>-3.570384</td>
+      <td>0.922102</td>
+      <td>200.0</td>
+      <td>0</td>
+      <td>2</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>13.932882</td>
+      <td>-2.483916</td>
+      <td>11.448966</td>
+      <td>-3.475751</td>
+      <td>0.991835</td>
+      <td>300.0</td>
+      <td>0</td>
+      <td>3</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>13.932882</td>
+      <td>-2.313385</td>
+      <td>11.619497</td>
+      <td>-3.387663</td>
+      <td>1.074278</td>
+      <td>400.0</td>
+      <td>0</td>
+      <td>4</td>
+    </tr>
+    <tr>
+      <th>5</th>
+      <td>13.932882</td>
+      <td>-1.979968</td>
+      <td>11.952914</td>
+      <td>-3.245975</td>
+      <td>1.266007</td>
+      <td>600.0</td>
+      <td>0</td>
+      <td>5</td>
+    </tr>
+  </tbody>
+</table>
+</div></div>
+</div>
+<p>Verbose table with the contribution from each vibrational mode</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">zpvc</span><span class="o">.</span><span class="n">vib_average</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s1">&#39;frame&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">get_group</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>frequency</th>
+      <th>num_frequency</th>
+      <th>freqdx</th>
+      <th>anharm</th>
+      <th>curva</th>
+      <th>sum</th>
+      <th>temp</th>
+      <th>atom</th>
+      <th>frame</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>85.0284</td>
+      <td>85.571391</td>
+      <td>0</td>
+      <td>0.000000</td>
+      <td>0.007649</td>
+      <td>0.007649</td>
+      <td>0.0</td>
+      <td>0</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>89.3751</td>
+      <td>89.760862</td>
+      <td>1</td>
+      <td>-0.000000</td>
+      <td>-0.001816</td>
+      <td>-0.001816</td>
+      <td>0.0</td>
+      <td>0</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>146.1814</td>
+      <td>146.510047</td>
+      <td>2</td>
+      <td>-0.000000</td>
+      <td>0.022266</td>
+      <td>0.022266</td>
+      <td>0.0</td>
+      <td>0</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>217.6824</td>
+      <td>219.140605</td>
+      <td>3</td>
+      <td>-0.000000</td>
+      <td>0.001199</td>
+      <td>0.001199</td>
+      <td>0.0</td>
+      <td>0</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>320.8656</td>
+      <td>321.743460</td>
+      <td>4</td>
+      <td>-1.079300</td>
+      <td>0.076429</td>
+      <td>-1.002872</td>
+      <td>0.0</td>
+      <td>0</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>5</th>
+      <td>354.5547</td>
+      <td>354.832345</td>
+      <td>5</td>
+      <td>-0.171530</td>
+      <td>0.010393</td>
+      <td>-0.161137</td>
+      <td>0.0</td>
+      <td>0</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>6</th>
+      <td>401.8652</td>
+      <td>402.000544</td>
+      <td>6</td>
+      <td>0.000964</td>
+      <td>0.002991</td>
+      <td>0.003955</td>
+      <td>0.0</td>
+      <td>0</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>7</th>
+      <td>418.5204</td>
+      <td>422.712045</td>
+      <td>7</td>
+      <td>0.000000</td>
+      <td>-0.012716</td>
+      <td>-0.012716</td>
+      <td>0.0</td>
+      <td>0</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>8</th>
+      <td>425.1060</td>
+      <td>425.219670</td>
+      <td>8</td>
+      <td>-0.102758</td>
+      <td>0.009911</td>
+      <td>-0.092847</td>
+      <td>0.0</td>
+      <td>0</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>9</th>
+      <td>433.7701</td>
+      <td>437.743208</td>
+      <td>9</td>
+      <td>0.000000</td>
+      <td>-0.022071</td>
+      <td>-0.022071</td>
+      <td>0.0</td>
+      <td>0</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>10</th>
+      <td>461.1199</td>
+      <td>461.749783</td>
+      <td>10</td>
+      <td>-0.314054</td>
+      <td>0.074176</td>
+      <td>-0.239878</td>
+      <td>0.0</td>
+      <td>0</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>11</th>
+      <td>485.3209</td>
+      <td>485.295588</td>
+      <td>11</td>
+      <td>0.000522</td>
+      <td>0.003446</td>
+      <td>0.003968</td>
+      <td>0.0</td>
+      <td>0</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>12</th>
+      <td>609.5199</td>
+      <td>609.703735</td>
+      <td>12</td>
+      <td>-0.090530</td>
+      <td>0.009844</td>
+      <td>-0.080687</td>
+      <td>0.0</td>
+      <td>0</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>13</th>
+      <td>666.6248</td>
+      <td>667.988175</td>
+      <td>13</td>
+      <td>0.000000</td>
+      <td>-0.002926</td>
+      <td>-0.002926</td>
+      <td>0.0</td>
+      <td>0</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>14</th>
+      <td>685.1025</td>
+      <td>686.454375</td>
+      <td>14</td>
+      <td>-0.000000</td>
+      <td>-0.006440</td>
+      <td>-0.006440</td>
+      <td>0.0</td>
+      <td>0</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>15</th>
+      <td>703.9068</td>
+      <td>704.192029</td>
+      <td>15</td>
+      <td>-0.362860</td>
+      <td>0.028033</td>
+      <td>-0.334827</td>
+      <td>0.0</td>
+      <td>0</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>16</th>
+      <td>714.8914</td>
+      <td>721.796521</td>
+      <td>16</td>
+      <td>0.000000</td>
+      <td>0.002550</td>
+      <td>0.002550</td>
+      <td>0.0</td>
+      <td>0</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>17</th>
+      <td>725.8531</td>
+      <td>726.215692</td>
+      <td>17</td>
+      <td>0.000000</td>
+      <td>-0.005967</td>
+      <td>-0.005967</td>
+      <td>0.0</td>
+      <td>0</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>18</th>
+      <td>762.7554</td>
+      <td>763.192008</td>
+      <td>18</td>
+      <td>-0.000000</td>
+      <td>-0.005501</td>
+      <td>-0.005501</td>
+      <td>0.0</td>
+      <td>0</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>19</th>
+      <td>846.2045</td>
+      <td>846.453447</td>
+      <td>19</td>
+      <td>-0.003575</td>
+      <td>-0.000841</td>
+      <td>-0.004416</td>
+      <td>0.0</td>
+      <td>0</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>20</th>
+      <td>1075.3188</td>
+      <td>1075.611537</td>
+      <td>20</td>
+      <td>-0.018814</td>
+      <td>0.004701</td>
+      <td>-0.014112</td>
+      <td>0.0</td>
+      <td>0</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>21</th>
+      <td>1094.5938</td>
+      <td>1094.958031</td>
+      <td>21</td>
+      <td>-0.032282</td>
+      <td>0.005943</td>
+      <td>-0.026339</td>
+      <td>0.0</td>
+      <td>0</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>22</th>
+      <td>1107.2629</td>
+      <td>1107.158513</td>
+      <td>22</td>
+      <td>0.000000</td>
+      <td>0.046784</td>
+      <td>0.046784</td>
+      <td>0.0</td>
+      <td>0</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>23</th>
+      <td>1161.5631</td>
+      <td>1161.775254</td>
+      <td>23</td>
+      <td>-0.011198</td>
+      <td>0.002291</td>
+      <td>-0.008907</td>
+      <td>0.0</td>
+      <td>0</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>24</th>
+      <td>1174.0458</td>
+      <td>1174.253942</td>
+      <td>24</td>
+      <td>-0.020984</td>
+      <td>0.009741</td>
+      <td>-0.011243</td>
+      <td>0.0</td>
+      <td>0</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>25</th>
+      <td>1265.5979</td>
+      <td>1267.509984</td>
+      <td>25</td>
+      <td>-0.531411</td>
+      <td>0.183772</td>
+      <td>-0.347639</td>
+      <td>0.0</td>
+      <td>0</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>26</th>
+      <td>1316.6681</td>
+      <td>1317.803575</td>
+      <td>26</td>
+      <td>-0.003551</td>
+      <td>0.002776</td>
+      <td>-0.000775</td>
+      <td>0.0</td>
+      <td>0</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>27</th>
+      <td>1395.3206</td>
+      <td>1395.593777</td>
+      <td>27</td>
+      <td>-0.001487</td>
+      <td>0.003657</td>
+      <td>0.002170</td>
+      <td>0.0</td>
+      <td>0</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>28</th>
+      <td>1452.1272</td>
+      <td>1452.201891</td>
+      <td>28</td>
+      <td>-0.002516</td>
+      <td>-0.001166</td>
+      <td>-0.003682</td>
+      <td>0.0</td>
+      <td>0</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>29</th>
+      <td>1555.7496</td>
+      <td>1555.896942</td>
+      <td>29</td>
+      <td>0.000756</td>
+      <td>-0.000758</td>
+      <td>-0.000002</td>
+      <td>0.0</td>
+      <td>0</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>30</th>
+      <td>1575.8570</td>
+      <td>1575.960809</td>
+      <td>30</td>
+      <td>0.003893</td>
+      <td>-0.001330</td>
+      <td>0.002563</td>
+      <td>0.0</td>
+      <td>0</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>31</th>
+      <td>1598.3631</td>
+      <td>1598.402330</td>
+      <td>31</td>
+      <td>-0.003270</td>
+      <td>-0.012490</td>
+      <td>-0.015761</td>
+      <td>0.0</td>
+      <td>0</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>32</th>
+      <td>1631.1443</td>
+      <td>1631.812795</td>
+      <td>32</td>
+      <td>-0.039127</td>
+      <td>0.011868</td>
+      <td>-0.027259</td>
+      <td>0.0</td>
+      <td>0</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>33</th>
+      <td>1710.9460</td>
+      <td>1710.984060</td>
+      <td>33</td>
+      <td>-0.054030</td>
+      <td>0.009701</td>
+      <td>-0.044329</td>
+      <td>0.0</td>
+      <td>0</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>34</th>
+      <td>2255.7412</td>
+      <td>2264.139335</td>
+      <td>34</td>
+      <td>-0.906408</td>
+      <td>0.403475</td>
+      <td>-0.502933</td>
+      <td>0.0</td>
+      <td>0</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>35</th>
+      <td>3520.1806</td>
+      <td>3524.347173</td>
+      <td>35</td>
+      <td>-0.000387</td>
+      <td>0.000993</td>
+      <td>0.000606</td>
+      <td>0.0</td>
+      <td>0</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>36</th>
+      <td>3541.9146</td>
+      <td>3546.035369</td>
+      <td>36</td>
+      <td>-0.002419</td>
+      <td>-0.000220</td>
+      <td>-0.002639</td>
+      <td>0.0</td>
+      <td>0</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>37</th>
+      <td>3686.9440</td>
+      <td>3691.868870</td>
+      <td>37</td>
+      <td>-0.001406</td>
+      <td>0.000354</td>
+      <td>-0.001052</td>
+      <td>0.0</td>
+      <td>0</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>38</th>
+      <td>3696.3968</td>
+      <td>3701.247556</td>
+      <td>38</td>
+      <td>-0.000614</td>
+      <td>-0.000124</td>
+      <td>-0.000738</td>
+      <td>0.0</td>
+      <td>0</td>
+      <td>0</td>
+    </tr>
+  </tbody>
+</table>
+</div></div>
+</div>
+<p>Effective coordinates for 0 K</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">zpvc</span><span class="o">.</span><span class="n">eff_coord</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s1">&#39;frame&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">get_group</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>set</th>
+      <th>Z</th>
+      <th>x</th>
+      <th>y</th>
+      <th>z</th>
+      <th>symbol</th>
+      <th>temp</th>
+      <th>frame</th>
+    </tr>
+    <tr>
+      <th>atom</th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>0</td>
+      <td>1</td>
+      <td>0.343242</td>
+      <td>-2.168186</td>
+      <td>0.0</td>
+      <td>H</td>
+      <td>0.0</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>1</td>
+      <td>1</td>
+      <td>-3.122279</td>
+      <td>-1.159822</td>
+      <td>0.0</td>
+      <td>H</td>
+      <td>0.0</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>2</td>
+      <td>1</td>
+      <td>-2.603661</td>
+      <td>0.536159</td>
+      <td>0.0</td>
+      <td>H</td>
+      <td>0.0</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>3</td>
+      <td>1</td>
+      <td>3.307589</td>
+      <td>-0.342839</td>
+      <td>0.0</td>
+      <td>H</td>
+      <td>0.0</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>4</td>
+      <td>1</td>
+      <td>2.390190</td>
+      <td>1.172662</td>
+      <td>0.0</td>
+      <td>H</td>
+      <td>0.0</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>5</th>
+      <td>5</td>
+      <td>6</td>
+      <td>1.315911</td>
+      <td>-0.538146</td>
+      <td>0.0</td>
+      <td>C</td>
+      <td>0.0</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>6</th>
+      <td>6</td>
+      <td>8</td>
+      <td>1.403388</td>
+      <td>-1.824836</td>
+      <td>0.0</td>
+      <td>O</td>
+      <td>0.0</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>7</th>
+      <td>7</td>
+      <td>7</td>
+      <td>2.456096</td>
+      <td>0.168373</td>
+      <td>0.0</td>
+      <td>N</td>
+      <td>0.0</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>8</th>
+      <td>8</td>
+      <td>6</td>
+      <td>-0.009395</td>
+      <td>0.061711</td>
+      <td>0.0</td>
+      <td>C</td>
+      <td>0.0</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>9</th>
+      <td>9</td>
+      <td>6</td>
+      <td>-1.142284</td>
+      <td>-0.865999</td>
+      <td>0.0</td>
+      <td>C</td>
+      <td>0.0</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>10</th>
+      <td>10</td>
+      <td>8</td>
+      <td>-0.887831</td>
+      <td>-2.122312</td>
+      <td>0.0</td>
+      <td>O</td>
+      <td>0.0</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>11</th>
+      <td>11</td>
+      <td>7</td>
+      <td>-0.187867</td>
+      <td>1.468788</td>
+      <td>0.0</td>
+      <td>N</td>
+      <td>0.0</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>12</th>
+      <td>12</td>
+      <td>8</td>
+      <td>0.810723</td>
+      <td>2.219691</td>
+      <td>0.0</td>
+      <td>O</td>
+      <td>0.0</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>13</th>
+      <td>13</td>
+      <td>8</td>
+      <td>-1.342229</td>
+      <td>1.946239</td>
+      <td>0.0</td>
+      <td>O</td>
+      <td>0.0</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>14</th>
+      <td>14</td>
+      <td>7</td>
+      <td>-2.421288</td>
+      <td>-0.456714</td>
+      <td>0.0</td>
+      <td>N</td>
+      <td>0.0</td>
+      <td>0</td>
+    </tr>
+  </tbody>
+</table>
+</div></div>
+</div>
+<p>Effective coordinates for 400 K</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">zpvc</span><span class="o">.</span><span class="n">eff_coord</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s1">&#39;frame&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">get_group</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>set</th>
+      <th>Z</th>
+      <th>x</th>
+      <th>y</th>
+      <th>z</th>
+      <th>symbol</th>
+      <th>temp</th>
+      <th>frame</th>
+    </tr>
+    <tr>
+      <th>atom</th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>60</th>
+      <td>0</td>
+      <td>1</td>
+      <td>0.324546</td>
+      <td>-2.172974</td>
+      <td>0.0</td>
+      <td>H</td>
+      <td>400.0</td>
+      <td>4</td>
+    </tr>
+    <tr>
+      <th>61</th>
+      <td>1</td>
+      <td>1</td>
+      <td>-3.093186</td>
+      <td>-1.146095</td>
+      <td>0.0</td>
+      <td>H</td>
+      <td>400.0</td>
+      <td>4</td>
+    </tr>
+    <tr>
+      <th>62</th>
+      <td>2</td>
+      <td>1</td>
+      <td>-2.591836</td>
+      <td>0.517221</td>
+      <td>0.0</td>
+      <td>H</td>
+      <td>400.0</td>
+      <td>4</td>
+    </tr>
+    <tr>
+      <th>63</th>
+      <td>3</td>
+      <td>1</td>
+      <td>3.273432</td>
+      <td>-0.337080</td>
+      <td>0.0</td>
+      <td>H</td>
+      <td>400.0</td>
+      <td>4</td>
+    </tr>
+    <tr>
+      <th>64</th>
+      <td>4</td>
+      <td>1</td>
+      <td>2.379959</td>
+      <td>1.145908</td>
+      <td>0.0</td>
+      <td>H</td>
+      <td>400.0</td>
+      <td>4</td>
+    </tr>
+    <tr>
+      <th>65</th>
+      <td>5</td>
+      <td>6</td>
+      <td>1.314480</td>
+      <td>-0.537211</td>
+      <td>0.0</td>
+      <td>C</td>
+      <td>400.0</td>
+      <td>4</td>
+    </tr>
+    <tr>
+      <th>66</th>
+      <td>6</td>
+      <td>8</td>
+      <td>1.408057</td>
+      <td>-1.808342</td>
+      <td>0.0</td>
+      <td>O</td>
+      <td>400.0</td>
+      <td>4</td>
+    </tr>
+    <tr>
+      <th>67</th>
+      <td>7</td>
+      <td>7</td>
+      <td>2.441279</td>
+      <td>0.159619</td>
+      <td>0.0</td>
+      <td>N</td>
+      <td>400.0</td>
+      <td>4</td>
+    </tr>
+    <tr>
+      <th>68</th>
+      <td>8</td>
+      <td>6</td>
+      <td>-0.009746</td>
+      <td>0.058632</td>
+      <td>0.0</td>
+      <td>C</td>
+      <td>400.0</td>
+      <td>4</td>
+    </tr>
+    <tr>
+      <th>69</th>
+      <td>9</td>
+      <td>6</td>
+      <td>-1.138246</td>
+      <td>-0.862980</td>
+      <td>0.0</td>
+      <td>C</td>
+      <td>400.0</td>
+      <td>4</td>
+    </tr>
+    <tr>
+      <th>70</th>
+      <td>10</td>
+      <td>8</td>
+      <td>-0.893001</td>
+      <td>-2.113332</td>
+      <td>0.0</td>
+      <td>O</td>
+      <td>400.0</td>
+      <td>4</td>
+    </tr>
+    <tr>
+      <th>71</th>
+      <td>11</td>
+      <td>7</td>
+      <td>-0.188065</td>
+      <td>1.468863</td>
+      <td>0.0</td>
+      <td>N</td>
+      <td>400.0</td>
+      <td>4</td>
+    </tr>
+    <tr>
+      <th>72</th>
+      <td>12</td>
+      <td>8</td>
+      <td>0.788211</td>
+      <td>2.207521</td>
+      <td>0.0</td>
+      <td>O</td>
+      <td>400.0</td>
+      <td>4</td>
+    </tr>
+    <tr>
+      <th>73</th>
+      <td>13</td>
+      <td>8</td>
+      <td>-1.317471</td>
+      <td>1.944574</td>
+      <td>0.0</td>
+      <td>O</td>
+      <td>400.0</td>
+      <td>4</td>
+    </tr>
+    <tr>
+      <th>74</th>
+      <td>14</td>
+      <td>7</td>
+      <td>-2.408603</td>
+      <td>-0.459850</td>
+      <td>0.0</td>
+      <td>N</td>
+      <td>400.0</td>
+      <td>4</td>
+    </tr>
+  </tbody>
+</table>
+</div></div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>
+</pre></div>
+</div>
+</div>
+</section>
+</section>
+
+
+    </div>
+      
+  </div>
+</div>
+<footer class="footer">
+  <div class="container">
+    <p class="pull-right">
+      <a href="#">Back to top</a>
+      
+    </p>
+    <p>
+        &copy; Copyright 2023, Herbert D Ludowieg. Project structure based on the Computational Molecular Science Python Cookiecutter version 1.1.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 7.0.1.<br/>
+    </p>
+  </div>
+</footer>
+  </body>
+</html>

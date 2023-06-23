@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>vibrav.numerical package &#8212; vibrav  documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/bootstrap-sphinx.css" />
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/sphinx_highlight.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="vibrav.numerical.boltzmann module" href="vibrav.numerical.boltzmann.html" />
+    <link rel="prev" title="vibrav.molcas.output module" href="vibrav.molcas.output.html" />
+<meta charset='utf-8'>
+<meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
+<meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1'>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<script type="text/javascript" src="_static/js/jquery-1.12.4.min.js"></script>
+<script type="text/javascript" src="_static/js/jquery-fix.js"></script>
+<script type="text/javascript" src="_static/bootstrap-3.4.1/js/bootstrap.min.js"></script>
+<script type="text/javascript" src="_static/bootstrap-sphinx.js"></script>
+
+  </head><body>
+
+  <div id="navbar" class="navbar navbar-default navbar-fixed-top">
+    <div class="container">
+      <div class="navbar-header">
+        <!-- .btn-navbar is used as the toggle for collapsed navbar content -->
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".nav-collapse">
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        <a class="navbar-brand" href="index.html">
+          vibrav</a>
+        <span class="navbar-text navbar-version pull-left"><b></b></span>
+      </div>
+
+        <div class="collapse navbar-collapse nav-collapse">
+          <ul class="nav navbar-nav">
+            
+            
+              <li class="dropdown globaltoc-container">
+  <a role="button"
+     id="dLabelGlobalToc"
+     data-toggle="dropdown"
+     data-target="#"
+     href="index.html">Site <b class="caret"></b></a>
+  <ul class="dropdown-menu globaltoc"
+      role="menu"
+      aria-labelledby="dLabelGlobalToc"><ul>
+<li class="toctree-l1"><a class="reference internal" href="examples/adf.html">ADF parser API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples/gen-displaced.html">Generating the displaced structures from a Gaussian frequencies calculation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples/molcas.html">Molcas parser API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples/numerical-diffs.html">Using derivative module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples/vibronic.html">Running vibronic calculations from a Molcas RASSI set of calculations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples/vroa-h2o2.html">VROA intensities of hydrogen peroxide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples/vroa-methyloxirane.html">VROA intensities of methyloxirane</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples/zpvc.html">Tutorial for using the ZPVC module in VIBRAV</a></li>
+</ul>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="vibrav.html">vibrav package</a></li>
+</ul>
+</ul>
+</li>
+              
+                <li class="dropdown">
+  <a role="button"
+     id="dLabelLocalToc"
+     data-toggle="dropdown"
+     data-target="#"
+     href="#">Page <b class="caret"></b></a>
+  <ul class="dropdown-menu localtoc"
+      role="menu"
+      aria-labelledby="dLabelLocalToc"><ul>
+<li><a class="reference internal" href="#">vibrav.numerical package</a><ul>
+<li><a class="reference internal" href="#submodules">Submodules</a></li>
+</ul>
+</li>
+</ul>
+</ul>
+</li>
+              
+            
+            
+              
+                
+  <li>
+    <a href="vibrav.molcas.output.html" title="Previous Chapter: vibrav.molcas.output module"><span class="glyphicon glyphicon-chevron-left visible-sm"></span><span class="hidden-sm hidden-tablet">&laquo; vibrav.molcas...</span>
+    </a>
+  </li>
+  <li>
+    <a href="vibrav.numerical.boltzmann.html" title="Next Chapter: vibrav.numerical.boltzmann module"><span class="glyphicon glyphicon-chevron-right visible-sm"></span><span class="hidden-sm hidden-tablet">vibrav.numeri... &raquo;</span>
+    </a>
+  </li>
+              
+            
+            
+            
+            
+              <li class="hidden-sm">
+<div id="sourcelink">
+  <a href="_sources/vibrav.numerical.txt"
+     rel="nofollow">Source</a>
+</div></li>
+            
+          </ul>
+
+          
+            
+<form class="navbar-form navbar-right" action="search.html" method="get">
+ <div class="form-group">
+  <input type="text" name="q" class="form-control" placeholder="Search" />
+ </div>
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+          
+        </div>
+    </div>
+  </div>
+
+<div class="container">
+  <div class="row">
+    <div class="body col-md-12 content" role="main">
+      
+  <section id="module-vibrav.numerical">
+<span id="vibrav-numerical-package"></span><h1>vibrav.numerical package<a class="headerlink" href="#module-vibrav.numerical" title="Permalink to this heading">¶</a></h1>
+<section id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this heading">¶</a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="vibrav.numerical.boltzmann.html">vibrav.numerical.boltzmann module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="vibrav.numerical.boltzmann.html#vibrav.numerical.boltzmann.boltz_dist"><code class="docutils literal notranslate"><span class="pre">boltz_dist()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="vibrav.numerical.degeneracy.html">vibrav.numerical.degeneracy module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="vibrav.numerical.degeneracy.html#vibrav.numerical.degeneracy.energetic_degeneracy"><code class="docutils literal notranslate"><span class="pre">energetic_degeneracy()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="vibrav.numerical.derivatives.html">vibrav.numerical.derivatives module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="vibrav.numerical.derivatives.html#vibrav.numerical.derivatives.arb_disps_1d"><code class="docutils literal notranslate"><span class="pre">arb_disps_1d()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="vibrav.numerical.derivatives.html#vibrav.numerical.derivatives.eight_point_1d"><code class="docutils literal notranslate"><span class="pre">eight_point_1d()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="vibrav.numerical.derivatives.html#vibrav.numerical.derivatives.eight_point_2d"><code class="docutils literal notranslate"><span class="pre">eight_point_2d()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="vibrav.numerical.derivatives.html#vibrav.numerical.derivatives.four_point_1d"><code class="docutils literal notranslate"><span class="pre">four_point_1d()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="vibrav.numerical.derivatives.html#vibrav.numerical.derivatives.four_point_2d"><code class="docutils literal notranslate"><span class="pre">four_point_2d()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="vibrav.numerical.derivatives.html#vibrav.numerical.derivatives.get_pos_neg_gradients"><code class="docutils literal notranslate"><span class="pre">get_pos_neg_gradients()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="vibrav.numerical.derivatives.html#vibrav.numerical.derivatives.six_point_1d"><code class="docutils literal notranslate"><span class="pre">six_point_1d()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="vibrav.numerical.derivatives.html#vibrav.numerical.derivatives.six_point_2d"><code class="docutils literal notranslate"><span class="pre">six_point_2d()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="vibrav.numerical.derivatives.html#vibrav.numerical.derivatives.two_point_1d"><code class="docutils literal notranslate"><span class="pre">two_point_1d()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="vibrav.numerical.derivatives.html#vibrav.numerical.derivatives.two_point_2d"><code class="docutils literal notranslate"><span class="pre">two_point_2d()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="vibrav.numerical.frequencies.html">vibrav.numerical.frequencies module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="vibrav.numerical.frequencies.html#vibrav.numerical.frequencies.numerical_frequencies"><code class="docutils literal notranslate"><span class="pre">numerical_frequencies()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="vibrav.numerical.phases.html">vibrav.numerical.phases module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="vibrav.numerical.phases.html#vibrav.numerical.phases.correct_phase_angle"><code class="docutils literal notranslate"><span class="pre">correct_phase_angle()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="vibrav.numerical.phases.html#vibrav.numerical.phases.get_theta"><code class="docutils literal notranslate"><span class="pre">get_theta()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="vibrav.numerical.phases.html#vibrav.numerical.phases.perform_phase"><code class="docutils literal notranslate"><span class="pre">perform_phase()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="vibrav.numerical.phases.html#vibrav.numerical.phases.transform_array_to_df"><code class="docutils literal notranslate"><span class="pre">transform_array_to_df()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="vibrav.numerical.redmass.html">vibrav.numerical.redmass module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="vibrav.numerical.redmass.html#vibrav.numerical.redmass.rmass_cart"><code class="docutils literal notranslate"><span class="pre">rmass_cart()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="vibrav.numerical.redmass.html#vibrav.numerical.redmass.rmass_mwc"><code class="docutils literal notranslate"><span class="pre">rmass_mwc()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="vibrav.numerical.vibronic_func.html">vibrav.numerical.vibronic_func module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="vibrav.numerical.vibronic_func.html#vibrav.numerical.vibronic_func.compute_d_dq"><code class="docutils literal notranslate"><span class="pre">compute_d_dq()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="vibrav.numerical.vibronic_func.html#vibrav.numerical.vibronic_func.compute_d_dq_sf"><code class="docutils literal notranslate"><span class="pre">compute_d_dq_sf()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="vibrav.numerical.vibronic_func.html#vibrav.numerical.vibronic_func.sf_to_so"><code class="docutils literal notranslate"><span class="pre">sf_to_so()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="vibrav.numerical.vroa_func.html">vibrav.numerical.vroa_func module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="vibrav.numerical.vroa_func.html#vibrav.numerical.vroa_func.backscat"><code class="docutils literal notranslate"><span class="pre">backscat()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="vibrav.numerical.vroa_func.html#vibrav.numerical.vroa_func.forwscat"><code class="docutils literal notranslate"><span class="pre">forwscat()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="vibrav.numerical.vroa_func.html#vibrav.numerical.vroa_func.make_derivatives"><code class="docutils literal notranslate"><span class="pre">make_derivatives()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</div>
+</section>
+</section>
+
+
+    </div>
+      
+  </div>
+</div>
+<footer class="footer">
+  <div class="container">
+    <p class="pull-right">
+      <a href="#">Back to top</a>
+      
+    </p>
+    <p>
+        &copy; Copyright 2023, Herbert D Ludowieg. Project structure based on the Computational Molecular Science Python Cookiecutter version 1.1.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 7.0.1.<br/>
+    </p>
+  </div>
+</footer>
+  </body>
+</html>

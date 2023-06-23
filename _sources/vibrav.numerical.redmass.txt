@@ -1,0 +1,7 @@
+vibrav.numerical.redmass module
+===============================
+
+.. automodule:: vibrav.numerical.redmass
+   :members:
+   :undoc-members:
+   :show-inheritance:

@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>vibrav.util.io module &#8212; vibrav  documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/bootstrap-sphinx.css" />
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/sphinx_highlight.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="vibrav.util.math module" href="vibrav.util.math.html" />
+    <link rel="prev" title="vibrav.util.gen_displaced module" href="vibrav.util.gen_displaced.html" />
+<meta charset='utf-8'>
+<meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
+<meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1'>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<script type="text/javascript" src="_static/js/jquery-1.12.4.min.js"></script>
+<script type="text/javascript" src="_static/js/jquery-fix.js"></script>
+<script type="text/javascript" src="_static/bootstrap-3.4.1/js/bootstrap.min.js"></script>
+<script type="text/javascript" src="_static/bootstrap-sphinx.js"></script>
+
+  </head><body>
+
+  <div id="navbar" class="navbar navbar-default navbar-fixed-top">
+    <div class="container">
+      <div class="navbar-header">
+        <!-- .btn-navbar is used as the toggle for collapsed navbar content -->
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".nav-collapse">
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        <a class="navbar-brand" href="index.html">
+          vibrav</a>
+        <span class="navbar-text navbar-version pull-left"><b></b></span>
+      </div>
+
+        <div class="collapse navbar-collapse nav-collapse">
+          <ul class="nav navbar-nav">
+            
+            
+              <li class="dropdown globaltoc-container">
+  <a role="button"
+     id="dLabelGlobalToc"
+     data-toggle="dropdown"
+     data-target="#"
+     href="index.html">Site <b class="caret"></b></a>
+  <ul class="dropdown-menu globaltoc"
+      role="menu"
+      aria-labelledby="dLabelGlobalToc"><ul>
+<li class="toctree-l1"><a class="reference internal" href="examples/adf.html">ADF parser API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples/gen-displaced.html">Generating the displaced structures from a Gaussian frequencies calculation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples/molcas.html">Molcas parser API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples/numerical-diffs.html">Using derivative module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples/vibronic.html">Running vibronic calculations from a Molcas RASSI set of calculations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples/vroa-h2o2.html">VROA intensities of hydrogen peroxide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples/vroa-methyloxirane.html">VROA intensities of methyloxirane</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples/zpvc.html">Tutorial for using the ZPVC module in VIBRAV</a></li>
+</ul>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="vibrav.html">vibrav package</a></li>
+</ul>
+</ul>
+</li>
+              
+                <li class="dropdown">
+  <a role="button"
+     id="dLabelLocalToc"
+     data-toggle="dropdown"
+     data-target="#"
+     href="#">Page <b class="caret"></b></a>
+  <ul class="dropdown-menu localtoc"
+      role="menu"
+      aria-labelledby="dLabelLocalToc"><ul>
+<li><a class="reference internal" href="#">vibrav.util.io module</a><ul>
+<li><a class="reference internal" href="#vibrav.util.io.get_all_data"><code class="docutils literal notranslate"><span class="pre">get_all_data()</span></code></a></li>
+<li><a class="reference internal" href="#vibrav.util.io.open_txt"><code class="docutils literal notranslate"><span class="pre">open_txt()</span></code></a></li>
+<li><a class="reference internal" href="#vibrav.util.io.read_data_file"><code class="docutils literal notranslate"><span class="pre">read_data_file()</span></code></a></li>
+<li><a class="reference internal" href="#vibrav.util.io.uncompress_file"><code class="docutils literal notranslate"><span class="pre">uncompress_file()</span></code></a></li>
+<li><a class="reference internal" href="#vibrav.util.io.write_txt"><code class="docutils literal notranslate"><span class="pre">write_txt()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</ul>
+</li>
+              
+            
+            
+              
+                
+  <li>
+    <a href="vibrav.util.gen_displaced.html" title="Previous Chapter: vibrav.util.gen_displaced module"><span class="glyphicon glyphicon-chevron-left visible-sm"></span><span class="hidden-sm hidden-tablet">&laquo; vibrav.util.g...</span>
+    </a>
+  </li>
+  <li>
+    <a href="vibrav.util.math.html" title="Next Chapter: vibrav.util.math module"><span class="glyphicon glyphicon-chevron-right visible-sm"></span><span class="hidden-sm hidden-tablet">vibrav.util.m... &raquo;</span>
+    </a>
+  </li>
+              
+            
+            
+            
+            
+              <li class="hidden-sm">
+<div id="sourcelink">
+  <a href="_sources/vibrav.util.io.txt"
+     rel="nofollow">Source</a>
+</div></li>
+            
+          </ul>
+
+          
+            
+<form class="navbar-form navbar-right" action="search.html" method="get">
+ <div class="form-group">
+  <input type="text" name="q" class="form-control" placeholder="Search" />
+ </div>
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+          
+        </div>
+    </div>
+  </div>
+
+<div class="container">
+  <div class="row">
+    <div class="body col-md-12 content" role="main">
+      
+  <section id="module-vibrav.util.io">
+<span id="vibrav-util-io-module"></span><h1>vibrav.util.io module<a class="headerlink" href="#module-vibrav.util.io" title="Permalink to this heading">¶</a></h1>
+<dl class="py function">
+<dt class="sig sig-object py" id="vibrav.util.io.get_all_data">
+<span class="sig-prename descclassname"><span class="pre">vibrav.util.io.</span></span><span class="sig-name descname"><span class="pre">get_all_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cls</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">method</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">f_start</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">f_end</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/vibrav/util/io.html#get_all_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#vibrav.util.io.get_all_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function to get all of the data from the files in a specific directory.
+It will look for all of the files that match the given <cite>f_start</cite>
+and <cite>f_end</cite> input parameters and try to extract the information
+for the given <cite>property</cite> with the <cite>cls</cite> parser class.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>We recommend that the convention used in creating the different
+files is such that there is an idex to each file to keep track of
+the data that corresponds to the specific file. The program, when
+attempting to find the index of the file, will find all of the
+integers in the filename and assume that the last entry is the
+file index. It will give a warning if it finds more than one
+integer group in the filename to tell the user that it will
+assume that the last group of integers found is the file index.</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>cls</strong> (<em>class object</em>) – Class object of the output parser of choice.</p></li>
+<li><p><strong>path</strong> (<code class="xref py py-obj docutils literal notranslate"><span class="pre">str</span></code>) – Path to the directory containing all of the
+output files.</p></li>
+<li><p><strong>method</strong> (<code class="xref py py-obj docutils literal notranslate"><span class="pre">str</span></code>) – Parsing method to use in the given class.</p></li>
+<li><p><strong>f_start</strong> (<code class="xref py py-obj docutils literal notranslate"><span class="pre">str</span></code>) – Starting string to match the output files.
+Defaults to <code class="code docutils literal notranslate"><span class="pre">''</span></code>.</p></li>
+<li><p><strong>f_end</strong> (<code class="xref py py-obj docutils literal notranslate"><span class="pre">str</span></code>) – Ending string to match the output files.
+Defaults to <code class="code docutils literal notranslate"><span class="pre">''</span></code>.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>data (<code class="xref py py-class docutils literal notranslate"><span class="pre">pandas.DataFrame</span></code>) – Data frame with all of the parsed data.</p>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>ValueError</strong> – If the program cannot find any data or files that
+    match the input parameters.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="vibrav.util.io.open_txt">
+<span class="sig-prename descclassname"><span class="pre">vibrav.util.io.</span></span><span class="sig-name descname"><span class="pre">open_txt</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fp</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rearrange</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">get_complex</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fill</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_complex</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">get_magnitude</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/vibrav/util/io.html#open_txt"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#vibrav.util.io.open_txt" title="Permalink to this definition">¶</a></dt>
+<dd><p>Method to open a .txt file that has a separator of ‘ ‘ with the first
+columns ordered as [‘nrow’, ‘ncol’, ‘real’, ‘imag’]. We take care of
+adding the two values to generate a complex number. The program will
+take your data and automatically generate a matrix of complex values
+that has the size of the maximum of the unique values in the ‘nrow’
+column and the maximum in the ‘ncol’ column. tha being said if there
+are missing values the program will throw ‘ValueError’ as it will not
+be able to determine the size of the  new matrix. This works for both
+square and non-square matrices. We assume that the indexing is
+non-pythonic hence the subtraction of ‘nrow’ and ‘ncol’ columns.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>fp</strong> (<em>str</em>) – Filepath of the file you want to open.</p></li>
+<li><p><strong>rearrange</strong> (<em>bool</em><em>, </em><em>optional</em>) – If you want to rearrange the data
+into a square complex matrix. Defaults to <cite>True</cite>.</p></li>
+<li><p><strong>fill</strong> (<code class="xref py py-obj docutils literal notranslate"><span class="pre">bool</span></code>, optional) – Fill the missing indeces with zeros.</p></li>
+<li><p><strong>is_complex</strong> (<code class="xref py py-obj docutils literal notranslate"><span class="pre">bool</span></code>, optional) – The input data is complex.</p></li>
+<li><p><strong>tol</strong> (<code class="xref py py-obj docutils literal notranslate"><span class="pre">float</span></code>, optional) – Ignore any values in the matrix that
+are less than this threshold. Defaults to <cite>None</cite> (no values are
+discarded).</p></li>
+<li><p><strong>get_magnitude</strong> (<code class="xref py py-obj docutils literal notranslate"><span class="pre">bool</span></code>, optional) – Calculate the magnitude of
+the data. Only applicable when the input data is complex. Will
+be ignored if <cite>rearrange=True</cite>. Defaults to <cite>False</cite>.</p></li>
+<li><p><strong>sep</strong> (<em>str</em><em>, </em><em>optional</em>) – Delimiter value. Will default to <cite>‘ ‘</cite>.</p></li>
+<li><p><strong>skipinitialspace</strong> (<em>bool</em><em>, </em><em>optional</em>) – Pandas skipinitialspace argument
+in the <cite>pandas.read_csv</cite> method. Defaults to <cite>True</cite>.</p></li>
+<li><p><strong>**kwargs</strong> (<em>optional</em>) – Arguments that will be passed into
+<code class="code docutils literal notranslate"><span class="pre">pandas.read_csv</span></code>.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><p><em>matrix (pandas.DataFrame)</em> –</p>
+<dl class="simple">
+<dt>Re-sized complex square matrix with the</dt><dd><p>appropriate size.</p>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>TypeError</strong> – When there are null values found. A common place this has
+    been an issue is when the first two columns in the ‘.txt’ files
+    read have merged due to too many states. This was found to happen
+    when there were over 1000 spin-orbit states.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="vibrav.util.io.read_data_file">
+<span class="sig-prename descclassname"><span class="pre">vibrav.util.io.</span></span><span class="sig-name descname"><span class="pre">read_data_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fp</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nmodes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">smat</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nat</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/vibrav/util/io.html#read_data_file"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#vibrav.util.io.read_data_file" title="Permalink to this definition">¶</a></dt>
+<dd><p>Open a data file generated when creating the displaced coordinates.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>If <cite>smat=True</cite> the script will return a data frame object</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>fp</strong> (<code class="xref py py-obj docutils literal notranslate"><span class="pre">str</span></code>) – Filepath to file.</p></li>
+<li><p><strong>nmodes</strong> (<code class="xref py py-obj docutils literal notranslate"><span class="pre">int</span></code>) – Give the number of normal modes in
+the molecule.</p></li>
+<li><p><strong>smat</strong> (<code class="xref py py-obj docutils literal notranslate"><span class="pre">bool</span></code>, optional) – Is the data from the smatrix
+file. This file is special as it needs to be transformed
+into three columns.</p></li>
+<li><p><strong>nat</strong> (<code class="xref py py-obj docutils literal notranslate"><span class="pre">int</span></code>, optional) – Required when <cite>smat=True</cite>.
+Give the number of atoms in the molecule.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>arr (<code class="xref py py-class docutils literal notranslate"><span class="pre">numpy.ndarray</span></code>) – Array with the values.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="vibrav.util.io.uncompress_file">
+<span class="sig-prename descclassname"><span class="pre">vibrav.util.io.</span></span><span class="sig-name descname"><span class="pre">uncompress_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fp</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">compression</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'xz'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/vibrav/util/io.html#uncompress_file"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#vibrav.util.io.uncompress_file" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="vibrav.util.io.write_txt">
+<span class="sig-prename descclassname"><span class="pre">vibrav.util.io.</span></span><span class="sig-name descname"><span class="pre">write_txt</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fp</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">formatter</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">header</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">order</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'F'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">non_matrix</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mode</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'w'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/vibrav/util/io.html#write_txt"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#vibrav.util.io.write_txt" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function to write the input data as a txt file with the set format
+to be read by external codes in the MCD suite.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>df</strong> (<em>pandas.DataFrame</em><em> or </em><em>numpy.ndarray</em>) – Input data</p></li>
+<li><p><strong>fp</strong> (<em>str</em>) – File to write data to</p></li>
+<li><p><strong>formatter</strong> (<code class="xref py py-obj docutils literal notranslate"><span class="pre">list</span></code>, optional) – List of formatting strings.</p></li>
+<li><p><strong>header</strong> (<code class="xref py py-obj docutils literal notranslate"><span class="pre">str</span></code>, optional) – Header to place on the file.</p></li>
+<li><p><strong>order</strong> (<code class="xref py py-obj docutils literal notranslate"><span class="pre">str</span></code>, optional) – Flattening order. See
+numpy.ndarray.flatten for more
+information.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+
+
+    </div>
+      
+  </div>
+</div>
+<footer class="footer">
+  <div class="container">
+    <p class="pull-right">
+      <a href="#">Back to top</a>
+      
+    </p>
+    <p>
+        &copy; Copyright 2023, Herbert D Ludowieg. Project structure based on the Computational Molecular Science Python Cookiecutter version 1.1.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 7.0.1.<br/>
+    </p>
+  </div>
+</footer>
+  </body>
+</html>

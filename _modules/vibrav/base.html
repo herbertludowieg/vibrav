@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>vibrav.base &#8212; vibrav  documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/bootstrap-sphinx.css" />
+    <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/sphinx_highlight.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+<meta charset='utf-8'>
+<meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
+<meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1'>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<script type="text/javascript" src="../../_static/js/jquery-1.12.4.min.js"></script>
+<script type="text/javascript" src="../../_static/js/jquery-fix.js"></script>
+<script type="text/javascript" src="../../_static/bootstrap-3.4.1/js/bootstrap.min.js"></script>
+<script type="text/javascript" src="../../_static/bootstrap-sphinx.js"></script>
+
+  </head><body>
+
+  <div id="navbar" class="navbar navbar-default navbar-fixed-top">
+    <div class="container">
+      <div class="navbar-header">
+        <!-- .btn-navbar is used as the toggle for collapsed navbar content -->
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".nav-collapse">
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        <a class="navbar-brand" href="../../index.html">
+          vibrav</a>
+        <span class="navbar-text navbar-version pull-left"><b></b></span>
+      </div>
+
+        <div class="collapse navbar-collapse nav-collapse">
+          <ul class="nav navbar-nav">
+            
+            
+              <li class="dropdown globaltoc-container">
+  <a role="button"
+     id="dLabelGlobalToc"
+     data-toggle="dropdown"
+     data-target="#"
+     href="../../index.html">Site <b class="caret"></b></a>
+  <ul class="dropdown-menu globaltoc"
+      role="menu"
+      aria-labelledby="dLabelGlobalToc"><ul>
+<li class="toctree-l1"><a class="reference internal" href="../../examples/adf.html">ADF parser API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../examples/gen-displaced.html">Generating the displaced structures from a Gaussian frequencies calculation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../examples/molcas.html">Molcas parser API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../examples/numerical-diffs.html">Using derivative module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../examples/vibronic.html">Running vibronic calculations from a Molcas RASSI set of calculations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../examples/vroa-h2o2.html">VROA intensities of hydrogen peroxide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../examples/vroa-methyloxirane.html">VROA intensities of methyloxirane</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../examples/zpvc.html">Tutorial for using the ZPVC module in VIBRAV</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../vibrav.html">vibrav package</a></li>
+</ul>
+</ul>
+</li>
+              
+                <li class="dropdown">
+  <a role="button"
+     id="dLabelLocalToc"
+     data-toggle="dropdown"
+     data-target="#"
+     href="#">Page <b class="caret"></b></a>
+  <ul class="dropdown-menu localtoc"
+      role="menu"
+      aria-labelledby="dLabelLocalToc"></ul>
+</li>
+              
+            
+            
+              
+                
+              
+            
+            
+            
+            
+              <li class="hidden-sm"></li>
+            
+          </ul>
+
+          
+            
+<form class="navbar-form navbar-right" action="../../search.html" method="get">
+ <div class="form-group">
+  <input type="text" name="q" class="form-control" placeholder="Search" />
+ </div>
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+          
+        </div>
+    </div>
+  </div>
+
+<div class="container">
+  <div class="row">
+    <div class="body col-md-12 content" role="main">
+      
+  <h1>Source code for vibrav.base</h1><div class="highlight"><pre>
+<span></span><span class="c1"># This file is part of vibrav.</span>
+<span class="c1">#</span>
+<span class="c1"># vibrav is free software: you can redistribute it and/or modify</span>
+<span class="c1"># it under the terms of the GNU General Public License as published by</span>
+<span class="c1"># the Free Software Foundation, either version 3 of the License, or</span>
+<span class="c1"># (at your option) any later version.</span>
+<span class="c1">#</span>
+<span class="c1"># vibrav is distributed in the hope that it will be useful,</span>
+<span class="c1"># but WITHOUT ANY WARRANTY; without even the implied warranty of</span>
+<span class="c1"># MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the</span>
+<span class="c1"># GNU General Public License for more details.</span>
+<span class="c1">#</span>
+<span class="c1"># You should have received a copy of the GNU General Public License</span>
+<span class="c1"># along with vibrav.  If not, see &lt;https://www.gnu.org/licenses/&gt;.</span>
+<span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">Base module</span>
+<span class="sd">###########</span>
+<span class="sd">Handles the resource files.</span>
+<span class="sd">&#39;&#39;&#39;</span>
+<span class="kn">import</span> <span class="nn">vibrav</span>
+<span class="kn">import</span> <span class="nn">os</span>
+
+<span class="k">def</span> <span class="nf">_get_static_path</span><span class="p">():</span>
+    <span class="k">return</span> <span class="n">os</span><span class="o">.</span><span class="n">sep</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">vibrav</span><span class="o">.</span><span class="vm">__file__</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">sep</span><span class="p">)[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">+</span><span class="p">[</span><span class="s1">&#39;static&#39;</span><span class="p">])</span>
+
+<div class="viewcode-block" id="resource"><a class="viewcode-back" href="../../vibrav.base.html#vibrav.base.resource">[docs]</a><span class="k">def</span> <span class="nf">resource</span><span class="p">(</span><span class="n">file</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Get the requested resource file from the static directory.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        file (:obj:`str`): Name of resource file.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        resource_path (:obj:`str`): Absolute path to the resource file.</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">        ValueError: When there is more than one resource file found with that same name.</span>
+<span class="sd">        FileNotFoundError: When the resource file cannot be found in the static directory.</span>
+
+<span class="sd">    Examples:</span>
+<span class="sd">        The usage of this function is fairly straightforward where the code below can be</span>
+<span class="sd">        used to get the filepath of the resource file.</span>
+
+<span class="sd">        &gt;&gt;&gt; resource(&#39;adf-ch4-atom.csv.xz&#39;)</span>
+<span class="sd">        &#39;/path/to/vibrav/vibrav/static/adf/ch4/adf-ch4-atom.csv.xz&#39;</span>
+
+<span class="sd">        To view a full list of resource files please see :func:`vibrav.base.list_resource`</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">abspath</span><span class="p">,</span> <span class="n">files</span> <span class="o">=</span> <span class="n">list_resource</span><span class="p">(</span><span class="n">full_path</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">return_both</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">index</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">f</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">files</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">f</span> <span class="o">==</span> <span class="n">file</span><span class="p">:</span>
+            <span class="n">index</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">idx</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">index</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;More than one file was found with that name in the static directory. &quot;</span> \
+                        <span class="o">+</span><span class="s2">&quot;Please submit an issue on the github page. If this was a file that you &quot;</span> \
+                        <span class="o">+</span><span class="s2">&quot;added make sure that it does not have the same name as some of the &quot;</span> \
+                        <span class="o">+</span><span class="s2">&quot;existing files, regardless of whether they are in different directories.&quot;</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">index</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">FileNotFoundError</span><span class="p">(</span><span class="s2">&quot;The specified resource file was not found&quot;</span><span class="p">)</span>
+    <span class="n">resource_path</span> <span class="o">=</span> <span class="n">abspath</span><span class="p">[</span><span class="n">index</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span>
+    <span class="k">return</span> <span class="n">resource_path</span></div>
+
+<div class="viewcode-block" id="list_resource"><a class="viewcode-back" href="../../vibrav.base.html#vibrav.base.list_resource">[docs]</a><span class="k">def</span> <span class="nf">list_resource</span><span class="p">(</span><span class="n">full_path</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">return_both</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">search_string</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">rel_path</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Get all of the available resource files in the static directory.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        full_path (:obj:`bool`, optional): Return the absolute path of the resource files.</span>
+<span class="sd">                                           Defaults to :code:`False`.</span>
+<span class="sd">        return_both (:obj:`bool`, optional): Return both the absolute paths and resource files.</span>
+<span class="sd">                                             Defaults to :code:`False`.</span>
+<span class="sd">        search_string (:obj:`str`, optional): Regex string to limit the number of entries to return.</span>
+<span class="sd">                                              Defaults to :code:`&#39;&#39;`.</span>
+<span class="sd">        rel_path (:obj:`bool`, optional): Return the relative path instead of the absolute path to</span>
+<span class="sd">                                          resource files. Good for testing code. Defaults to</span>
+<span class="sd">                                          :code:`False`.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        resource_files (:obj:`list`): Resource file list depending on the input parameters.</span>
+
+<span class="sd">    Examples:</span>
+<span class="sd">        The usage of the this function is as follows.</span>
+
+<span class="sd">        For a simple list of all the available resource files.</span>
+
+<span class="sd">        &gt;&gt;&gt; print(list_resource())</span>
+<span class="sd">        [&#39;adf-ch4-atom.csv.xz&#39;, &#39;adf-ch4-freq.t21.ascii.xz&#39;, &#39;adf-ch4-frequency.csv.xz&#39;,</span>
+<span class="sd">         &#39;adf-ethane-atom.csv.xz&#39;, &#39;adf-ethane-frequency.csv.xz&#39;, &#39;adf-ethane-ts-freq.t21.ascii.xz&#39;,</span>
+<span class="sd">         &#39;g16-nitromalonamide-freq.out.xz&#39;, &#39;g16-nitromalonamide-zpvc-data.tar.xz&#39;,</span>
+<span class="sd">         &#39;boltz-dist-full-test.csv.xz&#39;, &#39;nien3-1-0.02-delta.dat.xz&#39;, &#39;nien3-1-0.02-freq.dat.xz&#39;,</span>
+<span class="sd">         &#39;nien3-1-0.04-delta.dat.xz&#39;, &#39;nien3-1-0.04-freq.dat.xz&#39;, &#39;nien3-1-0.08-delta.dat.xz&#39;,</span>
+<span class="sd">         &#39;nien3-1-0.08-freq.dat.xz&#39;, &#39;nien3-2-0.02-delta.dat.xz&#39;, &#39;nien3-2-0.02-freq.dat.xz&#39;,</span>
+<span class="sd">         &#39;nien3-2-0.04-delta.dat.xz&#39;, &#39;nien3-2-0.04-freq.dat.xz&#39;, &#39;nien3-2-0.08-delta.dat.xz&#39;,</span>
+<span class="sd">         &#39;nien3-2-0.08-freq.dat.xz&#39;, &#39;nien3-frequency-data.csv.xz&#39;, &#39;nitromalonamide-zpvc-config.conf&#39;,</span>
+<span class="sd">         &#39;nitromalonamide-zpvc-dat-files.tar.xz&#39;, &#39;nitromalonamide-zpvc-geometry.csv.xz&#39;,</span>
+<span class="sd">         &#39;nitromalonamide-zpvc-grad.dat.xz&#39;, &#39;nitromalonamide-zpvc-prop.dat.xz&#39;,</span>
+<span class="sd">         &#39;nitromalonamide-zpvc-results.csv.xz&#39;, &#39;molcas-rassi-nien-degen-so-energy.csv.xz&#39;,</span>
+<span class="sd">         &#39;molcas-rassi-nien-energy.csv.xz&#39;, &#39;molcas-rassi-nien-oscillators.csv.xz&#39;,</span>
+<span class="sd">         &#39;molcas-rassi-nien-sf-angmom.csv.xz&#39;, &#39;molcas-rassi-nien-sf-dipole.csv.xz&#39;,</span>
+<span class="sd">         &#39;molcas-rassi-nien-sf-quadrupole.csv.xz&#39;, &#39;molcas-rassi-nien.out.xz&#39;,</span>
+<span class="sd">         &#39;molcas-ucl6-2minus-eigvectors.txt.xz&#39;, &#39;molcas-ucl6-2minus-energies.txt.xz&#39;,</span>
+<span class="sd">         &#39;molcas-ucl6-2minus-oscillators.txt.xz&#39;, &#39;molcas-ucl6-2minus-sf-dipole-1.txt.xz&#39;,</span>
+<span class="sd">         &#39;molcas-ucl6-2minus-so-dipole-1.txt.xz&#39;, &#39;molcas-ucl6-2minus-vibronic-config&#39;,</span>
+<span class="sd">         &#39;molcas-ucl6-2minus-vibronic-coupling.tar.xz&#39;]</span>
+
+<span class="sd">        Options have been implemented in this function to make it easier to see what resource</span>
+<span class="sd">        files there are for a particular type of resource list. Below we show how to get all</span>
+<span class="sd">        the resource files that are linked to an ADF calculation.</span>
+
+<span class="sd">        &gt;&gt;&gt; print(list_resource(search_string=&#39;adf&#39;))</span>
+<span class="sd">        [&#39;adf-ch4-atom.csv.xz&#39;, &#39;adf-ch4-freq.t21.ascii.xz&#39;, &#39;adf-ch4-frequency.csv.xz&#39;,</span>
+<span class="sd">         &#39;adf-ethane-atom.csv.xz&#39;, &#39;adf-ethane-frequency.csv.xz&#39;, &#39;adf-ethane-ts-freq.t21.ascii.xz&#39;]</span>
+
+<span class="sd">        Similarly, one can view all of the resource files that are used for the ZPVC calculations.</span>
+
+<span class="sd">        &gt;&gt;&gt; print(list_resource(search_string=&#39;zpvc&#39;))</span>
+<span class="sd">        [&#39;g16-nitromalonamide-zpvc-data.tar.xz&#39;, &#39;nitromalonamide-zpvc-config.conf&#39;,</span>
+<span class="sd">         &#39;nitromalonamide-zpvc-dat-files.tar.xz&#39;, &#39;nitromalonamide-zpvc-geometry.csv.xz&#39;,</span>
+<span class="sd">         &#39;nitromalonamide-zpvc-grad.dat.xz&#39;, &#39;nitromalonamide-zpvc-prop.dat.xz&#39;,</span>
+<span class="sd">         &#39;nitromalonamide-zpvc-results.csv.xz&#39;]</span>
+
+<span class="sd">        Or, one can view all of the resource files that are an ascii Tape21 file.</span>
+
+<span class="sd">        &gt;&gt;&gt; print(list_resource(search_string=&#39;ascii&#39;))</span>
+<span class="sd">        [&#39;adf-ch4-freq.t21.ascii.xz&#39;, &#39;adf-ethane-ts-freq.t21.ascii.xz&#39;]</span>
+
+<span class="sd">        Note, these file are in separate directories as shown with the next input parameter</span>
+<span class="sd">        :code:`full_path` along with the :code:`rel_path` parameter for the sake of the example.</span>
+<span class="sd">        The command was executed in the path where vibrav was cloned.</span>
+
+<span class="sd">        &gt;&gt;&gt; print(list_resource(full_path=True, search_string=&#39;ascii&#39;, rel_path=True))</span>
+<span class="sd">        [&#39;vibrav/static/adf/ch4/adf-ch4-freq.t21.ascii.xz&#39;,</span>
+<span class="sd">         &#39;vibrav/static/adf/ethane/adf-ethane-ts-freq.t21.ascii.xz&#39;]</span>
+
+<span class="sd">        We can also return both the paths to the resource files along with the filenames</span>
+<span class="sd">        of the resource files.</span>
+
+<span class="sd">        &gt;&gt;&gt; print(list_resource(full_path=True, search_string=&#39;ascii&#39;, rel_path=True))</span>
+<span class="sd">        [[&#39;vibrav/static/adf/ch4/adf-ch4-freq.t21.ascii.xz&#39;,</span>
+<span class="sd">          &#39;vibrav/static/adf/ethane/adf-ethane-ts-freq.t21.ascii.xz&#39;],</span>
+<span class="sd">         [&#39;adf-ch4-freq.t21.ascii.xz&#39;, &#39;adf-ethane-ts-freq.t21.ascii.xz&#39;]]</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">fp</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">if</span> <span class="n">full_path</span><span class="p">:</span>
+        <span class="n">abspaths</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">abspaths</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="c1"># find and organize all of the files</span>
+    <span class="k">for</span> <span class="p">(</span><span class="n">dirpath</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">files</span><span class="p">)</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">walk</span><span class="p">(</span><span class="n">_get_static_path</span><span class="p">()):</span>
+        <span class="c1"># absolute or relative path</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">rel_path</span><span class="p">:</span>
+            <span class="n">paths</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">dirpath</span><span class="p">,</span> <span class="n">x</span><span class="p">)),</span> <span class="n">files</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">paths</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">relpath</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">dirpath</span><span class="p">,</span> <span class="n">x</span><span class="p">)),</span> <span class="n">files</span><span class="p">))</span>
+        <span class="k">for</span> <span class="n">path</span><span class="p">,</span> <span class="n">file</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">paths</span><span class="p">,</span> <span class="n">files</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">path</span><span class="p">)</span> <span class="ow">and</span> <span class="n">search_string</span> <span class="ow">in</span> <span class="n">path</span><span class="p">:</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">abspaths</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">abspaths</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+                <span class="n">fp</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">file</span><span class="p">)</span>
+    <span class="c1"># check input options for what is to be returned</span>
+    <span class="k">if</span> <span class="n">return_both</span><span class="p">:</span>
+        <span class="n">resource_files</span> <span class="o">=</span> <span class="p">[</span><span class="n">abspaths</span><span class="p">,</span> <span class="n">fp</span><span class="p">]</span>
+    <span class="k">elif</span> <span class="n">full_path</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">return_both</span><span class="p">:</span>
+        <span class="n">resource_files</span> <span class="o">=</span> <span class="n">abspaths</span>
+    <span class="k">elif</span> <span class="ow">not</span> <span class="p">(</span><span class="n">full_path</span> <span class="ow">and</span> <span class="n">return_both</span><span class="p">):</span>
+        <span class="n">resource_files</span> <span class="o">=</span> <span class="n">fp</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="c1"># only raised if all else fails</span>
+        <span class="c1"># should never actually execute</span>
+        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Um.....this is embarrasing. &quot;</span> \
+                          <span class="o">+</span><span class="s2">&quot;The input for list_resource was not understood&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">resource_files</span></div>
+
+</pre></div>
+
+    </div>
+      
+  </div>
+</div>
+<footer class="footer">
+  <div class="container">
+    <p class="pull-right">
+      <a href="#">Back to top</a>
+      
+    </p>
+    <p>
+        &copy; Copyright 2023, Herbert D Ludowieg. Project structure based on the Computational Molecular Science Python Cookiecutter version 1.1.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 7.0.1.<br/>
+    </p>
+  </div>
+</footer>
+  </body>
+</html>

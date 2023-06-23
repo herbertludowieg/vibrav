@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>vibrav.numerical.phases &#8212; vibrav  documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/bootstrap-sphinx.css" />
+    <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+    <script src="../../../_static/doctools.js"></script>
+    <script src="../../../_static/sphinx_highlight.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+<meta charset='utf-8'>
+<meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
+<meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1'>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<script type="text/javascript" src="../../../_static/js/jquery-1.12.4.min.js"></script>
+<script type="text/javascript" src="../../../_static/js/jquery-fix.js"></script>
+<script type="text/javascript" src="../../../_static/bootstrap-3.4.1/js/bootstrap.min.js"></script>
+<script type="text/javascript" src="../../../_static/bootstrap-sphinx.js"></script>
+
+  </head><body>
+
+  <div id="navbar" class="navbar navbar-default navbar-fixed-top">
+    <div class="container">
+      <div class="navbar-header">
+        <!-- .btn-navbar is used as the toggle for collapsed navbar content -->
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".nav-collapse">
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        <a class="navbar-brand" href="../../../index.html">
+          vibrav</a>
+        <span class="navbar-text navbar-version pull-left"><b></b></span>
+      </div>
+
+        <div class="collapse navbar-collapse nav-collapse">
+          <ul class="nav navbar-nav">
+            
+            
+              <li class="dropdown globaltoc-container">
+  <a role="button"
+     id="dLabelGlobalToc"
+     data-toggle="dropdown"
+     data-target="#"
+     href="../../../index.html">Site <b class="caret"></b></a>
+  <ul class="dropdown-menu globaltoc"
+      role="menu"
+      aria-labelledby="dLabelGlobalToc"><ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../examples/adf.html">ADF parser API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../examples/gen-displaced.html">Generating the displaced structures from a Gaussian frequencies calculation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../examples/molcas.html">Molcas parser API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../examples/numerical-diffs.html">Using derivative module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../examples/vibronic.html">Running vibronic calculations from a Molcas RASSI set of calculations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../examples/vroa-h2o2.html">VROA intensities of hydrogen peroxide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../examples/vroa-methyloxirane.html">VROA intensities of methyloxirane</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../examples/zpvc.html">Tutorial for using the ZPVC module in VIBRAV</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../vibrav.html">vibrav package</a></li>
+</ul>
+</ul>
+</li>
+              
+                <li class="dropdown">
+  <a role="button"
+     id="dLabelLocalToc"
+     data-toggle="dropdown"
+     data-target="#"
+     href="#">Page <b class="caret"></b></a>
+  <ul class="dropdown-menu localtoc"
+      role="menu"
+      aria-labelledby="dLabelLocalToc"></ul>
+</li>
+              
+            
+            
+              
+                
+              
+            
+            
+            
+            
+              <li class="hidden-sm"></li>
+            
+          </ul>
+
+          
+            
+<form class="navbar-form navbar-right" action="../../../search.html" method="get">
+ <div class="form-group">
+  <input type="text" name="q" class="form-control" placeholder="Search" />
+ </div>
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+          
+        </div>
+    </div>
+  </div>
+
+<div class="container">
+  <div class="row">
+    <div class="body col-md-12 content" role="main">
+      
+  <h1>Source code for vibrav.numerical.phases</h1><div class="highlight"><pre>
+<span></span><span class="c1"># This file is part of vibrav.</span>
+<span class="c1">#</span>
+<span class="c1"># vibrav is free software: you can redistribute it and/or modify</span>
+<span class="c1"># it under the terms of the GNU General Public License as published by</span>
+<span class="c1"># the Free Software Foundation, either version 3 of the License, or</span>
+<span class="c1"># (at your option) any later version.</span>
+<span class="c1">#</span>
+<span class="c1"># vibrav is distributed in the hope that it will be useful,</span>
+<span class="c1"># but WITHOUT ANY WARRANTY; without even the implied warranty of</span>
+<span class="c1"># MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the</span>
+<span class="c1"># GNU General Public License for more details.</span>
+<span class="c1">#</span>
+<span class="c1"># You should have received a copy of the GNU General Public License</span>
+<span class="c1"># along with vibrav.  If not, see &lt;https://www.gnu.org/licenses/&gt;.</span>
+<span class="kn">from</span> <span class="nn">numba</span> <span class="kn">import</span> <span class="n">jit</span><span class="p">,</span> <span class="n">vectorize</span><span class="p">,</span> <span class="n">float64</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<span class="n">_nopython</span> <span class="o">=</span> <span class="kc">True</span>
+
+<span class="nd">@vectorize</span><span class="p">([</span><span class="n">float64</span><span class="p">(</span><span class="n">float64</span><span class="p">,</span> <span class="n">float64</span><span class="p">)])</span>
+<span class="k">def</span> <span class="nf">get_mag</span><span class="p">(</span><span class="n">real</span><span class="p">,</span> <span class="n">imag</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">square</span><span class="p">(</span><span class="n">real</span><span class="p">)</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">square</span><span class="p">(</span><span class="n">imag</span><span class="p">))</span>
+
+<div class="viewcode-block" id="get_theta"><a class="viewcode-back" href="../../../vibrav.numerical.phases.html#vibrav.numerical.phases.get_theta">[docs]</a><span class="nd">@jit</span><span class="p">(</span><span class="n">nopython</span><span class="o">=</span><span class="n">_nopython</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">get_theta</span><span class="p">(</span><span class="n">real</span><span class="p">,</span> <span class="n">imag</span><span class="p">,</span> <span class="n">exc</span><span class="p">,</span> <span class="n">nexc</span><span class="p">,</span> <span class="n">ncomps</span><span class="p">,</span> <span class="n">tol</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Determine the theta angle to rotate the input data by. Here,</span>
+<span class="sd">    we determine which component has the largest magnitude and</span>
+<span class="sd">    use that to get what value of theta we need for the phase</span>
+<span class="sd">    rotation.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        real (numpy.ndarray): Array of the real values of the</span>
+<span class="sd">            property of interest.</span>
+<span class="sd">        imag (numpy.ndarray): Array of the imaginary values</span>
+<span class="sd">            of the property of interest.</span>
+<span class="sd">        exc (int): Integer of the excited state.</span>
+<span class="sd">        nexc (int): Number of excited states.</span>
+<span class="sd">        ncomps (int): Number of components for the property.</span>
+<span class="sd">        tol (float): Tolerance for determining what a small</span>
+<span class="sd">            values is.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        theta (float): Theta rotation angle value.</span>
+<span class="sd">        imax (int): Integer of the component that we</span>
+<span class="sd">            calculated the rotation angle at.</span>
+<span class="sd">        rmax (float): Magnitude of the maximum component.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">r2max</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">imax</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="c1"># determine which component is the largest and select that</span>
+    <span class="c1"># on to make it uniquely real</span>
+    <span class="k">for</span> <span class="n">ix</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">ncomps</span><span class="p">):</span>
+        <span class="n">r2</span> <span class="o">=</span> <span class="n">real</span><span class="p">[</span><span class="n">ix</span><span class="o">*</span><span class="n">nexc</span><span class="o">+</span><span class="n">exc</span><span class="p">]</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="n">imag</span><span class="p">[</span><span class="n">ix</span><span class="o">*</span><span class="n">nexc</span><span class="o">+</span><span class="n">exc</span><span class="p">]</span><span class="o">**</span><span class="mi">2</span>
+        <span class="k">if</span> <span class="n">r2</span> <span class="o">&gt;</span> <span class="n">r2max</span><span class="p">:</span>
+            <span class="n">r2max</span> <span class="o">=</span> <span class="n">r2</span>
+            <span class="n">imax</span> <span class="o">=</span> <span class="n">ix</span>
+    <span class="c1"># store the magnitude</span>
+    <span class="n">rmax</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">r2max</span><span class="p">)</span>
+    <span class="c1"># check if the chosen value is storngly imaginary as we would have</span>
+    <span class="c1"># a division by zero</span>
+    <span class="c1"># if that is the case the phase angle would be 90 degrees</span>
+    <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">real</span><span class="p">[</span><span class="n">imax</span><span class="o">*</span><span class="n">nexc</span><span class="o">+</span><span class="n">exc</span><span class="p">])</span> <span class="o">&gt;</span> <span class="n">tol</span><span class="p">:</span>
+        <span class="n">theta</span> <span class="o">=</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">arctan2</span><span class="p">(</span><span class="n">imag</span><span class="p">[</span><span class="n">imax</span><span class="o">*</span><span class="n">nexc</span><span class="o">+</span><span class="n">exc</span><span class="p">],</span> <span class="n">real</span><span class="p">[</span><span class="n">imax</span><span class="o">*</span><span class="n">nexc</span><span class="o">+</span><span class="n">exc</span><span class="p">])</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">theta</span> <span class="o">=</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">/</span><span class="mi">2</span>
+    <span class="c1"># ensure that the real part will be positive</span>
+    <span class="n">maxdip</span> <span class="o">=</span> <span class="p">(</span><span class="n">real</span><span class="p">[</span><span class="n">imax</span><span class="o">*</span><span class="n">nexc</span><span class="o">+</span><span class="n">exc</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span><span class="n">j</span><span class="o">*</span><span class="n">imag</span><span class="p">[</span><span class="n">imax</span><span class="o">*</span><span class="n">nexc</span><span class="o">+</span><span class="n">exc</span><span class="p">])</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="mi">1</span><span class="n">j</span><span class="o">*</span><span class="n">theta</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">real</span><span class="p">(</span><span class="n">maxdip</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span> <span class="n">theta</span> <span class="o">+=</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span>
+    <span class="c1"># so we do not have any weird numerical artifacts</span>
+    <span class="c1"># affecting the data</span>
+    <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">theta</span><span class="p">)</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">tol</span><span class="p">:</span> <span class="n">theta</span> <span class="o">=</span> <span class="mf">0.0</span>
+    <span class="k">return</span> <span class="n">theta</span><span class="p">,</span> <span class="n">imax</span><span class="p">,</span> <span class="n">rmax</span></div>
+
+<span class="nd">@jit</span><span class="p">(</span><span class="n">nopython</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">_insert_values</span><span class="p">(</span><span class="n">arr</span><span class="p">,</span> <span class="n">idx</span><span class="p">,</span> <span class="n">mag</span><span class="p">,</span> <span class="n">ncol</span><span class="p">,</span> <span class="n">nrow</span><span class="p">,</span> <span class="n">comp</span><span class="p">,</span> <span class="n">prop</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&#39;&#39;&#39; Insert input values into an array. &#39;&#39;&#39;</span>
+    <span class="n">arr</span><span class="p">[</span><span class="n">idx</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">real</span><span class="p">(</span><span class="n">mag</span><span class="p">)</span>
+    <span class="n">arr</span><span class="p">[</span><span class="n">idx</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">imag</span><span class="p">(</span><span class="n">mag</span><span class="p">)</span>
+    <span class="n">arr</span><span class="p">[</span><span class="n">idx</span><span class="p">][</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">real</span><span class="p">(</span><span class="n">mag</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">conjugate</span><span class="p">(</span><span class="n">mag</span><span class="p">)))</span>
+    <span class="n">arr</span><span class="p">[</span><span class="n">idx</span><span class="p">][</span><span class="mi">3</span><span class="p">]</span> <span class="o">=</span> <span class="n">ncol</span>
+    <span class="n">arr</span><span class="p">[</span><span class="n">idx</span><span class="p">][</span><span class="mi">4</span><span class="p">]</span> <span class="o">=</span> <span class="n">nrow</span>
+    <span class="n">arr</span><span class="p">[</span><span class="n">idx</span><span class="p">][</span><span class="mi">5</span><span class="p">]</span> <span class="o">=</span> <span class="n">comp</span>
+    <span class="n">arr</span><span class="p">[</span><span class="n">idx</span><span class="p">][</span><span class="mi">6</span><span class="p">]</span> <span class="o">=</span> <span class="n">prop</span>
+
+<div class="viewcode-block" id="perform_phase"><a class="viewcode-back" href="../../../vibrav.numerical.phases.html#vibrav.numerical.phases.perform_phase">[docs]</a><span class="nd">@jit</span><span class="p">(</span><span class="n">nopython</span><span class="o">=</span><span class="n">_nopython</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">perform_phase</span><span class="p">(</span><span class="n">dip_real</span><span class="p">,</span> <span class="n">dip_imag</span><span class="p">,</span> <span class="n">mag_real</span><span class="p">,</span> <span class="n">mag_imag</span><span class="p">,</span>
+                  <span class="n">quad_real</span><span class="p">,</span> <span class="n">quad_imag</span><span class="p">,</span> <span class="n">nexc</span><span class="p">,</span> <span class="n">state</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Do a phase rotation of the real and imaginary data for</span>
+<span class="sd">    transitions from a particular ground state. This will</span>
+<span class="sd">    determine which of the properties to use based on the</span>
+<span class="sd">    magnitudes of them. This is to ensure that we are not</span>
+<span class="sd">    doing this based on numercial artifacts in the data.</span>
+
+<span class="sd">    Note:</span>
+<span class="sd">        This function is hard-coded for the electric</span>
+<span class="sd">        dipole, magnetic dipole, and electric quadrupole.</span>
+<span class="sd">        In our testing this was enough. If more are needed</span>
+<span class="sd">        then this code will have to be changed slightly.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        dip_real (numpy.ndarray): Real values of the electric</span>
+<span class="sd">            dipole.</span>
+<span class="sd">        dip_imag (numpy.ndarray): Imaginary  values of the</span>
+<span class="sd">            electric dipole.</span>
+<span class="sd">        mag_real (numpy.ndarray): Real values of the magnetic</span>
+<span class="sd">            dipole.</span>
+<span class="sd">        mag_imag (numpy.ndarray): Imaginary  values of the</span>
+<span class="sd">            magnetic dipole.</span>
+<span class="sd">        quad_real (numpy.ndarray): Real values of the electric</span>
+<span class="sd">            quadrupole.</span>
+<span class="sd">        quad_imag (numpy.ndarray): Imaginary  values of the</span>
+<span class="sd">            electric quadrupole.</span>
+<span class="sd">        nexc (int): Number of excited states.</span>
+<span class="sd">        state (int): Ground state value for storage.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        dip_arr (numpy.ndarray): Array containing the data of</span>
+<span class="sd">            electric dipoles after the phase angle rotation.</span>
+<span class="sd">        mag_arr (numpy.ndarray): Array containing the data of</span>
+<span class="sd">            magnetic dipoles after the phase angle rotation.</span>
+<span class="sd">        quad_arr (numpy.ndarray): Array containing the data of</span>
+<span class="sd">            electric quadrupoles after the phase angle rotation.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">tol</span> <span class="o">=</span> <span class="mf">1e-6</span>
+    <span class="c1"># thetas is nexc x 6</span>
+    <span class="c1"># colums are theta, nrow, ncol, imax, rmax (magnitude of</span>
+    <span class="c1"># max index), prop (property that we are using for theta)</span>
+    <span class="n">thetas</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">nexc</span><span class="p">,</span><span class="mi">6</span><span class="p">))</span>
+    <span class="c1"># all arrays are nexc*ncomps x 7</span>
+    <span class="c1"># ncomps is 3 for dipole and angmom properties and 6 for</span>
+    <span class="c1"># the quadrupole</span>
+    <span class="c1"># columns are real, imag, magnitude, ncol, nrow, component,</span>
+    <span class="c1"># prop (identifier for the different properties)</span>
+    <span class="c1"># the identifier is 0: dipole, 1: angmom, 2: quadrupole</span>
+    <span class="n">dip_arr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">nexc</span><span class="o">*</span><span class="mi">3</span><span class="p">,</span><span class="mi">7</span><span class="p">))</span>
+    <span class="n">mag_arr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">nexc</span><span class="o">*</span><span class="mi">3</span><span class="p">,</span><span class="mi">7</span><span class="p">))</span>
+    <span class="n">quad_arr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">nexc</span><span class="o">*</span><span class="mi">6</span><span class="p">,</span><span class="mi">7</span><span class="p">))</span>
+    <span class="k">for</span> <span class="n">exc</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nexc</span><span class="p">):</span>
+        <span class="c1"># if exc == state: continue</span>
+        <span class="c1"># get the magnitudes of the values at the given</span>
+        <span class="c1"># excitation for each component</span>
+        <span class="n">transdip</span> <span class="o">=</span> <span class="n">get_mag</span><span class="p">(</span><span class="n">dip_real</span><span class="p">[</span><span class="n">exc</span><span class="p">::</span><span class="n">nexc</span><span class="p">],</span> <span class="n">dip_imag</span><span class="p">[</span><span class="n">exc</span><span class="p">::</span><span class="n">nexc</span><span class="p">])</span>
+        <span class="n">transmag</span> <span class="o">=</span> <span class="n">get_mag</span><span class="p">(</span><span class="n">mag_real</span><span class="p">[</span><span class="n">exc</span><span class="p">::</span><span class="n">nexc</span><span class="p">],</span> <span class="n">mag_imag</span><span class="p">[</span><span class="n">exc</span><span class="p">::</span><span class="n">nexc</span><span class="p">])</span>
+        <span class="n">transquad</span> <span class="o">=</span> <span class="n">get_mag</span><span class="p">(</span><span class="n">quad_real</span><span class="p">[</span><span class="n">exc</span><span class="p">::</span><span class="n">nexc</span><span class="p">],</span> <span class="n">quad_imag</span><span class="p">[</span><span class="n">exc</span><span class="p">::</span><span class="n">nexc</span><span class="p">])</span>
+        <span class="c1"># detrmine which has a value greater than 1e-4</span>
+        <span class="c1">#</span>
+        <span class="c1"># if none do then we fill the column indeces 3, 4, and 5</span>
+        <span class="c1"># with the exc, state, and ix information, respectively</span>
+        <span class="c1"># where exc, state, and ix are the ncol, nrow, and component</span>
+        <span class="c1"># values</span>
+        <span class="c1"># all other values are zero</span>
+        <span class="k">if</span> <span class="n">transdip</span><span class="o">.</span><span class="n">max</span><span class="p">()</span> <span class="o">&gt;</span> <span class="mf">1e-5</span><span class="p">:</span>
+            <span class="n">real</span> <span class="o">=</span> <span class="n">dip_real</span>
+            <span class="n">imag</span> <span class="o">=</span> <span class="n">dip_imag</span>
+            <span class="n">ncomps</span> <span class="o">=</span> <span class="mi">3</span>
+            <span class="n">prop</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">elif</span> <span class="n">transmag</span><span class="o">.</span><span class="n">max</span><span class="p">()</span> <span class="o">&gt;</span> <span class="mf">1e-5</span><span class="p">:</span>
+            <span class="n">real</span> <span class="o">=</span> <span class="n">mag_real</span>
+            <span class="n">imag</span> <span class="o">=</span> <span class="n">mag_imag</span>
+            <span class="n">ncomps</span> <span class="o">=</span> <span class="mi">3</span>
+            <span class="n">prop</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="k">elif</span> <span class="n">transquad</span><span class="o">.</span><span class="n">max</span><span class="p">()</span> <span class="o">&gt;</span> <span class="mf">1e-5</span><span class="p">:</span>
+            <span class="n">real</span> <span class="o">=</span> <span class="n">quad_real</span>
+            <span class="n">imag</span> <span class="o">=</span> <span class="n">quad_imag</span>
+            <span class="n">ncomps</span> <span class="o">=</span> <span class="mi">6</span>
+            <span class="n">prop</span> <span class="o">=</span> <span class="mi">2</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">ix</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">):</span>
+                <span class="n">_insert_values</span><span class="p">(</span><span class="n">dip_arr</span><span class="p">,</span> <span class="n">exc</span><span class="o">+</span><span class="n">ix</span><span class="o">*</span><span class="n">nexc</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">exc</span><span class="p">,</span>
+                              <span class="n">state</span><span class="p">,</span> <span class="n">ix</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+                <span class="n">_insert_values</span><span class="p">(</span><span class="n">mag_arr</span><span class="p">,</span> <span class="n">exc</span><span class="o">+</span><span class="n">ix</span><span class="o">*</span><span class="n">nexc</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">exc</span><span class="p">,</span>
+                              <span class="n">state</span><span class="p">,</span> <span class="n">ix</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">ix</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">6</span><span class="p">):</span>
+                <span class="n">_insert_values</span><span class="p">(</span><span class="n">quad_arr</span><span class="p">,</span> <span class="n">exc</span><span class="o">+</span><span class="n">ix</span><span class="o">*</span><span class="n">nexc</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">exc</span><span class="p">,</span>
+                              <span class="n">state</span><span class="p">,</span> <span class="n">ix</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+            <span class="k">continue</span>
+        <span class="n">theta</span><span class="p">,</span> <span class="n">rmax</span><span class="p">,</span> <span class="n">imax</span> <span class="o">=</span> <span class="n">get_theta</span><span class="p">(</span><span class="n">real</span><span class="p">,</span> <span class="n">imag</span><span class="p">,</span> <span class="n">exc</span><span class="p">,</span>
+                                      <span class="n">nexc</span><span class="p">,</span> <span class="n">ncomps</span><span class="p">,</span> <span class="n">tol</span><span class="p">)</span>
+        <span class="n">thetas</span><span class="p">[</span><span class="n">exc</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">theta</span>
+        <span class="n">thetas</span><span class="p">[</span><span class="n">exc</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">state</span>
+        <span class="n">thetas</span><span class="p">[</span><span class="n">exc</span><span class="p">][</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="n">exc</span>
+        <span class="n">thetas</span><span class="p">[</span><span class="n">exc</span><span class="p">][</span><span class="mi">3</span><span class="p">]</span> <span class="o">=</span> <span class="n">rmax</span>
+        <span class="n">thetas</span><span class="p">[</span><span class="n">exc</span><span class="p">][</span><span class="mi">4</span><span class="p">]</span> <span class="o">=</span> <span class="n">imax</span>
+        <span class="n">thetas</span><span class="p">[</span><span class="n">exc</span><span class="p">][</span><span class="mi">5</span><span class="p">]</span> <span class="o">=</span> <span class="n">prop</span>
+        <span class="c1"># remove the phase from each of the properties</span>
+        <span class="c1"># perform two for loops for the dipole and angmom values</span>
+        <span class="c1"># in the first loop simultaneously</span>
+        <span class="c1"># second loop is for the quadrupole values</span>
+        <span class="k">for</span> <span class="n">ix</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">):</span>
+            <span class="n">maxdip</span> <span class="o">=</span> <span class="p">(</span><span class="n">dip_real</span><span class="p">[</span><span class="n">ix</span><span class="o">*</span><span class="n">nexc</span><span class="o">+</span><span class="n">exc</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span><span class="n">j</span><span class="o">*</span><span class="n">dip_imag</span><span class="p">[</span><span class="n">ix</span><span class="o">*</span><span class="n">nexc</span><span class="o">+</span><span class="n">exc</span><span class="p">])</span> \
+                        <span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="mi">1</span><span class="n">j</span><span class="o">*</span><span class="n">theta</span><span class="p">)</span>
+            <span class="n">_insert_values</span><span class="p">(</span><span class="n">dip_arr</span><span class="p">,</span> <span class="n">exc</span><span class="o">+</span><span class="n">ix</span><span class="o">*</span><span class="n">nexc</span><span class="p">,</span> <span class="n">maxdip</span><span class="p">,</span> <span class="n">exc</span><span class="p">,</span> <span class="n">state</span><span class="p">,</span> <span class="n">ix</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+            <span class="n">maxdip</span> <span class="o">=</span> <span class="p">(</span><span class="n">mag_real</span><span class="p">[</span><span class="n">ix</span><span class="o">*</span><span class="n">nexc</span><span class="o">+</span><span class="n">exc</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span><span class="n">j</span><span class="o">*</span><span class="n">mag_imag</span><span class="p">[</span><span class="n">ix</span><span class="o">*</span><span class="n">nexc</span><span class="o">+</span><span class="n">exc</span><span class="p">])</span> \
+                        <span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="mi">1</span><span class="n">j</span><span class="o">*</span><span class="n">theta</span><span class="p">)</span>
+            <span class="n">_insert_values</span><span class="p">(</span><span class="n">mag_arr</span><span class="p">,</span> <span class="n">exc</span><span class="o">+</span><span class="n">ix</span><span class="o">*</span><span class="n">nexc</span><span class="p">,</span> <span class="n">maxdip</span><span class="p">,</span> <span class="n">exc</span><span class="p">,</span> <span class="n">state</span><span class="p">,</span> <span class="n">ix</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">ix</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">6</span><span class="p">):</span>
+            <span class="n">maxdip</span> <span class="o">=</span> <span class="p">(</span><span class="n">quad_real</span><span class="p">[</span><span class="n">ix</span><span class="o">*</span><span class="n">nexc</span><span class="o">+</span><span class="n">exc</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span><span class="n">j</span><span class="o">*</span><span class="n">quad_imag</span><span class="p">[</span><span class="n">ix</span><span class="o">*</span><span class="n">nexc</span><span class="o">+</span><span class="n">exc</span><span class="p">])</span> \
+                        <span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="mi">1</span><span class="n">j</span><span class="o">*</span><span class="n">theta</span><span class="p">)</span>
+            <span class="n">_insert_values</span><span class="p">(</span><span class="n">quad_arr</span><span class="p">,</span> <span class="n">exc</span><span class="o">+</span><span class="n">ix</span><span class="o">*</span><span class="n">nexc</span><span class="p">,</span> <span class="n">maxdip</span><span class="p">,</span> <span class="n">exc</span><span class="p">,</span> <span class="n">state</span><span class="p">,</span> <span class="n">ix</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">dip_arr</span><span class="p">,</span> <span class="n">mag_arr</span><span class="p">,</span> <span class="n">quad_arr</span><span class="p">,</span> <span class="n">thetas</span></div>
+
+<div class="viewcode-block" id="transform_array_to_df"><a class="viewcode-back" href="../../../vibrav.numerical.phases.html#vibrav.numerical.phases.transform_array_to_df">[docs]</a><span class="k">def</span> <span class="nf">transform_array_to_df</span><span class="p">(</span><span class="n">arr</span><span class="p">,</span> <span class="n">cols</span><span class="p">,</span> <span class="n">int_cols</span><span class="p">,</span> <span class="n">prop_map</span><span class="p">):</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">arr</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="n">cols</span><span class="p">)</span>
+    <span class="n">df</span><span class="p">[</span><span class="n">int_cols</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">int_cols</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+    <span class="c1"># map the property elements to their string values</span>
+    <span class="n">df</span><span class="p">[</span><span class="s1">&#39;prop&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s1">&#39;prop&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">prop_map</span><span class="p">)</span>
+    <span class="n">df</span><span class="p">[</span><span class="s1">&#39;component&#39;</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
+    <span class="k">return</span> <span class="n">df</span></div>
+
+<div class="viewcode-block" id="correct_phase_angle"><a class="viewcode-back" href="../../../vibrav.numerical.phases.html#vibrav.numerical.phases.correct_phase_angle">[docs]</a><span class="k">def</span> <span class="nf">correct_phase_angle</span><span class="p">(</span><span class="n">data_df</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Here we analyze the phase angle of the input data and perform a</span>
+<span class="sd">    &quot;rotation&quot; by the phase angle. We determine the phase angle by</span>
+<span class="sd">    getting the highest absolute magnitude in each &quot;transition&quot;</span>
+<span class="sd">    (`nrow` value) and determine the angle such that we minimize</span>
+<span class="sd">    the imaginary value for that component in the &quot;transition&quot;.</span>
+
+<span class="sd">    Note:</span>
+<span class="sd">        This has been hard-coded for Molcas/OpenMolcas with the</span>
+<span class="sd">        files printed from RASSI with the `PRPRint` keyword.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">dfs</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">thetas</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="c1"># set the columns that will be integers after the</span>
+    <span class="c1"># function where we rotate the data by the phase</span>
+    <span class="n">int_cols</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;ncol&#39;</span><span class="p">,</span> <span class="s1">&#39;nrow&#39;</span><span class="p">,</span> <span class="s1">&#39;component&#39;</span><span class="p">,</span> <span class="s1">&#39;prop&#39;</span><span class="p">]</span>
+    <span class="c1"># mapping dictionaries</span>
+    <span class="n">kwarg_map</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;dip&#39;</span><span class="p">:</span> <span class="s1">&#39;dipole&#39;</span><span class="p">,</span> <span class="s1">&#39;mag&#39;</span><span class="p">:</span> <span class="s1">&#39;angmom&#39;</span><span class="p">,</span>
+                 <span class="s1">&#39;quad&#39;</span><span class="p">:</span> <span class="s1">&#39;quadrupole&#39;</span><span class="p">}</span>
+    <span class="n">prop_map</span> <span class="o">=</span> <span class="p">{</span><span class="mi">0</span><span class="p">:</span> <span class="s1">&#39;dipole&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">:</span> <span class="s1">&#39;angmom&#39;</span><span class="p">,</span> <span class="mi">2</span><span class="p">:</span> <span class="s1">&#39;quadrupole&#39;</span><span class="p">}</span>
+    <span class="k">for</span> <span class="n">state</span><span class="p">,</span> <span class="n">gs</span> <span class="ow">in</span> <span class="n">data_df</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s1">&#39;nrow&#39;</span><span class="p">):</span>
+        <span class="n">group</span> <span class="o">=</span> <span class="n">gs</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s1">&#39;prop&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">get_group</span>
+        <span class="c1"># generate the arrays that are needed by the</span>
+        <span class="c1"># function and store as dictionary with the</span>
+        <span class="c1"># proper kwarg names</span>
+        <span class="n">kwargs</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">kwarg_map</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;real&#39;</span><span class="p">,</span> <span class="s1">&#39;imag&#39;</span><span class="p">]:</span>
+                <span class="n">kwargs</span><span class="p">[</span><span class="n">key</span><span class="o">+</span><span class="s1">&#39;_&#39;</span><span class="o">+</span><span class="n">t</span><span class="p">]</span> <span class="o">=</span> <span class="n">group</span><span class="p">(</span><span class="n">kwarg_map</span><span class="p">[</span><span class="n">key</span><span class="p">])[</span><span class="n">t</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+        <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;nexc&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">group</span><span class="p">(</span><span class="s1">&#39;dipole&#39;</span><span class="p">)[</span><span class="s1">&#39;ncol&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">()</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;state&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">state</span>
+        <span class="c1"># rotate data by the phase angle</span>
+        <span class="n">arrays</span> <span class="o">=</span> <span class="n">perform_phase</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="c1"># get the arrays that store the property data and</span>
+        <span class="c1"># and organize it respectively</span>
+        <span class="n">cols</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;real&#39;</span><span class="p">,</span> <span class="s1">&#39;imag&#39;</span><span class="p">,</span> <span class="s1">&#39;magnitude&#39;</span><span class="p">,</span> <span class="s1">&#39;ncol&#39;</span><span class="p">,</span> <span class="s1">&#39;nrow&#39;</span><span class="p">,</span> <span class="s1">&#39;component&#39;</span><span class="p">,</span> <span class="s1">&#39;prop&#39;</span><span class="p">]</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">transform_array_to_df</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span><span class="n">arrays</span><span class="p">[:</span><span class="mi">3</span><span class="p">]),</span> <span class="n">cols</span><span class="p">,</span>
+                                   <span class="n">int_cols</span><span class="p">,</span> <span class="n">prop_map</span><span class="p">)</span>
+        <span class="n">dfs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
+        <span class="n">cols</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;theta&#39;</span><span class="p">,</span> <span class="s1">&#39;nrow&#39;</span><span class="p">,</span> <span class="s1">&#39;ncol&#39;</span><span class="p">,</span> <span class="s1">&#39;component&#39;</span><span class="p">,</span> <span class="s1">&#39;magnitude&#39;</span><span class="p">,</span> <span class="s1">&#39;prop&#39;</span><span class="p">]</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">transform_array_to_df</span><span class="p">(</span><span class="n">arrays</span><span class="p">[</span><span class="mi">3</span><span class="p">],</span> <span class="n">cols</span><span class="p">,</span> <span class="n">int_cols</span><span class="p">,</span> <span class="n">prop_map</span><span class="p">)</span>
+        <span class="n">thetas</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
+    <span class="n">rot_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">dfs</span><span class="p">,</span> <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">theta</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">thetas</span><span class="p">,</span> <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">rot_df</span><span class="p">,</span> <span class="n">theta</span></div>
+
+</pre></div>
+
+    </div>
+      
+  </div>
+</div>
+<footer class="footer">
+  <div class="container">
+    <p class="pull-right">
+      <a href="#">Back to top</a>
+      
+    </p>
+    <p>
+        &copy; Copyright 2023, Herbert D Ludowieg. Project structure based on the Computational Molecular Science Python Cookiecutter version 1.1.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 7.0.1.<br/>
+    </p>
+  </div>
+</footer>
+  </body>
+</html>

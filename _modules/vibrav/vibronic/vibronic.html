@@ -1,0 +1,1030 @@
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>vibrav.vibronic.vibronic &#8212; vibrav  documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/bootstrap-sphinx.css" />
+    <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+    <script src="../../../_static/doctools.js"></script>
+    <script src="../../../_static/sphinx_highlight.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+<meta charset='utf-8'>
+<meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
+<meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1'>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<script type="text/javascript" src="../../../_static/js/jquery-1.12.4.min.js"></script>
+<script type="text/javascript" src="../../../_static/js/jquery-fix.js"></script>
+<script type="text/javascript" src="../../../_static/bootstrap-3.4.1/js/bootstrap.min.js"></script>
+<script type="text/javascript" src="../../../_static/bootstrap-sphinx.js"></script>
+
+  </head><body>
+
+  <div id="navbar" class="navbar navbar-default navbar-fixed-top">
+    <div class="container">
+      <div class="navbar-header">
+        <!-- .btn-navbar is used as the toggle for collapsed navbar content -->
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".nav-collapse">
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        <a class="navbar-brand" href="../../../index.html">
+          vibrav</a>
+        <span class="navbar-text navbar-version pull-left"><b></b></span>
+      </div>
+
+        <div class="collapse navbar-collapse nav-collapse">
+          <ul class="nav navbar-nav">
+            
+            
+              <li class="dropdown globaltoc-container">
+  <a role="button"
+     id="dLabelGlobalToc"
+     data-toggle="dropdown"
+     data-target="#"
+     href="../../../index.html">Site <b class="caret"></b></a>
+  <ul class="dropdown-menu globaltoc"
+      role="menu"
+      aria-labelledby="dLabelGlobalToc"><ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../examples/adf.html">ADF parser API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../examples/gen-displaced.html">Generating the displaced structures from a Gaussian frequencies calculation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../examples/molcas.html">Molcas parser API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../examples/numerical-diffs.html">Using derivative module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../examples/vibronic.html">Running vibronic calculations from a Molcas RASSI set of calculations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../examples/vroa-h2o2.html">VROA intensities of hydrogen peroxide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../examples/vroa-methyloxirane.html">VROA intensities of methyloxirane</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../examples/zpvc.html">Tutorial for using the ZPVC module in VIBRAV</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../vibrav.html">vibrav package</a></li>
+</ul>
+</ul>
+</li>
+              
+                <li class="dropdown">
+  <a role="button"
+     id="dLabelLocalToc"
+     data-toggle="dropdown"
+     data-target="#"
+     href="#">Page <b class="caret"></b></a>
+  <ul class="dropdown-menu localtoc"
+      role="menu"
+      aria-labelledby="dLabelLocalToc"></ul>
+</li>
+              
+            
+            
+              
+                
+              
+            
+            
+            
+            
+              <li class="hidden-sm"></li>
+            
+          </ul>
+
+          
+            
+<form class="navbar-form navbar-right" action="../../../search.html" method="get">
+ <div class="form-group">
+  <input type="text" name="q" class="form-control" placeholder="Search" />
+ </div>
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+          
+        </div>
+    </div>
+  </div>
+
+<div class="container">
+  <div class="row">
+    <div class="body col-md-12 content" role="main">
+      
+  <h1>Source code for vibrav.vibronic.vibronic</h1><div class="highlight"><pre>
+<span></span><span class="c1"># This file is part of vibrav.</span>
+<span class="c1">#</span>
+<span class="c1"># vibrav is free software: you can redistribute it and/or modify</span>
+<span class="c1"># it under the terms of the GNU General Public License as published by</span>
+<span class="c1"># the Free Software Foundation, either version 3 of the License, or</span>
+<span class="c1"># (at your option) any later version.</span>
+<span class="c1">#</span>
+<span class="c1"># vibrav is distributed in the hope that it will be useful,</span>
+<span class="c1"># but WITHOUT ANY WARRANTY; without even the implied warranty of</span>
+<span class="c1"># MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the</span>
+<span class="c1"># GNU General Public License for more details.</span>
+<span class="c1">#</span>
+<span class="c1"># You should have received a copy of the GNU General Public License</span>
+<span class="c1"># along with vibrav.  If not, see &lt;https://www.gnu.org/licenses/&gt;.</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">warnings</span>
+<span class="kn">from</span> <span class="nn">vibrav.molcas</span> <span class="kn">import</span> <span class="n">Output</span>
+<span class="kn">from</span> <span class="nn">exatomic.exa.util.units</span> <span class="kn">import</span> <span class="n">Time</span><span class="p">,</span> <span class="n">Length</span>
+<span class="kn">from</span> <span class="nn">exatomic.util.constants</span> <span class="kn">import</span> <span class="n">speed_of_light_in_vacuum</span> <span class="k">as</span> <span class="n">speed_of_light</span>
+<span class="kn">from</span> <span class="nn">exatomic.util</span> <span class="kn">import</span> <span class="n">conversions</span> <span class="k">as</span> <span class="n">conv</span>
+<span class="kn">from</span> <span class="nn">vibrav.numerical.vibronic_func</span> <span class="kn">import</span> <span class="p">(</span><span class="n">compute_oscil_str</span><span class="p">,</span> <span class="n">compute_d_dq_sf</span><span class="p">,</span>
+                                            <span class="n">sf_to_so</span><span class="p">,</span> <span class="n">compute_d_dq</span><span class="p">)</span>
+<span class="kn">from</span> <span class="nn">vibrav.core.config</span> <span class="kn">import</span> <span class="n">Config</span>
+<span class="kn">from</span> <span class="nn">vibrav.numerical.degeneracy</span> <span class="kn">import</span> <span class="n">energetic_degeneracy</span>
+<span class="kn">from</span> <span class="nn">vibrav.numerical.boltzmann</span> <span class="kn">import</span> <span class="n">boltz_dist</span>
+<span class="kn">from</span> <span class="nn">vibrav.util.io</span> <span class="kn">import</span> <span class="n">open_txt</span><span class="p">,</span> <span class="n">write_txt</span>
+<span class="kn">from</span> <span class="nn">vibrav.util.math</span> <span class="kn">import</span> <span class="n">ishermitian</span><span class="p">,</span> <span class="n">isantihermitian</span><span class="p">,</span> <span class="n">abs2</span>
+<span class="kn">from</span> <span class="nn">vibrav.util.print</span> <span class="kn">import</span> <span class="n">dataframe_to_txt</span>
+<span class="kn">from</span> <span class="nn">vibrav.util.file_checking</span> <span class="kn">import</span> <span class="n">_check_file_continuity</span>
+<span class="kn">from</span> <span class="nn">vibrav.util.data_checking</span> <span class="kn">import</span> <span class="n">check_size</span>
+<span class="c1">#from datetime import datetime, timedelta</span>
+<span class="kn">from</span> <span class="nn">time</span> <span class="kn">import</span> <span class="n">time</span>
+
+<div class="viewcode-block" id="Vibronic"><a class="viewcode-back" href="../../../vibrav.vibronic.vibronic.html#vibrav.vibronic.vibronic.Vibronic">[docs]</a><span class="k">class</span> <span class="nc">Vibronic</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Main class to run vibronic coupling calculations.</span>
+
+<span class="sd">    **Required arguments in configuration file.**</span>
+
+<span class="sd">    +------------------------+--------------------------------------------------+----------------------------+</span>
+<span class="sd">    | Argument               | Description                                      | Data Type                  |</span>
+<span class="sd">    +========================+==================================================+============================+</span>
+<span class="sd">    | number_of_multiplicity | Number of multiplicities from calculation.       | :obj:`int`                 |</span>
+<span class="sd">    +------------------------+--------------------------------------------------+----------------------------+</span>
+<span class="sd">    | spin_multiplicity      | List of the ordering of the spin multiplicities. | :obj:`tuple` of :obj:`int` |</span>
+<span class="sd">    |                        | Must be in the same order as was done in the     |                            |</span>
+<span class="sd">    |                        | calculation.                                     |                            |</span>
+<span class="sd">    +------------------------+--------------------------------------------------+----------------------------+</span>
+<span class="sd">    | number_of_states       | Number of states in each multiplicity.           | :obj:`tuple` of :obj:`int` |</span>
+<span class="sd">    +------------------------+--------------------------------------------------+----------------------------+</span>
+<span class="sd">    | number_of_nuclei       | Number of nuclei in the system.                  | :obj:`int`                 |</span>
+<span class="sd">    +------------------------+--------------------------------------------------+----------------------------+</span>
+<span class="sd">    | number_of_modes        | Number of normal modes in the molecule.          | :obj:`int`                 |</span>
+<span class="sd">    +------------------------+--------------------------------------------------+----------------------------+</span>
+<span class="sd">    | zero_order_file        | Filepath of the calculation at the equilibrium   | :obj:`str`                 |</span>
+<span class="sd">    |                        | coordinate. Must contain the spin-free property  |                            |</span>
+<span class="sd">    |                        | of interest.                                     |                            |</span>
+<span class="sd">    +------------------------+--------------------------------------------------+----------------------------+</span>
+
+<span class="sd">    **Default arguments in configuration file.**</span>
+
+<span class="sd">    +------------------+------------------------------------------------------------+----------------+</span>
+<span class="sd">    | Argument         | Description                                                | Default Value  |</span>
+<span class="sd">    +==================+============================================================+================+</span>
+<span class="sd">    | sf_energies_file | Filepath of the spin-free energies.                        | &#39;&#39;             |</span>
+<span class="sd">    +------------------+------------------------------------------------------------+----------------+</span>
+<span class="sd">    | so_energies_file | Filepath of the spin-orbit energies.                       | &#39;&#39;             |</span>
+<span class="sd">    +------------------+------------------------------------------------------------+----------------+</span>
+<span class="sd">    | angmom_file      | Starting string of the angular momentum spin-orbit files.  | angmom         |</span>
+<span class="sd">    +------------------+------------------------------------------------------------+----------------+</span>
+<span class="sd">    | dipole_file      | Starting string of the transition dipole moment spin-orbit | dipole         |</span>
+<span class="sd">    |                  | files.                                                     |                |</span>
+<span class="sd">    +------------------+------------------------------------------------------------+----------------+</span>
+<span class="sd">    | quadrupole_file  | Starting string of the transition quadrupole moment        | quadrupole     |</span>
+<span class="sd">    |                  | spin-orbit files.                                          |                |</span>
+<span class="sd">    +------------------+------------------------------------------------------------+----------------+</span>
+<span class="sd">    | degen_delta      | Cut-off parameter for the energy difference in the         | 1e-7 Ha        |</span>
+<span class="sd">    |                  | denominator for the pertubation theory.                    |                |</span>
+<span class="sd">    +------------------+------------------------------------------------------------+----------------+</span>
+<span class="sd">    | eigvectors_file  | Filepath of the spin-orbit eigenvectors.                   | eigvectors.txt |</span>
+<span class="sd">    +------------------+------------------------------------------------------------+----------------+</span>
+<span class="sd">    | so_cont_tol      | Cut-off parameter for the minimum spin-free contribution   | None           |</span>
+<span class="sd">    |                  | to each spin-orbit state.                                  |                |</span>
+<span class="sd">    +------------------+------------------------------------------------------------+----------------+</span>
+
+<span class="sd">    **THEORY**</span>
+
+<span class="sd">    Here, we present a brief account of the theory that is implemented in this</span>
+<span class="sd">    module. The equations listed below are taken from *J. Phys. Chem. Lett.*</span>
+<span class="sd">    **2018**, 9, 4, 887-994 (DOI: `10.1021/acs.jpclett.7b03441</span>
+<span class="sd">    &lt;https://doi.org/10.1021/acs.jpclett.7b03441&gt;`_) and *J. Chem. Theory</span>
+<span class="sd">    Comput.* **2020**, 16, 8, 5189-5202 (DOI: `10.1021/acs.jctc.0c00386</span>
+<span class="sd">    &lt;https://doi.org/10.1021/acs.jctc.0c00386&gt;`_).</span>
+
+<span class="sd">    The `vibronic` method in this class computes the Herzberg-Teller</span>
+<span class="sd">    approximation in a via a Sum-over-states perturbation theory approach</span>
+
+<span class="sd">    .. math::</span>
+<span class="sd">        A = \\sum_{k\\neq 1}\\left&lt;\\psi_k^0|\\Lambda^e|\\psi_2^0\\right&gt;</span>
+<span class="sd">            \\frac{\\partial\\left&lt;\\psi_1^0|H|\\psi_k^0\\right&gt;  / \\partial</span>
+<span class="sd">            Q_p}{E_1^0 - E_k^0}</span>
+
+<span class="sd">    .. math::</span>
+<span class="sd">        B = \\sum_{k\\neq 2}\\left&lt;\\psi_1^0|\\Lambda^e|\\psi_k^0\\right&gt;</span>
+<span class="sd">            \\frac{\\partial\\left&lt;\\psi_1^0|H|\\psi_k^0\\right&gt; / \\partial</span>
+<span class="sd">            Q_p}{E_1^0 - E_k^0}</span>
+
+<span class="sd">    .. math::</span>
+<span class="sd">        \\frac{\\partial\\Lambda_{1,2}^{e}\\left(Q\\right)}{\\partial Q_p} = A+B</span>
+
+<span class="sd">    Where, :math:`\\Lambda` can be the electric, magnetic, or quadrupolar</span>
+<span class="sd">    transition moments between any two states, 1, and 2.  The equations above</span>
+<span class="sd">    are computed by the</span>
+<span class="sd">    :func:`vibrav.numerical.vibronic_func.compute_d_dq_sf` function.</span>
+
+<span class="sd">    And spin-orbit coupling is then applied via</span>
+
+<span class="sd">    .. math::</span>
+<span class="sd">        \\left&lt;\\psi_1^{SO}|\\mu^e|\\psi_2^{SO}\\right&gt; =</span>
+<span class="sd">            \\sum_{k,m}U_{k1}^{0*}U_{m2}^{0}</span>
+<span class="sd">            \\left&lt;\\psi_k|\\mu_{1,2}^{e,SF}\\left(Q\\right)|\\psi_m\\right&gt;</span>
+
+<span class="sd">    Where, :math:`U_{ij}^{0}` is an element of the complex tranformation matrix</span>
+<span class="sd">    from a set of spin-free to spin-orbit coupled states, and</span>
+<span class="sd">    :math:`\\left&lt;\\psi_k|\\mu_{1,2}^{e,SF}\\left(Q\\right)|\\psi_m\\right&gt;` is</span>
+<span class="sd">    the vibronic transition moment for a pair of spin-free states. This is, in</span>
+<span class="sd">    practice, the transition moment derivative calculated by</span>
+<span class="sd">    :func:`vibrav.numerical.vibronic_func.compute_d_dq_sf`. The equation above</span>
+<span class="sd">    is computed by the :func:`vibrav.numerical.vibronic_func:compute_d_dq`</span>
+<span class="sd">    function.</span>
+
+<span class="sd">    For an example on how to use this class please refer to the example that is</span>
+<span class="sd">    available on the documentation under &#39;Examples&#39;.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">_required_inputs</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;number_of_multiplicity&#39;</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+                        <span class="s1">&#39;spin_multiplicity&#39;</span><span class="p">:</span> <span class="p">(</span><span class="nb">tuple</span><span class="p">,</span> <span class="nb">int</span><span class="p">),</span>
+                        <span class="s1">&#39;number_of_states&#39;</span><span class="p">:</span> <span class="p">(</span><span class="nb">tuple</span><span class="p">,</span> <span class="nb">int</span><span class="p">),</span> <span class="s1">&#39;number_of_nuclei&#39;</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+                        <span class="s1">&#39;number_of_modes&#39;</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="s1">&#39;zero_order_file&#39;</span><span class="p">:</span> <span class="nb">str</span><span class="p">}</span>
+    <span class="n">_skip_defaults</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;smatrix_file&#39;</span><span class="p">,</span> <span class="s1">&#39;eqcoord_file&#39;</span><span class="p">,</span> <span class="s1">&#39;atom_order_file&#39;</span><span class="p">]</span>
+    <span class="n">_default_inputs</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;sf_energies_file&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="nb">str</span><span class="p">),</span> <span class="s1">&#39;so_energies_file&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="nb">str</span><span class="p">),</span>
+                       <span class="s1">&#39;degen_delta&#39;</span><span class="p">:</span> <span class="p">(</span><span class="mf">1e-7</span><span class="p">,</span> <span class="nb">float</span><span class="p">),</span>
+                       <span class="s1">&#39;eigvectors_file&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;eigvectors.txt&#39;</span><span class="p">,</span> <span class="nb">str</span><span class="p">),</span>
+                       <span class="s1">&#39;so_cont_tol&#39;</span><span class="p">:</span> <span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="nb">float</span><span class="p">),</span> <span class="s1">&#39;sparse_hamiltonian&#39;</span><span class="p">:</span> <span class="p">(</span><span class="kc">False</span><span class="p">,</span> <span class="nb">bool</span><span class="p">),</span>
+                       <span class="s1">&#39;states&#39;</span><span class="p">:</span> <span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="nb">int</span><span class="p">),</span> <span class="s1">&#39;read_hamil&#39;</span><span class="p">:</span> <span class="p">(</span><span class="kc">False</span><span class="p">,</span> <span class="nb">bool</span><span class="p">),</span>
+                       <span class="s1">&#39;hamil_csv_file&#39;</span><span class="p">:</span> <span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="nb">str</span><span class="p">)}</span>
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_get_states</span><span class="p">(</span><span class="n">energies</span><span class="p">,</span> <span class="n">states</span><span class="p">):</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="o">.</span><span class="n">from_dict</span><span class="p">({</span><span class="s1">&#39;energies&#39;</span><span class="p">:</span> <span class="n">energies</span><span class="p">,</span> <span class="s1">&#39;sdx&#39;</span><span class="p">:</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">energies</span><span class="p">))})</span>
+        <span class="n">df</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="n">by</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;energies&#39;</span><span class="p">],</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">df</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">incl_states</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="n">incl_states</span><span class="p">[</span><span class="nb">range</span><span class="p">(</span><span class="n">states</span><span class="p">)]</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="n">incl_states</span> <span class="o">=</span> <span class="n">incl_states</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">bool</span><span class="p">)</span>
+        <span class="n">df</span><span class="p">[</span><span class="s1">&#39;incl_states&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">incl_states</span>
+        <span class="n">df</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="n">by</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;sdx&#39;</span><span class="p">],</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">incl_states</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s1">&#39;incl_states&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+        <span class="k">return</span> <span class="n">incl_states</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_init_oscil_file</span><span class="p">(</span><span class="n">fp</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&#39;&#39;&#39; Initialize oscillator file header &#39;&#39;&#39;</span>
+        <span class="n">header</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">{:&gt;5s}</span><span class="s2"> </span><span class="si">{:&gt;5s}</span><span class="s2"> </span><span class="si">{:&gt;24s}</span><span class="s2"> </span><span class="si">{:&gt;24s}</span><span class="s2"> </span><span class="si">{:&gt;6s}</span><span class="s2"> </span><span class="si">{:&gt;7s}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span>
+        <span class="k">for</span> <span class="n">idx</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">]:</span>
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">fp</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">idx</span><span class="p">),</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fn</span><span class="p">:</span>
+                <span class="n">fn</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">header</span><span class="p">(</span><span class="s1">&#39;#NROW&#39;</span><span class="p">,</span> <span class="s1">&#39;NCOL&#39;</span><span class="p">,</span> <span class="s1">&#39;OSCIL&#39;</span><span class="p">,</span>
+                                <span class="s1">&#39;ENERGY&#39;</span><span class="p">,</span> <span class="s1">&#39;FREQDX&#39;</span><span class="p">,</span> <span class="s1">&#39;SIGN&#39;</span><span class="p">))</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_write_prop_files</span><span class="p">(</span><span class="n">arr</span><span class="p">,</span> <span class="n">dtemp</span><span class="p">,</span> <span class="n">fname</span><span class="p">,</span> <span class="n">fdx</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&#39;&#39;&#39; Write the property files &#39;&#39;&#39;</span>
+        <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">arr</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="o">*</span><span class="n">arr</span><span class="p">)):</span>
+            <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;minus&#39;</span><span class="p">,</span> <span class="s1">&#39;plus&#39;</span><span class="p">]:</span>
+                <span class="n">dir_name</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">dtemp</span><span class="p">(</span><span class="n">fdx</span><span class="o">+</span><span class="mi">1</span><span class="p">),</span> <span class="n">name</span><span class="p">)</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">dir_name</span><span class="p">):</span>
+                    <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">dir_name</span><span class="p">,</span> <span class="mo">0o755</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+                <span class="n">filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">dir_name</span><span class="p">,</span> <span class="n">fname</span><span class="p">(</span><span class="n">idx</span><span class="o">+</span><span class="mi">1</span><span class="p">))</span>
+                <span class="n">write_txt</span><span class="p">(</span><span class="n">arr</span><span class="p">,</span> <span class="n">filename</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_parse_energies</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ed</span><span class="p">,</span> <span class="n">sf_file</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">so_file</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Parse the spin-free or spin-orbit energies from file. Will change</span>
+<span class="sd">        depending on which file is given in the function call.</span>
+
+<span class="sd">        Note:</span>
+<span class="sd">            The files given in the `sf_file` and `so_file` inputs are assumed to</span>
+<span class="sd">            have one column with no header.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            ed (:class:`exatomic.exa.core.Editor`): Editor class that has</span>
+<span class="sd">                already loaded the output file that contains the spin-free or</span>
+<span class="sd">                spin-orbit energies. There is no default as this is only to be</span>
+<span class="sd">                used in this class.</span>
+<span class="sd">            sf_file (:obj:`str`, optional): Path to the file containing the</span>
+<span class="sd">                spin-free energies.</span>
+<span class="sd">            so_file (:obj:`str`, optional): Path to the file containing the</span>
+<span class="sd">                spin-orbit energies.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="c1"># parse the energies from the output is the energy files are not available</span>
+        <span class="k">if</span> <span class="n">sf_file</span> <span class="o">!=</span> <span class="s1">&#39;&#39;</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">energies_sf</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">sf_energies_file</span><span class="p">,</span> <span class="n">header</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                                          <span class="n">comment</span><span class="o">=</span><span class="s1">&#39;#&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,)</span>
+            <span class="k">except</span> <span class="ne">FileNotFoundError</span><span class="p">:</span>
+                <span class="n">text</span> <span class="o">=</span> <span class="s2">&quot;The file </span><span class="si">{}</span><span class="s2"> was not found. Reading the spin-free &quot;</span> \
+                       <span class="o">+</span><span class="s2">&quot;energies directly from the zero order output file </span><span class="si">{}</span><span class="s2">.&quot;</span>
+                <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="n">text</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">sf_energies_file</span><span class="p">,</span>
+                                          <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">zero_order_file</span><span class="p">),</span> <span class="ne">Warning</span><span class="p">)</span>
+                <span class="n">ed</span><span class="o">.</span><span class="n">parse_sf_energy</span><span class="p">()</span>
+                <span class="n">energies_sf</span> <span class="o">=</span> <span class="n">ed</span><span class="o">.</span><span class="n">sf_energy</span><span class="p">[</span><span class="s1">&#39;energy&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">ed</span><span class="o">.</span><span class="n">parse_sf_energy</span><span class="p">()</span>
+            <span class="n">energies_sf</span> <span class="o">=</span> <span class="n">ed</span><span class="o">.</span><span class="n">sf_energy</span><span class="p">[</span><span class="s1">&#39;energy&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+        <span class="n">check_size</span><span class="p">(</span><span class="n">energies_sf</span><span class="p">,</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nstates_sf</span><span class="p">,),</span> <span class="s1">&#39;energies_sf&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">so_file</span> <span class="o">!=</span> <span class="s1">&#39;&#39;</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">energies_so</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">so_energies_file</span><span class="p">,</span> <span class="n">header</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                                          <span class="n">comment</span><span class="o">=</span><span class="s1">&#39;#&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,)</span>
+            <span class="k">except</span> <span class="ne">FileNotFoundError</span><span class="p">:</span>
+                <span class="n">text</span> <span class="o">=</span> <span class="s2">&quot;The file </span><span class="si">{}</span><span class="s2"> was not found. Reading the spin-orbit &quot;</span> \
+                       <span class="o">+</span><span class="s2">&quot;energies directly from the zero order output file </span><span class="si">{}</span><span class="s2">.&quot;</span>
+                <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="n">text</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">so_energies_file</span><span class="p">,</span>
+                                          <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">zero_order_file</span><span class="p">),</span> <span class="ne">Warning</span><span class="p">)</span>
+                <span class="n">ed</span><span class="o">.</span><span class="n">parse_so_energy</span><span class="p">()</span>
+                <span class="n">energies_so</span> <span class="o">=</span> <span class="n">ed</span><span class="o">.</span><span class="n">so_energy</span><span class="p">[</span><span class="s1">&#39;energy&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">ed</span><span class="o">.</span><span class="n">parse_so_energy</span><span class="p">()</span>
+            <span class="n">energies_so</span> <span class="o">=</span> <span class="n">ed</span><span class="o">.</span><span class="n">so_energy</span><span class="p">[</span><span class="s1">&#39;energy&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+        <span class="n">check_size</span><span class="p">(</span><span class="n">energies_so</span><span class="p">,</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nstates</span><span class="p">,),</span> <span class="s1">&#39;energies_so&#39;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">energies_sf</span><span class="p">,</span> <span class="n">energies_so</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_write_oscil_file</span><span class="p">(</span><span class="n">fp_temp</span><span class="p">,</span> <span class="n">boltz</span><span class="p">,</span> <span class="n">arr</span><span class="p">,</span> <span class="n">energies</span><span class="p">,</span> <span class="n">evib</span><span class="p">,</span> <span class="n">nstates</span><span class="p">,</span>
+                          <span class="n">fdx</span><span class="p">,</span> <span class="n">ncomp</span><span class="p">,</span> <span class="n">write_all_oscil</span><span class="p">,</span> <span class="n">print_stdout</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Method for writting the oscillators to file. This was created as the</span>
+<span class="sd">        algorithm to write the spin-free and spin-orbit oscillators are exactly</span>
+<span class="sd">        the same.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            fp_temp (:obj:`str`): Filename template to use. We will place it</span>
+<span class="sd">                into the &#39;vibronic-outputs&#39; directory internally.</span>
+<span class="sd">            boltz (:obj:`pandas.DataFrame`): Data frame with the Boltzmann</span>
+<span class="sd">                distribution data.</span>
+<span class="sd">            arr (:obj:`numpy.ndarray`): Array with the pertinent electric</span>
+<span class="sd">                transition dipole moment data.</span>
+<span class="sd">            energies (:obj:`numpy.ndarray`): Array with the pertinent energies</span>
+<span class="sd">                in atomic units.</span>
+<span class="sd">            evib (:obj:`float`): Vibrational energy in atomic units.</span>
+<span class="sd">            nstates (:obj:`int`): Total number of states in the system. This</span>
+<span class="sd">                will be used to test the sizes of the input arrays.</span>
+<span class="sd">            fdx (:obj:`int`): Frequency index. Used only when writting the file.</span>
+<span class="sd">            ncomp (:obj:`int`): Number of components in the given array. Should</span>
+<span class="sd">                always be three as we only execute this when calculating the</span>
+<span class="sd">                electric transition dipole moments.</span>
+<span class="sd">            write_all_oscil (:obj:`bool`): Write all of the oscillators that are</span>
+<span class="sd">                calculated. This include the unphysical negative values.</span>
+<span class="sd">            print_stdout (:obj:`bool`): Print some text to the standard output.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">def</span> <span class="nf">to_file</span><span class="p">(</span><span class="n">fp</span><span class="p">,</span> <span class="n">nr</span><span class="p">,</span> <span class="n">nc</span><span class="p">,</span> <span class="n">osc</span><span class="p">,</span> <span class="n">en</span><span class="p">,</span> <span class="n">fdx</span><span class="p">,</span> <span class="n">sign</span><span class="p">,</span> <span class="n">all_osc</span><span class="p">):</span>
+            <span class="n">template</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;</span><span class="si">{:&gt;5d}</span><span class="s1">&#39;</span><span class="p">]</span><span class="o">*</span><span class="mi">2</span> <span class="o">+</span> <span class="p">[</span><span class="s1">&#39;</span><span class="si">{:&gt;24.16E}</span><span class="s1">&#39;</span><span class="p">]</span><span class="o">*</span><span class="mi">2</span> \
+                                <span class="o">+</span> <span class="p">[</span><span class="s1">&#39;</span><span class="si">{:&gt;6d}</span><span class="s1">&#39;</span><span class="p">,</span> <span class="s1">&#39;</span><span class="si">{:&gt;7s}</span><span class="s1">&#39;</span><span class="p">]</span>
+            <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="o">.</span><span class="n">from_dict</span><span class="p">({</span><span class="s1">&#39;nrow&#39;</span><span class="p">:</span> <span class="n">nr</span><span class="p">,</span> <span class="s1">&#39;ncol&#39;</span><span class="p">:</span> <span class="n">nc</span><span class="p">,</span> <span class="s1">&#39;oscil&#39;</span><span class="p">:</span> <span class="n">osc</span><span class="p">,</span>
+                                         <span class="s1">&#39;energy&#39;</span><span class="p">:</span> <span class="n">en</span><span class="p">})</span>
+            <span class="n">df</span><span class="p">[</span><span class="s1">&#39;freqdx&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">fdx</span>
+            <span class="n">df</span><span class="p">[</span><span class="s1">&#39;sign&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">sign</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">all_osc</span><span class="p">:</span>
+                <span class="n">idxs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">logical_and</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s1">&#39;oscil&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">,</span>
+                                      <span class="n">df</span><span class="p">[</span><span class="s1">&#39;energy&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span>
+                <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">idxs</span><span class="p">]</span>
+            <span class="n">write_txt</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">fp</span><span class="p">,</span> <span class="n">non_matrix</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;a&#39;</span><span class="p">,</span> <span class="n">formatter</span><span class="o">=</span><span class="n">template</span><span class="p">)</span>
+        <span class="n">mapper</span> <span class="o">=</span> <span class="p">{</span><span class="mi">0</span><span class="p">:</span> <span class="s1">&#39;iso&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">:</span> <span class="s1">&#39;x&#39;</span><span class="p">,</span> <span class="mi">2</span><span class="p">:</span> <span class="s1">&#39;y&#39;</span><span class="p">,</span> <span class="mi">3</span><span class="p">:</span> <span class="s1">&#39;z&#39;</span><span class="p">}</span>
+        <span class="c1"># finally get the oscillator strengths from equation S12</span>
+        <span class="n">nrow</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">tile</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">nstates</span><span class="p">),</span> <span class="n">nstates</span><span class="p">)</span>
+        <span class="n">ncol</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">repeat</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">nstates</span><span class="p">),</span> <span class="n">nstates</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="p">(</span><span class="n">val</span><span class="p">,</span> <span class="n">sign</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="nb">zip</span><span class="p">([</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="p">[</span><span class="s1">&#39;minus&#39;</span><span class="p">,</span> <span class="s1">&#39;plus&#39;</span><span class="p">])):</span>
+            <span class="n">boltz_factor</span> <span class="o">=</span> <span class="n">boltz</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">fdx</span><span class="p">,</span> <span class="n">sign</span><span class="p">]</span>
+            <span class="n">absorption</span> <span class="o">=</span> <span class="n">abs2</span><span class="p">(</span><span class="n">arr</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">ncomp</span><span class="p">,</span> <span class="n">nstates</span><span class="o">*</span><span class="n">nstates</span><span class="p">))</span>
+            <span class="c1"># get the transition energies</span>
+            <span class="n">energy</span> <span class="o">=</span> <span class="n">energies</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span> <span class="o">-</span> <span class="n">energies</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,)</span> <span class="o">+</span> <span class="n">val</span><span class="o">*</span><span class="n">evib</span>
+            <span class="n">energy</span> <span class="o">=</span> <span class="n">energy</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
+            <span class="c1"># check for correct size</span>
+            <span class="n">check_size</span><span class="p">(</span><span class="n">energy</span><span class="p">,</span> <span class="p">(</span><span class="n">nstates</span><span class="o">*</span><span class="n">nstates</span><span class="p">,),</span> <span class="s1">&#39;energy&#39;</span><span class="p">)</span>
+            <span class="n">check_size</span><span class="p">(</span><span class="n">absorption</span><span class="p">,</span> <span class="p">(</span><span class="n">ncomp</span><span class="p">,</span> <span class="n">nstates</span><span class="o">*</span><span class="n">nstates</span><span class="p">),</span> <span class="s1">&#39;absorption&#39;</span><span class="p">)</span>
+            <span class="c1"># compute the isotropic oscillators</span>
+            <span class="n">oscil</span> <span class="o">=</span> <span class="n">boltz_factor</span> <span class="o">*</span> <span class="mf">2.</span><span class="o">/</span><span class="mf">3.</span> <span class="o">*</span> <span class="n">compute_oscil_str</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">absorption</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">),</span>
+                                                             <span class="n">energy</span><span class="p">)</span>
+            <span class="c1"># write to file</span>
+            <span class="n">filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s1">&#39;vibronic-outputs&#39;</span><span class="p">,</span> <span class="n">fp_temp</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="mi">0</span><span class="p">))</span>
+            <span class="n">start</span> <span class="o">=</span> <span class="n">time</span><span class="p">()</span>
+            <span class="n">to_file</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">nrow</span><span class="p">,</span> <span class="n">ncol</span><span class="p">,</span> <span class="n">oscil</span><span class="p">,</span> <span class="n">energy</span><span class="p">,</span> <span class="n">fdx</span><span class="p">,</span> <span class="n">sign</span><span class="p">,</span>
+                    <span class="n">write_all_oscil</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">print_stdout</span><span class="p">:</span>
+                <span class="n">text</span> <span class="o">=</span> <span class="s2">&quot; Wrote isotropic oscillators to </span><span class="si">{}</span><span class="s2"> for sign </span><span class="si">{}</span><span class="s2"> in </span><span class="si">{:.2f}</span><span class="s2"> s&quot;</span>
+                <span class="nb">print</span><span class="p">(</span><span class="n">text</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">sign</span><span class="p">,</span> <span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">start</span><span class="p">))</span>
+            <span class="c1"># compute the oscillators for the individual cartesian components</span>
+            <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">component</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">absorption</span><span class="p">):</span>
+                <span class="n">check_size</span><span class="p">(</span><span class="n">component</span><span class="p">,</span> <span class="p">(</span><span class="n">nstates</span><span class="o">*</span><span class="n">nstates</span><span class="p">,),</span>
+                           <span class="s1">&#39;absorption component </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">idx</span><span class="p">))</span>
+                <span class="n">oscil</span> <span class="o">=</span> <span class="n">boltz_factor</span> <span class="o">*</span> <span class="mf">2.</span> <span class="o">*</span> <span class="n">compute_oscil_str</span><span class="p">(</span><span class="n">component</span><span class="p">,</span> <span class="n">energy</span><span class="p">)</span>
+                <span class="n">filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s1">&#39;vibronic-outputs&#39;</span><span class="p">,</span> <span class="n">fp_temp</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">idx</span><span class="o">+</span><span class="mi">1</span><span class="p">))</span>
+                <span class="n">to_file</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">nrow</span><span class="p">,</span> <span class="n">ncol</span><span class="p">,</span> <span class="n">oscil</span><span class="p">,</span> <span class="n">energy</span><span class="p">,</span> <span class="n">fdx</span><span class="p">,</span> <span class="n">sign</span><span class="p">,</span>
+                        <span class="n">write_all_oscil</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">print_stdout</span><span class="p">:</span>
+                    <span class="n">start</span> <span class="o">=</span> <span class="n">time</span><span class="p">()</span>
+                    <span class="n">text</span> <span class="o">=</span> <span class="s2">&quot; Wrote oscillators for </span><span class="si">{}</span><span class="s2"> component to </span><span class="si">{}</span><span class="s2"> for sign &quot;</span> \
+                           <span class="o">+</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2"> in </span><span class="si">{:.2f}</span><span class="s2"> s&quot;</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="n">text</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">mapper</span><span class="p">[</span><span class="n">idx</span><span class="o">+</span><span class="mi">1</span><span class="p">],</span> <span class="n">filename</span><span class="p">,</span> <span class="n">sign</span><span class="p">,</span> <span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">start</span><span class="p">))</span>
+
+<div class="viewcode-block" id="Vibronic.get_hamiltonian_deriv"><a class="viewcode-back" href="../../../vibrav.vibronic.vibronic.html#vibrav.vibronic.vibronic.Vibronic.get_hamiltonian_deriv">[docs]</a>    <span class="k">def</span> <span class="nf">get_hamiltonian_deriv</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">delta</span><span class="p">,</span> <span class="n">redmass</span><span class="p">,</span> <span class="n">nmodes</span><span class="p">,</span> <span class="n">select_fdx</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span>
+                              <span class="n">use_sqrt_rmass</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">sparse_hamiltonian</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                              <span class="n">read_hamil</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">hamil_file</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Find and read all of the Hamiltonian txt files in the different confg</span>
+<span class="sd">        directories.</span>
+
+<span class="sd">        Note:</span>
+<span class="sd">            The path of confg is hardcoded along with the names of the SF</span>
+<span class="sd">            Hamiltonian files as `&#39;ham-sf.txt&#39;`.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            delta (:class:`pd.DataFrame`): Data frame with all the delta values</span>
+<span class="sd">                    used for each of the normal mode displacements.  Read from</span>
+<span class="sd">                    the given `delta_file` input in the configuration file.</span>
+<span class="sd">            redmass (:class:`pd.DataFrame`): Data frame with all of the reduced</span>
+<span class="sd">                    masses for each of the normal modes. Read from the given</span>
+<span class="sd">                    `redmass_file` input in the configuration file.</span>
+<span class="sd">            nmodes (int): The number of normal modes in the molecule.</span>
+<span class="sd">            select_fdx (:obj:`list`, optional):</span>
+<span class="sd">            use_sqrt_rmass (:obj:`bool`, optional): The calculations used</span>
+<span class="sd">                    mass-weighted normal modes for the displaced structures.</span>
+<span class="sd">                    This should always be the case. Defaults to `True`.</span>
+<span class="sd">            sparse_hamiltonian (:obj:`bool`, optional): Input Hamiltonian files</span>
+<span class="sd">                    are sparse matrices made up of block diagonal values.</span>
+<span class="sd">                    Defaults to `False`.</span>
+<span class="sd">            read_hamil (:obj:`bool`, optional): Read the Hamiltonians from a CSV</span>
+<span class="sd">                    file. Defaults to `False`.</span>
+<span class="sd">            hamil_file (:obj:`str`, optional): Path to the CSV file with the</span>
+<span class="sd">                    Hamiltonian data. It expects that there will be an index</span>
+<span class="sd">                    column and header row. In addition we expect there to be a</span>
+<span class="sd">                    column called `freqdx` which is an index spanning 0 to</span>
+<span class="sd">                    2*nmodes. Defaults to `None`.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            dham_dq (pd.DataFrame): Data frame with the derivative of the</span>
+<span class="sd">                    Hamiltonians with respect to the normal mode.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="c1"># read the hamiltonian files in each of the confg??? directories</span>
+        <span class="c1"># it is assumed that the directories are named confg with a 3-fold padded number (000)</span>
+        <span class="n">plus_matrix</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">minus_matrix</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">found_modes</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">dir_temp</span> <span class="o">=</span> <span class="s1">&#39;confg</span><span class="si">{:03d}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">select_fdx</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)):</span>
+            <span class="k">if</span> <span class="n">select_fdx</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">select_fdx</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="n">select_fdx</span> <span class="o">=</span> <span class="n">select_fdx</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="k">elif</span> <span class="n">select_fdx</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+                <span class="k">pass</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;The all condition for selecting frequencies &quot;</span> \
+                                 <span class="o">+</span><span class="s2">&quot;(-1) was passed along with other frequencies.&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">select_fdx</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+            <span class="n">freq_range</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">nmodes</span><span class="o">+</span><span class="mi">1</span><span class="p">)))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">select_fdx</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span> <span class="n">select_fdx</span> <span class="o">=</span> <span class="p">[</span><span class="n">select_fdx</span><span class="p">]</span>
+            <span class="n">freq_range</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">select_fdx</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span>
+        <span class="n">nselected</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">freq_range</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">read_hamil</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">idx</span> <span class="ow">in</span> <span class="n">freq_range</span><span class="p">:</span>
+                <span class="c1"># error catching serves the purpose to know which</span>
+                <span class="c1"># of the hamiltonian files are missing</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">plus</span> <span class="o">=</span> <span class="n">open_txt</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">dir_temp</span><span class="p">(</span><span class="n">idx</span><span class="p">),</span> <span class="s1">&#39;ham-sf.txt&#39;</span><span class="p">),</span>
+                                    <span class="n">fill</span><span class="o">=</span><span class="n">sparse_hamiltonian</span><span class="p">)</span>
+                    <span class="k">try</span><span class="p">:</span>
+                        <span class="n">minus</span> <span class="o">=</span> <span class="n">open_txt</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">dir_temp</span><span class="p">(</span><span class="n">idx</span><span class="o">+</span><span class="n">nmodes</span><span class="p">),</span> <span class="s1">&#39;ham-sf.txt&#39;</span><span class="p">),</span>
+                                         <span class="n">fill</span><span class="o">=</span><span class="n">sparse_hamiltonian</span><span class="p">)</span>
+                    <span class="k">except</span> <span class="ne">FileNotFoundError</span><span class="p">:</span>
+                        <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;Could not find ham-sf.txt file for in directory &quot;</span> \
+                                      <span class="o">+</span><span class="n">dir_temp</span><span class="p">(</span><span class="n">idx</span><span class="o">+</span><span class="n">nmodes</span><span class="p">)</span> \
+                                      <span class="o">+</span><span class="s2">&quot;. Ignoring frequency index </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">idx</span><span class="p">),</span> <span class="ne">Warning</span><span class="p">)</span>
+                        <span class="k">continue</span>
+                <span class="k">except</span> <span class="ne">FileNotFoundError</span><span class="p">:</span>
+                    <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;Could not find ham-sf.txt file for in directory &quot;</span> \
+                                  <span class="o">+</span><span class="n">dir_temp</span><span class="p">(</span><span class="n">idx</span><span class="p">)</span> \
+                                  <span class="o">+</span><span class="s2">&quot;. Ignoring frequency index </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">idx</span><span class="p">),</span> <span class="ne">Warning</span><span class="p">)</span>
+                    <span class="k">continue</span>
+                <span class="c1"># put it all together only if both plus and minus</span>
+                <span class="c1"># ham-sf.txt files are found</span>
+                <span class="n">plus</span><span class="p">[</span><span class="s1">&#39;freqdx&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">idx</span>
+                <span class="n">minus</span><span class="p">[</span><span class="s1">&#39;freqdx&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">idx</span><span class="o">+</span><span class="n">nmodes</span>
+                <span class="n">plus_matrix</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">plus</span><span class="p">)</span>
+                <span class="n">minus_matrix</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">minus</span><span class="p">)</span>
+                <span class="n">found_modes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">idx</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+            <span class="n">ham_plus</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">plus_matrix</span><span class="p">,</span> <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="n">ham_minus</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">minus_matrix</span><span class="p">,</span> <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">def</span> <span class="nf">filt_func</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">idxs</span><span class="p">):</span>
+                <span class="k">return</span> <span class="n">df</span><span class="p">[</span><span class="s1">&#39;freqdx&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">()</span> <span class="ow">in</span> <span class="n">idxs</span>
+            <span class="n">full_ham</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">hamil_file</span><span class="p">,</span> <span class="n">header</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">index_col</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">select_fdx</span> <span class="o">!=</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+                <span class="n">full_ham</span> <span class="o">=</span> <span class="n">full_ham</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s1">&#39;freqdx&#39;</span><span class="p">)</span> \
+                            <span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">filt_func</span><span class="p">,</span> <span class="n">idxs</span><span class="o">=</span><span class="nb">list</span><span class="p">(</span><span class="n">freq_range</span><span class="p">)</span> \
+                                        <span class="o">+</span> <span class="p">[</span><span class="n">x</span><span class="o">+</span><span class="n">nmodes</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">freq_range</span><span class="p">])</span>
+            <span class="n">full_ham</span> <span class="o">=</span> <span class="n">_check_file_continuity</span><span class="p">(</span><span class="n">full_ham</span><span class="p">,</span> <span class="s1">&#39;Hamiltonian&#39;</span><span class="p">,</span> <span class="n">nmodes</span><span class="p">,</span>
+                                              <span class="n">col_name</span><span class="o">=</span><span class="s1">&#39;freqdx&#39;</span><span class="p">)</span>
+            <span class="n">ham_plus</span> <span class="o">=</span> <span class="n">full_ham</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s1">&#39;freqdx&#39;</span><span class="p">)</span> \
+                            <span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">filt_func</span><span class="p">,</span> <span class="n">idxs</span><span class="o">=</span><span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="n">nmodes</span><span class="o">+</span><span class="mi">1</span><span class="p">))</span> \
+                            <span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="n">ham_minus</span> <span class="o">=</span> <span class="n">full_ham</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s1">&#39;freqdx&#39;</span><span class="p">)</span> \
+                            <span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">filt_func</span><span class="p">,</span> <span class="n">idxs</span><span class="o">=</span><span class="nb">range</span><span class="p">(</span><span class="n">nmodes</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="o">*</span><span class="n">nmodes</span><span class="o">+</span><span class="mi">1</span><span class="p">))</span> \
+                            <span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="n">found_modes</span> <span class="o">=</span> <span class="n">ham_plus</span><span class="p">[</span><span class="s1">&#39;freqdx&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">()</span> <span class="o">-</span> <span class="mi">1</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">found_modes</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">freq_range</span><span class="p">):</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Could not find all of the selected normal modes &quot;</span> \
+                                 <span class="o">+</span><span class="s2">&quot;in the given Hamiltonian CSV file.&quot;</span><span class="p">)</span>
+        <span class="n">dham_dq</span> <span class="o">=</span> <span class="n">ham_plus</span> <span class="o">-</span> <span class="n">ham_minus</span>
+        <span class="n">dham_dq</span><span class="p">[</span><span class="s1">&#39;freqdx&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">repeat</span><span class="p">(</span><span class="n">found_modes</span><span class="p">,</span> <span class="n">dham_dq</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">data_cols</span> <span class="o">=</span> <span class="n">dham_dq</span><span class="o">.</span><span class="n">columns</span><span class="p">[</span><span class="n">dham_dq</span><span class="o">.</span><span class="n">columns</span> <span class="o">!=</span> <span class="s1">&#39;freqdx&#39;</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">nselected</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">found_modes</span><span class="p">):</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;Number of selected normal modes is not equal to found modes, &quot;</span> \
+                         <span class="o">+</span><span class="s2">&quot;currently, </span><span class="si">{}</span><span class="s2"> and </span><span class="si">{}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">nselected</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">found_modes</span><span class="p">))</span> \
+                         <span class="o">+</span><span class="s2">&quot;Overwriting the number of selceted normal modes by the number &quot;</span>\
+                         <span class="o">+</span><span class="s2">&quot;of found modes.&quot;</span><span class="p">,</span> <span class="ne">Warning</span><span class="p">)</span>
+            <span class="n">nselected</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">found_modes</span><span class="p">)</span>
+        <span class="n">check_size</span><span class="p">(</span><span class="n">dham_dq</span><span class="p">,</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nstates_sf</span><span class="o">*</span><span class="n">nselected</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">nstates_sf</span><span class="o">+</span><span class="mi">1</span><span class="p">),</span> <span class="s1">&#39;dham_dq&#39;</span><span class="p">)</span>
+        <span class="c1"># TODO: this division by the sqrt of the mass needs to be verified</span>
+        <span class="c1">#       left as is for the time being as it was in the original code</span>
+        <span class="n">sf_sqrt_rmass</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">repeat</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">redmass</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">found_modes</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="o">*</span><span class="p">(</span><span class="mi">1</span><span class="o">/</span><span class="n">conv</span><span class="o">.</span><span class="n">amu2u</span><span class="p">)),</span>
+                                  <span class="bp">self</span><span class="o">.</span><span class="n">nstates_sf</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">sf_delta</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">repeat</span><span class="p">(</span><span class="n">delta</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">found_modes</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">nstates_sf</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">use_sqrt_rmass</span><span class="p">:</span>
+            <span class="n">to_dq</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">sf_sqrt_rmass</span> <span class="o">*</span> <span class="n">sf_delta</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;We assume that you used non-mass-weighted &quot;</span> \
+                          <span class="o">+</span><span class="s2">&quot;displacements to generate the displaced structures. &quot;</span> \
+                          <span class="o">+</span><span class="s2">&quot;We cannot ensure that this actually works.&quot;</span><span class="p">,</span>
+                          <span class="ne">Warning</span><span class="p">)</span>
+            <span class="n">to_dq</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">sf_delta</span>
+        <span class="c1"># convert to normal coordinates</span>
+        <span class="n">dham_dq</span><span class="p">[</span><span class="n">data_cols</span><span class="p">]</span> <span class="o">=</span> <span class="n">dham_dq</span><span class="p">[</span><span class="n">data_cols</span><span class="p">]</span> <span class="o">/</span> <span class="n">to_dq</span>
+        <span class="c1"># add a frequency index reference</span>
+        <span class="k">return</span> <span class="n">dham_dq</span></div>
+
+<div class="viewcode-block" id="Vibronic.vibronic_coupling"><a class="viewcode-back" href="../../../vibrav.vibronic.vibronic.html#vibrav.vibronic.vibronic.Vibronic.vibronic_coupling">[docs]</a>    <span class="k">def</span> <span class="nf">vibronic_coupling</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">prop_name</span><span class="p">,</span> <span class="n">write_property</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                          <span class="n">write_energy</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">write_oscil</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                          <span class="n">print_stdout</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">temp</span><span class="o">=</span><span class="mi">298</span><span class="p">,</span> <span class="n">eq_cont</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                          <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">use_sqrt_rmass</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">select_fdx</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span>
+                          <span class="n">boltz_states</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">boltz_tol</span><span class="o">=</span><span class="mf">1e-6</span><span class="p">,</span>
+                          <span class="n">write_sf_oscil</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">write_sf_property</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                          <span class="n">write_dham_dq</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">write_all_oscil</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Vibronic coupling method to calculate the vibronic coupling by the</span>
+<span class="sd">        equations as given in reference *J. Phys. Chem. Lett.* **2018**, 9,</span>
+<span class="sd">        887-894. This code follows a similar structure as that from a perl</span>
+<span class="sd">        script written by Yonaton Heit and Jochen Autschbach, authors of the</span>
+<span class="sd">        cited paper.</span>
+
+<span class="sd">        Note:</span>
+<span class="sd">            The script is able to calculate the vibronic contributions to the</span>
+<span class="sd">            electric_dipole, magnetic_dipole and electric_quadrupole, currently.</span>
+<span class="sd">            For more properties please reach out through github or via email.</span>
+
+<span class="sd">            This will only work with data from Molcas/OpenMolcas.</span>
+
+<span class="sd">        Warning:</span>
+<span class="sd">            The value of the energy difference parameter (`degen_delta` in the</span>
+<span class="sd">            configuration file) and the spin-free contribution to the spin-orbit</span>
+<span class="sd">            states cutoff (`so_cont_tol` in the configuration file) can be very</span>
+<span class="sd">            important in giving &quot;reasonable&quot; vibronic intensities. These values</span>
+<span class="sd">            should be adjusted and tested accordingly on a per-system basis.</span>
+<span class="sd">            **We make no guarantees everything will work out of the box**.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            prop_name (:obj:`str`): Property of interest to calculate.</span>
+<span class="sd">            write_property (:obj:`bool`, optional): Write the calculated</span>
+<span class="sd">                    vibronic property values to file.  Defaults to `True`.</span>
+<span class="sd">            write_energy (:obj:`bool`, optional): Write the vibronic energies to</span>
+<span class="sd">                    file.  Defaults to `True`.</span>
+<span class="sd">            write_oscil (:obj:`bool`, optional): Write the vibronic oscillators</span>
+<span class="sd">                    to file.  Defaults to `True`.</span>
+<span class="sd">            print_stdout (:obj:`bool`, optional): Print the progress of the</span>
+<span class="sd">                    script to stdout.  Defaults to `True`.</span>
+<span class="sd">            temp (:obj:`float`, optional): Temperature for the boltzmann</span>
+<span class="sd">                    statistics. Defaults to 298.</span>
+<span class="sd">            verbose (:obj:`bool`, optional): Send all availble print statements</span>
+<span class="sd">                    listing where the program is in the calculation to stdout</span>
+<span class="sd">                    and timings. Recommended if you have a system with many</span>
+<span class="sd">                    spin-orbit states. Defaults to `False`.</span>
+<span class="sd">            use_sqrt_rmass (:obj:`bool`, optional): The calculations used</span>
+<span class="sd">                    mass-weighted normal modes for the displaced structures.</span>
+<span class="sd">                    This should always be the case. Defaults to `True`.</span>
+<span class="sd">            select_fdx (:obj:`list`, optional): Only use select normal modes in</span>
+<span class="sd">                    the vibronic coupling calculation. Defaults to `-1` (all</span>
+<span class="sd">                    normal modes).</span>
+<span class="sd">            boltz_states (:obj:`int`, optional): Boltzmann states to calculate</span>
+<span class="sd">                    in the distribution.  Defaults to `None` (all states with a</span>
+<span class="sd">                    distribution less than the `boltz_tol` value for the lowest</span>
+<span class="sd">                    frequency).</span>
+<span class="sd">            boltz_tol (:obj:`float`, optional): Tolerance value for the</span>
+<span class="sd">                    Boltzmann distribution cutoff.  Defaults to `1e-5`.</span>
+<span class="sd">            write_sf_oscil (:obj:`bool`, optional): Write the spin-free vibronic</span>
+<span class="sd">                    oscillators.  Defaults to `False`.</span>
+<span class="sd">            write_sf_property (:obj:`bool`, optional): Write the spin-free</span>
+<span class="sd">                    vibronic property values.  Defaults to `False`.</span>
+<span class="sd">            write_dham_dq (:obj:`bool`, optional): Write the hamiltonian</span>
+<span class="sd">                    derivatives for each normal mode. Defaults to `False`.</span>
+<span class="sd">            write_all_oscil (:obj:`bool`, optional): Write the entire matrix of</span>
+<span class="sd">                    the vibronic oscillator values instead of only those that</span>
+<span class="sd">                    are physically meaningful (positive energy and oscillator</span>
+<span class="sd">                    value).  Defaults to `False`.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            NotImplementedError: When the property requested with the `property`</span>
+<span class="sd">                    parameter does not have any output parser or just has not</span>
+<span class="sd">                    been coded yet.</span>
+<span class="sd">            ValueError: If the array that is expected to be Hermitian actually</span>
+<span class="sd">                    is not.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="c1"># 90% of this method is actually just error checking and making</span>
+        <span class="c1"># sure that the input data is what is to be expected</span>
+        <span class="c1"># oftentimes this is actually the more important step as it is</span>
+        <span class="c1"># possible to get a result with bad data and it is a bug that</span>
+        <span class="c1"># will not be noticed</span>
+        <span class="c1"># if the program throws an error there is a reason why that happens</span>
+        <span class="c1"># if the error is not documented or thrown by something other than</span>
+        <span class="c1"># this program feel free to contact the administrators on github</span>
+        <span class="c1"># to look into the issue</span>
+        <span class="n">store_gs_degen</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="c1"># for program running ststistics</span>
+        <span class="c1">#program_start = time()</span>
+        <span class="c1"># to reduce typing</span>
+        <span class="n">nstates</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">nstates</span>
+        <span class="n">nstates_sf</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">nstates_sf</span>
+        <span class="n">config</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span>
+        <span class="c1"># create the vibronic-outputs directory if not available</span>
+        <span class="n">vib_dir</span> <span class="o">=</span> <span class="s1">&#39;vibronic-outputs&#39;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">vib_dir</span><span class="p">):</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">vib_dir</span><span class="p">)</span>
+        <span class="c1"># print out the contents of the config file so the user knows how the parameters were read</span>
+        <span class="k">if</span> <span class="n">print_stdout</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Printing contents of config file&quot;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;*&quot;</span><span class="o">*</span><span class="mi">46</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">to_string</span><span class="p">())</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;*&quot;</span><span class="o">*</span><span class="mi">46</span><span class="p">)</span>
+        <span class="c1"># for defining the sizes of the arrays later on</span>
+        <span class="c1">#oscil_states = int(config.oscillator_spin_states)</span>
+        <span class="c1"># define constants used later on</span>
+        <span class="n">speed_of_light_au</span> <span class="o">=</span> <span class="n">speed_of_light</span><span class="o">*</span><span class="n">Length</span><span class="p">[</span><span class="s1">&#39;m&#39;</span><span class="p">,</span> <span class="s1">&#39;au&#39;</span><span class="p">]</span><span class="o">/</span><span class="n">Time</span><span class="p">[</span><span class="s1">&#39;s&#39;</span><span class="p">,</span> <span class="s1">&#39;au&#39;</span><span class="p">]</span>
+        <span class="n">planck_constant_au</span> <span class="o">=</span> <span class="mi">2</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span>
+        <span class="c1"># TODO: these hardcoded values need to be generalized</span>
+        <span class="c1"># this was used in the old script but needs to be fixed</span>
+        <span class="n">fc</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="c1"># read all of the data files</span>
+        <span class="n">delta</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">delta_file</span><span class="p">,</span> <span class="n">header</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+        <span class="n">rmass</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">reduced_mass_file</span><span class="p">,</span> <span class="n">header</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+        <span class="n">freq</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">frequency_file</span><span class="p">,</span> <span class="n">header</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,)</span>
+        <span class="n">nmodes</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">number_of_modes</span>
+        <span class="c1"># calculate the boltzmann factors</span>
+        <span class="n">boltz_factor</span> <span class="o">=</span> <span class="n">boltz_dist</span><span class="p">(</span><span class="n">freq</span><span class="p">,</span> <span class="n">temp</span><span class="p">,</span> <span class="n">boltz_tol</span><span class="p">,</span> <span class="n">boltz_states</span><span class="p">)</span>
+        <span class="n">cols</span> <span class="o">=</span> <span class="n">boltz_factor</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">tolist</span><span class="p">()[:</span><span class="o">-</span><span class="mi">3</span><span class="p">]</span>
+        <span class="n">boltz</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">boltz_factor</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="mi">2</span><span class="p">))</span>
+        <span class="c1"># sum the boltzmann factors as we will do the sme thing later on anyway</span>
+        <span class="c1"># important when looking at the oscillator strengths</span>
+        <span class="k">for</span> <span class="n">freqdx</span><span class="p">,</span> <span class="n">data</span> <span class="ow">in</span> <span class="n">boltz_factor</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s1">&#39;freqdx&#39;</span><span class="p">):</span>
+            <span class="n">boltz</span><span class="p">[</span><span class="n">freqdx</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">([</span><span class="n">val</span><span class="o">*</span><span class="p">(</span><span class="n">idx</span><span class="p">)</span> <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">val</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="n">cols</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="mi">0</span><span class="p">])])</span>
+            <span class="n">boltz</span><span class="p">[</span><span class="n">freqdx</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">([</span><span class="n">val</span><span class="o">*</span><span class="p">(</span><span class="n">idx</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span> <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">val</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="n">cols</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]]</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="mi">0</span><span class="p">])])</span>
+        <span class="n">boltz</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">boltz</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;minus&#39;</span><span class="p">,</span> <span class="s1">&#39;plus&#39;</span><span class="p">])</span>
+        <span class="n">boltz</span><span class="p">[</span><span class="s1">&#39;freqdx&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">boltz_factor</span><span class="p">[</span><span class="s1">&#39;freqdx&#39;</span><span class="p">]</span>
+        <span class="n">boltz</span><span class="p">[</span><span class="s1">&#39;partition&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">boltz_factor</span><span class="p">[</span><span class="s1">&#39;partition&#39;</span><span class="p">]</span>
+        <span class="n">boltz</span><span class="o">.</span><span class="n">index</span> <span class="o">=</span> <span class="n">boltz</span><span class="p">[</span><span class="s1">&#39;freqdx&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+        <span class="n">filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">vib_dir</span><span class="p">,</span> <span class="s1">&#39;boltzmann-populations.csv&#39;</span><span class="p">)</span>
+        <span class="n">boltz</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="c1"># deprecated because there are issues with the printing algorithm</span>
+        <span class="k">if</span> <span class="n">print_stdout</span> <span class="ow">and</span> <span class="kc">False</span><span class="p">:</span>
+            <span class="n">tmp</span> <span class="o">=</span> <span class="n">boltz_factor</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+            <span class="n">tmp</span> <span class="o">=</span> <span class="n">tmp</span><span class="p">[</span><span class="n">tmp</span><span class="o">.</span><span class="n">columns</span><span class="p">[:</span><span class="o">-</span><span class="mi">3</span><span class="p">]]</span>
+            <span class="n">tmp</span> <span class="o">=</span> <span class="n">tmp</span><span class="o">.</span><span class="n">T</span>
+            <span class="n">tmp</span><span class="o">.</span><span class="n">index</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Index</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">tmp</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;state&#39;</span><span class="p">)</span>
+            <span class="n">tmp</span><span class="o">.</span><span class="n">columns</span> <span class="o">=</span> <span class="n">boltz_factor</span><span class="p">[</span><span class="s1">&#39;freqdx&#39;</span><span class="p">]</span>
+            <span class="n">print_cols</span> <span class="o">=</span> <span class="mi">6</span>
+            <span class="n">text</span> <span class="o">=</span> <span class="s2">&quot; Printing Boltzmann populations for each normal mode with the</span><span class="se">\n</span><span class="s2">&quot;</span> \
+                  <span class="o">+</span><span class="s2">&quot; energies from the </span><span class="si">{}</span><span class="s2"> file.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">frequency_file</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;=&#39;</span><span class="o">*</span><span class="mi">78</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;-&#39;</span><span class="o">*</span><span class="mi">78</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="n">dataframe_to_txt</span><span class="p">(</span><span class="n">tmp</span><span class="p">,</span> <span class="n">float_format</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;</span><span class="si">{:11.7f}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">]</span><span class="o">*</span><span class="n">nmodes</span><span class="p">,</span>
+                                   <span class="n">ncols</span><span class="o">=</span><span class="n">print_cols</span><span class="p">))</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;=&#39;</span><span class="o">*</span><span class="mi">78</span><span class="p">)</span>
+            <span class="n">tmp</span> <span class="o">=</span> <span class="n">boltz</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+            <span class="n">tmp</span><span class="o">.</span><span class="n">index</span> <span class="o">=</span> <span class="n">tmp</span><span class="p">[</span><span class="s1">&#39;freqdx&#39;</span><span class="p">]</span>
+            <span class="n">tmp</span><span class="o">.</span><span class="n">drop</span><span class="p">([</span><span class="s1">&#39;freqdx&#39;</span><span class="p">],</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+            <span class="n">tmp</span> <span class="o">=</span> <span class="n">tmp</span><span class="o">.</span><span class="n">T</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n\n</span><span class="s1">&#39;</span><span class="p">)</span>
+            <span class="n">text</span> <span class="o">=</span> <span class="s2">&quot; Printing the Boltzmann weighting for the plus an minus displaced</span><span class="se">\n</span><span class="s2">&quot;</span> \
+                  <span class="o">+</span><span class="s2">&quot; and the respective partition function for each normal mode.&quot;</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;=&#39;</span><span class="o">*</span><span class="mi">81</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;-&#39;</span><span class="o">*</span><span class="mi">81</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="n">dataframe_to_txt</span><span class="p">(</span><span class="n">tmp</span><span class="p">,</span> <span class="n">float_format</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;</span><span class="si">{:11.7f}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">]</span><span class="o">*</span><span class="n">nmodes</span><span class="p">,</span>
+                                   <span class="n">ncols</span><span class="o">=</span><span class="n">print_cols</span><span class="p">))</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;=&#39;</span><span class="o">*</span><span class="mi">81</span><span class="p">)</span>
+            <span class="c1">#print(&#39;-&#39;*80)</span>
+            <span class="c1">#print(&quot;Printing the boltzmann distribution for all&quot;)</span>
+            <span class="c1">#print(&quot;of the available frequencies at a temperature: {:.2f}&quot;.format(temp))</span>
+            <span class="c1">#formatters = [&#39;{:.7f}&#39;.format, &#39;{:.7f}&#39;.format, &#39;{:d}&#39;.format, &#39;{:.7f}&#39;.format]</span>
+            <span class="c1">#print(boltz.to_string(index=False, formatters=formatters))</span>
+            <span class="c1">#print(&#39;-&#39;*80)</span>
+            <span class="c1">#raise</span>
+        <span class="c1"># read the dipoles in the zero order file</span>
+        <span class="c1"># make a multiplicity array for extending the derivative arrays from spin-free</span>
+        <span class="c1"># states to spin-orbit states</span>
+        <span class="n">multiplicity</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">mult</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">spin_multiplicity</span><span class="p">):</span>
+            <span class="n">multiplicity</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">repeat</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">mult</span><span class="p">),</span> <span class="nb">int</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">number_of_states</span><span class="p">[</span><span class="n">idx</span><span class="p">])))</span>
+        <span class="n">multiplicity</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span><span class="nb">tuple</span><span class="p">(</span><span class="n">multiplicity</span><span class="p">))</span>
+        <span class="n">check_size</span><span class="p">(</span><span class="n">multiplicity</span><span class="p">,</span> <span class="p">(</span><span class="n">nstates_sf</span><span class="p">,),</span> <span class="s1">&#39;multiplicity&#39;</span><span class="p">)</span>
+        <span class="c1"># read the eigvectors data</span>
+        <span class="n">eigvectors</span> <span class="o">=</span> <span class="n">open_txt</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">eigvectors_file</span><span class="p">)</span><span class="o">.</span><span class="n">values</span>
+        <span class="c1"># mainly for testing purposes but this serves the purpose of limiting</span>
+        <span class="c1"># the contribution of the SOC from states that can cause some issues</span>
+        <span class="c1"># with the final intensities</span>
+        <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">so_cont_tol</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">conts</span> <span class="o">=</span> <span class="n">abs2</span><span class="p">(</span><span class="n">eigvectors</span><span class="p">)</span>
+            <span class="n">so_cont_limit</span> <span class="o">=</span> <span class="n">conts</span> <span class="o">&lt;</span> <span class="n">config</span><span class="o">.</span><span class="n">so_cont_tol</span>
+            <span class="n">eigvectors</span><span class="p">[</span><span class="n">so_cont_limit</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.0</span>
+            <span class="n">conts</span> <span class="o">=</span> <span class="n">abs2</span><span class="p">(</span><span class="n">eigvectors</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">print_stdout</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;*&quot;</span><span class="o">*</span><span class="mi">50</span><span class="p">)</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Printing out sum of the percent contribution</span><span class="se">\n</span><span class="s2">&quot;</span> \
+                      <span class="o">+</span><span class="s2">&quot;of each spin-orbit state after removing those</span><span class="se">\n</span><span class="s2">&quot;</span> \
+                      <span class="o">+</span><span class="s2">&quot;less than </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">so_cont_tol</span><span class="p">))</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;*&quot;</span><span class="o">*</span><span class="mi">50</span><span class="p">)</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Printing sorted and unsorted contributions.&quot;</span><span class="p">)</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;*&quot;</span><span class="o">*</span><span class="mi">50</span><span class="p">)</span>
+                <span class="n">unsorted_ser</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">conts</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">))</span>
+                <span class="n">sorted_ser</span> <span class="o">=</span> <span class="n">unsorted_ser</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span><span class="o">.</span><span class="n">sort_values</span><span class="p">()</span>
+                <span class="n">df_dict</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;so-index-sorted&#39;</span><span class="p">:</span> <span class="n">sorted_ser</span><span class="o">.</span><span class="n">index</span><span class="p">,</span>
+                           <span class="s1">&#39;sorted-contributions&#39;</span><span class="p">:</span> <span class="n">sorted_ser</span><span class="o">.</span><span class="n">values</span><span class="p">,</span>
+                           <span class="s1">&#39;so-index-unsorted&#39;</span><span class="p">:</span> <span class="n">unsorted_ser</span><span class="o">.</span><span class="n">index</span><span class="p">,</span>
+                           <span class="s1">&#39;unsorted-contributions&#39;</span><span class="p">:</span> <span class="n">unsorted_ser</span><span class="o">.</span><span class="n">values</span><span class="p">}</span>
+                <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">df_dict</span><span class="p">)</span>
+                <span class="nb">print</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">to_string</span><span class="p">(</span><span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">))</span>
+        <span class="n">check_size</span><span class="p">(</span><span class="n">eigvectors</span><span class="p">,</span> <span class="p">(</span><span class="n">nstates</span><span class="p">,</span> <span class="n">nstates</span><span class="p">),</span> <span class="s1">&#39;eigvectors&#39;</span><span class="p">)</span>
+        <span class="c1"># get the hamiltonian derivatives</span>
+        <span class="n">hamil_kwargs</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">select_fdx</span><span class="o">=</span><span class="n">select_fdx</span><span class="p">,</span> <span class="n">delta</span><span class="o">=</span><span class="n">delta</span><span class="p">,</span> <span class="n">redmass</span><span class="o">=</span><span class="n">rmass</span><span class="p">,</span>
+                            <span class="n">nmodes</span><span class="o">=</span><span class="n">nmodes</span><span class="p">,</span> <span class="n">use_sqrt_rmass</span><span class="o">=</span><span class="n">use_sqrt_rmass</span><span class="p">,</span>
+                            <span class="n">sparse_hamiltonian</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">sparse_hamiltonian</span><span class="p">,</span>
+                            <span class="n">read_hamil</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">read_hamil</span><span class="p">,</span>
+                            <span class="n">hamil_file</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">hamil_csv_file</span><span class="p">)</span>
+        <span class="n">dham_dq</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_hamiltonian_deriv</span><span class="p">(</span><span class="o">**</span><span class="n">hamil_kwargs</span><span class="p">)</span>
+        <span class="n">found_modes</span> <span class="o">=</span> <span class="n">dham_dq</span><span class="p">[</span><span class="s1">&#39;freqdx&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">()</span>
+        <span class="c1"># TODO: it would be really cool if we could just input a list of properties to compute</span>
+        <span class="c1">#       and the program will take care of the rest</span>
+        <span class="n">ed</span> <span class="o">=</span> <span class="n">Output</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">zero_order_file</span><span class="p">)</span>
+        <span class="c1"># get the property of choice from the zero order file given in the config file</span>
+        <span class="c1"># the extra column in each of the parsed properties comes from the component column</span>
+        <span class="c1"># in the molcas output parser</span>
+        <span class="k">if</span> <span class="n">prop_name</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;_&#39;</span><span class="p">,</span> <span class="s1">&#39;-&#39;</span><span class="p">)</span> <span class="o">==</span> <span class="s1">&#39;electric-dipole&#39;</span><span class="p">:</span>
+            <span class="n">ed</span><span class="o">.</span><span class="n">parse_sf_dipole_moment</span><span class="p">()</span>
+            <span class="n">check_size</span><span class="p">(</span><span class="n">ed</span><span class="o">.</span><span class="n">sf_dipole_moment</span><span class="p">,</span> <span class="p">(</span><span class="n">nstates_sf</span><span class="o">*</span><span class="mi">3</span><span class="p">,</span> <span class="n">nstates_sf</span><span class="o">+</span><span class="mi">1</span><span class="p">),</span> <span class="s1">&#39;sf_dipole_moment&#39;</span><span class="p">)</span>
+            <span class="n">grouped_data</span> <span class="o">=</span> <span class="n">ed</span><span class="o">.</span><span class="n">sf_dipole_moment</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s1">&#39;component&#39;</span><span class="p">)</span>
+            <span class="n">out_file</span> <span class="o">=</span> <span class="s1">&#39;dipole&#39;</span>
+            <span class="c1">#so_file = config.dipole_file</span>
+            <span class="n">idx_map</span> <span class="o">=</span> <span class="p">{</span><span class="mi">1</span><span class="p">:</span> <span class="s1">&#39;x&#39;</span><span class="p">,</span> <span class="mi">2</span><span class="p">:</span> <span class="s1">&#39;y&#39;</span><span class="p">,</span> <span class="mi">3</span><span class="p">:</span> <span class="s1">&#39;z&#39;</span><span class="p">}</span>
+        <span class="k">elif</span> <span class="n">prop_name</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;_&#39;</span><span class="p">,</span> <span class="s1">&#39;-&#39;</span><span class="p">)</span> <span class="o">==</span> <span class="s1">&#39;electric-quadrupole&#39;</span><span class="p">:</span>
+            <span class="n">ed</span><span class="o">.</span><span class="n">parse_sf_quadrupole_moment</span><span class="p">()</span>
+            <span class="n">check_size</span><span class="p">(</span><span class="n">ed</span><span class="o">.</span><span class="n">sf_quadrupole_moment</span><span class="p">,</span> <span class="p">(</span><span class="n">nstates_sf</span><span class="o">*</span><span class="mi">6</span><span class="p">,</span> <span class="n">nstates_sf</span><span class="o">+</span><span class="mi">1</span><span class="p">),</span>
+                             <span class="s1">&#39;sf_quadrupole_moment&#39;</span><span class="p">)</span>
+            <span class="n">grouped_data</span> <span class="o">=</span> <span class="n">ed</span><span class="o">.</span><span class="n">sf_quadrupole_moment</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s1">&#39;component&#39;</span><span class="p">)</span>
+            <span class="n">out_file</span> <span class="o">=</span> <span class="s1">&#39;quadrupole&#39;</span>
+            <span class="c1">#so_file = config.quadrupole_file</span>
+            <span class="n">idx_map</span> <span class="o">=</span> <span class="p">{</span><span class="mi">1</span><span class="p">:</span> <span class="s1">&#39;xx&#39;</span><span class="p">,</span> <span class="mi">2</span><span class="p">:</span> <span class="s1">&#39;xy&#39;</span><span class="p">,</span> <span class="mi">3</span><span class="p">:</span> <span class="s1">&#39;xz&#39;</span><span class="p">,</span> <span class="mi">4</span><span class="p">:</span> <span class="s1">&#39;yy&#39;</span><span class="p">,</span> <span class="mi">5</span><span class="p">:</span> <span class="s1">&#39;yz&#39;</span><span class="p">,</span> <span class="mi">6</span><span class="p">:</span> <span class="s1">&#39;zz&#39;</span><span class="p">}</span>
+        <span class="k">elif</span> <span class="n">prop_name</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;_&#39;</span><span class="p">,</span> <span class="s1">&#39;-&#39;</span><span class="p">)</span> <span class="o">==</span> <span class="s1">&#39;magnetic-dipole&#39;</span><span class="p">:</span>
+            <span class="n">ed</span><span class="o">.</span><span class="n">parse_sf_angmom</span><span class="p">()</span>
+            <span class="n">check_size</span><span class="p">(</span><span class="n">ed</span><span class="o">.</span><span class="n">sf_angmom</span><span class="p">,</span> <span class="p">(</span><span class="n">nstates_sf</span><span class="o">*</span><span class="mi">3</span><span class="p">,</span> <span class="n">nstates_sf</span><span class="o">+</span><span class="mi">1</span><span class="p">),</span> <span class="s1">&#39;sf_angmom&#39;</span><span class="p">)</span>
+            <span class="n">grouped_data</span> <span class="o">=</span> <span class="n">ed</span><span class="o">.</span><span class="n">sf_angmom</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s1">&#39;component&#39;</span><span class="p">)</span>
+            <span class="n">out_file</span> <span class="o">=</span> <span class="s1">&#39;angmom&#39;</span>
+            <span class="c1">#so_file = config.angmom_file</span>
+            <span class="n">idx_map</span> <span class="o">=</span> <span class="p">{</span><span class="mi">1</span><span class="p">:</span> <span class="s1">&#39;x&#39;</span><span class="p">,</span> <span class="mi">2</span><span class="p">:</span> <span class="s1">&#39;y&#39;</span><span class="p">,</span> <span class="mi">3</span><span class="p">:</span> <span class="s1">&#39;z&#39;</span><span class="p">}</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;Sorry the attribute that you are trying to use is not &quot;</span> \
+                                     <span class="o">+</span><span class="s2">&quot;yet implemented.&quot;</span><span class="p">)</span>
+        <span class="c1"># deprecated</span>
+        <span class="c1">#if eq_cont:</span>
+        <span class="c1">#    # get the spin-orbit property from the molcas output for the equilibrium geometry</span>
+        <span class="c1">#    dfs = []</span>
+        <span class="c1">#    for file in glob(so_file+&#39;-?.txt&#39;):</span>
+        <span class="c1">#        idx = int(file.split(&#39;-&#39;)[-1].replace(&#39;.txt&#39;, &#39;&#39;))</span>
+        <span class="c1">#        df = open_txt(file)</span>
+        <span class="c1">#        # use a mapper as we cannot ensure that the files are found in any</span>
+        <span class="c1">#        # expected order</span>
+        <span class="c1">#        df[&#39;component&#39;] = idx_map[idx]</span>
+        <span class="c1">#        dfs.append(df)</span>
+        <span class="c1">#    so_props = pd.concat(dfs, ignore_index=True)</span>
+        <span class="c1">#</span>
+        <span class="c1"># number of components</span>
+        <span class="c1"># important because we can have up to 6 components for the</span>
+        <span class="c1"># electric quadrupole moments</span>
+        <span class="n">ncomp</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">idx_map</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+        <span class="c1"># for easier access</span>
+        <span class="n">idx_map_rev</span> <span class="o">=</span> <span class="p">{</span><span class="n">v</span><span class="p">:</span> <span class="n">k</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">idx_map</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
+        <span class="c1"># get the energies</span>
+        <span class="n">energies_sf</span><span class="p">,</span> <span class="n">energies_so</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parse_energies</span><span class="p">(</span><span class="n">ed</span><span class="p">,</span> <span class="n">config</span><span class="o">.</span><span class="n">sf_energies_file</span><span class="p">,</span>
+                                                        <span class="n">config</span><span class="o">.</span><span class="n">so_energies_file</span><span class="p">)</span>
+        <span class="c1"># more testing things but this will only include a select number of the</span>
+        <span class="c1"># sf states in the SOS equations</span>
+        <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">states</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">incl_states</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_states</span><span class="p">(</span><span class="n">energies_sf</span><span class="p">,</span> <span class="n">config</span><span class="o">.</span><span class="n">states</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">incl_states</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="c1"># timing things</span>
+        <span class="c1">#time_setup = time() - program_start</span>
+        <span class="c1"># counter just for timing statistics</span>
+        <span class="c1">#vib_times = []</span>
+        <span class="n">grouped</span> <span class="o">=</span> <span class="n">dham_dq</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s1">&#39;freqdx&#39;</span><span class="p">)</span>
+        <span class="c1">#iter_times = []</span>
+        <span class="n">prefactor</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">degeneracy</span> <span class="o">=</span> <span class="n">energetic_degeneracy</span><span class="p">(</span><span class="n">energies_so</span><span class="p">,</span> <span class="n">config</span><span class="o">.</span><span class="n">degen_delta</span><span class="p">)</span>
+        <span class="n">gs_degeneracy</span> <span class="o">=</span> <span class="n">degeneracy</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="s1">&#39;degen&#39;</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">print_stdout</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;--------------------------------------------&quot;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Spin orbit ground state was found to be: </span><span class="si">{:3d}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">gs_degeneracy</span><span class="p">))</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;--------------------------------------------&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">store_gs_degen</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">gs_degeneracy</span> <span class="o">=</span> <span class="n">gs_degeneracy</span>
+        <span class="c1"># initialize the oscillator files</span>
+        <span class="k">if</span> <span class="n">write_oscil</span> <span class="ow">and</span> <span class="n">prop_name</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;_&#39;</span><span class="p">,</span> <span class="s1">&#39;-&#39;</span><span class="p">)</span> <span class="o">==</span> <span class="s1">&#39;electric-dipole&#39;</span><span class="p">:</span>
+            <span class="n">osc_tmp</span> <span class="o">=</span> <span class="s1">&#39;oscillators-</span><span class="si">{}</span><span class="s1">.txt&#39;</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_init_oscil_file</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">vib_dir</span><span class="p">,</span> <span class="n">osc_tmp</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">write_sf_oscil</span> <span class="ow">and</span> <span class="n">prop_name</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;_&#39;</span><span class="p">,</span> <span class="s1">&#39;-&#39;</span><span class="p">)</span> <span class="o">==</span> <span class="s1">&#39;electric-dipole&#39;</span><span class="p">:</span>
+            <span class="n">osc_tmp</span> <span class="o">=</span> <span class="s1">&#39;oscillators-sf-</span><span class="si">{}</span><span class="s1">.txt&#39;</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_init_oscil_file</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">vib_dir</span><span class="p">,</span> <span class="n">osc_tmp</span><span class="p">))</span>
+        <span class="k">for</span> <span class="n">fdx</span><span class="p">,</span> <span class="n">founddx</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">found_modes</span><span class="p">):</span>
+            <span class="n">vib_prop</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">2</span><span class="p">,</span> <span class="n">ncomp</span><span class="p">,</span> <span class="n">nstates</span><span class="p">,</span> <span class="n">nstates</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">complex128</span><span class="p">)</span>
+            <span class="n">vib_prop_sf</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">2</span><span class="p">,</span> <span class="n">ncomp</span><span class="p">,</span> <span class="n">nstates_sf</span><span class="p">,</span> <span class="n">nstates_sf</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+            <span class="n">vib_prop_sf_so_len</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">2</span><span class="p">,</span> <span class="n">ncomp</span><span class="p">,</span> <span class="n">nstates</span><span class="p">,</span> <span class="n">nstates</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+            <span class="c1">#vib_start = time()</span>
+            <span class="k">if</span> <span class="n">print_stdout</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;*******************************************&quot;</span><span class="p">)</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;*     RUNNING VIBRATIONAL MODE: </span><span class="si">{:5d}</span><span class="s2">     *&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">founddx</span><span class="o">+</span><span class="mi">1</span><span class="p">))</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;*******************************************&quot;</span><span class="p">)</span>
+            <span class="c1"># assume that the hamiltonian values are real which they should be anyway</span>
+            <span class="n">dham_dq_mode</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">real</span><span class="p">(</span><span class="n">grouped</span><span class="o">.</span><span class="n">get_group</span><span class="p">(</span><span class="n">founddx</span><span class="p">)</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="s1">&#39;freqdx&#39;</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">values</span><span class="p">)</span>
+            <span class="n">check_size</span><span class="p">(</span><span class="n">dham_dq_mode</span><span class="p">,</span> <span class="p">(</span><span class="n">nstates_sf</span><span class="p">,</span> <span class="n">nstates_sf</span><span class="p">),</span> <span class="s1">&#39;dham_dq_mode&#39;</span><span class="p">)</span>
+            <span class="n">tdm_prefac</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">planck_constant_au</span> \
+                                 <span class="o">/</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">speed_of_light_au</span><span class="o">*</span><span class="n">freq</span><span class="p">[</span><span class="n">founddx</span><span class="p">]</span><span class="o">/</span><span class="n">Length</span><span class="p">[</span><span class="s1">&#39;cm&#39;</span><span class="p">,</span> <span class="s1">&#39;au&#39;</span><span class="p">]))</span><span class="o">/</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">print_stdout</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;TDM prefac: </span><span class="si">{:.4f}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">tdm_prefac</span><span class="p">))</span>
+            <span class="n">prefactor</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">tdm_prefac</span><span class="p">)</span>
+            <span class="c1"># iterate over all of the available components</span>
+            <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">val</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">grouped_data</span><span class="p">):</span>
+                <span class="c1">#start = time()</span>
+                <span class="c1"># get the values of the specific component</span>
+                <span class="n">prop</span> <span class="o">=</span> <span class="n">val</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="s1">&#39;component&#39;</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">values</span>
+                <span class="n">check_size</span><span class="p">(</span><span class="n">prop</span><span class="p">,</span> <span class="p">(</span><span class="n">nstates_sf</span><span class="p">,</span> <span class="n">nstates_sf</span><span class="p">),</span> <span class="s1">&#39;prop_</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">key</span><span class="p">))</span>
+                <span class="c1"># initialize arrays</span>
+                <span class="c1"># spin-free derivatives</span>
+                <span class="n">dprop_dq_sf</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">nstates_sf</span><span class="p">,</span> <span class="n">nstates_sf</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+                <span class="c1"># spin-free derivatives extended into the number of spin-orbit states</span>
+                <span class="c1"># this gets the array ready for spin-orbit mixing</span>
+                <span class="n">dprop_dq_so</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">nstates</span><span class="p">,</span> <span class="n">nstates</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+                <span class="c1"># spin-orbit derivatives</span>
+                <span class="n">dprop_dq</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">nstates</span><span class="p">,</span> <span class="n">nstates</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">complex128</span><span class="p">)</span>
+                <span class="c1"># calculate everything</span>
+                <span class="n">compute_d_dq_sf</span><span class="p">(</span><span class="n">nstates_sf</span><span class="p">,</span> <span class="n">dham_dq_mode</span><span class="p">,</span> <span class="n">prop</span><span class="p">,</span> <span class="n">energies_sf</span><span class="p">,</span> <span class="n">dprop_dq_sf</span><span class="p">,</span>
+                                <span class="n">config</span><span class="o">.</span><span class="n">degen_delta</span><span class="p">,</span> <span class="n">incl_states</span><span class="o">=</span><span class="n">incl_states</span><span class="p">)</span>
+                <span class="n">sf_to_so</span><span class="p">(</span><span class="n">nstates_sf</span><span class="p">,</span> <span class="n">nstates</span><span class="p">,</span> <span class="n">multiplicity</span><span class="p">,</span> <span class="n">dprop_dq_sf</span><span class="p">,</span> <span class="n">dprop_dq_so</span><span class="p">)</span>
+                <span class="n">compute_d_dq</span><span class="p">(</span><span class="n">nstates</span><span class="p">,</span> <span class="n">eigvectors</span><span class="p">,</span> <span class="n">dprop_dq_so</span><span class="p">,</span> <span class="n">dprop_dq</span><span class="p">)</span>
+                <span class="c1"># check if the array is hermitian</span>
+                <span class="k">if</span> <span class="n">prop_name</span> <span class="o">==</span> <span class="s1">&#39;electric_dipole&#39;</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="ow">not</span> <span class="n">ishermitian</span><span class="p">(</span><span class="n">dprop_dq</span><span class="p">):</span>
+                        <span class="n">text</span> <span class="o">=</span> <span class="s2">&quot;The vibronic electric dipole at frequency </span><span class="si">{}</span><span class="s2"> for component </span><span class="si">{}</span><span class="s2"> &quot;</span> \
+                               <span class="o">+</span><span class="s2">&quot;was not found to be hermitian.&quot;</span>
+                        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">text</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">fdx</span><span class="p">,</span> <span class="n">key</span><span class="p">))</span>
+                    <span class="k">if</span> <span class="ow">not</span> <span class="n">ishermitian</span><span class="p">(</span><span class="n">dprop_dq_sf</span><span class="p">):</span>
+                        <span class="n">text</span> <span class="o">=</span> <span class="s2">&quot;The vibronic electric dipole at frequency </span><span class="si">{}</span><span class="s2"> for component </span><span class="si">{}</span><span class="s2"> &quot;</span> \
+                               <span class="o">+</span><span class="s2">&quot;was not found to be hermitian.&quot;</span>
+                        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">text</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">fdx</span><span class="p">,</span> <span class="n">key</span><span class="p">))</span>
+                <span class="k">elif</span> <span class="n">prop_name</span> <span class="o">==</span> <span class="s1">&#39;magnetic_dipole&#39;</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="ow">not</span> <span class="n">isantihermitian</span><span class="p">(</span><span class="n">dprop_dq</span><span class="p">):</span>
+                        <span class="n">text</span> <span class="o">=</span> <span class="s2">&quot;The vibronic magentic dipole at frequency </span><span class="si">{}</span><span class="s2"> for component </span><span class="si">{}</span><span class="s2"> &quot;</span> \
+                               <span class="o">+</span><span class="s2">&quot;was not found to be non-hermitian.&quot;</span>
+                        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">text</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">fdx</span><span class="p">,</span> <span class="n">key</span><span class="p">))</span>
+                <span class="k">elif</span> <span class="n">prop_name</span> <span class="o">==</span> <span class="s1">&#39;electric_quadrupole&#39;</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="ow">not</span> <span class="n">ishermitian</span><span class="p">(</span><span class="n">dprop_dq</span><span class="p">):</span>
+                        <span class="n">text</span> <span class="o">=</span> <span class="s2">&quot;The vibronic electric quadrupole at frequency </span><span class="si">{}</span><span class="s2"> for &quot;</span> \
+                               <span class="o">+</span><span class="s2">&quot;component </span><span class="si">{}</span><span class="s2"> was not found to be hermitian.&quot;</span>
+                        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">text</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">fdx</span><span class="p">,</span> <span class="n">key</span><span class="p">))</span>
+                <span class="n">dprop_dq</span> <span class="o">*=</span> <span class="n">tdm_prefac</span>
+                <span class="n">dprop_dq_sf</span> <span class="o">*=</span> <span class="n">tdm_prefac</span>
+                <span class="n">dprop_dq_so</span> <span class="o">*=</span> <span class="n">tdm_prefac</span>
+                <span class="c1"># generate the full property vibronic states following equation S3 for the reference</span>
+                <span class="c1"># store the transpose as it will make some things easier down the line</span>
+                <span class="n">vib_prop_plus</span> <span class="o">=</span> <span class="n">fc</span><span class="o">*</span><span class="n">dprop_dq</span><span class="o">.</span><span class="n">T</span>
+                <span class="n">vib_prop_minus</span> <span class="o">=</span> <span class="n">fc</span><span class="o">*-</span><span class="n">dprop_dq</span><span class="o">.</span><span class="n">T</span>
+                <span class="n">vib_prop_sf_plus</span> <span class="o">=</span> <span class="n">fc</span><span class="o">*</span><span class="n">dprop_dq_sf</span><span class="o">.</span><span class="n">T</span>
+                <span class="n">vib_prop_sf_minus</span> <span class="o">=</span> <span class="n">fc</span><span class="o">*-</span><span class="n">dprop_dq_sf</span><span class="o">.</span><span class="n">T</span>
+                <span class="n">vib_prop_sf_so_len_plus</span> <span class="o">=</span> <span class="n">fc</span><span class="o">*</span><span class="n">dprop_dq_so</span><span class="o">.</span><span class="n">T</span>
+                <span class="n">vib_prop_sf_so_len_minus</span> <span class="o">=</span> <span class="n">fc</span><span class="o">*-</span><span class="n">dprop_dq_so</span><span class="o">.</span><span class="n">T</span>
+                <span class="c1"># store in array</span>
+                <span class="n">vib_prop</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="n">idx_map_rev</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">vib_prop_minus</span>
+                <span class="n">vib_prop</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="n">idx_map_rev</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">vib_prop_plus</span>
+                <span class="n">vib_prop_sf</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="n">idx_map_rev</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">vib_prop_sf_minus</span>
+                <span class="n">vib_prop_sf</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="n">idx_map_rev</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">vib_prop_sf_plus</span>
+                <span class="n">vib_prop_sf_so_len</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="n">idx_map_rev</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">vib_prop_sf_so_len_minus</span>
+                <span class="n">vib_prop_sf_so_len</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="n">idx_map_rev</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">vib_prop_sf_so_len_plus</span>
+            <span class="c1"># calculate the oscillator strengths</span>
+            <span class="n">evib</span> <span class="o">=</span> <span class="n">freq</span><span class="p">[</span><span class="n">founddx</span><span class="p">]</span><span class="o">*</span><span class="n">conv</span><span class="o">.</span><span class="n">inv_m2Ha</span><span class="o">*</span><span class="mi">100</span>
+            <span class="c1"># no calculations from this point onward</span>
+            <span class="c1"># just a whole lot of file writing</span>
+            <span class="k">if</span> <span class="n">write_property</span><span class="p">:</span>
+                <span class="n">dtemp</span> <span class="o">=</span> <span class="s1">&#39;vib</span><span class="si">{:03d}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span>
+                <span class="n">fname</span> <span class="o">=</span> <span class="n">out_file</span><span class="o">+</span><span class="s1">&#39;-</span><span class="si">{}</span><span class="s1">.txt&#39;</span><span class="o">.</span><span class="n">format</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_write_prop_files</span><span class="p">(</span><span class="n">vib_prop</span><span class="p">,</span> <span class="n">dtemp</span><span class="p">,</span> <span class="n">fname</span><span class="p">,</span><span class="n">fdx</span><span class="p">)</span>
+                <span class="n">signs</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;minus&#39;</span><span class="p">,</span> <span class="s1">&#39;plus&#39;</span><span class="p">]</span>
+                <span class="n">facs</span> <span class="o">=</span> <span class="p">[[</span><span class="mi">1</span><span class="o">/</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="o">/</span><span class="mi">2</span><span class="p">],</span> <span class="p">[</span><span class="mi">3</span><span class="o">/</span><span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="o">/</span><span class="mi">2</span><span class="p">]]</span>
+                <span class="k">for</span> <span class="n">sign</span><span class="p">,</span> <span class="n">fac</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">signs</span><span class="p">,</span> <span class="n">facs</span><span class="p">):</span>
+                    <span class="n">dir_name</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">dtemp</span><span class="p">(</span><span class="n">founddx</span><span class="o">+</span><span class="mi">1</span><span class="p">),</span> <span class="n">sign</span><span class="p">)</span>
+                    <span class="n">energies</span> <span class="o">=</span> <span class="n">energies_so</span> <span class="o">+</span> <span class="n">fac</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">*</span><span class="n">evib</span> <span class="o">-</span> <span class="n">energies_so</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                    <span class="n">energies</span><span class="p">[</span><span class="nb">range</span><span class="p">(</span><span class="n">gs_degeneracy</span><span class="p">)]</span> <span class="o">=</span> <span class="n">energies_so</span><span class="p">[:</span><span class="n">gs_degeneracy</span><span class="p">]</span> \
+                                                        <span class="o">-</span> <span class="n">energies_so</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">fac</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">*</span><span class="n">evib</span>
+                    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">dir_name</span><span class="p">,</span> <span class="s1">&#39;energies.txt&#39;</span><span class="p">),</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fn</span><span class="p">:</span>
+                        <span class="n">fn</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;# </span><span class="si">{}</span><span class="s1"> (atomic units)</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">nstates</span><span class="p">))</span>
+                        <span class="k">for</span> <span class="n">energy</span> <span class="ow">in</span> <span class="n">energies</span><span class="p">:</span>
+                            <span class="n">fn</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">{:.9E}</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">energy</span><span class="p">))</span>
+            <span class="k">if</span> <span class="n">write_sf_property</span><span class="p">:</span>
+                <span class="n">dtemp</span> <span class="o">=</span> <span class="s1">&#39;vib</span><span class="si">{:03d}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span>
+                <span class="n">fname</span> <span class="o">=</span> <span class="n">out_file</span><span class="o">+</span><span class="s1">&#39;-sf-</span><span class="si">{}</span><span class="s1">.txt&#39;</span><span class="o">.</span><span class="n">format</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_write_prop_files</span><span class="p">(</span><span class="n">vib_prop_sf</span><span class="p">,</span> <span class="n">dtemp</span><span class="p">,</span> <span class="n">fname</span><span class="p">,</span> <span class="n">fdx</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">write_sf_property</span><span class="p">:</span>
+                <span class="n">dtemp</span> <span class="o">=</span> <span class="s1">&#39;vib</span><span class="si">{:03d}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span>
+                <span class="n">fname</span> <span class="o">=</span> <span class="n">out_file</span><span class="o">+</span><span class="s1">&#39;-sf-so-len-</span><span class="si">{}</span><span class="s1">.txt&#39;</span><span class="o">.</span><span class="n">format</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_write_prop_files</span><span class="p">(</span><span class="n">vib_prop_sf_so_len</span><span class="p">,</span> <span class="n">dtemp</span><span class="p">,</span> <span class="n">fname</span><span class="p">,</span> <span class="n">fdx</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">write_dham_dq</span><span class="p">:</span>
+                <span class="n">dtemp</span> <span class="o">=</span> <span class="s1">&#39;vib</span><span class="si">{:03d}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span>
+                <span class="n">fname</span> <span class="o">=</span> <span class="s1">&#39;hamiltonian-derivs.txt&#39;</span>
+                <span class="n">dir_name</span> <span class="o">=</span> <span class="n">dtemp</span><span class="p">(</span><span class="n">founddx</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">dir_name</span><span class="p">):</span>
+                    <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">dir_name</span><span class="p">,</span> <span class="mo">0o755</span><span class="p">)</span>
+                <span class="n">filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">dir_name</span><span class="p">,</span> <span class="n">fname</span><span class="p">)</span>
+                <span class="n">write_txt</span><span class="p">(</span><span class="n">dham_dq_mode</span><span class="p">,</span> <span class="n">filename</span><span class="p">)</span>
+            <span class="k">if</span> <span class="p">(</span><span class="n">prop_name</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;_&#39;</span><span class="p">,</span> <span class="s1">&#39;-&#39;</span><span class="p">)</span> <span class="o">==</span> <span class="s1">&#39;electric-dipole&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">write_oscil</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_write_oscil_file</span><span class="p">(</span><span class="s1">&#39;oscillators-</span><span class="si">{}</span><span class="s1">.txt&#39;</span><span class="p">,</span> <span class="n">boltz</span><span class="p">,</span> <span class="n">vib_prop</span><span class="p">,</span>
+                                       <span class="n">energies_so</span><span class="p">,</span> <span class="n">evib</span><span class="p">,</span> <span class="n">nstates</span><span class="p">,</span> <span class="n">founddx</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span>
+                                       <span class="n">write_all_oscil</span><span class="p">,</span> <span class="n">print_stdout</span><span class="p">)</span>
+            <span class="k">if</span> <span class="p">(</span><span class="n">prop_name</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;_&#39;</span><span class="p">,</span> <span class="s1">&#39;-&#39;</span><span class="p">)</span> <span class="o">==</span> <span class="s1">&#39;electric-dipole&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">write_sf_oscil</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_write_oscil_file</span><span class="p">(</span><span class="s1">&#39;oscillators-sf-</span><span class="si">{}</span><span class="s1">.txt&#39;</span><span class="p">,</span> <span class="n">boltz</span><span class="p">,</span> <span class="n">vib_prop_sf</span><span class="p">,</span>
+                                       <span class="n">energies_sf</span><span class="p">,</span> <span class="n">evib</span><span class="p">,</span> <span class="n">nstates_sf</span><span class="p">,</span> <span class="n">founddx</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span>
+                                       <span class="n">write_all_oscil</span><span class="p">,</span> <span class="n">print_stdout</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">print_stdout</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Writing out the prefactors used for the transition dipole moments.&quot;</span><span class="p">)</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">vib_dir</span><span class="p">,</span> <span class="s1">&#39;alpha.txt&#39;</span><span class="p">),</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fn</span><span class="p">:</span>
+            <span class="n">fn</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;alpha</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">prefactor</span><span class="p">:</span>
+                <span class="n">fn</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">{:.9f}</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">val</span><span class="p">))</span></div>
+        <span class="c1">#program_end = time()</span>
+        <span class="c1">#if print_stdout:</span>
+        <span class="c1">#    program_exec = timedelta(seconds=round(program_end - program_start, 0))</span>
+        <span class="c1">#    vib_time = timedelta(seconds=round(np.mean(vib_times), 0))</span>
+        <span class="c1">#    setup = timedelta(seconds=round(time_setup, 0))</span>
+        <span class="c1">#    if write_property:</span>
+        <span class="c1">#        prop_io_time = timedelta(seconds=round(end_write_prop - start_write_prop, 0))</span>
+        <span class="c1">#    print(&quot;***************************************&quot;)</span>
+        <span class="c1">#    print(&quot;* Timing statistics:                  *&quot;)</span>
+        <span class="c1">#    print(&quot;* Program Execution:{:.&gt;17s} *&quot;.format(str(program_exec)))</span>
+        <span class="c1">#    print(&quot;* Avg. Vib Execution:{:.&gt;16s} *&quot;.format(str(vib_time)))</span>
+        <span class="c1">#    print(&quot;* Setup time:{:.&gt;24s} *&quot;.format(str(setup)))</span>
+        <span class="c1">#    if write_property:</span>
+        <span class="c1">#        print(&quot;* I/O:                                *&quot;)</span>
+        <span class="c1">#        print(&quot;* Write property:{:.&gt;20s} *&quot;.format(str(prop_io_time)))</span>
+        <span class="c1">#    print(&quot;***************************************&quot;)</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config_file</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="n">config</span> <span class="o">=</span> <span class="n">Config</span><span class="o">.</span><span class="n">open_config</span><span class="p">(</span><span class="n">config_file</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_required_inputs</span><span class="p">,</span>
+                                    <span class="n">defaults</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_default_inputs</span><span class="p">,</span>
+                                    <span class="n">skip_defaults</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_skip_defaults</span><span class="p">)</span>
+        <span class="c1"># check that the number of multiplicities and states are the same</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">spin_multiplicity</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">number_of_states</span><span class="p">):</span>
+            <span class="nb">print</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">spin_multiplicity</span><span class="p">,</span> <span class="n">config</span><span class="o">.</span><span class="n">number_of_states</span><span class="p">)</span>
+            <span class="n">msg</span> <span class="o">=</span> <span class="s2">&quot;Length mismatch of SPIN_MULTIPLICITY (</span><span class="si">{}</span><span class="s2">) and &quot;</span> \
+                  <span class="o">+</span><span class="s2">&quot;NUMBER_OF_STATES (</span><span class="si">{}</span><span class="s2">)&quot;</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">msg</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">spin_multiplicity</span><span class="p">),</span>
+                                        <span class="nb">len</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">number_of_states</span><span class="p">)))</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">spin_multiplicity</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">int</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">number_of_multiplicity</span><span class="p">):</span>
+            <span class="nb">print</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">spin_multiplicity</span><span class="p">,</span> <span class="n">config</span><span class="o">.</span><span class="n">number_of_multiplicity</span><span class="p">)</span>
+            <span class="n">msg</span> <span class="o">=</span> <span class="s2">&quot;Length of SPIN_MULTIPLICITY (</span><span class="si">{}</span><span class="s2">) does not equal the&quot;</span> \
+                  <span class="o">+</span><span class="s2">&quot;NUMBER_OF_MULTIPLICITY (</span><span class="si">{}</span><span class="s2">)&quot;</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">msg</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">spin_multiplicity</span><span class="p">,</span>
+                                        <span class="n">config</span><span class="o">.</span><span class="n">number_of_multiplicity</span><span class="p">))</span>
+        <span class="n">nstates</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">nstates_sf</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">for</span> <span class="n">mult</span><span class="p">,</span> <span class="n">state</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">spin_multiplicity</span><span class="p">,</span> <span class="n">config</span><span class="o">.</span><span class="n">number_of_states</span><span class="p">):</span>
+            <span class="n">nstates</span> <span class="o">+=</span> <span class="n">mult</span><span class="o">*</span><span class="n">state</span>
+            <span class="n">nstates_sf</span> <span class="o">+=</span> <span class="n">state</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">config</span> <span class="o">=</span> <span class="n">config</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">nstates</span> <span class="o">=</span> <span class="n">nstates</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">nstates_sf</span> <span class="o">=</span> <span class="n">nstates_sf</span></div>
+
+</pre></div>
+
+    </div>
+      
+  </div>
+</div>
+<footer class="footer">
+  <div class="container">
+    <p class="pull-right">
+      <a href="#">Back to top</a>
+      
+    </p>
+    <p>
+        &copy; Copyright 2023, Herbert D Ludowieg. Project structure based on the Computational Molecular Science Python Cookiecutter version 1.1.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 7.0.1.<br/>
+    </p>
+  </div>
+</footer>
+  </body>
+</html>

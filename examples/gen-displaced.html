@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Generating the displaced structures from a Gaussian frequencies calculation &#8212; vibrav  documentation</title>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/bootstrap-sphinx.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/nbsphinx-code-cells.css" />
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/sphinx_highlight.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Molcas parser API" href="molcas.html" />
+    <link rel="prev" title="ADF parser API" href="adf.html" />
+<meta charset='utf-8'>
+<meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
+<meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1'>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<script type="text/javascript" src="../_static/js/jquery-1.12.4.min.js"></script>
+<script type="text/javascript" src="../_static/js/jquery-fix.js"></script>
+<script type="text/javascript" src="../_static/bootstrap-3.4.1/js/bootstrap.min.js"></script>
+<script type="text/javascript" src="../_static/bootstrap-sphinx.js"></script>
+
+  </head><body>
+
+  <div id="navbar" class="navbar navbar-default navbar-fixed-top">
+    <div class="container">
+      <div class="navbar-header">
+        <!-- .btn-navbar is used as the toggle for collapsed navbar content -->
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".nav-collapse">
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        <a class="navbar-brand" href="../index.html">
+          vibrav</a>
+        <span class="navbar-text navbar-version pull-left"><b></b></span>
+      </div>
+
+        <div class="collapse navbar-collapse nav-collapse">
+          <ul class="nav navbar-nav">
+            
+            
+              <li class="dropdown globaltoc-container">
+  <a role="button"
+     id="dLabelGlobalToc"
+     data-toggle="dropdown"
+     data-target="#"
+     href="../index.html">Site <b class="caret"></b></a>
+  <ul class="dropdown-menu globaltoc"
+      role="menu"
+      aria-labelledby="dLabelGlobalToc"><ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="adf.html">ADF parser API</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Generating the displaced structures from a Gaussian frequencies calculation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="molcas.html">Molcas parser API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="numerical-diffs.html">Using derivative module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="vibronic.html">Running vibronic calculations from a Molcas RASSI set of calculations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="vroa-h2o2.html">VROA intensities of hydrogen peroxide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="vroa-methyloxirane.html">VROA intensities of methyloxirane</a></li>
+<li class="toctree-l1"><a class="reference internal" href="zpvc.html">Tutorial for using the ZPVC module in VIBRAV</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../vibrav.html">vibrav package</a></li>
+</ul>
+</ul>
+</li>
+              
+                <li class="dropdown">
+  <a role="button"
+     id="dLabelLocalToc"
+     data-toggle="dropdown"
+     data-target="#"
+     href="#">Page <b class="caret"></b></a>
+  <ul class="dropdown-menu localtoc"
+      role="menu"
+      aria-labelledby="dLabelLocalToc"><ul>
+<li><a class="reference internal" href="#">Generating the displaced structures from a Gaussian frequencies calculation</a><ul>
+<li><a class="reference internal" href="#Generating-the-displaced-structures">Generating the displaced structures</a></li>
+</ul>
+</li>
+</ul>
+</ul>
+</li>
+              
+            
+            
+              
+                
+  <li>
+    <a href="adf.html" title="Previous Chapter: ADF parser API"><span class="glyphicon glyphicon-chevron-left visible-sm"></span><span class="hidden-sm hidden-tablet">&laquo; ADF parser API</span>
+    </a>
+  </li>
+  <li>
+    <a href="molcas.html" title="Next Chapter: Molcas parser API"><span class="glyphicon glyphicon-chevron-right visible-sm"></span><span class="hidden-sm hidden-tablet">Molcas parser API &raquo;</span>
+    </a>
+  </li>
+              
+            
+            
+            
+            
+              <li class="hidden-sm">
+<div id="sourcelink">
+  <a href="../_sources/examples/gen-displaced.ipynb.txt"
+     rel="nofollow">Source</a>
+</div></li>
+            
+          </ul>
+
+          
+            
+<form class="navbar-form navbar-right" action="../search.html" method="get">
+ <div class="form-group">
+  <input type="text" name="q" class="form-control" placeholder="Search" />
+ </div>
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+          
+        </div>
+    </div>
+  </div>
+
+<div class="container">
+  <div class="row">
+    <div class="body col-md-12 content" role="main">
+      
+  <section id="Generating-the-displaced-structures-from-a-Gaussian-frequencies-calculation">
+<h1>Generating the displaced structures from a Gaussian frequencies calculation<a class="headerlink" href="#Generating-the-displaced-structures-from-a-Gaussian-frequencies-calculation" title="Permalink to this heading">¶</a></h1>
+<p>Requirements:</p>
+<ul class="simple">
+<li><p>A vibrational frequencies calculation on a well optimized structure</p></li>
+</ul>
+<p>The vibrational frequencies should have the highest precision possible as the displacements made are small to remain in the harmonic approximztion. In gaussian this can be done from the normal output with the <code class="docutils literal notranslate"><span class="pre">Freq=(HPModes)</span></code> or with the formatted checkpoint file. The frequencies must be saved to the checkpoint file which is not a default with <code class="docutils literal notranslate"><span class="pre">Freq=(SaveNormalModes)</span></code>.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">vibrav.util.io</span> <span class="kn">import</span> <span class="n">uncompress_file</span>
+<span class="kn">from</span> <span class="nn">vibrav.base</span> <span class="kn">import</span> <span class="n">resource</span>
+<span class="kn">import</span> <span class="nn">os</span>
+</pre></div>
+</div>
+</div>
+<p>This next step is only to decompress the resource output file. In most user cases this can be skipped as the output files are not compressed binaries.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">decomp</span> <span class="o">=</span> <span class="n">uncompress_file</span><span class="p">(</span><span class="n">resource</span><span class="p">(</span><span class="s1">&#39;g16-nitromalonamide-freq.out.xz&#39;</span><span class="p">))</span>
+</pre></div>
+</div>
+</div>
+<p>Use the quantum code parser of choice and get the atom, frequency and extended frequency data frames. In this case we are using the gaussian parser from the <em>Exatomic</em> package.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">exa</span> <span class="kn">import</span> <span class="n">logging</span>
+<span class="n">logging</span><span class="o">.</span><span class="n">disable</span><span class="p">()</span>
+<span class="kn">from</span> <span class="nn">exatomic</span> <span class="kn">import</span> <span class="n">gaussian</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">ed</span> <span class="o">=</span> <span class="n">gaussian</span><span class="o">.</span><span class="n">Output</span><span class="p">(</span><span class="n">decomp</span><span class="p">)</span>
+<span class="n">ed</span><span class="o">.</span><span class="n">parse_atom</span><span class="p">()</span>
+<span class="n">ed</span><span class="o">.</span><span class="n">parse_frequency</span><span class="p">()</span>
+<span class="n">ed</span><span class="o">.</span><span class="n">parse_frequency_ext</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Parsing frequency normal modes from HPModes output
+Parsing frequency normal modes from HPModes output
+</pre></div></div>
+</div>
+<p>Remove the uncompressed file for some clean up.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">decomp</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<section id="Generating-the-displaced-structures">
+<h2>Generating the displaced structures<a class="headerlink" href="#Generating-the-displaced-structures" title="Permalink to this heading">¶</a></h2>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">vibrav.util.gen_displaced</span> <span class="kn">import</span> <span class="n">Displace</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">inputs</span> <span class="o">=</span> <span class="n">Displace</span><span class="p">(</span><span class="bp">cls</span><span class="o">=</span><span class="n">ed</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<p>The <code class="docutils literal notranslate"><span class="pre">disp</span></code> class attribute holds the coordinates of all the displaced coordinates that are generated. The frequency indeces are as follows: - 0 is reserved for the equilibrium structure - From 1 up to and including the number of normal modes (39 in this example) are the ones displaced in the positive direction. - From the number of normal modes plus 1 (40 in this example) up to and including twice the number of normal modes (78 in this example) are the negative displacements.</p>
+<p>It should be mentioned that the positive and negative displacements are completely arbitrary. Meaning, that we only multiply the normal modes by +1 or -1 for the positive and negative displacements, respectively.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">inputs</span><span class="o">.</span><span class="n">disp</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>x</th>
+      <th>y</th>
+      <th>z</th>
+      <th>freqdx</th>
+      <th>Z</th>
+      <th>symbol</th>
+      <th>frequency</th>
+      <th>frame</th>
+    </tr>
+    <tr>
+      <th>atom</th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>0.213964</td>
+      <td>-4.244614</td>
+      <td>0.0</td>
+      <td>0</td>
+      <td>1</td>
+      <td>H</td>
+      <td>0.0000</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>-5.885437</td>
+      <td>-2.178947</td>
+      <td>0.0</td>
+      <td>0</td>
+      <td>1</td>
+      <td>H</td>
+      <td>0.0000</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>-4.921215</td>
+      <td>1.041846</td>
+      <td>0.0</td>
+      <td>0</td>
+      <td>1</td>
+      <td>H</td>
+      <td>0.0000</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>6.295407</td>
+      <td>-0.573277</td>
+      <td>0.0</td>
+      <td>0</td>
+      <td>1</td>
+      <td>H</td>
+      <td>0.0000</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>4.506458</td>
+      <td>2.260056</td>
+      <td>0.0</td>
+      <td>0</td>
+      <td>1</td>
+      <td>H</td>
+      <td>0.0000</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>...</th>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+    </tr>
+    <tr>
+      <th>1180</th>
+      <td>-1.771898</td>
+      <td>-4.006233</td>
+      <td>0.0</td>
+      <td>78</td>
+      <td>8</td>
+      <td>O</td>
+      <td>3696.3886</td>
+      <td>78</td>
+    </tr>
+    <tr>
+      <th>1181</th>
+      <td>-0.358161</td>
+      <td>2.748341</td>
+      <td>0.0</td>
+      <td>78</td>
+      <td>7</td>
+      <td>N</td>
+      <td>3696.3886</td>
+      <td>78</td>
+    </tr>
+    <tr>
+      <th>1182</th>
+      <td>1.505387</td>
+      <td>4.175983</td>
+      <td>0.0</td>
+      <td>78</td>
+      <td>8</td>
+      <td>O</td>
+      <td>3696.3886</td>
+      <td>78</td>
+    </tr>
+    <tr>
+      <th>1183</th>
+      <td>-2.542736</td>
+      <td>3.630069</td>
+      <td>0.0</td>
+      <td>78</td>
+      <td>8</td>
+      <td>O</td>
+      <td>3696.3886</td>
+      <td>78</td>
+    </tr>
+    <tr>
+      <th>1184</th>
+      <td>-4.537880</td>
+      <td>-0.833527</td>
+      <td>0.0</td>
+      <td>78</td>
+      <td>7</td>
+      <td>N</td>
+      <td>3696.3886</td>
+      <td>78</td>
+    </tr>
+  </tbody>
+</table>
+<p>1185 rows × 8 columns</p>
+</div></div>
+</div>
+<p>Generate the ‘xyz’ coordinate files to view later if something goes wrong.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">xyz_dir</span> <span class="o">=</span> <span class="s1">&#39;xyz&#39;</span>
+<span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">xyz_dir</span><span class="p">):</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">xyz_dir</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">frame</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">inputs</span><span class="o">.</span><span class="n">disp</span><span class="o">.</span><span class="n">nframes</span><span class="p">):</span>
+    <span class="n">filename</span> <span class="o">=</span> <span class="s1">&#39;nitromal-</span><span class="si">{:03d}</span><span class="s1">.xyz&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">frame</span><span class="p">)</span>
+    <span class="n">xyz_file</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">xyz_dir</span><span class="p">,</span> <span class="n">filename</span><span class="p">)</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">xyz_file</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fn</span><span class="p">:</span>
+        <span class="n">comments</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">{:03d}</span><span class="s2"> displacement for nitromalonamide&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">frame</span><span class="p">)</span>
+        <span class="n">fn</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">inputs</span><span class="o">.</span><span class="n">disp</span><span class="o">.</span><span class="n">to_xyz</span><span class="p">(</span><span class="n">header</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">comments</span><span class="o">=</span><span class="n">comments</span><span class="p">,</span>
+                                    <span class="n">frame</span><span class="o">=</span><span class="n">frame</span><span class="p">))</span>
+</pre></div>
+</div>
+</div>
+<p>Define the templates for the gaussian input files to be generated.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">grad_template</span> <span class="o">=</span> <span class="s1">&#39;&#39;&#39;</span><span class="se">\</span>
+<span class="s1">%Mem=</span><span class="si">{mem}</span>
+<span class="s1">%Chk=</span><span class="si">{chk}</span>
+<span class="s1">%NProc=</span><span class="si">{nproc}</span>
+<span class="s1">#P Force B3LYP/6-311++G** SCF=Tight Int=UltraFine NoSymm</span>
+
+<span class="si">{comment}</span>
+
+<span class="si">{charge}</span><span class="s1"> </span><span class="si">{mult}</span>
+<span class="si">{coord}</span>
+<span class="s1">&#39;&#39;&#39;</span>
+<span class="n">prop_template</span> <span class="o">=</span> <span class="s1">&#39;&#39;&#39;</span><span class="se">\</span>
+<span class="s1">%Mem=</span><span class="si">{mem}</span>
+<span class="s1">%Chk=</span><span class="si">{chk}</span>
+<span class="s1">%NProc=</span><span class="si">{nproc}</span>
+<span class="s1">#P PBE1PBE/cc-pVDZ NMR SCF=Tight Int=UltraFine NoSymm</span>
+
+<span class="si">{comment}</span>
+
+<span class="si">{charge}</span><span class="s1"> </span><span class="si">{mult}</span>
+<span class="si">{coord}</span>
+<span class="s1">&#39;&#39;&#39;</span>
+</pre></div>
+</div>
+</div>
+<p>Generate the gradient inputs with a B3LYP/6-311++G** functional and basis.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">input_dir</span> <span class="o">=</span> <span class="s1">&#39;input&#39;</span>
+<span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">input_dir</span><span class="p">):</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">input_dir</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">frame</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">inputs</span><span class="o">.</span><span class="n">disp</span><span class="o">.</span><span class="n">nframes</span><span class="p">):</span>
+    <span class="n">filename</span> <span class="o">=</span> <span class="s1">&#39;nitromal-grad-</span><span class="si">{:03d}</span><span class="s1">.inp&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">frame</span><span class="p">)</span>
+    <span class="n">grad_file</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">input_dir</span><span class="p">,</span> <span class="n">filename</span><span class="p">)</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">grad_file</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fn</span><span class="p">:</span>
+        <span class="n">comment</span> <span class="o">=</span> <span class="s2">&quot;Gradient calculation for the </span><span class="si">{:03d}</span><span class="s2"> &quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">frame</span><span class="p">)</span> \
+                  <span class="o">+</span><span class="s2">&quot;displacement of nitromalonamide&quot;</span>
+        <span class="n">nproc</span> <span class="o">=</span> <span class="mi">2</span>
+        <span class="n">mem</span> <span class="o">=</span> <span class="s2">&quot;1GB&quot;</span>
+        <span class="n">chk</span> <span class="o">=</span> <span class="s2">&quot;chk-</span><span class="si">{:03d}</span><span class="s2">.chk&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">frame</span><span class="p">)</span>
+        <span class="n">charge</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">mult</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="n">coord</span> <span class="o">=</span> <span class="n">inputs</span><span class="o">.</span><span class="n">disp</span><span class="o">.</span><span class="n">to_xyz</span><span class="p">(</span><span class="n">header</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">frame</span><span class="o">=</span><span class="n">frame</span><span class="p">)</span>
+        <span class="n">fn</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">grad_template</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">mem</span><span class="o">=</span><span class="n">mem</span><span class="p">,</span> <span class="n">chk</span><span class="o">=</span><span class="n">chk</span><span class="p">,</span> <span class="n">nproc</span><span class="o">=</span><span class="n">nproc</span><span class="p">,</span>
+                                      <span class="n">comment</span><span class="o">=</span><span class="n">comment</span><span class="p">,</span> <span class="n">charge</span><span class="o">=</span><span class="n">charge</span><span class="p">,</span>
+                                      <span class="n">mult</span><span class="o">=</span><span class="n">mult</span><span class="p">,</span> <span class="n">coord</span><span class="o">=</span><span class="n">coord</span><span class="p">))</span>
+</pre></div>
+</div>
+</div>
+<p>Generate the NMR property inputs with a PBE1PBE/cc-pVDZ functional and basis.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">input_dir</span> <span class="o">=</span> <span class="s1">&#39;input&#39;</span>
+<span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">input_dir</span><span class="p">):</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">input_dir</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">frame</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">inputs</span><span class="o">.</span><span class="n">disp</span><span class="o">.</span><span class="n">nframes</span><span class="p">):</span>
+    <span class="n">filename</span> <span class="o">=</span> <span class="s1">&#39;nitromal-prop-</span><span class="si">{:03d}</span><span class="s1">.inp&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">frame</span><span class="p">)</span>
+    <span class="n">prop_file</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">input_dir</span><span class="p">,</span> <span class="n">filename</span><span class="p">)</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">prop_file</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fn</span><span class="p">:</span>
+        <span class="n">comment</span> <span class="o">=</span> <span class="s2">&quot;Property calculation for the </span><span class="si">{:03d}</span><span class="s2"> &quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">frame</span><span class="p">)</span> \
+                  <span class="o">+</span><span class="s2">&quot;displacement of nitromalonamide&quot;</span>
+        <span class="n">nproc</span> <span class="o">=</span> <span class="mi">2</span>
+        <span class="n">mem</span> <span class="o">=</span> <span class="s2">&quot;1GB&quot;</span>
+        <span class="n">chk</span> <span class="o">=</span> <span class="s2">&quot;chk-</span><span class="si">{:03d}</span><span class="s2">.chk&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">frame</span><span class="p">)</span>
+        <span class="n">charge</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">mult</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="n">coord</span> <span class="o">=</span> <span class="n">inputs</span><span class="o">.</span><span class="n">disp</span><span class="o">.</span><span class="n">to_xyz</span><span class="p">(</span><span class="n">header</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">frame</span><span class="o">=</span><span class="n">frame</span><span class="p">)</span>
+        <span class="n">fn</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">prop_template</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">mem</span><span class="o">=</span><span class="n">mem</span><span class="p">,</span> <span class="n">chk</span><span class="o">=</span><span class="n">chk</span><span class="p">,</span> <span class="n">nproc</span><span class="o">=</span><span class="n">nproc</span><span class="p">,</span>
+                                      <span class="n">comment</span><span class="o">=</span><span class="n">comment</span><span class="p">,</span> <span class="n">charge</span><span class="o">=</span><span class="n">charge</span><span class="p">,</span>
+                                      <span class="n">mult</span><span class="o">=</span><span class="n">mult</span><span class="p">,</span> <span class="n">coord</span><span class="o">=</span><span class="n">coord</span><span class="p">))</span>
+</pre></div>
+</div>
+</div>
+<p>Make sure that the output directory is present.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">output_dir</span> <span class="o">=</span> <span class="s1">&#39;output&#39;</span>
+<span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">output_dir</span><span class="p">):</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">output_dir</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>
+</pre></div>
+</div>
+</div>
+</section>
+</section>
+
+
+    </div>
+      
+  </div>
+</div>
+<footer class="footer">
+  <div class="container">
+    <p class="pull-right">
+      <a href="#">Back to top</a>
+      
+    </p>
+    <p>
+        &copy; Copyright 2023, Herbert D Ludowieg. Project structure based on the Computational Molecular Science Python Cookiecutter version 1.1.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 7.0.1.<br/>
+    </p>
+  </div>
+</footer>
+  </body>
+</html>

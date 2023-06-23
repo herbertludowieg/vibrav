@@ -1,0 +1,7 @@
+vibrav.molcas.output module
+===========================
+
+.. automodule:: vibrav.molcas.output
+   :members:
+   :undoc-members:
+   :show-inheritance:

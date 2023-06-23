@@ -1,0 +1,7 @@
+vibrav.vibronic.combine\_ham module
+===================================
+
+.. automodule:: vibrav.vibronic.combine_ham
+   :members:
+   :undoc-members:
+   :show-inheritance:

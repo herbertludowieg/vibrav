@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>vibrav.numerical.boltzmann &#8212; vibrav  documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/bootstrap-sphinx.css" />
+    <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+    <script src="../../../_static/doctools.js"></script>
+    <script src="../../../_static/sphinx_highlight.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+<meta charset='utf-8'>
+<meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
+<meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1'>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<script type="text/javascript" src="../../../_static/js/jquery-1.12.4.min.js"></script>
+<script type="text/javascript" src="../../../_static/js/jquery-fix.js"></script>
+<script type="text/javascript" src="../../../_static/bootstrap-3.4.1/js/bootstrap.min.js"></script>
+<script type="text/javascript" src="../../../_static/bootstrap-sphinx.js"></script>
+
+  </head><body>
+
+  <div id="navbar" class="navbar navbar-default navbar-fixed-top">
+    <div class="container">
+      <div class="navbar-header">
+        <!-- .btn-navbar is used as the toggle for collapsed navbar content -->
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".nav-collapse">
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        <a class="navbar-brand" href="../../../index.html">
+          vibrav</a>
+        <span class="navbar-text navbar-version pull-left"><b></b></span>
+      </div>
+
+        <div class="collapse navbar-collapse nav-collapse">
+          <ul class="nav navbar-nav">
+            
+            
+              <li class="dropdown globaltoc-container">
+  <a role="button"
+     id="dLabelGlobalToc"
+     data-toggle="dropdown"
+     data-target="#"
+     href="../../../index.html">Site <b class="caret"></b></a>
+  <ul class="dropdown-menu globaltoc"
+      role="menu"
+      aria-labelledby="dLabelGlobalToc"><ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../examples/adf.html">ADF parser API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../examples/gen-displaced.html">Generating the displaced structures from a Gaussian frequencies calculation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../examples/molcas.html">Molcas parser API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../examples/numerical-diffs.html">Using derivative module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../examples/vibronic.html">Running vibronic calculations from a Molcas RASSI set of calculations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../examples/vroa-h2o2.html">VROA intensities of hydrogen peroxide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../examples/vroa-methyloxirane.html">VROA intensities of methyloxirane</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../examples/zpvc.html">Tutorial for using the ZPVC module in VIBRAV</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../vibrav.html">vibrav package</a></li>
+</ul>
+</ul>
+</li>
+              
+                <li class="dropdown">
+  <a role="button"
+     id="dLabelLocalToc"
+     data-toggle="dropdown"
+     data-target="#"
+     href="#">Page <b class="caret"></b></a>
+  <ul class="dropdown-menu localtoc"
+      role="menu"
+      aria-labelledby="dLabelLocalToc"></ul>
+</li>
+              
+            
+            
+              
+                
+              
+            
+            
+            
+            
+              <li class="hidden-sm"></li>
+            
+          </ul>
+
+          
+            
+<form class="navbar-form navbar-right" action="../../../search.html" method="get">
+ <div class="form-group">
+  <input type="text" name="q" class="form-control" placeholder="Search" />
+ </div>
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+          
+        </div>
+    </div>
+  </div>
+
+<div class="container">
+  <div class="row">
+    <div class="body col-md-12 content" role="main">
+      
+  <h1>Source code for vibrav.numerical.boltzmann</h1><div class="highlight"><pre>
+<span></span><span class="c1"># This file is part of vibrav.</span>
+<span class="c1">#</span>
+<span class="c1"># vibrav is free software: you can redistribute it and/or modify</span>
+<span class="c1"># it under the terms of the GNU General Public License as published by</span>
+<span class="c1"># the Free Software Foundation, either version 3 of the License, or</span>
+<span class="c1"># (at your option) any later version.</span>
+<span class="c1">#</span>
+<span class="c1"># vibrav is distributed in the hope that it will be useful,</span>
+<span class="c1"># but WITHOUT ANY WARRANTY; without even the implied warranty of</span>
+<span class="c1"># MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the</span>
+<span class="c1"># GNU General Public License for more details.</span>
+<span class="c1">#</span>
+<span class="c1"># You should have received a copy of the GNU General Public License</span>
+<span class="c1"># along with vibrav.  If not, see &lt;https://www.gnu.org/licenses/&gt;.</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">warnings</span>
+<span class="kn">from</span> <span class="nn">exatomic.util.constants</span> <span class="kn">import</span> <span class="n">Boltzmann_constant_in_inverse_meter_per_kelvin</span> <span class="k">as</span> <span class="n">boltz_const</span>
+
+<div class="viewcode-block" id="boltz_dist"><a class="viewcode-back" href="../../../vibrav.numerical.boltzmann.html#vibrav.numerical.boltzmann.boltz_dist">[docs]</a><span class="k">def</span> <span class="nf">boltz_dist</span><span class="p">(</span><span class="n">energies</span><span class="p">,</span> <span class="n">temp</span><span class="p">,</span> <span class="n">tol</span><span class="o">=</span><span class="mf">1e-6</span><span class="p">,</span> <span class="n">states</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">ignore_max</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Generate the vibrational boltzmann distributions for all vibrational</span>
+<span class="sd">    frequencies up to when the distribution is less than the given tolerance</span>
+<span class="sd">    value.</span>
+
+<span class="sd">    Note:</span>
+<span class="sd">        This does not take into account any energetic degeneracies of the input</span>
+<span class="sd">        energies/states and the primary purpose is to calculate the Boltzmann distribution</span>
+<span class="sd">        of vibrational states.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        energies (:class:`numpy.ndarray` or :obj:`list`): Array of energies in wavenumbers.</span>
+<span class="sd">        temp (:obj:`float`): Temperature to calculate the distribution.</span>
+<span class="sd">        tol (:obj:`float`, optional): Tolerance threshold to cutoff the calculation</span>
+<span class="sd">                                      of the distribution factors. Defaults to :code:`1e-5`.</span>
+<span class="sd">        states (:obj:`int`, optional): Number of states to calculate. Defaults to</span>
+<span class="sd">                                       :code:`None` (all states with a distribution</span>
+<span class="sd">                                       less than the :code:`tol` value for the lowest</span>
+<span class="sd">                                       frequency).</span>
+<span class="sd">        ignore_max (:obj:`bool`, optional): Ignore the default matimum number of max states</span>
+<span class="sd">                                            to be calculated. This is very dangerous use at</span>
+<span class="sd">                                            your own risk. There is a possibility of hitting</span>
+<span class="sd">                                            the recursion limit in python. Defaults to</span>
+<span class="sd">                                            :code:`False`.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        boltz (:class:`pandas.DataFrame`): Data frame of the boltzmann factors for each energy.</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">        ValueError: If the `states` parameter given is more than 1000 as we consider this</span>
+<span class="sd">                    to be unphysical.</span>
+<span class="sd">        ValueError: If the `states` parameter is zero.</span>
+<span class="sd">        ValueError: If the `temp` paramter is less than or equal to zero.</span>
+<span class="sd">        ValueError: If the program calculates more than 1000 states at a given tolerance.</span>
+
+<span class="sd">    Examples:</span>
+<span class="sd">        Calculating the boltzmann distribution of a two state system at room temperature</span>
+<span class="sd">        (298 K) with the energies 10, 20 and 80 wavenumbers (cm :math:`^{-1}`).</span>
+
+<span class="sd">        &gt;&gt;&gt; temp = 298</span>
+<span class="sd">        &gt;&gt;&gt; freq = [10, 20, 80]</span>
+<span class="sd">        &gt;&gt;&gt; boltz_dist(energies=freq, temp=temp, states=2)</span>
+<span class="sd">                  0         1  freqdx  partition  energy</span>
+<span class="sd">        0  0.512068  0.487932       0   1.952866      10</span>
+<span class="sd">        1  0.524122  0.475878       1   1.907953      20</span>
+<span class="sd">        2  0.595379  0.404621       2   1.679601      80</span>
+
+<span class="sd">        It is not necessary that the input energies be ordered as shown by the next example.</span>
+<span class="sd">        The only thing that will change is that the output :class:`pandas.DataFrame` will have a</span>
+<span class="sd">        `freqdx` column that will reflect the ordeting of the input energies.</span>
+
+<span class="sd">        &gt;&gt;&gt; temp = 298</span>
+<span class="sd">        &gt;&gt;&gt; freq = [10, 80, 20]</span>
+<span class="sd">        &gt;&gt;&gt; boltz_dist(energies=freq, temp=temp, states=2)</span>
+<span class="sd">                  0         1  freqdx  partition  energy</span>
+<span class="sd">        0  0.512068  0.487932       0   1.952866      10</span>
+<span class="sd">        1  0.524122  0.475878       2   1.907953      20</span>
+<span class="sd">        2  0.595379  0.404621       1   1.679601      80</span>
+
+<span class="sd">        These examples have truncated the number of states to actually calculate by a user</span>
+<span class="sd">        defined value. If the user is interested in getting all of the available states above</span>
+<span class="sd">        a given threshold, :code:`1e-6` by default, this can be done by passing the `states`</span>
+<span class="sd">        parameter as :code:`None`.</span>
+
+<span class="sd">        &gt;&gt;&gt; temp = 40</span>
+<span class="sd">        &gt;&gt;&gt; freq = [100, 200, 300]</span>
+<span class="sd">        &gt;&gt;&gt; boltz_dist(energies=freq, temp=temp, states=None)</span>
+<span class="sd">                  0         1             2        3  freqdx  partition  energy</span>
+<span class="sd">        0  0.972593  0.026656  7.305767e-04  0.00002       0   1.028179     100</span>
+<span class="sd">        1  0.999249  0.000751  5.638231e-07  0.00000       1   1.000752     200</span>
+<span class="sd">        2  0.999979  0.000021  0.000000e+00  0.00000       2   1.000021     300</span>
+
+<span class="sd">        Notice, that in the example above, the threshold is only applied to the lowest energy</span>
+<span class="sd">        and all higher energies calculate the same number of states even when the threshold is</span>
+<span class="sd">        already met. This is purely done for the sake of simplifying data storage in a later</span>
+<span class="sd">        step with the :func:`numpy.stack` function. It is not believed that this will affect</span>
+<span class="sd">        memory usage or performance greatly.</span>
+
+<span class="sd">        The program is designed to detect if there are more than 1000 states calculated and</span>
+<span class="sd">        automatically throw an error as this is an unphysical number of states to calculate.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="c1"># to simplify code</span>
+    <span class="k">def</span> <span class="nf">_boltzmann</span><span class="p">(</span><span class="n">energ</span><span class="p">,</span> <span class="n">nu</span><span class="p">,</span> <span class="n">temp</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&#39;&#39;&#39; Boltzmann distribution function. &#39;&#39;&#39;</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">energ</span><span class="o">*</span><span class="n">nu</span><span class="o">/</span><span class="p">(</span><span class="n">boltz_const</span><span class="o">/</span><span class="mi">100</span><span class="o">*</span><span class="n">temp</span><span class="p">))</span>
+    <span class="c1"># resursive function</span>
+    <span class="k">def</span> <span class="nf">_partition_func</span><span class="p">(</span><span class="n">energ</span><span class="p">,</span> <span class="n">nu</span><span class="p">,</span> <span class="n">temp</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&#39;&#39;&#39; Partition function. &#39;&#39;&#39;</span>
+        <span class="n">Q</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">if</span> <span class="n">nu</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="c1"># terminating condition</span>
+            <span class="k">return</span> <span class="n">_boltzmann</span><span class="p">(</span><span class="n">energ</span><span class="p">,</span> <span class="n">nu</span><span class="p">,</span> <span class="n">temp</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># recursive portion</span>
+            <span class="n">Q</span> <span class="o">+=</span> <span class="n">_boltzmann</span><span class="p">(</span><span class="n">energ</span><span class="p">,</span> <span class="n">nu</span><span class="p">,</span> <span class="n">temp</span><span class="p">)</span> <span class="o">+</span> <span class="n">_partition_func</span><span class="p">(</span><span class="n">energ</span><span class="p">,</span> <span class="n">nu</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">temp</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">Q</span>
+    <span class="c1"># for single energy values</span>
+    <span class="c1"># not the default use of this script</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">energies</span><span class="p">,</span> <span class="nb">float</span><span class="p">):</span> <span class="n">energies</span> <span class="o">=</span> <span class="p">[</span><span class="n">energies</span><span class="p">]</span>
+    <span class="n">def_states</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="c1"># toss warning if states is not none</span>
+    <span class="k">if</span> <span class="n">states</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="c1"># make sure the number of states given is not unphysical</span>
+        <span class="k">if</span> <span class="n">states</span> <span class="o">&gt;=</span> <span class="mi">1000</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">ignore_max</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;An unphysical number of states to calculate was given currently, &quot;</span> \
+                             <span class="o">+</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2">, expected less than 1000.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">states</span><span class="p">))</span>
+        <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;Calculating only the first </span><span class="si">{}</span><span class="s2"> &quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">states</span><span class="p">)</span> \
+                      <span class="o">+</span><span class="s2">&quot;states for the Boltzmann distribution.&quot;</span><span class="p">,</span> <span class="ne">Warning</span><span class="p">)</span>
+        <span class="n">max_nu</span> <span class="o">=</span> <span class="n">states</span>
+    <span class="k">elif</span> <span class="n">states</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;The states parameter given was found to be zero. &quot;</span> \
+                         <span class="s2">&quot;This cannot be understood and a non-sensical value.&quot;</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="c1"># set to a high value that should never be rached</span>
+        <span class="c1"># can serve as a final failsafe for the while loop</span>
+        <span class="n">states</span> <span class="o">=</span> <span class="mf">1e3</span>
+        <span class="n">def_states</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="c1"># ensure that at least two states are calculated</span>
+        <span class="n">max_nu</span> <span class="o">=</span> <span class="mi">2</span>
+    <span class="c1"># make sure the temp is &#39;real&#39;</span>
+    <span class="k">if</span> <span class="n">temp</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;A negative or zero temperature was detected. The input temperature &quot;</span> \
+                         <span class="o">+</span><span class="s2">&quot;value must be in units of Kelvin and be a non-zero positive value.&quot;</span><span class="p">)</span>
+    <span class="c1"># reorder the energies in increasing order</span>
+    <span class="n">sorted_energies</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">energies</span><span class="p">)</span><span class="o">.</span><span class="n">sort_values</span><span class="p">()</span>
+    <span class="n">boltz_factors</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">partition</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="p">(</span><span class="n">_</span><span class="p">,</span> <span class="n">freq</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">sorted_energies</span><span class="o">.</span><span class="n">items</span><span class="p">()):</span>
+        <span class="n">boltz_factors</span><span class="o">.</span><span class="n">append</span><span class="p">([])</span>
+        <span class="n">nu</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="c1"># using a while loop as it is easier to define multiple</span>
+        <span class="c1"># termination conditions</span>
+        <span class="k">if</span> <span class="n">def_states</span><span class="p">:</span>
+            <span class="k">while</span> <span class="p">(</span><span class="n">_boltzmann</span><span class="p">(</span><span class="n">freq</span><span class="p">,</span> <span class="n">nu</span><span class="p">,</span> <span class="n">temp</span><span class="p">)</span> <span class="o">&gt;</span> <span class="n">tol</span> <span class="ow">or</span> <span class="n">nu</span> <span class="o">&lt;</span> <span class="n">max_nu</span><span class="p">)</span> <span class="ow">and</span> <span class="n">nu</span> <span class="o">&lt;</span> <span class="mf">1e3</span><span class="p">:</span>
+                <span class="n">factor</span> <span class="o">=</span> <span class="n">_boltzmann</span><span class="p">(</span><span class="n">freq</span><span class="p">,</span> <span class="n">nu</span><span class="p">,</span> <span class="n">temp</span><span class="p">)</span>
+                <span class="n">boltz_factors</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">factor</span> <span class="k">if</span> <span class="n">factor</span> <span class="o">&gt;</span> <span class="n">tol</span><span class="o">*</span><span class="mf">1e-3</span> <span class="k">else</span> <span class="mf">0.0</span><span class="p">)</span>
+                <span class="n">nu</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">while</span> <span class="n">nu</span> <span class="o">&lt;</span> <span class="n">max_nu</span><span class="p">:</span>
+                <span class="n">factor</span> <span class="o">=</span> <span class="n">_boltzmann</span><span class="p">(</span><span class="n">freq</span><span class="p">,</span> <span class="n">nu</span><span class="p">,</span> <span class="n">temp</span><span class="p">)</span>
+                <span class="n">boltz_factors</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">factor</span> <span class="k">if</span> <span class="n">factor</span> <span class="o">&gt;</span> <span class="n">tol</span><span class="o">*</span><span class="mf">1e-3</span> <span class="k">else</span> <span class="mf">0.0</span><span class="p">)</span>
+                <span class="n">nu</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="k">if</span> <span class="n">nu</span> <span class="o">&gt;=</span> <span class="mf">1e3</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">ignore_max</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;There is something wrong with this frequency (</span><span class="si">{}</span><span class="s2">) and &quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">freq</span><span class="p">)</span> \
+                             <span class="o">+</span><span class="s2">&quot;tolerance (</span><span class="si">{}</span><span class="s2">) combination &quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">tol</span><span class="p">)</span> \
+                             <span class="o">+</span><span class="s2">&quot;as we have calculated more than 1000 states.&quot;</span><span class="p">)</span>
+        <span class="c1"># set the maximum number of states to be calculated based on</span>
+        <span class="c1"># the smallest frequency value to have all same size lists</span>
+        <span class="k">if</span> <span class="n">idx</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">def_states</span><span class="p">:</span> <span class="n">max_nu</span> <span class="o">=</span> <span class="n">nu</span>
+        <span class="c1"># calculate the partition function</span>
+        <span class="c1"># we subtract 1 from nu because of the termination condition in the while loop</span>
+        <span class="n">q</span> <span class="o">=</span> <span class="n">_partition_func</span><span class="p">(</span><span class="n">freq</span><span class="p">,</span> <span class="n">nu</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">temp</span><span class="p">)</span>
+        <span class="n">boltz_factors</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">/=</span> <span class="n">q</span>
+        <span class="n">partition</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">q</span><span class="p">)</span>
+    <span class="c1"># put all of the boltzmann factors together</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span><span class="n">boltz_factors</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="c1"># make a dataframe for easier data handling</span>
+    <span class="n">boltz</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+    <span class="c1"># append some values to keep track of things</span>
+    <span class="n">boltz</span><span class="p">[</span><span class="s1">&#39;freqdx&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">sorted_energies</span><span class="o">.</span><span class="n">index</span>
+    <span class="n">boltz</span><span class="p">[</span><span class="s1">&#39;partition&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">partition</span>
+    <span class="n">boltz</span><span class="p">[</span><span class="s1">&#39;energy&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">sorted_energies</span><span class="o">.</span><span class="n">values</span>
+    <span class="k">return</span> <span class="n">boltz</span></div>
+
+</pre></div>
+
+    </div>
+      
+  </div>
+</div>
+<footer class="footer">
+  <div class="container">
+    <p class="pull-right">
+      <a href="#">Back to top</a>
+      
+    </p>
+    <p>
+        &copy; Copyright 2023, Herbert D Ludowieg. Project structure based on the Computational Molecular Science Python Cookiecutter version 1.1.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 7.0.1.<br/>
+    </p>
+  </div>
+</footer>
+  </body>
+</html>

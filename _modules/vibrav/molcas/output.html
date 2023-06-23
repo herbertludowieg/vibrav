@@ -1,0 +1,578 @@
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>vibrav.molcas.output &#8212; vibrav  documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/bootstrap-sphinx.css" />
+    <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+    <script src="../../../_static/doctools.js"></script>
+    <script src="../../../_static/sphinx_highlight.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+<meta charset='utf-8'>
+<meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
+<meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1'>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<script type="text/javascript" src="../../../_static/js/jquery-1.12.4.min.js"></script>
+<script type="text/javascript" src="../../../_static/js/jquery-fix.js"></script>
+<script type="text/javascript" src="../../../_static/bootstrap-3.4.1/js/bootstrap.min.js"></script>
+<script type="text/javascript" src="../../../_static/bootstrap-sphinx.js"></script>
+
+  </head><body>
+
+  <div id="navbar" class="navbar navbar-default navbar-fixed-top">
+    <div class="container">
+      <div class="navbar-header">
+        <!-- .btn-navbar is used as the toggle for collapsed navbar content -->
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".nav-collapse">
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        <a class="navbar-brand" href="../../../index.html">
+          vibrav</a>
+        <span class="navbar-text navbar-version pull-left"><b></b></span>
+      </div>
+
+        <div class="collapse navbar-collapse nav-collapse">
+          <ul class="nav navbar-nav">
+            
+            
+              <li class="dropdown globaltoc-container">
+  <a role="button"
+     id="dLabelGlobalToc"
+     data-toggle="dropdown"
+     data-target="#"
+     href="../../../index.html">Site <b class="caret"></b></a>
+  <ul class="dropdown-menu globaltoc"
+      role="menu"
+      aria-labelledby="dLabelGlobalToc"><ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../examples/adf.html">ADF parser API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../examples/gen-displaced.html">Generating the displaced structures from a Gaussian frequencies calculation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../examples/molcas.html">Molcas parser API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../examples/numerical-diffs.html">Using derivative module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../examples/vibronic.html">Running vibronic calculations from a Molcas RASSI set of calculations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../examples/vroa-h2o2.html">VROA intensities of hydrogen peroxide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../examples/vroa-methyloxirane.html">VROA intensities of methyloxirane</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../examples/zpvc.html">Tutorial for using the ZPVC module in VIBRAV</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../vibrav.html">vibrav package</a></li>
+</ul>
+</ul>
+</li>
+              
+                <li class="dropdown">
+  <a role="button"
+     id="dLabelLocalToc"
+     data-toggle="dropdown"
+     data-target="#"
+     href="#">Page <b class="caret"></b></a>
+  <ul class="dropdown-menu localtoc"
+      role="menu"
+      aria-labelledby="dLabelLocalToc"></ul>
+</li>
+              
+            
+            
+              
+                
+              
+            
+            
+            
+            
+              <li class="hidden-sm"></li>
+            
+          </ul>
+
+          
+            
+<form class="navbar-form navbar-right" action="../../../search.html" method="get">
+ <div class="form-group">
+  <input type="text" name="q" class="form-control" placeholder="Search" />
+ </div>
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+          
+        </div>
+    </div>
+  </div>
+
+<div class="container">
+  <div class="row">
+    <div class="body col-md-12 content" role="main">
+      
+  <h1>Source code for vibrav.molcas.output</h1><div class="highlight"><pre>
+<span></span><span class="c1"># This file is part of vibrav.</span>
+<span class="c1">#</span>
+<span class="c1"># vibrav is free software: you can redistribute it and/or modify</span>
+<span class="c1"># it under the terms of the GNU General Public License as published by</span>
+<span class="c1"># the Free Software Foundation, either version 3 of the License, or</span>
+<span class="c1"># (at your option) any later version.</span>
+<span class="c1">#</span>
+<span class="c1"># vibrav is distributed in the hope that it will be useful,</span>
+<span class="c1"># but WITHOUT ANY WARRANTY; without even the implied warranty of</span>
+<span class="c1"># MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the</span>
+<span class="c1"># GNU General Public License for more details.</span>
+<span class="c1">#</span>
+<span class="c1"># You should have received a copy of the GNU General Public License</span>
+<span class="c1"># along with vibrav.  If not, see &lt;https://www.gnu.org/licenses/&gt;.</span>
+<span class="kn">from</span> <span class="nn">exatomic.exa.core.editor</span> <span class="kn">import</span> <span class="n">Editor</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<div class="viewcode-block" id="Output"><a class="viewcode-back" href="../../../vibrav.molcas.output.html#vibrav.molcas.output.Output">[docs]</a><span class="k">class</span> <span class="nc">Output</span><span class="p">(</span><span class="n">Editor</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    This output editor is supposed to work for OpenMolcas.</span>
+<span class="sd">    Currently it is only designed to parse the data required for this script.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">_resta</span> <span class="o">=</span> <span class="s2">&quot;STATE&quot;</span>
+    <span class="k">def</span> <span class="nf">_property_parsing</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">props</span><span class="p">,</span> <span class="n">data_length</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&#39;&#39;&#39; Helper method for parsing the spin-free properties sections. &#39;&#39;&#39;</span>
+        <span class="n">all_dfs</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="c1"># this is a bit of a mess but since we have three components</span>
+        <span class="c1"># we can take a nested for loop of three elements without too</span>
+        <span class="c1"># much of a hit on performance</span>
+        <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">prop</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">props</span><span class="p">):</span>
+            <span class="c1"># keep track of columns parsed so far</span>
+            <span class="n">counter</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="c1"># find where the data blocks are printed</span>
+            <span class="n">starts</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_resta</span><span class="p">,</span> <span class="n">start</span><span class="o">=</span><span class="n">prop</span><span class="p">,</span> <span class="n">keys_only</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span> <span class="o">+</span> <span class="n">prop</span> <span class="o">+</span> <span class="mi">2</span>
+            <span class="c1"># data_length should always be the same</span>
+            <span class="c1"># we could determine it for each data block but that would</span>
+            <span class="c1"># be a large number of while loops</span>
+            <span class="n">stops</span> <span class="o">=</span> <span class="n">starts</span> <span class="o">+</span> <span class="n">data_length</span>
+            <span class="c1"># hardcoding but should apply in all of our cases</span>
+            <span class="c1"># there should be a max of 4 columns of data in each of the &#39;STATE&#39;</span>
+            <span class="c1"># data blocks so we get the maximum number of hits that there should be</span>
+            <span class="c1"># assuming a square matrix of data_length x data_length</span>
+            <span class="n">n</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span><span class="n">data_length</span><span class="o">/</span><span class="mi">4</span><span class="p">))</span>
+            <span class="n">dfs</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="c1"># grab all of the data</span>
+            <span class="k">for</span> <span class="n">start</span><span class="p">,</span> <span class="n">stop</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">starts</span><span class="p">[:</span><span class="n">n</span><span class="p">],</span> <span class="n">stops</span><span class="p">[:</span><span class="n">n</span><span class="p">]):</span>
+                <span class="n">ncols</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">[</span><span class="n">start</span><span class="o">-</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">())</span>
+                <span class="n">df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pandas_dataframe</span><span class="p">(</span><span class="n">start</span><span class="p">,</span> <span class="n">stop</span><span class="p">,</span> <span class="n">ncol</span><span class="o">=</span><span class="n">ncols</span><span class="p">)</span>
+                <span class="n">df</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-=</span> <span class="mi">1</span>
+                <span class="c1"># set the indexes as they may be different and drop the column</span>
+                <span class="n">df</span><span class="o">.</span><span class="n">index</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                <span class="n">df</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+                <span class="c1"># set the columns as they should be</span>
+                <span class="n">df</span><span class="o">.</span><span class="n">columns</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">counter</span><span class="p">,</span> <span class="n">counter</span><span class="o">+</span><span class="n">ncols</span><span class="o">-</span><span class="mi">1</span><span class="p">))</span>
+                <span class="n">dfs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
+                <span class="n">counter</span> <span class="o">+=</span> <span class="n">ncols</span> <span class="o">-</span> <span class="mi">1</span>
+            <span class="c1"># put the component together</span>
+            <span class="n">all_dfs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">dfs</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">))</span>
+            <span class="n">all_dfs</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="s1">&#39;component&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">idx</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">all_dfs</span><span class="p">,</span> <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">df</span>
+
+    <span class="k">def</span> <span class="nf">_oscillator_parsing</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">start_idx</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&#39;&#39;&#39; Helper method to parse the oscillators. &#39;&#39;&#39;</span>
+        <span class="n">ldx</span> <span class="o">=</span> <span class="n">start_idx</span> <span class="o">+</span> <span class="mi">6</span>
+        <span class="n">oscillators</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">while</span> <span class="s1">&#39;-----&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">[</span><span class="n">ldx</span><span class="p">]:</span>
+            <span class="n">oscillators</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="p">[</span><span class="n">ldx</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">())</span>
+            <span class="n">ldx</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">oscillators</span><span class="p">)</span>
+        <span class="n">df</span><span class="o">.</span><span class="n">columns</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;nrow&#39;</span><span class="p">,</span> <span class="s1">&#39;ncol&#39;</span><span class="p">,</span> <span class="s1">&#39;oscil&#39;</span><span class="p">,</span> <span class="s1">&#39;a_x&#39;</span><span class="p">,</span> <span class="s1">&#39;a_y&#39;</span><span class="p">,</span> <span class="s1">&#39;a_z&#39;</span><span class="p">,</span> <span class="s1">&#39;a_tot&#39;</span><span class="p">]</span>
+        <span class="n">df</span><span class="p">[[</span><span class="s1">&#39;nrow&#39;</span><span class="p">,</span> <span class="s1">&#39;ncol&#39;</span><span class="p">]]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[[</span><span class="s1">&#39;nrow&#39;</span><span class="p">,</span> <span class="s1">&#39;ncol&#39;</span><span class="p">]]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">uint16</span><span class="p">)</span>
+        <span class="n">df</span><span class="p">[[</span><span class="s1">&#39;nrow&#39;</span><span class="p">,</span> <span class="s1">&#39;ncol&#39;</span><span class="p">]]</span> <span class="o">-=</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span>
+        <span class="n">df</span><span class="p">[[</span><span class="s1">&#39;nrow&#39;</span><span class="p">,</span> <span class="s1">&#39;ncol&#39;</span><span class="p">]]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[[</span><span class="s1">&#39;nrow&#39;</span><span class="p">,</span> <span class="s1">&#39;ncol&#39;</span><span class="p">]]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s1">&#39;category&#39;</span><span class="p">)</span>
+        <span class="n">cols</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;oscil&#39;</span><span class="p">,</span> <span class="s1">&#39;a_x&#39;</span><span class="p">,</span> <span class="s1">&#39;a_y&#39;</span><span class="p">,</span> <span class="s1">&#39;a_z&#39;</span><span class="p">,</span> <span class="s1">&#39;a_tot&#39;</span><span class="p">]</span>
+        <span class="n">df</span><span class="p">[</span><span class="n">cols</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">cols</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">df</span>
+
+<div class="viewcode-block" id="Output.parse_sf_dipole_moment"><a class="viewcode-back" href="../../../vibrav.molcas.output.html#vibrav.molcas.output.Output.parse_sf_dipole_moment">[docs]</a>    <span class="k">def</span> <span class="nf">parse_sf_dipole_moment</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Get the Spin-Free electric dipole moment.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            AttributeError: If it cannot find the angular momentum property. This is</span>
+<span class="sd">                            applicable to this package as it expects it to be present.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="c1"># define the search string</span>
+        <span class="n">_retdm</span> <span class="o">=</span> <span class="s2">&quot;PROPERTY: MLTPL  1&quot;</span>
+        <span class="n">_resta</span> <span class="o">=</span> <span class="s2">&quot;STATE&quot;</span>
+        <span class="n">component_map</span> <span class="o">=</span> <span class="p">{</span><span class="mi">0</span><span class="p">:</span> <span class="s1">&#39;x&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">:</span> <span class="s1">&#39;y&#39;</span><span class="p">,</span> <span class="mi">2</span><span class="p">:</span> <span class="s1">&#39;z&#39;</span><span class="p">}</span>
+        <span class="n">found</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="n">_retdm</span><span class="p">,</span> <span class="n">keys_only</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">found</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">AttributeError</span><span class="p">(</span><span class="s2">&quot;Could not find the TDM in the output&quot;</span><span class="p">)</span>
+        <span class="c1">#found = self.find(_retdm, _resta, keys_only=True)</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">found</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">6</span><span class="p">:</span>
+            <span class="n">props</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">found</span><span class="p">)[:</span><span class="mi">6</span><span class="p">:</span><span class="mi">2</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">props</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">found</span><span class="p">)[:</span><span class="mi">3</span><span class="p">]</span>
+        <span class="n">stop</span> <span class="o">=</span> <span class="n">props</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="mi">5</span>
+        <span class="k">while</span> <span class="bp">self</span><span class="p">[</span><span class="n">stop</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">():</span> <span class="n">stop</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="n">data_length</span> <span class="o">=</span> <span class="n">stop</span> <span class="o">-</span> <span class="n">props</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="mi">5</span>
+        <span class="c1"># get the data</span>
+        <span class="n">stdm</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_property_parsing</span><span class="p">(</span><span class="n">props</span><span class="p">,</span> <span class="n">data_length</span><span class="p">)</span>
+        <span class="n">stdm</span><span class="p">[</span><span class="s1">&#39;component&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">stdm</span><span class="p">[</span><span class="s1">&#39;component&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">component_map</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sf_dipole_moment</span> <span class="o">=</span> <span class="n">stdm</span></div>
+
+<div class="viewcode-block" id="Output.parse_sf_quadrupole_moment"><a class="viewcode-back" href="../../../vibrav.molcas.output.html#vibrav.molcas.output.Output.parse_sf_quadrupole_moment">[docs]</a>    <span class="k">def</span> <span class="nf">parse_sf_quadrupole_moment</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Get the Spin-Free electric quadrupole moment.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            AttributeError: If it cannot find the angular momentum property. This is</span>
+<span class="sd">                            applicable to this package as it expects it to be present.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">_requad</span> <span class="o">=</span> <span class="s2">&quot;PROPERTY: MLTPL  2&quot;</span>
+        <span class="n">_resta</span> <span class="o">=</span> <span class="s2">&quot;STATE&quot;</span>
+        <span class="n">component_map</span> <span class="o">=</span> <span class="p">{</span><span class="mi">0</span><span class="p">:</span> <span class="s1">&#39;xx&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">:</span> <span class="s1">&#39;xy&#39;</span><span class="p">,</span> <span class="mi">2</span><span class="p">:</span> <span class="s1">&#39;xz&#39;</span><span class="p">,</span> <span class="mi">3</span><span class="p">:</span> <span class="s1">&#39;yy&#39;</span><span class="p">,</span> <span class="mi">4</span><span class="p">:</span> <span class="s1">&#39;yz&#39;</span><span class="p">,</span> <span class="mi">5</span><span class="p">:</span> <span class="s1">&#39;zz&#39;</span><span class="p">}</span>
+        <span class="n">found</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="n">_requad</span><span class="p">,</span> <span class="n">keys_only</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">found</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">AttributeError</span><span class="p">(</span><span class="s2">&quot;Could not find the Quadrupoles in the output&quot;</span><span class="p">)</span>
+        <span class="n">props</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">found</span><span class="p">)[:</span><span class="mi">6</span><span class="p">]</span>
+        <span class="n">stop</span> <span class="o">=</span> <span class="n">props</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="mi">5</span>
+        <span class="k">while</span> <span class="bp">self</span><span class="p">[</span><span class="n">stop</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">():</span> <span class="n">stop</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="n">data_length</span> <span class="o">=</span> <span class="n">stop</span> <span class="o">-</span> <span class="n">props</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="mi">5</span>
+        <span class="c1"># get the data</span>
+        <span class="n">sqdm</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_property_parsing</span><span class="p">(</span><span class="n">props</span><span class="p">,</span> <span class="n">data_length</span><span class="p">)</span>
+        <span class="n">sqdm</span><span class="p">[</span><span class="s1">&#39;component&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">sqdm</span><span class="p">[</span><span class="s1">&#39;component&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">component_map</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sf_quadrupole_moment</span> <span class="o">=</span> <span class="n">sqdm</span></div>
+
+<div class="viewcode-block" id="Output.parse_sf_angmom"><a class="viewcode-back" href="../../../vibrav.molcas.output.html#vibrav.molcas.output.Output.parse_sf_angmom">[docs]</a>    <span class="k">def</span> <span class="nf">parse_sf_angmom</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Get the Spin-Free angular momentum.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            AttributeError: If it cannot find the angular momentum property. This is</span>
+<span class="sd">                            applicable to this package as it expects it to be present.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">_reangm</span> <span class="o">=</span> <span class="s2">&quot;PROPERTY: ANGMOM&quot;</span>
+        <span class="n">_resta</span> <span class="o">=</span> <span class="s2">&quot;STATE&quot;</span>
+        <span class="n">component_map</span> <span class="o">=</span> <span class="p">{</span><span class="mi">0</span><span class="p">:</span> <span class="s1">&#39;x&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">:</span> <span class="s1">&#39;y&#39;</span><span class="p">,</span> <span class="mi">2</span><span class="p">:</span> <span class="s1">&#39;z&#39;</span><span class="p">}</span>
+        <span class="n">found</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="n">_reangm</span><span class="p">,</span> <span class="n">keys_only</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">found</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">AttributeError</span><span class="p">(</span><span class="s2">&quot;Could not find the Angular Momentum in the output&quot;</span><span class="p">)</span>
+        <span class="n">props</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">found</span><span class="p">)[:</span><span class="mi">3</span><span class="p">]</span>
+        <span class="n">stop</span> <span class="o">=</span> <span class="n">props</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="mi">5</span>
+        <span class="k">while</span> <span class="bp">self</span><span class="p">[</span><span class="n">stop</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">():</span> <span class="n">stop</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="n">data_length</span> <span class="o">=</span> <span class="n">stop</span> <span class="o">-</span> <span class="n">props</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="mi">5</span>
+        <span class="c1"># get the data</span>
+        <span class="n">sangm</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_property_parsing</span><span class="p">(</span><span class="n">props</span><span class="p">,</span> <span class="n">data_length</span><span class="p">)</span>
+        <span class="n">sangm</span><span class="p">[</span><span class="s1">&#39;component&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">sangm</span><span class="p">[</span><span class="s1">&#39;component&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">component_map</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sf_angmom</span> <span class="o">=</span> <span class="n">sangm</span></div>
+
+<div class="viewcode-block" id="Output.parse_sf_energy"><a class="viewcode-back" href="../../../vibrav.molcas.output.html#vibrav.molcas.output.Output.parse_sf_energy">[docs]</a>    <span class="k">def</span> <span class="nf">parse_sf_energy</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Get the Spin-Free energies.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">_reenerg</span> <span class="o">=</span> <span class="s2">&quot; RASSI State &quot;</span>
+        <span class="n">_reenerg_rasscf</span> <span class="o">=</span> <span class="s2">&quot; RASSCF root number&quot;</span>
+        <span class="n">found</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="n">_reenerg</span><span class="p">,</span> <span class="n">_reenerg_rasscf</span><span class="p">)</span>
+        <span class="n">key</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+        <span class="k">if</span> <span class="n">found</span><span class="p">[</span><span class="n">_reenerg</span><span class="p">]:</span>
+            <span class="n">key</span> <span class="o">=</span> <span class="n">_reenerg</span>
+        <span class="k">elif</span> <span class="n">found</span><span class="p">[</span><span class="n">_reenerg_rasscf</span><span class="p">]:</span>
+            <span class="n">key</span> <span class="o">=</span> <span class="n">_reenerg_rasscf</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span>
+        <span class="k">if</span> <span class="n">key</span> <span class="o">==</span> <span class="s1">&#39;&#39;</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;This should not have executed at all&quot;</span><span class="p">)</span>
+        <span class="n">energies</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">found</span><span class="p">[</span><span class="n">key</span><span class="p">]:</span>
+            <span class="n">energy</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">()[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+            <span class="n">energies</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">energy</span><span class="p">)</span>
+        <span class="n">rel_energy</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span> <span class="o">-</span> <span class="n">energies</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">energies</span><span class="p">))</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="o">.</span><span class="n">from_dict</span><span class="p">({</span><span class="s1">&#39;energy&#39;</span><span class="p">:</span> <span class="n">energies</span><span class="p">,</span> <span class="s1">&#39;rel_energy&#39;</span><span class="p">:</span> <span class="n">rel_energy</span><span class="p">})</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sf_energy</span> <span class="o">=</span> <span class="n">df</span></div>
+
+<div class="viewcode-block" id="Output.parse_so_energy"><a class="viewcode-back" href="../../../vibrav.molcas.output.html#vibrav.molcas.output.Output.parse_so_energy">[docs]</a>    <span class="k">def</span> <span class="nf">parse_so_energy</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Get the Spin-Orbit energies.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">_reenerg</span> <span class="o">=</span> <span class="s2">&quot; SO-RASSI State &quot;</span>
+        <span class="n">found</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="n">_reenerg</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">found</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">AttributeError</span><span class="p">(</span><span class="s2">&quot;Could not find the Spin-Orbit energies.&quot;</span><span class="p">)</span>
+        <span class="n">energies</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">found</span><span class="p">:</span>
+            <span class="n">energy</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">()[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+            <span class="n">energies</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">energy</span><span class="p">)</span>
+        <span class="n">rel_energy</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span> <span class="o">-</span> <span class="n">energies</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">energies</span><span class="p">))</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="o">.</span><span class="n">from_dict</span><span class="p">({</span><span class="s1">&#39;energy&#39;</span><span class="p">:</span> <span class="n">energies</span><span class="p">,</span> <span class="s1">&#39;rel_energy&#39;</span><span class="p">:</span> <span class="n">rel_energy</span><span class="p">})</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">so_energy</span> <span class="o">=</span> <span class="n">df</span></div>
+
+<div class="viewcode-block" id="Output.parse_sf_oscillator"><a class="viewcode-back" href="../../../vibrav.molcas.output.html#vibrav.molcas.output.Output.parse_sf_oscillator">[docs]</a>    <span class="k">def</span> <span class="nf">parse_sf_oscillator</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Get the printed Spin-Free oscillators.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">_reosc</span> <span class="o">=</span> <span class="s2">&quot;++ Dipole transition strengths (spin-free states):&quot;</span>
+        <span class="n">found</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="n">_reosc</span><span class="p">,</span> <span class="n">keys_only</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">found</span><span class="p">:</span>
+            <span class="k">return</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">found</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;We have found more than one key for the spin-free &quot;</span> \
+                                      <span class="o">+</span><span class="s2">&quot;oscillators.&quot;</span><span class="p">)</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_oscillator_parsing</span><span class="p">(</span><span class="n">found</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sf_oscillator</span> <span class="o">=</span> <span class="n">df</span></div>
+
+<div class="viewcode-block" id="Output.parse_so_oscillator"><a class="viewcode-back" href="../../../vibrav.molcas.output.html#vibrav.molcas.output.Output.parse_so_oscillator">[docs]</a>    <span class="k">def</span> <span class="nf">parse_so_oscillator</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Get the printed Spin-Orbit oscillators.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">_reosc</span> <span class="o">=</span> <span class="s2">&quot;++ Dipole transition strengths (SO states):&quot;</span>
+        <span class="n">found</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="n">_reosc</span><span class="p">,</span> <span class="n">keys_only</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">found</span><span class="p">:</span>
+            <span class="k">return</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">found</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;We have found more than one key for the spin-orbit &quot;</span> \
+                                      <span class="o">+</span><span class="s2">&quot;oscillators.&quot;</span><span class="p">)</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_oscillator_parsing</span><span class="p">(</span><span class="n">found</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">so_oscillator</span> <span class="o">=</span> <span class="n">df</span></div>
+
+<div class="viewcode-block" id="Output.parse_contribution"><a class="viewcode-back" href="../../../vibrav.molcas.output.html#vibrav.molcas.output.Output.parse_contribution">[docs]</a>    <span class="k">def</span> <span class="nf">parse_contribution</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Parse the Spin-Free contibutions to each Spin-Orbit state from a regular molcas</span>
+<span class="sd">        Spin-Orbit RASSI calculation.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">_recont</span> <span class="o">=</span> <span class="s2">&quot;Weights of the five most important spin-orbit-free states for each spin-orbit state.&quot;</span>
+        <span class="n">found</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="n">_recont</span><span class="p">,</span> <span class="n">keys_only</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">found</span><span class="p">:</span>
+            <span class="k">return</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">found</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;Who do I look like Edward Snowden?&quot;</span><span class="p">)</span>
+        <span class="n">start</span> <span class="o">=</span> <span class="n">found</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="mi">4</span>
+        <span class="n">end</span> <span class="o">=</span> <span class="n">found</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="mi">4</span>
+        <span class="k">while</span> <span class="s1">&#39;-----&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">[</span><span class="n">end</span><span class="p">]:</span> <span class="n">end</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pandas_dataframe</span><span class="p">(</span><span class="n">start</span><span class="p">,</span> <span class="n">end</span><span class="p">,</span> <span class="n">ncol</span><span class="o">=</span><span class="mi">17</span><span class="p">)</span>
+        <span class="n">so_state</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+        <span class="n">energy</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="nb">range</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="mi">17</span><span class="p">)]</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">*</span><span class="mi">5</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span>
+        <span class="n">df</span><span class="o">.</span><span class="n">columns</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;sf_state&#39;</span><span class="p">,</span> <span class="s1">&#39;spin&#39;</span><span class="p">,</span> <span class="s1">&#39;weight&#39;</span><span class="p">]</span>
+        <span class="n">so_state</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">repeat</span><span class="p">(</span><span class="n">so_state</span><span class="p">,</span> <span class="mi">5</span><span class="p">)</span>
+        <span class="n">energy</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">repeat</span><span class="p">(</span><span class="n">energy</span><span class="p">,</span> <span class="mi">5</span><span class="p">)</span>
+        <span class="n">df</span><span class="p">[</span><span class="s1">&#39;so_state&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Categorical</span><span class="p">(</span><span class="n">so_state</span><span class="p">)</span>
+        <span class="n">df</span><span class="p">[</span><span class="s1">&#39;energy&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">energy</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">double</span><span class="p">)</span>
+        <span class="n">df</span><span class="p">[</span><span class="s1">&#39;sf_state&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Categorical</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s1">&#39;sf_state&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">))</span>
+        <span class="n">df</span><span class="p">[</span><span class="s1">&#39;spin&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s1">&#39;spin&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">half</span><span class="p">)</span>
+        <span class="n">df</span><span class="p">[</span><span class="s1">&#39;weight&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s1">&#39;weight&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">single</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">contribution</span> <span class="o">=</span> <span class="n">df</span></div>
+
+<div class="viewcode-block" id="Output.parse_rasscf_hamiltonian"><a class="viewcode-back" href="../../../vibrav.molcas.output.html#vibrav.molcas.output.Output.parse_rasscf_hamiltonian">[docs]</a>    <span class="k">def</span> <span class="nf">parse_rasscf_hamiltonian</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">last_frame</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="c1"># parsing keys</span>
+        <span class="n">_reham</span> <span class="o">=</span> <span class="s2">&quot;Explicit Hamiltonian&quot;</span>
+        <span class="n">found</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="n">_reham</span><span class="p">,</span> <span class="n">keys_only</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="c1"># we assume that you know that these should be in the output</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">found</span><span class="p">:</span>
+            <span class="n">text</span> <span class="o">=</span> <span class="s2">&quot;Could not find the Hamiltonian in the RASSCF output. &quot;</span> \
+                   <span class="o">+</span><span class="s2">&quot;Make sure that you used print level 5.&quot;</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
+        <span class="c1"># get the size of the matrix</span>
+        <span class="n">matrix_size</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="bp">self</span><span class="p">[</span><span class="n">found</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;x&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">()[</span><span class="o">-</span><span class="mi">2</span><span class="p">:]))</span>
+        <span class="k">if</span> <span class="n">matrix_size</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="n">matrix_size</span><span class="p">[</span><span class="mi">1</span><span class="p">]:</span>
+            <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;Sorry there is only support for square matrices&quot;</span><span class="p">)</span>
+        <span class="c1"># get where the matrix starts</span>
+        <span class="n">starts</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">found</span><span class="p">)</span><span class="o">+</span><span class="mi">3</span>
+        <span class="n">end</span> <span class="o">=</span> <span class="n">starts</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">while</span> <span class="bp">self</span><span class="p">[</span><span class="n">end</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">():</span> <span class="n">end</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="n">ends</span> <span class="o">=</span> <span class="n">starts</span> <span class="o">+</span> <span class="p">(</span><span class="n">end</span> <span class="o">-</span> <span class="n">starts</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="n">dfs</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">if</span> <span class="n">last_frame</span><span class="p">:</span>
+            <span class="n">df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pandas_dataframe</span><span class="p">(</span><span class="n">starts</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">ends</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">ncol</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+            <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+            <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="o">~</span><span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">df</span><span class="p">)]</span>
+            <span class="n">full</span> <span class="o">=</span> <span class="n">matrix_size</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">*</span><span class="n">matrix_size</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+            <span class="n">lowtri</span> <span class="o">=</span> <span class="n">matrix_size</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">*</span><span class="p">(</span><span class="n">matrix_size</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">/</span><span class="mi">2</span>
+            <span class="c1"># determine if we have a square or lower triangular matrix</span>
+            <span class="k">if</span> <span class="n">df</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">full</span><span class="p">:</span>
+                <span class="n">lower_triangular</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="k">elif</span> <span class="n">df</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="n">lowtri</span> <span class="ow">and</span> <span class="n">df</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="n">full</span><span class="p">:</span>
+                <span class="n">text</span> <span class="o">=</span> <span class="s2">&quot;Parsed Hamiltonian matrix does not have the right number of elements. &quot;</span> \
+                       <span class="o">+</span><span class="s2">&quot;Expected </span><span class="si">{}</span><span class="s2">, currently </span><span class="si">{}</span><span class="s2">&quot;</span>
+                <span class="n">lower_triangular</span> <span class="o">=</span> <span class="kc">False</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">text</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">lowtri</span><span class="p">,</span> <span class="n">df</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">lower_triangular</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="c1"># deal with the matrix correctly</span>
+            <span class="k">if</span> <span class="n">lower_triangular</span><span class="p">:</span>
+                <span class="n">il</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">tril_indices</span><span class="p">(</span><span class="n">matrix_size</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+                <span class="n">tmp</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">matrix_size</span><span class="p">)</span>
+                <span class="n">tmp</span><span class="p">[</span><span class="n">il</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span>
+                <span class="n">tmp2</span> <span class="o">=</span> <span class="n">tmp</span> <span class="o">+</span> <span class="n">tmp</span><span class="o">.</span><span class="n">T</span> <span class="o">-</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="n">matrix_size</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="o">*</span><span class="n">tmp</span><span class="p">)</span>
+                <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">tmp2</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">matrix_size</span><span class="p">))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">hamiltonian</span> <span class="o">=</span> <span class="n">df</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="p">(</span><span class="n">start</span><span class="p">,</span> <span class="n">end</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">starts</span><span class="p">,</span> <span class="n">ends</span><span class="p">)):</span>
+                <span class="n">df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pandas_dataframe</span><span class="p">(</span><span class="n">start</span><span class="p">,</span> <span class="n">end</span><span class="p">,</span> <span class="n">ncol</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+                <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+                <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="o">~</span><span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">df</span><span class="p">)]</span>
+                <span class="n">full</span> <span class="o">=</span> <span class="n">matrix_size</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">*</span><span class="n">matrix_size</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+                <span class="n">lowtri</span> <span class="o">=</span> <span class="n">matrix_size</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">*</span><span class="p">(</span><span class="n">matrix_size</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">/</span><span class="mi">2</span>
+                <span class="c1"># determine if we have a square or lower triangular matrix</span>
+                <span class="k">if</span> <span class="n">df</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">full</span><span class="p">:</span>
+                    <span class="n">lower_triangular</span> <span class="o">=</span> <span class="kc">False</span>
+                <span class="k">elif</span> <span class="n">df</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="n">lowtri</span> <span class="ow">and</span> <span class="n">df</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="n">full</span><span class="p">:</span>
+                    <span class="n">text</span> <span class="o">=</span> <span class="s2">&quot;Parsed Hamiltonian matrix does not have the right number of elements. &quot;</span> \
+                           <span class="o">+</span><span class="s2">&quot;Expected </span><span class="si">{}</span><span class="s2">, currently </span><span class="si">{}</span><span class="s2">&quot;</span>
+                    <span class="n">lower_triangular</span> <span class="o">=</span> <span class="kc">False</span>
+                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">text</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">lowtri</span><span class="p">,</span> <span class="n">df</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">lower_triangular</span> <span class="o">=</span> <span class="kc">True</span>
+                <span class="c1"># deal with the matrix correctly</span>
+                <span class="k">if</span> <span class="n">lower_triangular</span><span class="p">:</span>
+                    <span class="n">il</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">tril_indices</span><span class="p">(</span><span class="n">matrix_size</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+                    <span class="n">tmp</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">matrix_size</span><span class="p">)</span>
+                    <span class="n">tmp</span><span class="p">[</span><span class="n">il</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span>
+                    <span class="n">tmp2</span> <span class="o">=</span> <span class="n">tmp</span> <span class="o">+</span> <span class="n">tmp</span><span class="o">.</span><span class="n">T</span> <span class="o">-</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="n">matrix_size</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="o">*</span><span class="n">tmp</span><span class="p">)</span>
+                    <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">tmp2</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">matrix_size</span><span class="p">))</span>
+                <span class="c1"># add a frame column to keep track of stuff</span>
+                <span class="n">df</span><span class="p">[</span><span class="s1">&#39;frame&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">idx</span>
+                <span class="n">dfs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
+            <span class="c1"># put it all together</span>
+            <span class="n">ham</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">dfs</span><span class="p">,</span> <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">hamiltonian</span> <span class="o">=</span> <span class="n">ham</span></div>
+
+<div class="viewcode-block" id="Output.parse_rasscf_eigenvalues"><a class="viewcode-back" href="../../../vibrav.molcas.output.html#vibrav.molcas.output.Output.parse_rasscf_eigenvalues">[docs]</a>    <span class="k">def</span> <span class="nf">parse_rasscf_eigenvalues</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">last_frame</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="c1"># parsing keys</span>
+        <span class="n">_reeigval</span> <span class="o">=</span> <span class="s2">&quot;Eigenvalues of the explicit Hamiltonian&quot;</span>
+        <span class="n">found</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="n">_reeigval</span><span class="p">,</span> <span class="n">keys_only</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="c1"># we assume that you know that these should be in the output</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">found</span><span class="p">:</span>
+            <span class="n">text</span> <span class="o">=</span> <span class="s2">&quot;Could not find the Eigenvalues in the RASSCF output. &quot;</span> \
+                   <span class="o">+</span><span class="s2">&quot;Make sure that you used print level 5.&quot;</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
+        <span class="c1"># get the number of eigenvalues there should be</span>
+        <span class="n">size</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="p">[</span><span class="n">found</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">+</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">()[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+        <span class="n">starts</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">found</span><span class="p">)</span><span class="o">+</span><span class="mi">4</span>
+        <span class="n">end</span> <span class="o">=</span> <span class="n">starts</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">while</span> <span class="bp">self</span><span class="p">[</span><span class="n">end</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">():</span> <span class="n">end</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="n">ends</span> <span class="o">=</span> <span class="n">starts</span> <span class="o">+</span> <span class="p">(</span><span class="n">end</span> <span class="o">-</span> <span class="n">starts</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="n">dfs</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">if</span> <span class="n">last_frame</span><span class="p">:</span>
+            <span class="n">arrs</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="c1"># read through every line and get the eigenvalues correctly</span>
+            <span class="k">for</span> <span class="n">ldx</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">starts</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">ends</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]):</span>
+                <span class="n">line</span> <span class="o">=</span> <span class="bp">self</span><span class="p">[</span><span class="n">ldx</span><span class="p">]</span>
+                <span class="n">d</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;-&#39;</span><span class="p">)</span>
+                <span class="n">vals</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="o">-</span><span class="mi">1</span><span class="o">*</span><span class="nb">float</span><span class="p">(</span><span class="n">x</span><span class="p">),</span> <span class="n">d</span><span class="p">[</span><span class="mi">1</span><span class="p">:]))</span>
+                <span class="n">arrs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">vals</span><span class="p">)</span>
+            <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span><span class="n">arrs</span><span class="p">))</span>
+            <span class="k">if</span> <span class="n">df</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="n">size</span><span class="p">:</span>
+                <span class="n">text</span> <span class="o">=</span> <span class="s2">&quot;Parsed Eigenvalues do not have the right number of elements. &quot;</span> \
+                       <span class="o">+</span><span class="s2">&quot;Expected </span><span class="si">{}</span><span class="s2">, currently </span><span class="si">{}</span><span class="s2">&quot;</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">text</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">size</span><span class="p">,</span> <span class="n">df</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">eigenvalues</span> <span class="o">=</span> <span class="n">df</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="p">(</span><span class="n">start</span><span class="p">,</span> <span class="n">end</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">starts</span><span class="p">,</span> <span class="n">ends</span><span class="p">)):</span>
+                <span class="n">arrs</span> <span class="o">=</span> <span class="p">[]</span>
+                <span class="c1"># read through every line and get the eigenvalues correctly</span>
+                <span class="k">for</span> <span class="n">ldx</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">start</span><span class="p">,</span> <span class="n">end</span><span class="p">):</span>
+                    <span class="n">line</span> <span class="o">=</span> <span class="bp">self</span><span class="p">[</span><span class="n">ldx</span><span class="p">]</span>
+                    <span class="n">d</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;-&#39;</span><span class="p">)</span>
+                    <span class="n">vals</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="o">-</span><span class="mi">1</span><span class="o">*</span><span class="nb">float</span><span class="p">(</span><span class="n">x</span><span class="p">),</span> <span class="n">d</span><span class="p">[</span><span class="mi">1</span><span class="p">:]))</span>
+                    <span class="n">arrs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">vals</span><span class="p">)</span>
+                <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="o">.</span><span class="n">from_dict</span><span class="p">({</span><span class="s1">&#39;values&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span><span class="n">arrs</span><span class="p">),</span> <span class="s1">&#39;frame&#39;</span><span class="p">:</span> <span class="n">idx</span><span class="p">})</span>
+                <span class="k">if</span> <span class="n">df</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="n">size</span><span class="p">:</span>
+                    <span class="n">text</span> <span class="o">=</span> <span class="s2">&quot;Parsed Eigenvalues do not have the right number of elements. &quot;</span> \
+                           <span class="o">+</span><span class="s2">&quot;Expected </span><span class="si">{}</span><span class="s2">, currently </span><span class="si">{}</span><span class="s2">&quot;</span>
+                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">text</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">size</span><span class="p">,</span> <span class="n">df</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
+                <span class="c1"># add a frame column to keep track of stuff</span>
+                <span class="n">df</span><span class="p">[</span><span class="s1">&#39;frame&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">idx</span>
+                <span class="n">dfs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
+            <span class="c1"># put it all together</span>
+            <span class="n">values</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">dfs</span><span class="p">,</span> <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">eigenvalues</span> <span class="o">=</span> <span class="n">values</span></div>
+
+<div class="viewcode-block" id="Output.parse_rasscf_eigenvectors"><a class="viewcode-back" href="../../../vibrav.molcas.output.html#vibrav.molcas.output.Output.parse_rasscf_eigenvectors">[docs]</a>    <span class="k">def</span> <span class="nf">parse_rasscf_eigenvectors</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">last_frame</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="c1"># parsing keys</span>
+        <span class="n">_reeigvec</span> <span class="o">=</span> <span class="s2">&quot;Eigenvectors of the explicit Hamiltonian&quot;</span>
+        <span class="n">found</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="n">_reeigvec</span><span class="p">,</span> <span class="n">keys_only</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="c1"># we assume that you know that these should be in the output</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">found</span><span class="p">:</span>
+            <span class="n">text</span> <span class="o">=</span> <span class="s2">&quot;Could not find the Eigenvectors in the RASSCF output. &quot;</span> \
+                   <span class="o">+</span><span class="s2">&quot;Make sure that you used print level 5.&quot;</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
+        <span class="c1"># ensure square matrix</span>
+        <span class="n">matrix_size</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="bp">self</span><span class="p">[</span><span class="n">found</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;x&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">()[</span><span class="o">-</span><span class="mi">2</span><span class="p">:]))</span>
+        <span class="k">if</span> <span class="n">matrix_size</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="n">matrix_size</span><span class="p">[</span><span class="mi">1</span><span class="p">]:</span>
+            <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;Sorry there is only support for square matrices&quot;</span><span class="p">)</span>
+        <span class="n">starts</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">found</span><span class="p">)</span><span class="o">+</span><span class="mi">2</span>
+        <span class="n">end</span> <span class="o">=</span> <span class="n">starts</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">while</span> <span class="s2">&quot;Initial&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">[</span><span class="n">end</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">():</span> <span class="n">end</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="n">ends</span> <span class="o">=</span> <span class="n">starts</span> <span class="o">+</span> <span class="p">(</span><span class="n">end</span> <span class="o">-</span> <span class="n">starts</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="n">size</span> <span class="o">=</span> <span class="n">matrix_size</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">*</span><span class="n">matrix_size</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">dfs</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">if</span> <span class="n">last_frame</span><span class="p">:</span>
+            <span class="c1"># get data</span>
+            <span class="n">vec</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pandas_dataframe</span><span class="p">(</span><span class="n">starts</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">ends</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">ncol</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+            <span class="n">vec</span> <span class="o">=</span> <span class="n">vec</span><span class="p">[</span><span class="o">~</span><span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">vec</span><span class="p">)]</span>
+            <span class="c1"># ensure size</span>
+            <span class="k">if</span> <span class="n">vec</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="n">size</span><span class="p">:</span>
+                <span class="n">text</span> <span class="o">=</span> <span class="s2">&quot;Parsed Eigenvector matrix does not have the right number of elements. &quot;</span> \
+                       <span class="o">+</span><span class="s2">&quot;Expected </span><span class="si">{}</span><span class="s2">, currently </span><span class="si">{}</span><span class="s2">&quot;</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">text</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">size</span><span class="p">,</span> <span class="n">vec</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
+            <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">vec</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">matrix_size</span><span class="p">))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">eigenvectors</span> <span class="o">=</span> <span class="n">df</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="p">(</span><span class="n">start</span><span class="p">,</span> <span class="n">end</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">starts</span><span class="p">,</span> <span class="n">ends</span><span class="p">)):</span>
+                <span class="c1"># get data</span>
+                <span class="n">vec</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pandas_dataframe</span><span class="p">(</span><span class="n">start</span><span class="p">,</span> <span class="n">end</span><span class="p">,</span> <span class="n">ncol</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+                <span class="n">vec</span> <span class="o">=</span> <span class="n">vec</span><span class="p">[</span><span class="o">~</span><span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">vec</span><span class="p">)]</span>
+                <span class="c1"># ensure size</span>
+                <span class="k">if</span> <span class="n">vec</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="n">size</span><span class="p">:</span>
+                    <span class="n">text</span> <span class="o">=</span> <span class="s2">&quot;Parsed Eigenvector matrix does not have the right number of elements. &quot;</span> \
+                           <span class="o">+</span><span class="s2">&quot;Expected </span><span class="si">{}</span><span class="s2">, currently </span><span class="si">{}</span><span class="s2">&quot;</span>
+                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">text</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">size</span><span class="p">,</span> <span class="n">vec</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
+                <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">vec</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">matrix_size</span><span class="p">))</span>
+                <span class="n">df</span><span class="p">[</span><span class="s1">&#39;frame&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">idx</span>
+                <span class="n">dfs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
+            <span class="c1"># put it all together</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">eigenvectors</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">dfs</span><span class="p">,</span> <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Output.parse_rasscf_ordering"><a class="viewcode-back" href="../../../vibrav.molcas.output.html#vibrav.molcas.output.Output.parse_rasscf_ordering">[docs]</a>    <span class="k">def</span> <span class="nf">parse_rasscf_ordering</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">_reorder</span> <span class="o">=</span> <span class="s2">&quot;Configurations included in the explicit Hamiltonian&quot;</span>
+        <span class="n">found</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="n">_reorder</span><span class="p">,</span> <span class="n">keys_only</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">found</span><span class="p">:</span>
+            <span class="n">text</span> <span class="o">=</span> <span class="s2">&quot;Could not find the energy ordering in the RASSCF output. &quot;</span> \
+                   <span class="o">+</span><span class="s2">&quot;Make sure that you used print level 5.&quot;</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
+        <span class="c1">#size = int(self[found[0]+2].split()[-1])</span>
+        <span class="n">start</span> <span class="o">=</span> <span class="n">found</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">+</span><span class="mi">4</span>
+        <span class="n">end</span> <span class="o">=</span> <span class="n">start</span>
+        <span class="k">while</span> <span class="bp">self</span><span class="p">[</span><span class="n">end</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">():</span> <span class="n">end</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="n">order</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pandas_dataframe</span><span class="p">(</span><span class="n">start</span><span class="p">,</span> <span class="n">end</span><span class="p">,</span> <span class="n">ncol</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">order</span> <span class="o">=</span> <span class="n">order</span><span class="p">[</span><span class="o">~</span><span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">order</span><span class="p">)]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">order</span> <span class="o">=</span> <span class="n">order</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span></div>
+
+<div class="viewcode-block" id="Output.parse_rasscf"><a class="viewcode-back" href="../../../vibrav.molcas.output.html#vibrav.molcas.output.Output.parse_rasscf">[docs]</a>    <span class="k">def</span> <span class="nf">parse_rasscf</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">last_frame</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;hamiltonian&#39;</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">parse_rasscf_hamiltonian</span><span class="p">(</span><span class="n">last_frame</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;eigenvectors&#39;</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">parse_rasscf_eigenvectors</span><span class="p">(</span><span class="n">last_frame</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;eigenvalues&#39;</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">parse_rasscf_eigenvalues</span><span class="p">(</span><span class="n">last_frame</span><span class="p">)</span></div></div>
+
+</pre></div>
+
+    </div>
+      
+  </div>
+</div>
+<footer class="footer">
+  <div class="container">
+    <p class="pull-right">
+      <a href="#">Back to top</a>
+      
+    </p>
+    <p>
+        &copy; Copyright 2023, Herbert D Ludowieg. Project structure based on the Computational Molecular Science Python Cookiecutter version 1.1.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 7.0.1.<br/>
+    </p>
+  </div>
+</footer>
+  </body>
+</html>

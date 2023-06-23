@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>vibrav.numerical.derivatives &#8212; vibrav  documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/bootstrap-sphinx.css" />
+    <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+    <script src="../../../_static/doctools.js"></script>
+    <script src="../../../_static/sphinx_highlight.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+<meta charset='utf-8'>
+<meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
+<meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1'>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<script type="text/javascript" src="../../../_static/js/jquery-1.12.4.min.js"></script>
+<script type="text/javascript" src="../../../_static/js/jquery-fix.js"></script>
+<script type="text/javascript" src="../../../_static/bootstrap-3.4.1/js/bootstrap.min.js"></script>
+<script type="text/javascript" src="../../../_static/bootstrap-sphinx.js"></script>
+
+  </head><body>
+
+  <div id="navbar" class="navbar navbar-default navbar-fixed-top">
+    <div class="container">
+      <div class="navbar-header">
+        <!-- .btn-navbar is used as the toggle for collapsed navbar content -->
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".nav-collapse">
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        <a class="navbar-brand" href="../../../index.html">
+          vibrav</a>
+        <span class="navbar-text navbar-version pull-left"><b></b></span>
+      </div>
+
+        <div class="collapse navbar-collapse nav-collapse">
+          <ul class="nav navbar-nav">
+            
+            
+              <li class="dropdown globaltoc-container">
+  <a role="button"
+     id="dLabelGlobalToc"
+     data-toggle="dropdown"
+     data-target="#"
+     href="../../../index.html">Site <b class="caret"></b></a>
+  <ul class="dropdown-menu globaltoc"
+      role="menu"
+      aria-labelledby="dLabelGlobalToc"><ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../examples/adf.html">ADF parser API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../examples/gen-displaced.html">Generating the displaced structures from a Gaussian frequencies calculation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../examples/molcas.html">Molcas parser API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../examples/numerical-diffs.html">Using derivative module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../examples/vibronic.html">Running vibronic calculations from a Molcas RASSI set of calculations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../examples/vroa-h2o2.html">VROA intensities of hydrogen peroxide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../examples/vroa-methyloxirane.html">VROA intensities of methyloxirane</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../examples/zpvc.html">Tutorial for using the ZPVC module in VIBRAV</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../vibrav.html">vibrav package</a></li>
+</ul>
+</ul>
+</li>
+              
+                <li class="dropdown">
+  <a role="button"
+     id="dLabelLocalToc"
+     data-toggle="dropdown"
+     data-target="#"
+     href="#">Page <b class="caret"></b></a>
+  <ul class="dropdown-menu localtoc"
+      role="menu"
+      aria-labelledby="dLabelLocalToc"></ul>
+</li>
+              
+            
+            
+              
+                
+              
+            
+            
+            
+            
+              <li class="hidden-sm"></li>
+            
+          </ul>
+
+          
+            
+<form class="navbar-form navbar-right" action="../../../search.html" method="get">
+ <div class="form-group">
+  <input type="text" name="q" class="form-control" placeholder="Search" />
+ </div>
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+          
+        </div>
+    </div>
+  </div>
+
+<div class="container">
+  <div class="row">
+    <div class="body col-md-12 content" role="main">
+      
+  <h1>Source code for vibrav.numerical.derivatives</h1><div class="highlight"><pre>
+<span></span><span class="c1"># This file is part of vibrav.</span>
+<span class="c1">#</span>
+<span class="c1"># vibrav is free software: you can redistribute it and/or modify</span>
+<span class="c1"># it under the terms of the GNU General Public License as published by</span>
+<span class="c1"># the Free Software Foundation, either version 3 of the License, or</span>
+<span class="c1"># (at your option) any later version.</span>
+<span class="c1">#</span>
+<span class="c1"># vibrav is distributed in the hope that it will be useful,</span>
+<span class="c1"># but WITHOUT ANY WARRANTY; without even the implied warranty of</span>
+<span class="c1"># MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the</span>
+<span class="c1"># GNU General Public License for more details.</span>
+<span class="c1">#</span>
+<span class="c1"># You should have received a copy of the GNU General Public License</span>
+<span class="c1"># along with vibrav.  If not, see &lt;https://www.gnu.org/licenses/&gt;.</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<div class="viewcode-block" id="get_pos_neg_gradients"><a class="viewcode-back" href="../../../vibrav.numerical.derivatives.html#vibrav.numerical.derivatives.get_pos_neg_gradients">[docs]</a><span class="k">def</span> <span class="nf">get_pos_neg_gradients</span><span class="p">(</span><span class="n">grad</span><span class="p">,</span> <span class="n">freq</span><span class="p">,</span> <span class="n">nmodes</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Here we get the gradients of the equilibrium, positive and negative</span>
+<span class="sd">    displaced structures.  We extract them from the gradient dataframe</span>
+<span class="sd">    and convert them into normal coordinates by multiplying them by the</span>
+<span class="sd">    frequency normal mode displacement values.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        grad (:class:`exatomic.gradient.Gradient`): DataFrame containing</span>
+<span class="sd">                all of the gradient data</span>
+<span class="sd">        freq (:class:`exatomic.atom.Frquency`): DataFrame containing all</span>
+<span class="sd">                of the frequency data</span>
+<span class="sd">        nmodes (int): Number of normal modes in the molecule.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        delfq_zero (pandas.DataFrame): Normal mode converted gradients</span>
+<span class="sd">                of equilibrium structure</span>
+<span class="sd">        delfq_plus (pandas.DataFrame): Normal mode converted gradients</span>
+<span class="sd">                of positive displaced structure</span>
+<span class="sd">        delfq_minus (pandas.DataFrame): Normal mode converted gradients</span>
+<span class="sd">                of negative displaced structure</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">grouped</span> <span class="o">=</span> <span class="n">grad</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s1">&#39;file&#39;</span><span class="p">)</span>
+    <span class="c1"># get gradient of the equilibrium coordinates</span>
+    <span class="n">grad_0</span> <span class="o">=</span> <span class="n">grouped</span><span class="o">.</span><span class="n">get_group</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+    <span class="c1"># get gradients of the displaced coordinates in the positive direction</span>
+    <span class="n">grad_plus</span> <span class="o">=</span> <span class="n">grouped</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="p">[</span><span class="s1">&#39;file&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">drop_duplicates</span><span class="p">()</span><span class="o">.</span><span class="n">values</span> <span class="ow">in</span>
+                                                                    <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="n">nmodes</span><span class="o">+</span><span class="mi">1</span><span class="p">))</span>
+    <span class="n">snmodes</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">grad_plus</span><span class="p">[</span><span class="s1">&#39;file&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">drop_duplicates</span><span class="p">()</span><span class="o">.</span><span class="n">values</span><span class="p">)</span>
+    <span class="c1"># get gradients of the displaced coordinates in the negative direction</span>
+    <span class="n">grad_minus</span> <span class="o">=</span> <span class="n">grouped</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="p">[</span><span class="s1">&#39;file&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">drop_duplicates</span><span class="p">()</span><span class="o">.</span><span class="n">values</span> <span class="ow">in</span>
+                                                                    <span class="nb">range</span><span class="p">(</span><span class="n">nmodes</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="o">*</span><span class="n">nmodes</span><span class="o">+</span><span class="mi">1</span><span class="p">))</span>
+    <span class="n">delfq_zero</span> <span class="o">=</span> <span class="n">freq</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s1">&#39;freqdx&#39;</span><span class="p">)[[</span><span class="s1">&#39;dx&#39;</span><span class="p">,</span> <span class="s1">&#39;dy&#39;</span><span class="p">,</span> <span class="s1">&#39;dz&#39;</span><span class="p">]]</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span>
+                                <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">multiply</span><span class="p">(</span><span class="n">grad_0</span><span class="p">[[</span><span class="s1">&#39;fx&#39;</span><span class="p">,</span> <span class="s1">&#39;fy&#39;</span><span class="p">,</span> <span class="s1">&#39;fz&#39;</span><span class="p">]]</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="n">x</span><span class="o">.</span><span class="n">values</span><span class="p">)))</span><span class="o">.</span><span class="n">values</span>
+    <span class="c1"># we extend the size of this 1d array as we will perform some matrix summations with the</span>
+    <span class="c1"># other outputs from this method</span>
+    <span class="n">delfq_zero</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">tile</span><span class="p">(</span><span class="n">delfq_zero</span><span class="p">,</span> <span class="n">snmodes</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">snmodes</span><span class="p">,</span> <span class="n">nmodes</span><span class="p">)</span>
+    <span class="n">delfq_plus</span> <span class="o">=</span> <span class="n">grad_plus</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s1">&#39;file&#39;</span><span class="p">)[[</span><span class="s1">&#39;fx&#39;</span><span class="p">,</span> <span class="s1">&#39;fy&#39;</span><span class="p">,</span> <span class="s1">&#39;fz&#39;</span><span class="p">]]</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span>
+                            <span class="n">freq</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s1">&#39;freqdx&#39;</span><span class="p">)[[</span><span class="s1">&#39;dx&#39;</span><span class="p">,</span> <span class="s1">&#39;dy&#39;</span><span class="p">,</span> <span class="s1">&#39;dz&#39;</span><span class="p">]]</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">y</span><span class="p">:</span>
+                                <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">multiply</span><span class="p">(</span><span class="n">y</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="n">x</span><span class="o">.</span><span class="n">values</span><span class="p">))))</span><span class="o">.</span><span class="n">values</span>
+    <span class="n">delfq_minus</span> <span class="o">=</span> <span class="n">grad_minus</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s1">&#39;file&#39;</span><span class="p">)[[</span><span class="s1">&#39;fx&#39;</span><span class="p">,</span> <span class="s1">&#39;fy&#39;</span><span class="p">,</span> <span class="s1">&#39;fz&#39;</span><span class="p">]]</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span>
+                            <span class="n">freq</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s1">&#39;freqdx&#39;</span><span class="p">)[[</span><span class="s1">&#39;dx&#39;</span><span class="p">,</span> <span class="s1">&#39;dy&#39;</span><span class="p">,</span> <span class="s1">&#39;dz&#39;</span><span class="p">]]</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">y</span><span class="p">:</span>
+                                <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">multiply</span><span class="p">(</span><span class="n">y</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="n">x</span><span class="o">.</span><span class="n">values</span><span class="p">))))</span><span class="o">.</span><span class="n">values</span>
+    <span class="n">delfq_zero</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">delfq_zero</span><span class="p">)</span>
+    <span class="n">delfq_plus</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">delfq_plus</span><span class="p">)</span>
+    <span class="n">delfq_minus</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">delfq_minus</span><span class="p">)</span>
+    <span class="k">return</span> <span class="p">[</span><span class="n">delfq_zero</span><span class="p">,</span> <span class="n">delfq_plus</span><span class="p">,</span> <span class="n">delfq_minus</span><span class="p">]</span></div>
+
+<span class="k">def</span> <span class="nf">_perform_1d_derivative</span><span class="p">(</span><span class="n">plus</span><span class="p">,</span> <span class="n">minus</span><span class="p">,</span> <span class="n">coeffs</span><span class="p">,</span> <span class="n">delta</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Calculate the numerical first derivative. This is generalized for</span>
+<span class="sd">    any finite difference method as long as the prefactors for each of</span>
+<span class="sd">    the steps is given.</span>
+
+<span class="sd">    Note:</span>
+<span class="sd">        This assumes that the data is ordered such that the first</span>
+<span class="sd">        element in the coefficients (`coeffs`) aligns with the first</span>
+<span class="sd">        element in the data arrays (`plus` and `minus`).</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        plus (:class:`numpy.ndarray`): Array with the values for the</span>
+<span class="sd">                positive displacement.</span>
+<span class="sd">        minus (:class:`numpy.ndarray`): Array with the values for the</span>
+<span class="sd">                negative displacement.</span>
+<span class="sd">        coeffs (:obj:`list` of list-like): Coefficient prefactors to be</span>
+<span class="sd">                used in the numerical differentiation. These are the</span>
+<span class="sd">                scaling factors when performing the different types of</span>
+<span class="sd">                central finite difference calculations.</span>
+<span class="sd">        delta (:obj:`float`): Displacment parameter used.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        deriv (:obj:`float`): Numerical derivative of the given data</span>
+<span class="sd">                sets.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">deriv</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">arrs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">plus</span><span class="p">,</span> <span class="n">minus</span><span class="p">])</span><span class="o">.</span><span class="n">T</span>
+    <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">arr</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="o">*</span><span class="n">arrs</span><span class="p">)):</span>
+        <span class="k">for</span> <span class="n">jdx</span><span class="p">,</span> <span class="n">coeff</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">coeffs</span><span class="p">):</span>
+            <span class="n">deriv</span> <span class="o">+=</span> <span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">**</span><span class="n">idx</span><span class="o">*</span><span class="n">coeff</span><span class="o">*</span><span class="n">arr</span><span class="p">[</span><span class="n">jdx</span><span class="p">]</span>
+    <span class="n">deriv</span> <span class="o">/=</span> <span class="n">delta</span>
+    <span class="k">return</span> <span class="n">deriv</span>
+
+<span class="k">def</span> <span class="nf">_check_array_size</span><span class="p">(</span><span class="n">arr</span><span class="p">,</span> <span class="n">size</span><span class="p">,</span> <span class="n">label</span><span class="p">):</span>
+    <span class="n">msg</span> <span class="o">=</span> <span class="s2">&quot;Did not detect the right number of elements in the given &quot;</span> \
+          <span class="o">+</span><span class="s2">&quot;array for the </span><span class="si">{}</span><span class="s2"> displacements. Expected </span><span class="si">{}</span><span class="s2">, but got </span><span class="si">{}</span><span class="s2">.&quot;</span>
+    <span class="k">if</span> <span class="n">arr</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="n">size</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">msg</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">label</span><span class="p">,</span> <span class="n">size</span><span class="p">,</span> <span class="n">arr</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
+
+
+<div class="viewcode-block" id="two_point_1d"><a class="viewcode-back" href="../../../vibrav.numerical.derivatives.html#vibrav.numerical.derivatives.two_point_1d">[docs]</a><span class="k">def</span> <span class="nf">two_point_1d</span><span class="p">(</span><span class="n">plus</span><span class="p">,</span> <span class="n">minus</span><span class="p">,</span> <span class="n">delta</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Two point central finite difference method to approximate the first</span>
+<span class="sd">    derivative of the input data.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        plus (:obj:`float`): Data frame with the positive displacement</span>
+<span class="sd">                data.</span>
+<span class="sd">        minus (:obj:`float`): Data frame with the negative displacement</span>
+<span class="sd">                data.</span>
+<span class="sd">        delta (:obj:`float`): Displacement parameter used.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        deriv (:obj:`float`): Numerical first derivative for given data.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">coeffs</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.5</span><span class="p">]</span>
+    <span class="n">deriv</span> <span class="o">=</span> <span class="n">_perform_1d_derivative</span><span class="p">(</span><span class="n">plus</span><span class="p">,</span> <span class="n">minus</span><span class="p">,</span> <span class="n">coeffs</span><span class="p">,</span> <span class="n">delta</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">deriv</span></div>
+
+<div class="viewcode-block" id="four_point_1d"><a class="viewcode-back" href="../../../vibrav.numerical.derivatives.html#vibrav.numerical.derivatives.four_point_1d">[docs]</a><span class="k">def</span> <span class="nf">four_point_1d</span><span class="p">(</span><span class="n">plus</span><span class="p">,</span> <span class="n">minus</span><span class="p">,</span> <span class="n">delta</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Four point central finite difference method to approximate the first</span>
+<span class="sd">    derivative of the input data, also know as the five point stencil.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        plus (:obj:`float`): Data frame with the positive displacement</span>
+<span class="sd">                data.</span>
+<span class="sd">        minus (:obj:`float`): Data frame with the negative displacement</span>
+<span class="sd">                data.</span>
+<span class="sd">        delta (:obj:`float`): Displacement parameter used.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        deriv (:obj:`float`): Numerical first derivative for given data.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="c1"># make sure that the input data is of the right size</span>
+    <span class="n">_check_array_size</span><span class="p">(</span><span class="n">plus</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="s1">&#39;positive&#39;</span><span class="p">)</span>
+    <span class="n">_check_array_size</span><span class="p">(</span><span class="n">minus</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="s1">&#39;negative&#39;</span><span class="p">)</span>
+    <span class="c1"># calculated coefficient prefactors for each displacement</span>
+    <span class="n">coeffs</span> <span class="o">=</span> <span class="p">[</span><span class="mf">2.</span><span class="o">/</span><span class="mi">3</span><span class="p">,</span> <span class="o">-</span><span class="mf">1.</span><span class="o">/</span><span class="mi">12</span><span class="p">]</span>
+    <span class="n">deriv</span> <span class="o">=</span> <span class="n">_perform_1d_derivative</span><span class="p">(</span><span class="n">plus</span><span class="p">,</span> <span class="n">minus</span><span class="p">,</span> <span class="n">coeffs</span><span class="p">,</span> <span class="n">delta</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">deriv</span></div>
+
+<div class="viewcode-block" id="six_point_1d"><a class="viewcode-back" href="../../../vibrav.numerical.derivatives.html#vibrav.numerical.derivatives.six_point_1d">[docs]</a><span class="k">def</span> <span class="nf">six_point_1d</span><span class="p">(</span><span class="n">plus</span><span class="p">,</span> <span class="n">minus</span><span class="p">,</span> <span class="n">delta</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Six point central finite difference method to approximate the first</span>
+<span class="sd">    derivative of the input data.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        plus (:obj:`float`): Data frame with the positive displacement</span>
+<span class="sd">                data.</span>
+<span class="sd">        minus (:obj:`float`): Data frame with the negative displacement</span>
+<span class="sd">                data.</span>
+<span class="sd">        delta (:obj:`float`): Displacement parameter used.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        deriv (:obj:`float`): Numerical first derivative for given data.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="c1"># make sure that the input data is of the right size</span>
+    <span class="n">_check_array_size</span><span class="p">(</span><span class="n">plus</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="s1">&#39;positive&#39;</span><span class="p">)</span>
+    <span class="n">_check_array_size</span><span class="p">(</span><span class="n">minus</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="s1">&#39;negative&#39;</span><span class="p">)</span>
+    <span class="c1"># calculated coefficient prefactors for each displacement</span>
+    <span class="n">coeffs</span> <span class="o">=</span> <span class="p">[</span><span class="mf">3.</span><span class="o">/</span><span class="mi">4</span><span class="p">,</span> <span class="o">-</span><span class="mf">3.</span><span class="o">/</span><span class="mi">20</span><span class="p">,</span> <span class="mf">1.</span><span class="o">/</span><span class="mi">60</span><span class="p">]</span>
+    <span class="n">deriv</span> <span class="o">=</span> <span class="n">_perform_1d_derivative</span><span class="p">(</span><span class="n">plus</span><span class="p">,</span> <span class="n">minus</span><span class="p">,</span> <span class="n">coeffs</span><span class="p">,</span> <span class="n">delta</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">deriv</span></div>
+
+<div class="viewcode-block" id="eight_point_1d"><a class="viewcode-back" href="../../../vibrav.numerical.derivatives.html#vibrav.numerical.derivatives.eight_point_1d">[docs]</a><span class="k">def</span> <span class="nf">eight_point_1d</span><span class="p">(</span><span class="n">plus</span><span class="p">,</span> <span class="n">minus</span><span class="p">,</span> <span class="n">delta</span><span class="p">):</span>
+    <span class="c1"># make sure that the input data is of the right size</span>
+    <span class="n">_check_array_size</span><span class="p">(</span><span class="n">plus</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="s1">&#39;positive&#39;</span><span class="p">)</span>
+    <span class="n">_check_array_size</span><span class="p">(</span><span class="n">minus</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="s1">&#39;negative&#39;</span><span class="p">)</span>
+    <span class="c1"># calculated coefficient prefactors for each displacement</span>
+    <span class="n">coeffs</span> <span class="o">=</span> <span class="p">[</span><span class="mf">4.</span><span class="o">/</span><span class="mi">5</span><span class="p">,</span> <span class="o">-</span><span class="mf">1.</span><span class="o">/</span><span class="mi">5</span><span class="p">,</span> <span class="mf">4.</span><span class="o">/</span><span class="mi">105</span><span class="p">,</span> <span class="o">-</span><span class="mf">1.</span><span class="o">/</span><span class="mi">280</span><span class="p">]</span>
+    <span class="n">deriv</span> <span class="o">=</span> <span class="n">_perform_1d_derivative</span><span class="p">(</span><span class="n">plus</span><span class="p">,</span> <span class="n">minus</span><span class="p">,</span> <span class="n">coeffs</span><span class="p">,</span> <span class="n">delta</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">deriv</span></div>
+
+<span class="k">def</span> <span class="nf">_perform_2d_derivative</span><span class="p">(</span><span class="n">plus</span><span class="p">,</span> <span class="n">minus</span><span class="p">,</span> <span class="n">equil</span><span class="p">,</span> <span class="n">coeffs</span><span class="p">,</span> <span class="n">delta</span><span class="p">):</span>
+    <span class="n">deriv</span> <span class="o">=</span> <span class="n">equil</span><span class="o">*</span><span class="n">coeffs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">arrs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">plus</span><span class="p">,</span> <span class="n">minus</span><span class="p">])</span><span class="o">.</span><span class="n">T</span>
+    <span class="k">for</span> <span class="n">arr</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="o">*</span><span class="n">arrs</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">jdx</span><span class="p">,</span> <span class="n">coeff</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">coeffs</span><span class="p">[</span><span class="mi">1</span><span class="p">:]):</span>
+            <span class="n">deriv</span> <span class="o">+=</span> <span class="n">coeff</span><span class="o">*</span><span class="n">arr</span><span class="p">[</span><span class="n">jdx</span><span class="p">]</span>
+    <span class="n">deriv</span> <span class="o">/=</span> <span class="n">delta</span><span class="o">**</span><span class="mi">2</span>
+    <span class="k">return</span> <span class="n">deriv</span>
+
+<div class="viewcode-block" id="two_point_2d"><a class="viewcode-back" href="../../../vibrav.numerical.derivatives.html#vibrav.numerical.derivatives.two_point_2d">[docs]</a><span class="k">def</span> <span class="nf">two_point_2d</span><span class="p">(</span><span class="n">plus</span><span class="p">,</span> <span class="n">minus</span><span class="p">,</span> <span class="n">equil</span><span class="p">,</span> <span class="n">delta</span><span class="p">):</span>
+    <span class="n">coeffs</span> <span class="o">=</span> <span class="p">[</span><span class="o">-</span><span class="mf">2.</span><span class="p">,</span> <span class="mf">1.</span><span class="p">]</span>
+    <span class="n">deriv</span> <span class="o">=</span> <span class="n">_perform_2d_derivative</span><span class="p">(</span><span class="n">plus</span><span class="p">,</span> <span class="n">minus</span><span class="p">,</span> <span class="n">equil</span><span class="p">,</span> <span class="n">coeffs</span><span class="p">,</span> <span class="n">delta</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">deriv</span></div>
+
+<div class="viewcode-block" id="four_point_2d"><a class="viewcode-back" href="../../../vibrav.numerical.derivatives.html#vibrav.numerical.derivatives.four_point_2d">[docs]</a><span class="k">def</span> <span class="nf">four_point_2d</span><span class="p">(</span><span class="n">plus</span><span class="p">,</span> <span class="n">minus</span><span class="p">,</span> <span class="n">equil</span><span class="p">,</span> <span class="n">delta</span><span class="p">):</span>
+    <span class="c1"># make sure that the input data is of the right size</span>
+    <span class="n">_check_array_size</span><span class="p">(</span><span class="n">plus</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="s1">&#39;positive&#39;</span><span class="p">)</span>
+    <span class="n">_check_array_size</span><span class="p">(</span><span class="n">minus</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="s1">&#39;negative&#39;</span><span class="p">)</span>
+    <span class="n">coeffs</span> <span class="o">=</span> <span class="p">[</span><span class="o">-</span><span class="mf">5.</span><span class="o">/</span><span class="mi">2</span><span class="p">,</span> <span class="mf">4.</span><span class="o">/</span><span class="mi">3</span><span class="p">,</span> <span class="o">-</span><span class="mf">1.</span><span class="o">/</span><span class="mi">12</span><span class="p">]</span>
+    <span class="n">deriv</span> <span class="o">=</span> <span class="n">_perform_2d_derivative</span><span class="p">(</span><span class="n">plus</span><span class="p">,</span> <span class="n">minus</span><span class="p">,</span> <span class="n">equil</span><span class="p">,</span> <span class="n">coeffs</span><span class="p">,</span> <span class="n">delta</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">deriv</span></div>
+
+<div class="viewcode-block" id="six_point_2d"><a class="viewcode-back" href="../../../vibrav.numerical.derivatives.html#vibrav.numerical.derivatives.six_point_2d">[docs]</a><span class="k">def</span> <span class="nf">six_point_2d</span><span class="p">(</span><span class="n">plus</span><span class="p">,</span> <span class="n">minus</span><span class="p">,</span> <span class="n">equil</span><span class="p">,</span> <span class="n">delta</span><span class="p">):</span>
+    <span class="c1"># make sure that the input data is of the right size</span>
+    <span class="n">_check_array_size</span><span class="p">(</span><span class="n">plus</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="s1">&#39;positive&#39;</span><span class="p">)</span>
+    <span class="n">_check_array_size</span><span class="p">(</span><span class="n">minus</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="s1">&#39;negative&#39;</span><span class="p">)</span>
+    <span class="n">coeffs</span> <span class="o">=</span> <span class="p">[</span><span class="o">-</span><span class="mf">49.</span><span class="o">/</span><span class="mi">18</span><span class="p">,</span> <span class="mf">3.</span><span class="o">/</span><span class="mi">2</span><span class="p">,</span> <span class="o">-</span><span class="mf">3.</span><span class="o">/</span><span class="mi">20</span><span class="p">,</span> <span class="mf">1.</span><span class="o">/</span><span class="mi">90</span><span class="p">]</span>
+    <span class="n">deriv</span> <span class="o">=</span> <span class="n">_perform_2d_derivative</span><span class="p">(</span><span class="n">plus</span><span class="p">,</span> <span class="n">minus</span><span class="p">,</span> <span class="n">equil</span><span class="p">,</span> <span class="n">coeffs</span><span class="p">,</span> <span class="n">delta</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">deriv</span></div>
+
+<div class="viewcode-block" id="eight_point_2d"><a class="viewcode-back" href="../../../vibrav.numerical.derivatives.html#vibrav.numerical.derivatives.eight_point_2d">[docs]</a><span class="k">def</span> <span class="nf">eight_point_2d</span><span class="p">(</span><span class="n">plus</span><span class="p">,</span> <span class="n">minus</span><span class="p">,</span> <span class="n">equil</span><span class="p">,</span> <span class="n">delta</span><span class="p">):</span>
+    <span class="c1"># make sure that the input data is of the right size</span>
+    <span class="n">_check_array_size</span><span class="p">(</span><span class="n">plus</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="s1">&#39;positive&#39;</span><span class="p">)</span>
+    <span class="n">_check_array_size</span><span class="p">(</span><span class="n">minus</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="s1">&#39;negative&#39;</span><span class="p">)</span>
+    <span class="n">coeffs</span> <span class="o">=</span> <span class="p">[</span><span class="o">-</span><span class="mf">205.</span><span class="o">/</span><span class="mi">72</span><span class="p">,</span> <span class="mf">8.</span><span class="o">/</span><span class="mi">5</span><span class="p">,</span> <span class="o">-</span><span class="mf">1.</span><span class="o">/</span><span class="mi">5</span><span class="p">,</span> <span class="mf">8.</span><span class="o">/</span><span class="mi">315</span><span class="p">,</span> <span class="o">-</span><span class="mf">1.</span><span class="o">/</span><span class="mi">560</span><span class="p">]</span>
+    <span class="n">deriv</span> <span class="o">=</span> <span class="n">_perform_2d_derivative</span><span class="p">(</span><span class="n">plus</span><span class="p">,</span> <span class="n">minus</span><span class="p">,</span> <span class="n">equil</span><span class="p">,</span> <span class="n">coeffs</span><span class="p">,</span> <span class="n">delta</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">deriv</span></div>
+
+<span class="k">def</span> <span class="nf">_get_prefac</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="n">d</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Simple function to get the common divisible factor on all the</span>
+<span class="sd">    displacements. Mainly useful when trying to get the prefactors with</span>
+<span class="sd">    the root finding algorithm in</span>
+<span class="sd">    :func:`vibrav.numerical.derivatives._determine_prefactors`.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">prefacs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">([</span><span class="mi">2</span><span class="o">*</span><span class="n">x</span><span class="o">*</span><span class="n">y</span> <span class="k">for</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="n">d</span><span class="p">)])</span>
+    <span class="k">return</span> <span class="n">prefacs</span>
+
+<span class="k">def</span> <span class="nf">_determine_prefactors</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="n">d</span><span class="p">):</span>
+    <span class="n">n</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
+    <span class="n">eqs</span> <span class="o">=</span> <span class="p">[</span><span class="mi">2</span><span class="o">/</span><span class="n">np</span><span class="o">.</span><span class="n">math</span><span class="o">.</span><span class="n">factorial</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">p</span><span class="o">*</span><span class="n">d</span><span class="o">**</span><span class="n">x</span><span class="p">)</span> \
+               <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="o">*</span><span class="n">n</span><span class="p">,</span> <span class="mi">2</span><span class="p">)]</span>
+    <span class="n">eqs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-=</span> <span class="n">_get_prefac</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="n">d</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">eqs</span>
+
+<span class="k">def</span> <span class="nf">_get_arb_coeffs</span><span class="p">(</span><span class="n">steps</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Calculate the coefficients for the arbitrary displacements.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        steps (:class:`numpy.ndarray`): Array with the absolute step</span>
+<span class="sd">                increments taken. Should be made up of integers.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        coeffs (:class:`numpy.ndarray`): Coefficient prefactors to use</span>
+<span class="sd">                in the numerical derivative.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="kn">from</span> <span class="nn">scipy.optimize</span> <span class="kn">import</span> <span class="n">root</span>
+    <span class="n">x0</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.5</span><span class="p">]</span><span class="o">*</span><span class="n">steps</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+    <span class="n">res</span> <span class="o">=</span> <span class="n">root</span><span class="p">(</span><span class="n">_determine_prefactors</span><span class="p">,</span> <span class="n">x0</span><span class="o">=</span><span class="n">x0</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="n">steps</span><span class="p">)</span>
+    <span class="n">prefac</span> <span class="o">=</span> <span class="n">_get_prefac</span><span class="p">(</span><span class="n">res</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">steps</span><span class="p">)</span>
+    <span class="n">coeffs</span> <span class="o">=</span> <span class="n">res</span><span class="o">.</span><span class="n">x</span><span class="o">/</span><span class="n">prefac</span>
+    <span class="k">return</span> <span class="n">coeffs</span>
+
+<div class="viewcode-block" id="arb_disps_1d"><a class="viewcode-back" href="../../../vibrav.numerical.derivatives.html#vibrav.numerical.derivatives.arb_disps_1d">[docs]</a><span class="k">def</span> <span class="nf">arb_disps_1d</span><span class="p">(</span><span class="n">plus</span><span class="p">,</span> <span class="n">minus</span><span class="p">,</span> <span class="n">disp_steps</span><span class="p">,</span> <span class="n">delta</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Unlike the functions</span>
+<span class="sd">    :func:`vibrav.numerical.derivatives.four_point_1d`,</span>
+<span class="sd">    :func:`vibrav.numerical.derivatives.six_point_1d`. This function</span>
+<span class="sd">    serves to calculate a derivative when the displacements are not</span>
+<span class="sd">    constant.</span>
+
+<span class="sd">    Note:</span>
+<span class="sd">        This requires that the steps are symmetric. Meaning, the</span>
+<span class="sd">        steps that are taken in the positive direction must be the</span>
+<span class="sd">        same as in the negative direction.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        plus (:class:`numpy.ndarray`): Array with the positive</span>
+<span class="sd">                displacement data.</span>
+<span class="sd">        minus (:class:`numpy.ndarray`): Array with the negative</span>
+<span class="sd">                displacement data.</span>
+<span class="sd">        disp_steps (:class:`numpy.ndarray`): Array with the displacement</span>
+<span class="sd">                step size taken.</span>
+<span class="sd">        delta (:obj:`float`): Displacement taken for first diaplacement</span>
+<span class="sd">                step.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        deriv (:obj:`float`): Numerical first derivative for given data.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="c1"># TODO: for now we just assume that the given</span>
+    <span class="c1">#       data has the right size</span>
+    <span class="n">steps</span> <span class="o">=</span> <span class="n">disp_steps</span><span class="o">/</span><span class="n">delta</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span><span class="n">steps</span><span class="p">,</span> <span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="n">steps</span><span class="p">))):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;There is an issue with the given steps taken.&quot;</span><span class="p">)</span>
+    <span class="n">coeffs</span> <span class="o">=</span> <span class="n">_get_arb_coeffs</span><span class="p">(</span><span class="n">steps</span><span class="p">)</span>
+    <span class="n">deriv</span> <span class="o">=</span> <span class="n">_perform_1d_derivative</span><span class="p">(</span><span class="n">plus</span><span class="p">,</span> <span class="n">minus</span><span class="p">,</span> <span class="n">coeffs</span><span class="p">,</span> <span class="n">delta</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">deriv</span></div>
+
+</pre></div>
+
+    </div>
+      
+  </div>
+</div>
+<footer class="footer">
+  <div class="container">
+    <p class="pull-right">
+      <a href="#">Back to top</a>
+      
+    </p>
+    <p>
+        &copy; Copyright 2023, Herbert D Ludowieg. Project structure based on the Computational Molecular Science Python Cookiecutter version 1.1.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 7.0.1.<br/>
+    </p>
+  </div>
+</footer>
+  </body>
+</html>

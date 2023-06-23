@@ -1,0 +1,15 @@
+vibrav.core package
+===================
+
+.. automodule:: vibrav.core
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+Submodules
+----------
+
+.. toctree::
+   :maxdepth: 3
+
+   vibrav.core.config

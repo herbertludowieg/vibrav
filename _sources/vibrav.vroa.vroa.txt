@@ -1,0 +1,7 @@
+vibrav.vroa.vroa module
+=======================
+
+.. automodule:: vibrav.vroa.vroa
+   :members:
+   :undoc-members:
+   :show-inheritance:

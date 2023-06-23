@@ -1,0 +1,1967 @@
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Molcas parser API &#8212; vibrav  documentation</title>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/bootstrap-sphinx.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/nbsphinx-code-cells.css" />
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/sphinx_highlight.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Using derivative module" href="numerical-diffs.html" />
+    <link rel="prev" title="Generating the displaced structures from a Gaussian frequencies calculation" href="gen-displaced.html" />
+<meta charset='utf-8'>
+<meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
+<meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1'>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<script type="text/javascript" src="../_static/js/jquery-1.12.4.min.js"></script>
+<script type="text/javascript" src="../_static/js/jquery-fix.js"></script>
+<script type="text/javascript" src="../_static/bootstrap-3.4.1/js/bootstrap.min.js"></script>
+<script type="text/javascript" src="../_static/bootstrap-sphinx.js"></script>
+
+  </head><body>
+
+  <div id="navbar" class="navbar navbar-default navbar-fixed-top">
+    <div class="container">
+      <div class="navbar-header">
+        <!-- .btn-navbar is used as the toggle for collapsed navbar content -->
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".nav-collapse">
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        <a class="navbar-brand" href="../index.html">
+          vibrav</a>
+        <span class="navbar-text navbar-version pull-left"><b></b></span>
+      </div>
+
+        <div class="collapse navbar-collapse nav-collapse">
+          <ul class="nav navbar-nav">
+            
+            
+              <li class="dropdown globaltoc-container">
+  <a role="button"
+     id="dLabelGlobalToc"
+     data-toggle="dropdown"
+     data-target="#"
+     href="../index.html">Site <b class="caret"></b></a>
+  <ul class="dropdown-menu globaltoc"
+      role="menu"
+      aria-labelledby="dLabelGlobalToc"><ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="adf.html">ADF parser API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="gen-displaced.html">Generating the displaced structures from a Gaussian frequencies calculation</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Molcas parser API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="numerical-diffs.html">Using derivative module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="vibronic.html">Running vibronic calculations from a Molcas RASSI set of calculations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="vroa-h2o2.html">VROA intensities of hydrogen peroxide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="vroa-methyloxirane.html">VROA intensities of methyloxirane</a></li>
+<li class="toctree-l1"><a class="reference internal" href="zpvc.html">Tutorial for using the ZPVC module in VIBRAV</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../vibrav.html">vibrav package</a></li>
+</ul>
+</ul>
+</li>
+              
+                <li class="dropdown">
+  <a role="button"
+     id="dLabelLocalToc"
+     data-toggle="dropdown"
+     data-target="#"
+     href="#">Page <b class="caret"></b></a>
+  <ul class="dropdown-menu localtoc"
+      role="menu"
+      aria-labelledby="dLabelLocalToc"><ul>
+<li><a class="reference internal" href="#">Molcas parser API</a><ul>
+<li><a class="reference internal" href="#Imports-to-get-the-resource-files">Imports to get the resource files</a></li>
+<li><a class="reference internal" href="#Read-the-output-file">Read the output file</a><ul>
+<li><a class="reference internal" href="#Parse-the-spin-free-dipole-moments">Parse the spin-free dipole moments</a></li>
+<li><a class="reference internal" href="#Parse-the-spin-free-quadrupole-moment">Parse the spin-free quadrupole moment</a></li>
+<li><a class="reference internal" href="#Parse-the-spin-free-angular-momentum">Parse the spin-free angular momentum</a></li>
+<li><a class="reference internal" href="#Parse-the-spin-free-energies">Parse the spin-free energies</a></li>
+<li><a class="reference internal" href="#Parse-the-spin-orbit-energies">Parse the spin-orbit energies</a></li>
+<li><a class="reference internal" href="#Parse-the-spin-free-oscillators-and-the-respective-Einstein-coefficients">Parse the spin-free oscillators and the respective Einstein coefficients</a></li>
+<li><a class="reference internal" href="#Parse-the-spin-orbit-oscillators-and-the-respective-Einstein-coefficients">Parse the spin-orbit oscillators and the respective Einstein coefficients</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</ul>
+</li>
+              
+            
+            
+              
+                
+  <li>
+    <a href="gen-displaced.html" title="Previous Chapter: Generating the displaced structures from a Gaussian frequencies calculation"><span class="glyphicon glyphicon-chevron-left visible-sm"></span><span class="hidden-sm hidden-tablet">&laquo; Generating th...</span>
+    </a>
+  </li>
+  <li>
+    <a href="numerical-diffs.html" title="Next Chapter: Using derivative module"><span class="glyphicon glyphicon-chevron-right visible-sm"></span><span class="hidden-sm hidden-tablet">Using derivat... &raquo;</span>
+    </a>
+  </li>
+              
+            
+            
+            
+            
+              <li class="hidden-sm">
+<div id="sourcelink">
+  <a href="../_sources/examples/molcas.ipynb.txt"
+     rel="nofollow">Source</a>
+</div></li>
+            
+          </ul>
+
+          
+            
+<form class="navbar-form navbar-right" action="../search.html" method="get">
+ <div class="form-group">
+  <input type="text" name="q" class="form-control" placeholder="Search" />
+ </div>
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+          
+        </div>
+    </div>
+  </div>
+
+<div class="container">
+  <div class="row">
+    <div class="body col-md-12 content" role="main">
+      
+  <section id="Molcas-parser-API">
+<h1>Molcas parser API<a class="headerlink" href="#Molcas-parser-API" title="Permalink to this heading">¶</a></h1>
+<section id="Imports-to-get-the-resource-files">
+<h2>Imports to get the resource files<a class="headerlink" href="#Imports-to-get-the-resource-files" title="Permalink to this heading">¶</a></h2>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">vibrav.base</span> <span class="kn">import</span> <span class="n">resource</span>
+<span class="kn">from</span> <span class="nn">vibrav.util.open_files</span> <span class="kn">import</span> <span class="n">uncompress_file</span>
+<span class="kn">import</span> <span class="nn">os</span>
+</pre></div>
+</div>
+</div>
+<p>Uncompress the resource file</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">decomp</span> <span class="o">=</span> <span class="n">uncompress_file</span><span class="p">(</span><span class="n">resource</span><span class="p">(</span><span class="s1">&#39;molcas-rassi-nien.out.xz&#39;</span><span class="p">))</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="Read-the-output-file">
+<h2>Read the output file<a class="headerlink" href="#Read-the-output-file" title="Permalink to this heading">¶</a></h2>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">vibrav.molcas</span> <span class="kn">import</span> <span class="n">Output</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">ed</span> <span class="o">=</span> <span class="n">Output</span><span class="p">(</span><span class="n">decomp</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<section id="Parse-the-spin-free-dipole-moments">
+<h3>Parse the spin-free dipole moments<a class="headerlink" href="#Parse-the-spin-free-dipole-moments" title="Permalink to this heading">¶</a></h3>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">ed</span><span class="o">.</span><span class="n">parse_sf_dipole_moment</span><span class="p">()</span>
+<span class="n">ed</span><span class="o">.</span><span class="n">sf_dipole_moment</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>0</th>
+      <th>1</th>
+      <th>2</th>
+      <th>3</th>
+      <th>4</th>
+      <th>5</th>
+      <th>6</th>
+      <th>7</th>
+      <th>8</th>
+      <th>9</th>
+      <th>...</th>
+      <th>16</th>
+      <th>17</th>
+      <th>18</th>
+      <th>19</th>
+      <th>20</th>
+      <th>21</th>
+      <th>22</th>
+      <th>23</th>
+      <th>24</th>
+      <th>component</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>-9.376636e-06</td>
+      <td>-9.383159e-04</td>
+      <td>-5.259894e-04</td>
+      <td>-6.844936e-07</td>
+      <td>8.287023e-04</td>
+      <td>5.784427e-04</td>
+      <td>-3.305595e-08</td>
+      <td>-7.190377e-08</td>
+      <td>-8.454175e-04</td>
+      <td>-4.697420e-04</td>
+      <td>...</td>
+      <td>-8.798365e-20</td>
+      <td>1.388980e-19</td>
+      <td>-7.326883e-20</td>
+      <td>2.544445e-18</td>
+      <td>-1.419502e-18</td>
+      <td>-1.440886e-21</td>
+      <td>9.137218e-19</td>
+      <td>2.811453e-20</td>
+      <td>4.550291e-18</td>
+      <td>x</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>-9.383159e-04</td>
+      <td>4.938038e-03</td>
+      <td>8.086204e-03</td>
+      <td>8.956935e-03</td>
+      <td>-2.483163e-03</td>
+      <td>-5.127446e-03</td>
+      <td>-3.889645e-03</td>
+      <td>-5.159244e-03</td>
+      <td>3.840473e-03</td>
+      <td>6.217030e-03</td>
+      <td>...</td>
+      <td>1.989800e-18</td>
+      <td>1.577644e-18</td>
+      <td>2.620320e-18</td>
+      <td>-1.807584e-19</td>
+      <td>-2.453048e-19</td>
+      <td>-9.210226e-20</td>
+      <td>-6.286158e-19</td>
+      <td>1.502377e-18</td>
+      <td>5.741586e-20</td>
+      <td>x</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>-5.259894e-04</td>
+      <td>8.086204e-03</td>
+      <td>-4.955820e-03</td>
+      <td>-1.598368e-02</td>
+      <td>-5.128130e-03</td>
+      <td>2.482465e-03</td>
+      <td>-2.178772e-03</td>
+      <td>-2.890120e-03</td>
+      <td>6.220213e-03</td>
+      <td>-3.840069e-03</td>
+      <td>...</td>
+      <td>-1.843977e-18</td>
+      <td>8.185865e-18</td>
+      <td>-2.640023e-18</td>
+      <td>-8.216381e-19</td>
+      <td>1.244695e-19</td>
+      <td>-1.027803e-19</td>
+      <td>-5.960823e-19</td>
+      <td>-2.427264e-19</td>
+      <td>2.866196e-19</td>
+      <td>x</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>-6.844936e-07</td>
+      <td>8.956935e-03</td>
+      <td>-1.598368e-02</td>
+      <td>-5.832545e-06</td>
+      <td>8.057229e-03</td>
+      <td>-1.155555e-02</td>
+      <td>8.588415e-07</td>
+      <td>-2.991994e-07</td>
+      <td>-6.062807e-03</td>
+      <td>1.092611e-02</td>
+      <td>...</td>
+      <td>-1.797950e-18</td>
+      <td>3.197102e-20</td>
+      <td>1.497748e-18</td>
+      <td>1.218254e-19</td>
+      <td>-1.471458e-19</td>
+      <td>3.094076e-18</td>
+      <td>-4.012417e-19</td>
+      <td>6.367794e-18</td>
+      <td>-1.113868e-19</td>
+      <td>x</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>8.287023e-04</td>
+      <td>-2.483163e-03</td>
+      <td>-5.128130e-03</td>
+      <td>8.057229e-03</td>
+      <td>3.184097e-03</td>
+      <td>8.667119e-03</td>
+      <td>-2.491305e-03</td>
+      <td>-2.237622e-03</td>
+      <td>1.024558e-05</td>
+      <td>1.718904e-05</td>
+      <td>...</td>
+      <td>4.998033e-18</td>
+      <td>1.080093e-18</td>
+      <td>2.621471e-19</td>
+      <td>-1.356941e-18</td>
+      <td>4.851931e-18</td>
+      <td>-4.377820e-19</td>
+      <td>-2.460354e-19</td>
+      <td>-2.222575e-18</td>
+      <td>1.050619e-19</td>
+      <td>x</td>
+    </tr>
+    <tr>
+      <th>...</th>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+    </tr>
+    <tr>
+      <th>70</th>
+      <td>2.798133e-20</td>
+      <td>-7.494509e-21</td>
+      <td>1.837413e-19</td>
+      <td>4.658169e-20</td>
+      <td>-4.350311e-20</td>
+      <td>-4.986815e-19</td>
+      <td>4.598024e-19</td>
+      <td>-2.752256e-19</td>
+      <td>3.880373e-20</td>
+      <td>-2.264951e-19</td>
+      <td>...</td>
+      <td>-3.439530e-05</td>
+      <td>3.746701e-03</td>
+      <td>4.879674e-05</td>
+      <td>-4.470660e-06</td>
+      <td>-1.853061e-08</td>
+      <td>-5.129429e-07</td>
+      <td>-2.733188e-04</td>
+      <td>-3.820681e-07</td>
+      <td>-4.882723e-07</td>
+      <td>z</td>
+    </tr>
+    <tr>
+      <th>71</th>
+      <td>1.697245e-19</td>
+      <td>7.001676e-21</td>
+      <td>-5.006348e-20</td>
+      <td>2.464600e-20</td>
+      <td>4.468406e-20</td>
+      <td>-1.822131e-19</td>
+      <td>-6.176509e-19</td>
+      <td>3.473685e-19</td>
+      <td>8.654902e-22</td>
+      <td>2.792257e-20</td>
+      <td>...</td>
+      <td>1.109199e-05</td>
+      <td>-9.979060e-04</td>
+      <td>-2.022896e-05</td>
+      <td>-2.518394e-04</td>
+      <td>-5.129429e-07</td>
+      <td>8.667985e-08</td>
+      <td>2.121827e-05</td>
+      <td>-2.716501e-06</td>
+      <td>1.468724e-06</td>
+      <td>z</td>
+    </tr>
+    <tr>
+      <th>72</th>
+      <td>-1.933543e-22</td>
+      <td>-1.599636e-19</td>
+      <td>6.460808e-20</td>
+      <td>-9.327870e-20</td>
+      <td>5.560524e-20</td>
+      <td>1.639681e-20</td>
+      <td>5.806210e-20</td>
+      <td>1.996194e-20</td>
+      <td>1.152501e-19</td>
+      <td>3.058508e-20</td>
+      <td>...</td>
+      <td>1.010293e-03</td>
+      <td>1.111767e-05</td>
+      <td>3.031995e-06</td>
+      <td>4.642385e-07</td>
+      <td>-2.733188e-04</td>
+      <td>2.121827e-05</td>
+      <td>-8.201143e-08</td>
+      <td>-1.724641e-05</td>
+      <td>9.633586e-06</td>
+      <td>z</td>
+    </tr>
+    <tr>
+      <th>73</th>
+      <td>3.674293e-20</td>
+      <td>-1.132336e-20</td>
+      <td>2.856421e-19</td>
+      <td>4.001355e-21</td>
+      <td>1.449966e-20</td>
+      <td>-1.046807e-19</td>
+      <td>2.573478e-19</td>
+      <td>-1.295672e-19</td>
+      <td>7.010531e-21</td>
+      <td>-3.302352e-19</td>
+      <td>...</td>
+      <td>-4.566679e-06</td>
+      <td>-3.468737e-05</td>
+      <td>3.051234e-03</td>
+      <td>2.725762e-06</td>
+      <td>-3.820681e-07</td>
+      <td>-2.716501e-06</td>
+      <td>-1.724641e-05</td>
+      <td>4.697866e-09</td>
+      <td>2.735140e-08</td>
+      <td>z</td>
+    </tr>
+    <tr>
+      <th>74</th>
+      <td>6.389150e-20</td>
+      <td>-5.825257e-20</td>
+      <td>4.447751e-20</td>
+      <td>4.439398e-21</td>
+      <td>6.247369e-20</td>
+      <td>1.103016e-18</td>
+      <td>-1.104416e-18</td>
+      <td>-6.566795e-19</td>
+      <td>-1.603367e-20</td>
+      <td>-7.502357e-20</td>
+      <td>...</td>
+      <td>1.344133e-05</td>
+      <td>1.051371e-04</td>
+      <td>-1.062807e-02</td>
+      <td>2.906158e-06</td>
+      <td>-4.882723e-07</td>
+      <td>1.468724e-06</td>
+      <td>9.633586e-06</td>
+      <td>2.735140e-08</td>
+      <td>-1.426067e-08</td>
+      <td>z</td>
+    </tr>
+  </tbody>
+</table>
+<p>75 rows × 26 columns</p>
+</div></div>
+</div>
+</section>
+<section id="Parse-the-spin-free-quadrupole-moment">
+<h3>Parse the spin-free quadrupole moment<a class="headerlink" href="#Parse-the-spin-free-quadrupole-moment" title="Permalink to this heading">¶</a></h3>
+<p>This will only parse the upper triangular elements of the matrix. I.e., the <code class="docutils literal notranslate"><span class="pre">xx</span></code>, <code class="docutils literal notranslate"><span class="pre">xy</span></code>, <code class="docutils literal notranslate"><span class="pre">xz</span></code>, <code class="docutils literal notranslate"><span class="pre">yy</span></code>, <code class="docutils literal notranslate"><span class="pre">yz</span></code>, and <code class="docutils literal notranslate"><span class="pre">zz</span></code> compoenents.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">ed</span><span class="o">.</span><span class="n">parse_sf_quadrupole_moment</span><span class="p">()</span>
+<span class="n">ed</span><span class="o">.</span><span class="n">sf_quadrupole_moment</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>0</th>
+      <th>1</th>
+      <th>2</th>
+      <th>3</th>
+      <th>4</th>
+      <th>5</th>
+      <th>6</th>
+      <th>7</th>
+      <th>8</th>
+      <th>9</th>
+      <th>...</th>
+      <th>16</th>
+      <th>17</th>
+      <th>18</th>
+      <th>19</th>
+      <th>20</th>
+      <th>21</th>
+      <th>22</th>
+      <th>23</th>
+      <th>24</th>
+      <th>component</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>-3.500140e+01</td>
+      <td>1.173247e-02</td>
+      <td>6.580265e-03</td>
+      <td>6.674075e-06</td>
+      <td>-6.331848e-02</td>
+      <td>-4.415315e-02</td>
+      <td>6.546761e-02</td>
+      <td>7.538489e-02</td>
+      <td>6.657617e-02</td>
+      <td>3.695543e-02</td>
+      <td>...</td>
+      <td>-1.867184e-18</td>
+      <td>4.938135e-17</td>
+      <td>-1.525615e-17</td>
+      <td>1.081891e-15</td>
+      <td>-9.495733e-17</td>
+      <td>2.103179e-17</td>
+      <td>4.890426e-17</td>
+      <td>2.152580e-19</td>
+      <td>8.784260e-17</td>
+      <td>xx</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>1.173247e-02</td>
+      <td>-3.545854e+01</td>
+      <td>3.780688e-02</td>
+      <td>8.820404e-02</td>
+      <td>-1.373307e-02</td>
+      <td>-1.262719e-01</td>
+      <td>-1.128179e-01</td>
+      <td>-6.731629e-02</td>
+      <td>-3.009900e-02</td>
+      <td>1.232099e-01</td>
+      <td>...</td>
+      <td>5.989637e-16</td>
+      <td>1.370153e-16</td>
+      <td>4.590252e-17</td>
+      <td>-2.581924e-18</td>
+      <td>9.026816e-18</td>
+      <td>-2.041515e-16</td>
+      <td>-1.408774e-16</td>
+      <td>2.477513e-16</td>
+      <td>-1.763594e-17</td>
+      <td>xx</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>6.580265e-03</td>
+      <td>3.780688e-02</td>
+      <td>-3.550478e+01</td>
+      <td>-1.574149e-01</td>
+      <td>-1.361030e-01</td>
+      <td>1.133322e-01</td>
+      <td>-6.321337e-02</td>
+      <td>-3.770022e-02</td>
+      <td>1.223889e-01</td>
+      <td>-1.817725e-01</td>
+      <td>...</td>
+      <td>-1.936954e-16</td>
+      <td>1.032403e-16</td>
+      <td>6.011572e-16</td>
+      <td>-9.821624e-17</td>
+      <td>6.937587e-18</td>
+      <td>-1.406346e-17</td>
+      <td>-8.820235e-18</td>
+      <td>2.148651e-17</td>
+      <td>-4.197851e-18</td>
+      <td>xx</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>6.674075e-06</td>
+      <td>8.820404e-02</td>
+      <td>-1.574149e-01</td>
+      <td>-3.536689e+01</td>
+      <td>1.440698e-01</td>
+      <td>-2.066119e-01</td>
+      <td>-1.561867e-06</td>
+      <td>-1.181690e-06</td>
+      <td>-1.660243e-01</td>
+      <td>2.991383e-01</td>
+      <td>...</td>
+      <td>4.826918e-16</td>
+      <td>2.534805e-17</td>
+      <td>3.788097e-17</td>
+      <td>-1.250331e-18</td>
+      <td>-1.986380e-17</td>
+      <td>5.757652e-16</td>
+      <td>1.283977e-17</td>
+      <td>-2.825176e-16</td>
+      <td>-9.258153e-18</td>
+      <td>xx</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>-6.331848e-02</td>
+      <td>-1.373307e-02</td>
+      <td>-1.361030e-01</td>
+      <td>1.440698e-01</td>
+      <td>-3.560160e+01</td>
+      <td>1.089867e-01</td>
+      <td>-1.045581e-01</td>
+      <td>-2.487637e-01</td>
+      <td>-3.690626e-01</td>
+      <td>-1.178888e-01</td>
+      <td>...</td>
+      <td>-1.661790e-17</td>
+      <td>6.268158e-17</td>
+      <td>1.005471e-17</td>
+      <td>-1.190769e-17</td>
+      <td>6.305117e-16</td>
+      <td>-1.235855e-16</td>
+      <td>-5.809364e-17</td>
+      <td>-3.989386e-16</td>
+      <td>1.953748e-17</td>
+      <td>xx</td>
+    </tr>
+    <tr>
+      <th>...</th>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+    </tr>
+    <tr>
+      <th>145</th>
+      <td>-5.353959e-17</td>
+      <td>1.553045e-17</td>
+      <td>-1.791974e-18</td>
+      <td>-1.280992e-18</td>
+      <td>4.663912e-16</td>
+      <td>1.120435e-17</td>
+      <td>-2.605852e-16</td>
+      <td>5.946732e-17</td>
+      <td>2.563243e-16</td>
+      <td>2.339960e-17</td>
+      <td>...</td>
+      <td>4.950885e-02</td>
+      <td>4.527462e-04</td>
+      <td>1.221739e-04</td>
+      <td>-1.649518e-08</td>
+      <td>-4.447863e+01</td>
+      <td>2.213497e-01</td>
+      <td>-4.169294e-04</td>
+      <td>1.124140e-03</td>
+      <td>-9.071752e-04</td>
+      <td>zz</td>
+    </tr>
+    <tr>
+      <th>146</th>
+      <td>1.213004e-17</td>
+      <td>-1.731779e-16</td>
+      <td>-2.041465e-17</td>
+      <td>4.170898e-16</td>
+      <td>-1.109232e-16</td>
+      <td>-5.616328e-18</td>
+      <td>-9.997202e-17</td>
+      <td>5.529510e-19</td>
+      <td>-3.207592e-16</td>
+      <td>-2.334154e-17</td>
+      <td>...</td>
+      <td>-1.656264e-01</td>
+      <td>-1.831634e-03</td>
+      <td>-3.086526e-04</td>
+      <td>-4.184335e-04</td>
+      <td>2.213497e-01</td>
+      <td>-4.444879e+01</td>
+      <td>-4.720966e-06</td>
+      <td>-1.793273e-03</td>
+      <td>-1.499529e-03</td>
+      <td>zz</td>
+    </tr>
+    <tr>
+      <th>147</th>
+      <td>2.583342e-17</td>
+      <td>-9.382642e-17</td>
+      <td>-1.365728e-17</td>
+      <td>1.874459e-17</td>
+      <td>-2.270473e-17</td>
+      <td>-3.131737e-16</td>
+      <td>-8.067280e-16</td>
+      <td>6.148585e-16</td>
+      <td>7.953961e-18</td>
+      <td>5.520967e-16</td>
+      <td>...</td>
+      <td>1.843311e-03</td>
+      <td>-1.667328e-01</td>
+      <td>-2.148542e-03</td>
+      <td>-2.219409e-01</td>
+      <td>-4.169294e-04</td>
+      <td>-4.720966e-06</td>
+      <td>-4.445048e+01</td>
+      <td>2.823250e-04</td>
+      <td>2.339333e-04</td>
+      <td>zz</td>
+    </tr>
+    <tr>
+      <th>148</th>
+      <td>-6.567873e-20</td>
+      <td>1.772268e-16</td>
+      <td>2.677679e-17</td>
+      <td>-3.526988e-16</td>
+      <td>-2.759673e-16</td>
+      <td>-1.073295e-16</td>
+      <td>-1.361126e-18</td>
+      <td>2.109195e-18</td>
+      <td>-1.163318e-16</td>
+      <td>1.769014e-17</td>
+      <td>...</td>
+      <td>2.558363e-05</td>
+      <td>-1.311877e-06</td>
+      <td>1.763864e-07</td>
+      <td>1.743400e-04</td>
+      <td>1.124140e-03</td>
+      <td>-1.793273e-03</td>
+      <td>2.823250e-04</td>
+      <td>-4.411257e+01</td>
+      <td>3.167020e-01</td>
+      <td>zz</td>
+    </tr>
+    <tr>
+      <th>149</th>
+      <td>-1.611504e-18</td>
+      <td>1.750389e-17</td>
+      <td>-2.846105e-21</td>
+      <td>-1.510383e-17</td>
+      <td>1.040778e-17</td>
+      <td>-2.532659e-18</td>
+      <td>2.078083e-19</td>
+      <td>8.150862e-20</td>
+      <td>-1.091187e-17</td>
+      <td>-1.905165e-18</td>
+      <td>...</td>
+      <td>4.111305e-05</td>
+      <td>-3.663114e-06</td>
+      <td>1.212405e-06</td>
+      <td>-1.338341e-04</td>
+      <td>-9.071752e-04</td>
+      <td>-1.499529e-03</td>
+      <td>2.339333e-04</td>
+      <td>3.167020e-01</td>
+      <td>-4.388516e+01</td>
+      <td>zz</td>
+    </tr>
+  </tbody>
+</table>
+<p>150 rows × 26 columns</p>
+</div></div>
+</div>
+</section>
+<section id="Parse-the-spin-free-angular-momentum">
+<h3>Parse the spin-free angular momentum<a class="headerlink" href="#Parse-the-spin-free-angular-momentum" title="Permalink to this heading">¶</a></h3>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">ed</span><span class="o">.</span><span class="n">parse_sf_angmom</span><span class="p">()</span>
+<span class="n">ed</span><span class="o">.</span><span class="n">sf_angmom</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>0</th>
+      <th>1</th>
+      <th>2</th>
+      <th>3</th>
+      <th>4</th>
+      <th>5</th>
+      <th>6</th>
+      <th>7</th>
+      <th>8</th>
+      <th>9</th>
+      <th>...</th>
+      <th>16</th>
+      <th>17</th>
+      <th>18</th>
+      <th>19</th>
+      <th>20</th>
+      <th>21</th>
+      <th>22</th>
+      <th>23</th>
+      <th>24</th>
+      <th>component</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>6.626731e-18</td>
+      <td>-1.553359e+00</td>
+      <td>-8.705123e-01</td>
+      <td>-1.015200e-04</td>
+      <td>-3.127997e-02</td>
+      <td>-2.182243e-02</td>
+      <td>4.095653e-06</td>
+      <td>1.191905e-06</td>
+      <td>7.531522e-03</td>
+      <td>4.182673e-03</td>
+      <td>...</td>
+      <td>-1.552690e-16</td>
+      <td>1.180405e-16</td>
+      <td>-4.020604e-17</td>
+      <td>2.068694e-20</td>
+      <td>5.867911e-18</td>
+      <td>-7.130628e-17</td>
+      <td>-2.947106e-17</td>
+      <td>3.162611e-17</td>
+      <td>1.128699e-18</td>
+      <td>x</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>1.553359e+00</td>
+      <td>-4.571222e-16</td>
+      <td>-4.233573e-05</td>
+      <td>2.585774e-01</td>
+      <td>6.076944e-01</td>
+      <td>1.254894e+00</td>
+      <td>-8.535142e-01</td>
+      <td>2.196790e-01</td>
+      <td>2.134496e-01</td>
+      <td>3.456598e-01</td>
+      <td>...</td>
+      <td>-1.017408e-16</td>
+      <td>6.327755e-17</td>
+      <td>1.062884e-16</td>
+      <td>-5.816560e-17</td>
+      <td>1.698517e-17</td>
+      <td>-1.018386e-16</td>
+      <td>1.189779e-17</td>
+      <td>1.037624e-16</td>
+      <td>5.340634e-17</td>
+      <td>x</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>8.705123e-01</td>
+      <td>4.233573e-05</td>
+      <td>-8.710006e-17</td>
+      <td>-4.614284e-01</td>
+      <td>1.254876e+00</td>
+      <td>-6.077587e-01</td>
+      <td>-4.782594e-01</td>
+      <td>1.231310e-01</td>
+      <td>3.456392e-01</td>
+      <td>-2.134668e-01</td>
+      <td>...</td>
+      <td>-8.478716e-18</td>
+      <td>-4.990680e-17</td>
+      <td>-1.430057e-16</td>
+      <td>-1.092594e-16</td>
+      <td>9.307636e-17</td>
+      <td>3.730760e-18</td>
+      <td>6.864208e-18</td>
+      <td>5.863639e-17</td>
+      <td>7.663078e-17</td>
+      <td>x</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>1.015200e-04</td>
+      <td>-2.585774e-01</td>
+      <td>4.614284e-01</td>
+      <td>9.882260e-17</td>
+      <td>5.559758e-01</td>
+      <td>-7.970499e-01</td>
+      <td>-1.958799e-05</td>
+      <td>2.570007e-05</td>
+      <td>1.382345e-01</td>
+      <td>-2.489937e-01</td>
+      <td>...</td>
+      <td>1.859949e-16</td>
+      <td>-1.407091e-17</td>
+      <td>-1.315167e-17</td>
+      <td>6.863221e-17</td>
+      <td>-6.336027e-17</td>
+      <td>-6.016258e-17</td>
+      <td>1.522854e-16</td>
+      <td>2.035658e-17</td>
+      <td>5.194333e-17</td>
+      <td>x</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>3.127997e-02</td>
+      <td>-6.076944e-01</td>
+      <td>-1.254876e+00</td>
+      <td>-5.559758e-01</td>
+      <td>7.815008e-16</td>
+      <td>-4.359339e-05</td>
+      <td>-9.501658e-01</td>
+      <td>6.395912e-01</td>
+      <td>2.098857e-03</td>
+      <td>4.315184e-03</td>
+      <td>...</td>
+      <td>-1.402546e-17</td>
+      <td>-8.147693e-18</td>
+      <td>4.681586e-17</td>
+      <td>-2.209597e-17</td>
+      <td>8.914598e-17</td>
+      <td>-1.445746e-17</td>
+      <td>8.168061e-17</td>
+      <td>-1.067923e-17</td>
+      <td>1.460346e-17</td>
+      <td>x</td>
+    </tr>
+    <tr>
+      <th>...</th>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+    </tr>
+    <tr>
+      <th>70</th>
+      <td>1.076297e-18</td>
+      <td>5.058259e-18</td>
+      <td>-6.958368e-17</td>
+      <td>2.276363e-17</td>
+      <td>-9.803107e-18</td>
+      <td>-1.241716e-16</td>
+      <td>1.548133e-16</td>
+      <td>-1.197104e-16</td>
+      <td>1.781604e-17</td>
+      <td>-1.709743e-17</td>
+      <td>...</td>
+      <td>-1.553752e-02</td>
+      <td>1.692434e+00</td>
+      <td>1.661221e-02</td>
+      <td>4.493845e-01</td>
+      <td>-2.242914e-16</td>
+      <td>2.756765e-03</td>
+      <td>1.461629e+00</td>
+      <td>-9.076902e-04</td>
+      <td>-1.548385e-06</td>
+      <td>z</td>
+    </tr>
+    <tr>
+      <th>71</th>
+      <td>6.871715e-17</td>
+      <td>5.650068e-18</td>
+      <td>1.206950e-17</td>
+      <td>7.114093e-18</td>
+      <td>9.970490e-18</td>
+      <td>1.560849e-16</td>
+      <td>-1.724995e-16</td>
+      <td>5.840906e-17</td>
+      <td>-9.425148e-18</td>
+      <td>1.035572e-16</td>
+      <td>...</td>
+      <td>4.561864e-03</td>
+      <td>-4.111893e-01</td>
+      <td>-9.155088e-03</td>
+      <td>-1.458302e+00</td>
+      <td>-2.756765e-03</td>
+      <td>-4.688703e-16</td>
+      <td>-1.174555e+00</td>
+      <td>8.376364e-04</td>
+      <td>2.041596e-05</td>
+      <td>z</td>
+    </tr>
+    <tr>
+      <th>72</th>
+      <td>-5.002503e-19</td>
+      <td>-2.315452e-18</td>
+      <td>2.365850e-17</td>
+      <td>-4.725534e-17</td>
+      <td>7.158064e-17</td>
+      <td>9.121058e-18</td>
+      <td>1.574381e-17</td>
+      <td>-7.206228e-20</td>
+      <td>-4.742131e-17</td>
+      <td>7.152212e-18</td>
+      <td>...</td>
+      <td>4.138430e-01</td>
+      <td>4.560828e-03</td>
+      <td>1.376082e-03</td>
+      <td>2.744145e-03</td>
+      <td>-1.461629e+00</td>
+      <td>1.174555e+00</td>
+      <td>4.949914e-17</td>
+      <td>5.342435e-03</td>
+      <td>1.209511e-04</td>
+      <td>z</td>
+    </tr>
+    <tr>
+      <th>73</th>
+      <td>1.875531e-17</td>
+      <td>-1.439694e-18</td>
+      <td>9.718745e-17</td>
+      <td>-8.412248e-19</td>
+      <td>5.580965e-18</td>
+      <td>-2.975092e-17</td>
+      <td>6.093322e-17</td>
+      <td>-1.302164e-17</td>
+      <td>1.966598e-18</td>
+      <td>-9.145873e-17</td>
+      <td>...</td>
+      <td>-1.756205e-03</td>
+      <td>-1.334722e-02</td>
+      <td>1.224967e+00</td>
+      <td>-5.833379e-03</td>
+      <td>9.076902e-04</td>
+      <td>-8.376364e-04</td>
+      <td>-5.342435e-03</td>
+      <td>-6.160120e-16</td>
+      <td>-1.337943e-06</td>
+      <td>z</td>
+    </tr>
+    <tr>
+      <th>74</th>
+      <td>4.219490e-18</td>
+      <td>-2.262157e-17</td>
+      <td>-8.309751e-18</td>
+      <td>-1.200748e-19</td>
+      <td>2.796168e-18</td>
+      <td>6.910406e-17</td>
+      <td>-3.962958e-16</td>
+      <td>-6.394910e-17</td>
+      <td>3.122763e-18</td>
+      <td>-2.303865e-17</td>
+      <td>...</td>
+      <td>9.977237e-04</td>
+      <td>7.759110e-03</td>
+      <td>-8.003581e-01</td>
+      <td>-1.392226e-05</td>
+      <td>1.548385e-06</td>
+      <td>-2.041596e-05</td>
+      <td>-1.209511e-04</td>
+      <td>1.337943e-06</td>
+      <td>-9.249594e-16</td>
+      <td>z</td>
+    </tr>
+  </tbody>
+</table>
+<p>75 rows × 26 columns</p>
+</div></div>
+</div>
+</section>
+<section id="Parse-the-spin-free-energies">
+<h3>Parse the spin-free energies<a class="headerlink" href="#Parse-the-spin-free-energies" title="Permalink to this heading">¶</a></h3>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">ed</span><span class="o">.</span><span class="n">parse_sf_energy</span><span class="p">()</span>
+<span class="n">ed</span><span class="o">.</span><span class="n">sf_energy</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>energy</th>
+      <th>rel_energy</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>-2077.953987</td>
+      <td>0.000000</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>-2077.903019</td>
+      <td>0.050968</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>-2077.903018</td>
+      <td>0.050969</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>-2077.902361</td>
+      <td>0.051626</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>-2077.870278</td>
+      <td>0.083709</td>
+    </tr>
+    <tr>
+      <th>5</th>
+      <td>-2077.870275</td>
+      <td>0.083712</td>
+    </tr>
+    <tr>
+      <th>6</th>
+      <td>-2077.868713</td>
+      <td>0.085274</td>
+    </tr>
+    <tr>
+      <th>7</th>
+      <td>-2077.816677</td>
+      <td>0.137310</td>
+    </tr>
+    <tr>
+      <th>8</th>
+      <td>-2077.816249</td>
+      <td>0.137738</td>
+    </tr>
+    <tr>
+      <th>9</th>
+      <td>-2077.816240</td>
+      <td>0.137747</td>
+    </tr>
+    <tr>
+      <th>10</th>
+      <td>-2077.885925</td>
+      <td>0.068062</td>
+    </tr>
+    <tr>
+      <th>11</th>
+      <td>-2077.885754</td>
+      <td>0.068233</td>
+    </tr>
+    <tr>
+      <th>12</th>
+      <td>-2077.835508</td>
+      <td>0.118479</td>
+    </tr>
+    <tr>
+      <th>13</th>
+      <td>-2077.834321</td>
+      <td>0.119666</td>
+    </tr>
+    <tr>
+      <th>14</th>
+      <td>-2077.834318</td>
+      <td>0.119669</td>
+    </tr>
+    <tr>
+      <th>15</th>
+      <td>-2077.834244</td>
+      <td>0.119743</td>
+    </tr>
+    <tr>
+      <th>16</th>
+      <td>-2077.807731</td>
+      <td>0.146256</td>
+    </tr>
+    <tr>
+      <th>17</th>
+      <td>-2077.807723</td>
+      <td>0.146264</td>
+    </tr>
+    <tr>
+      <th>18</th>
+      <td>-2077.807293</td>
+      <td>0.146694</td>
+    </tr>
+    <tr>
+      <th>19</th>
+      <td>-2077.766660</td>
+      <td>0.187327</td>
+    </tr>
+    <tr>
+      <th>20</th>
+      <td>-2077.766605</td>
+      <td>0.187382</td>
+    </tr>
+    <tr>
+      <th>21</th>
+      <td>-2077.763766</td>
+      <td>0.190221</td>
+    </tr>
+    <tr>
+      <th>22</th>
+      <td>-2077.763634</td>
+      <td>0.190353</td>
+    </tr>
+    <tr>
+      <th>23</th>
+      <td>-2077.763618</td>
+      <td>0.190369</td>
+    </tr>
+    <tr>
+      <th>24</th>
+      <td>-2077.666439</td>
+      <td>0.287548</td>
+    </tr>
+  </tbody>
+</table>
+</div></div>
+</div>
+</section>
+<section id="Parse-the-spin-orbit-energies">
+<h3>Parse the spin-orbit energies<a class="headerlink" href="#Parse-the-spin-orbit-energies" title="Permalink to this heading">¶</a></h3>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">ed</span><span class="o">.</span><span class="n">parse_so_energy</span><span class="p">()</span>
+<span class="n">ed</span><span class="o">.</span><span class="n">so_energy</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>energy</th>
+      <th>rel_energy</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>-2077.954390</td>
+      <td>0.000000e+00</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>-2077.954390</td>
+      <td>9.999894e-09</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>-2077.954387</td>
+      <td>3.260000e-06</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>-2077.904739</td>
+      <td>4.965116e-02</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>-2077.904733</td>
+      <td>4.965666e-02</td>
+    </tr>
+    <tr>
+      <th>5</th>
+      <td>-2077.903867</td>
+      <td>5.052263e-02</td>
+    </tr>
+    <tr>
+      <th>6</th>
+      <td>-2077.903867</td>
+      <td>5.052302e-02</td>
+    </tr>
+    <tr>
+      <th>7</th>
+      <td>-2077.903745</td>
+      <td>5.064452e-02</td>
+    </tr>
+    <tr>
+      <th>8</th>
+      <td>-2077.902419</td>
+      <td>5.197119e-02</td>
+    </tr>
+    <tr>
+      <th>9</th>
+      <td>-2077.901899</td>
+      <td>5.249087e-02</td>
+    </tr>
+    <tr>
+      <th>10</th>
+      <td>-2077.901899</td>
+      <td>5.249126e-02</td>
+    </tr>
+    <tr>
+      <th>11</th>
+      <td>-2077.901295</td>
+      <td>5.309470e-02</td>
+    </tr>
+    <tr>
+      <th>12</th>
+      <td>-2077.886226</td>
+      <td>6.816392e-02</td>
+    </tr>
+    <tr>
+      <th>13</th>
+      <td>-2077.886066</td>
+      <td>6.832363e-02</td>
+    </tr>
+    <tr>
+      <th>14</th>
+      <td>-2077.873816</td>
+      <td>8.057348e-02</td>
+    </tr>
+    <tr>
+      <th>15</th>
+      <td>-2077.871850</td>
+      <td>8.254028e-02</td>
+    </tr>
+    <tr>
+      <th>16</th>
+      <td>-2077.871342</td>
+      <td>8.304758e-02</td>
+    </tr>
+    <tr>
+      <th>17</th>
+      <td>-2077.871340</td>
+      <td>8.304971e-02</td>
+    </tr>
+    <tr>
+      <th>18</th>
+      <td>-2077.868206</td>
+      <td>8.618360e-02</td>
+    </tr>
+    <tr>
+      <th>19</th>
+      <td>-2077.868206</td>
+      <td>8.618428e-02</td>
+    </tr>
+    <tr>
+      <th>20</th>
+      <td>-2077.867139</td>
+      <td>8.725046e-02</td>
+    </tr>
+    <tr>
+      <th>21</th>
+      <td>-2077.866569</td>
+      <td>8.782112e-02</td>
+    </tr>
+    <tr>
+      <th>22</th>
+      <td>-2077.866563</td>
+      <td>8.782704e-02</td>
+    </tr>
+    <tr>
+      <th>23</th>
+      <td>-2077.835769</td>
+      <td>1.186211e-01</td>
+    </tr>
+    <tr>
+      <th>24</th>
+      <td>-2077.835337</td>
+      <td>1.190529e-01</td>
+    </tr>
+    <tr>
+      <th>25</th>
+      <td>-2077.835334</td>
+      <td>1.190561e-01</td>
+    </tr>
+    <tr>
+      <th>26</th>
+      <td>-2077.834799</td>
+      <td>1.195913e-01</td>
+    </tr>
+    <tr>
+      <th>27</th>
+      <td>-2077.817396</td>
+      <td>1.369943e-01</td>
+    </tr>
+    <tr>
+      <th>28</th>
+      <td>-2077.817393</td>
+      <td>1.369973e-01</td>
+    </tr>
+    <tr>
+      <th>29</th>
+      <td>-2077.816481</td>
+      <td>1.379089e-01</td>
+    </tr>
+    <tr>
+      <th>30</th>
+      <td>-2077.816285</td>
+      <td>1.381048e-01</td>
+    </tr>
+    <tr>
+      <th>31</th>
+      <td>-2077.816284</td>
+      <td>1.381056e-01</td>
+    </tr>
+    <tr>
+      <th>32</th>
+      <td>-2077.815347</td>
+      <td>1.390425e-01</td>
+    </tr>
+    <tr>
+      <th>33</th>
+      <td>-2077.815342</td>
+      <td>1.390480e-01</td>
+    </tr>
+    <tr>
+      <th>34</th>
+      <td>-2077.815145</td>
+      <td>1.392451e-01</td>
+    </tr>
+    <tr>
+      <th>35</th>
+      <td>-2077.814290</td>
+      <td>1.400999e-01</td>
+    </tr>
+    <tr>
+      <th>36</th>
+      <td>-2077.807559</td>
+      <td>1.468304e-01</td>
+    </tr>
+    <tr>
+      <th>37</th>
+      <td>-2077.807552</td>
+      <td>1.468383e-01</td>
+    </tr>
+    <tr>
+      <th>38</th>
+      <td>-2077.807127</td>
+      <td>1.472626e-01</td>
+    </tr>
+    <tr>
+      <th>39</th>
+      <td>-2077.766475</td>
+      <td>1.879153e-01</td>
+    </tr>
+    <tr>
+      <th>40</th>
+      <td>-2077.766420</td>
+      <td>1.879702e-01</td>
+    </tr>
+    <tr>
+      <th>41</th>
+      <td>-2077.763621</td>
+      <td>1.907691e-01</td>
+    </tr>
+    <tr>
+      <th>42</th>
+      <td>-2077.763489</td>
+      <td>1.909009e-01</td>
+    </tr>
+    <tr>
+      <th>43</th>
+      <td>-2077.763480</td>
+      <td>1.909094e-01</td>
+    </tr>
+    <tr>
+      <th>44</th>
+      <td>-2077.666114</td>
+      <td>2.882755e-01</td>
+    </tr>
+  </tbody>
+</table>
+</div></div>
+</div>
+</section>
+<section id="Parse-the-spin-free-oscillators-and-the-respective-Einstein-coefficients">
+<h3>Parse the spin-free oscillators and the respective Einstein coefficients<a class="headerlink" href="#Parse-the-spin-free-oscillators-and-the-respective-Einstein-coefficients" title="Permalink to this heading">¶</a></h3>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">ed</span><span class="o">.</span><span class="n">parse_sf_oscillator</span><span class="p">()</span>
+<span class="n">ed</span><span class="o">.</span><span class="n">sf_oscillator</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>nrow</th>
+      <th>ncol</th>
+      <th>oscil</th>
+      <th>a_x</th>
+      <th>a_y</th>
+      <th>a_z</th>
+      <th>a_tot</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>0</td>
+      <td>1</td>
+      <td>3.930999e-08</td>
+      <td>2.496945e+00</td>
+      <td>7.840636e-01</td>
+      <td>9.657002e-07</td>
+      <td>3.281010e+00</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>0</td>
+      <td>2</td>
+      <td>3.933130e-08</td>
+      <td>7.846762e-01</td>
+      <td>2.498241e+00</td>
+      <td>4.025564e-08</td>
+      <td>3.282917e+00</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>0</td>
+      <td>3</td>
+      <td>2.102329e-07</td>
+      <td>1.380900e-06</td>
+      <td>2.857155e-07</td>
+      <td>1.800309e+01</td>
+      <td>1.800309e+01</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>0</td>
+      <td>4</td>
+      <td>5.696867e-08</td>
+      <td>8.628428e+00</td>
+      <td>4.197526e+00</td>
+      <td>2.811387e-06</td>
+      <td>1.282596e+01</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>0</td>
+      <td>5</td>
+      <td>5.706843e-08</td>
+      <td>4.204379e+00</td>
+      <td>8.644959e+00</td>
+      <td>7.061455e-08</td>
+      <td>1.284934e+01</td>
+    </tr>
+    <tr>
+      <th>...</th>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+    </tr>
+    <tr>
+      <th>145</th>
+      <td>21</td>
+      <td>23</td>
+      <td>2.536118e-09</td>
+      <td>5.299360e-07</td>
+      <td>1.254916e-06</td>
+      <td>5.124162e-13</td>
+      <td>1.784852e-06</td>
+    </tr>
+    <tr>
+      <th>146</th>
+      <td>21</td>
+      <td>24</td>
+      <td>2.492648e-06</td>
+      <td>2.252458e+02</td>
+      <td>5.333962e+02</td>
+      <td>4.259893e-05</td>
+      <td>7.586421e+02</td>
+    </tr>
+    <tr>
+      <th>147</th>
+      <td>22</td>
+      <td>23</td>
+      <td>2.766291e-10</td>
+      <td>1.599847e-09</td>
+      <td>6.754759e-10</td>
+      <td>2.609615e-14</td>
+      <td>2.275349e-09</td>
+    </tr>
+    <tr>
+      <th>148</th>
+      <td>22</td>
+      <td>24</td>
+      <td>2.512245e-06</td>
+      <td>5.361555e+02</td>
+      <td>2.263767e+02</td>
+      <td>1.825265e-03</td>
+      <td>7.625340e+02</td>
+    </tr>
+    <tr>
+      <th>149</th>
+      <td>23</td>
+      <td>24</td>
+      <td>6.365324e-11</td>
+      <td>3.192207e-03</td>
+      <td>1.612189e-02</td>
+      <td>1.470600e-08</td>
+      <td>1.931411e-02</td>
+    </tr>
+  </tbody>
+</table>
+<p>150 rows × 7 columns</p>
+</div></div>
+</div>
+</section>
+<section id="Parse-the-spin-orbit-oscillators-and-the-respective-Einstein-coefficients">
+<h3>Parse the spin-orbit oscillators and the respective Einstein coefficients<a class="headerlink" href="#Parse-the-spin-orbit-oscillators-and-the-respective-Einstein-coefficients" title="Permalink to this heading">¶</a></h3>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">ed</span><span class="o">.</span><span class="n">parse_so_oscillator</span><span class="p">()</span>
+<span class="n">ed</span><span class="o">.</span><span class="n">so_oscillator</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>nrow</th>
+      <th>ncol</th>
+      <th>oscil</th>
+      <th>a_x</th>
+      <th>a_y</th>
+      <th>a_z</th>
+      <th>a_tot</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>0</td>
+      <td>1</td>
+      <td>4.318828e-18</td>
+      <td>2.016091e-23</td>
+      <td>3.312361e-24</td>
+      <td>2.343992e-30</td>
+      <td>2.347327e-23</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>0</td>
+      <td>2</td>
+      <td>3.911798e-15</td>
+      <td>4.156324e-16</td>
+      <td>9.189764e-16</td>
+      <td>5.844245e-24</td>
+      <td>1.334609e-15</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>0</td>
+      <td>3</td>
+      <td>5.394123e-08</td>
+      <td>8.279098e-01</td>
+      <td>1.537588e-01</td>
+      <td>3.290899e+00</td>
+      <td>4.272568e+00</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>0</td>
+      <td>4</td>
+      <td>1.236666e-08</td>
+      <td>1.529829e-01</td>
+      <td>8.254572e-01</td>
+      <td>1.313496e-03</td>
+      <td>9.797536e-01</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>0</td>
+      <td>5</td>
+      <td>9.356059e-08</td>
+      <td>4.234016e+00</td>
+      <td>1.078398e+00</td>
+      <td>2.360747e+00</td>
+      <td>7.673160e+00</td>
+    </tr>
+    <tr>
+      <th>...</th>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+    </tr>
+    <tr>
+      <th>985</th>
+      <td>41</td>
+      <td>43</td>
+      <td>2.430109e-09</td>
+      <td>4.575384e-07</td>
+      <td>1.079441e-06</td>
+      <td>4.469775e-13</td>
+      <td>1.536979e-06</td>
+    </tr>
+    <tr>
+      <th>986</th>
+      <td>41</td>
+      <td>44</td>
+      <td>2.508080e-06</td>
+      <td>2.274764e+02</td>
+      <td>5.386792e+02</td>
+      <td>4.296662e-05</td>
+      <td>7.661557e+02</td>
+    </tr>
+    <tr>
+      <th>987</th>
+      <td>42</td>
+      <td>43</td>
+      <td>1.483332e-10</td>
+      <td>2.427076e-10</td>
+      <td>1.020911e-10</td>
+      <td>3.948815e-15</td>
+      <td>3.448027e-10</td>
+    </tr>
+    <tr>
+      <th>988</th>
+      <td>42</td>
+      <td>44</td>
+      <td>2.527732e-06</td>
+      <td>5.414604e+02</td>
+      <td>2.286106e+02</td>
+      <td>1.839430e-03</td>
+      <td>7.700729e+02</td>
+    </tr>
+    <tr>
+      <th>989</th>
+      <td>43</td>
+      <td>44</td>
+      <td>8.138990e-11</td>
+      <td>1.570466e-03</td>
+      <td>2.322060e-02</td>
+      <td>6.346128e-09</td>
+      <td>2.479108e-02</td>
+    </tr>
+  </tbody>
+</table>
+<p>990 rows × 7 columns</p>
+</div></div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">decomp</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>
+</pre></div>
+</div>
+</div>
+</section>
+</section>
+</section>
+
+
+    </div>
+      
+  </div>
+</div>
+<footer class="footer">
+  <div class="container">
+    <p class="pull-right">
+      <a href="#">Back to top</a>
+      
+    </p>
+    <p>
+        &copy; Copyright 2023, Herbert D Ludowieg. Project structure based on the Computational Molecular Science Python Cookiecutter version 1.1.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 7.0.1.<br/>
+    </p>
+  </div>
+</footer>
+  </body>
+</html>

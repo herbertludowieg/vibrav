@@ -1,0 +1,21 @@
+vibrav.util package
+===================
+
+.. automodule:: vibrav.util
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+Submodules
+----------
+
+.. toctree::
+   :maxdepth: 3
+
+   vibrav.util.block_diagonal
+   vibrav.util.data_checking
+   vibrav.util.file_checking
+   vibrav.util.gen_displaced
+   vibrav.util.io
+   vibrav.util.math
+   vibrav.util.print

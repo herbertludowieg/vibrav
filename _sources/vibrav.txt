@@ -1,0 +1,30 @@
+vibrav package
+==============
+
+.. automodule:: vibrav
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+Subpackages
+-----------
+
+.. toctree::
+   :maxdepth: 3
+
+   vibrav.adf
+   vibrav.core
+   vibrav.molcas
+   vibrav.numerical
+   vibrav.util
+   vibrav.vibronic
+   vibrav.vroa
+   vibrav.zpvc
+
+Submodules
+----------
+
+.. toctree::
+   :maxdepth: 3
+
+   vibrav.base

@@ -1,0 +1,7 @@
+vibrav.adf.output module
+========================
+
+.. automodule:: vibrav.adf.output
+   :members:
+   :undoc-members:
+   :show-inheritance:

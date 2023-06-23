@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>vibrav.numerical.boltzmann module &#8212; vibrav  documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/bootstrap-sphinx.css" />
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/sphinx_highlight.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="vibrav.numerical.degeneracy module" href="vibrav.numerical.degeneracy.html" />
+    <link rel="prev" title="vibrav.numerical package" href="vibrav.numerical.html" />
+<meta charset='utf-8'>
+<meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
+<meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1'>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<script type="text/javascript" src="_static/js/jquery-1.12.4.min.js"></script>
+<script type="text/javascript" src="_static/js/jquery-fix.js"></script>
+<script type="text/javascript" src="_static/bootstrap-3.4.1/js/bootstrap.min.js"></script>
+<script type="text/javascript" src="_static/bootstrap-sphinx.js"></script>
+
+  </head><body>
+
+  <div id="navbar" class="navbar navbar-default navbar-fixed-top">
+    <div class="container">
+      <div class="navbar-header">
+        <!-- .btn-navbar is used as the toggle for collapsed navbar content -->
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".nav-collapse">
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        <a class="navbar-brand" href="index.html">
+          vibrav</a>
+        <span class="navbar-text navbar-version pull-left"><b></b></span>
+      </div>
+
+        <div class="collapse navbar-collapse nav-collapse">
+          <ul class="nav navbar-nav">
+            
+            
+              <li class="dropdown globaltoc-container">
+  <a role="button"
+     id="dLabelGlobalToc"
+     data-toggle="dropdown"
+     data-target="#"
+     href="index.html">Site <b class="caret"></b></a>
+  <ul class="dropdown-menu globaltoc"
+      role="menu"
+      aria-labelledby="dLabelGlobalToc"><ul>
+<li class="toctree-l1"><a class="reference internal" href="examples/adf.html">ADF parser API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples/gen-displaced.html">Generating the displaced structures from a Gaussian frequencies calculation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples/molcas.html">Molcas parser API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples/numerical-diffs.html">Using derivative module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples/vibronic.html">Running vibronic calculations from a Molcas RASSI set of calculations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples/vroa-h2o2.html">VROA intensities of hydrogen peroxide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples/vroa-methyloxirane.html">VROA intensities of methyloxirane</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples/zpvc.html">Tutorial for using the ZPVC module in VIBRAV</a></li>
+</ul>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="vibrav.html">vibrav package</a></li>
+</ul>
+</ul>
+</li>
+              
+                <li class="dropdown">
+  <a role="button"
+     id="dLabelLocalToc"
+     data-toggle="dropdown"
+     data-target="#"
+     href="#">Page <b class="caret"></b></a>
+  <ul class="dropdown-menu localtoc"
+      role="menu"
+      aria-labelledby="dLabelLocalToc"><ul>
+<li><a class="reference internal" href="#">vibrav.numerical.boltzmann module</a><ul>
+<li><a class="reference internal" href="#vibrav.numerical.boltzmann.boltz_dist"><code class="docutils literal notranslate"><span class="pre">boltz_dist()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</ul>
+</li>
+              
+            
+            
+              
+                
+  <li>
+    <a href="vibrav.numerical.html" title="Previous Chapter: vibrav.numerical package"><span class="glyphicon glyphicon-chevron-left visible-sm"></span><span class="hidden-sm hidden-tablet">&laquo; vibrav.numeri...</span>
+    </a>
+  </li>
+  <li>
+    <a href="vibrav.numerical.degeneracy.html" title="Next Chapter: vibrav.numerical.degeneracy module"><span class="glyphicon glyphicon-chevron-right visible-sm"></span><span class="hidden-sm hidden-tablet">vibrav.numeri... &raquo;</span>
+    </a>
+  </li>
+              
+            
+            
+            
+            
+              <li class="hidden-sm">
+<div id="sourcelink">
+  <a href="_sources/vibrav.numerical.boltzmann.txt"
+     rel="nofollow">Source</a>
+</div></li>
+            
+          </ul>
+
+          
+            
+<form class="navbar-form navbar-right" action="search.html" method="get">
+ <div class="form-group">
+  <input type="text" name="q" class="form-control" placeholder="Search" />
+ </div>
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+          
+        </div>
+    </div>
+  </div>
+
+<div class="container">
+  <div class="row">
+    <div class="body col-md-12 content" role="main">
+      
+  <section id="module-vibrav.numerical.boltzmann">
+<span id="vibrav-numerical-boltzmann-module"></span><h1>vibrav.numerical.boltzmann module<a class="headerlink" href="#module-vibrav.numerical.boltzmann" title="Permalink to this heading">¶</a></h1>
+<dl class="py function">
+<dt class="sig sig-object py" id="vibrav.numerical.boltzmann.boltz_dist">
+<span class="sig-prename descclassname"><span class="pre">vibrav.numerical.boltzmann.</span></span><span class="sig-name descname"><span class="pre">boltz_dist</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">energies</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">temp</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-06</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">states</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ignore_max</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/vibrav/numerical/boltzmann.html#boltz_dist"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#vibrav.numerical.boltzmann.boltz_dist" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate the vibrational boltzmann distributions for all vibrational
+frequencies up to when the distribution is less than the given tolerance
+value.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This does not take into account any energetic degeneracies of the input
+energies/states and the primary purpose is to calculate the Boltzmann distribution
+of vibrational states.</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>energies</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">numpy.ndarray</span></code> or <code class="xref py py-obj docutils literal notranslate"><span class="pre">list</span></code>) – Array of energies in wavenumbers.</p></li>
+<li><p><strong>temp</strong> (<code class="xref py py-obj docutils literal notranslate"><span class="pre">float</span></code>) – Temperature to calculate the distribution.</p></li>
+<li><p><strong>tol</strong> (<code class="xref py py-obj docutils literal notranslate"><span class="pre">float</span></code>, optional) – Tolerance threshold to cutoff the calculation
+of the distribution factors. Defaults to <code class="code docutils literal notranslate"><span class="pre">1e-5</span></code>.</p></li>
+<li><p><strong>states</strong> (<code class="xref py py-obj docutils literal notranslate"><span class="pre">int</span></code>, optional) – Number of states to calculate. Defaults to
+<code class="code docutils literal notranslate"><span class="pre">None</span></code> (all states with a distribution
+less than the <code class="code docutils literal notranslate"><span class="pre">tol</span></code> value for the lowest
+frequency).</p></li>
+<li><p><strong>ignore_max</strong> (<code class="xref py py-obj docutils literal notranslate"><span class="pre">bool</span></code>, optional) – Ignore the default matimum number of max states
+to be calculated. This is very dangerous use at
+your own risk. There is a possibility of hitting
+the recursion limit in python. Defaults to
+<code class="code docutils literal notranslate"><span class="pre">False</span></code>.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>boltz (<code class="xref py py-class docutils literal notranslate"><span class="pre">pandas.DataFrame</span></code>) – Data frame of the boltzmann factors for each energy.</p>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>ValueError</strong> – If the <cite>states</cite> parameter given is more than 1000 as we consider this
+    to be unphysical.</p></li>
+<li><p><strong>ValueError</strong> – If the <cite>states</cite> parameter is zero.</p></li>
+<li><p><strong>ValueError</strong> – If the <cite>temp</cite> paramter is less than or equal to zero.</p></li>
+<li><p><strong>ValueError</strong> – If the program calculates more than 1000 states at a given tolerance.</p></li>
+</ul>
+</dd>
+</dl>
+<div class="admonition-examples admonition">
+<p class="admonition-title">Examples</p>
+<p>Calculating the boltzmann distribution of a two state system at room temperature
+(298 K) with the energies 10, 20 and 80 wavenumbers (cm <span class="math notranslate nohighlight">\(^{-1}\)</span>).</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">temp</span> <span class="o">=</span> <span class="mi">298</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">freq</span> <span class="o">=</span> <span class="p">[</span><span class="mi">10</span><span class="p">,</span> <span class="mi">20</span><span class="p">,</span> <span class="mi">80</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">boltz_dist</span><span class="p">(</span><span class="n">energies</span><span class="o">=</span><span class="n">freq</span><span class="p">,</span> <span class="n">temp</span><span class="o">=</span><span class="n">temp</span><span class="p">,</span> <span class="n">states</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+<span class="go">          0         1  freqdx  partition  energy</span>
+<span class="go">0  0.512068  0.487932       0   1.952866      10</span>
+<span class="go">1  0.524122  0.475878       1   1.907953      20</span>
+<span class="go">2  0.595379  0.404621       2   1.679601      80</span>
+</pre></div>
+</div>
+<p>It is not necessary that the input energies be ordered as shown by the next example.
+The only thing that will change is that the output <code class="xref py py-class docutils literal notranslate"><span class="pre">pandas.DataFrame</span></code> will have a
+<cite>freqdx</cite> column that will reflect the ordeting of the input energies.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">temp</span> <span class="o">=</span> <span class="mi">298</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">freq</span> <span class="o">=</span> <span class="p">[</span><span class="mi">10</span><span class="p">,</span> <span class="mi">80</span><span class="p">,</span> <span class="mi">20</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">boltz_dist</span><span class="p">(</span><span class="n">energies</span><span class="o">=</span><span class="n">freq</span><span class="p">,</span> <span class="n">temp</span><span class="o">=</span><span class="n">temp</span><span class="p">,</span> <span class="n">states</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+<span class="go">          0         1  freqdx  partition  energy</span>
+<span class="go">0  0.512068  0.487932       0   1.952866      10</span>
+<span class="go">1  0.524122  0.475878       2   1.907953      20</span>
+<span class="go">2  0.595379  0.404621       1   1.679601      80</span>
+</pre></div>
+</div>
+<p>These examples have truncated the number of states to actually calculate by a user
+defined value. If the user is interested in getting all of the available states above
+a given threshold, <code class="code docutils literal notranslate"><span class="pre">1e-6</span></code> by default, this can be done by passing the <cite>states</cite>
+parameter as <code class="code docutils literal notranslate"><span class="pre">None</span></code>.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">temp</span> <span class="o">=</span> <span class="mi">40</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">freq</span> <span class="o">=</span> <span class="p">[</span><span class="mi">100</span><span class="p">,</span> <span class="mi">200</span><span class="p">,</span> <span class="mi">300</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">boltz_dist</span><span class="p">(</span><span class="n">energies</span><span class="o">=</span><span class="n">freq</span><span class="p">,</span> <span class="n">temp</span><span class="o">=</span><span class="n">temp</span><span class="p">,</span> <span class="n">states</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+<span class="go">          0         1             2        3  freqdx  partition  energy</span>
+<span class="go">0  0.972593  0.026656  7.305767e-04  0.00002       0   1.028179     100</span>
+<span class="go">1  0.999249  0.000751  5.638231e-07  0.00000       1   1.000752     200</span>
+<span class="go">2  0.999979  0.000021  0.000000e+00  0.00000       2   1.000021     300</span>
+</pre></div>
+</div>
+<p>Notice, that in the example above, the threshold is only applied to the lowest energy
+and all higher energies calculate the same number of states even when the threshold is
+already met. This is purely done for the sake of simplifying data storage in a later
+step with the <code class="xref py py-func docutils literal notranslate"><span class="pre">numpy.stack()</span></code> function. It is not believed that this will affect
+memory usage or performance greatly.</p>
+<p>The program is designed to detect if there are more than 1000 states calculated and
+automatically throw an error as this is an unphysical number of states to calculate.</p>
+</div>
+</dd></dl>
+
+</section>
+
+
+    </div>
+      
+  </div>
+</div>
+<footer class="footer">
+  <div class="container">
+    <p class="pull-right">
+      <a href="#">Back to top</a>
+      
+    </p>
+    <p>
+        &copy; Copyright 2023, Herbert D Ludowieg. Project structure based on the Computational Molecular Science Python Cookiecutter version 1.1.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 7.0.1.<br/>
+    </p>
+  </div>
+</footer>
+  </body>
+</html>

@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>vibrav.numerical.derivatives module &#8212; vibrav  documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/bootstrap-sphinx.css" />
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/sphinx_highlight.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="vibrav.numerical.frequencies module" href="vibrav.numerical.frequencies.html" />
+    <link rel="prev" title="vibrav.numerical.degeneracy module" href="vibrav.numerical.degeneracy.html" />
+<meta charset='utf-8'>
+<meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
+<meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1'>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<script type="text/javascript" src="_static/js/jquery-1.12.4.min.js"></script>
+<script type="text/javascript" src="_static/js/jquery-fix.js"></script>
+<script type="text/javascript" src="_static/bootstrap-3.4.1/js/bootstrap.min.js"></script>
+<script type="text/javascript" src="_static/bootstrap-sphinx.js"></script>
+
+  </head><body>
+
+  <div id="navbar" class="navbar navbar-default navbar-fixed-top">
+    <div class="container">
+      <div class="navbar-header">
+        <!-- .btn-navbar is used as the toggle for collapsed navbar content -->
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".nav-collapse">
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        <a class="navbar-brand" href="index.html">
+          vibrav</a>
+        <span class="navbar-text navbar-version pull-left"><b></b></span>
+      </div>
+
+        <div class="collapse navbar-collapse nav-collapse">
+          <ul class="nav navbar-nav">
+            
+            
+              <li class="dropdown globaltoc-container">
+  <a role="button"
+     id="dLabelGlobalToc"
+     data-toggle="dropdown"
+     data-target="#"
+     href="index.html">Site <b class="caret"></b></a>
+  <ul class="dropdown-menu globaltoc"
+      role="menu"
+      aria-labelledby="dLabelGlobalToc"><ul>
+<li class="toctree-l1"><a class="reference internal" href="examples/adf.html">ADF parser API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples/gen-displaced.html">Generating the displaced structures from a Gaussian frequencies calculation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples/molcas.html">Molcas parser API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples/numerical-diffs.html">Using derivative module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples/vibronic.html">Running vibronic calculations from a Molcas RASSI set of calculations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples/vroa-h2o2.html">VROA intensities of hydrogen peroxide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples/vroa-methyloxirane.html">VROA intensities of methyloxirane</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples/zpvc.html">Tutorial for using the ZPVC module in VIBRAV</a></li>
+</ul>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="vibrav.html">vibrav package</a></li>
+</ul>
+</ul>
+</li>
+              
+                <li class="dropdown">
+  <a role="button"
+     id="dLabelLocalToc"
+     data-toggle="dropdown"
+     data-target="#"
+     href="#">Page <b class="caret"></b></a>
+  <ul class="dropdown-menu localtoc"
+      role="menu"
+      aria-labelledby="dLabelLocalToc"><ul>
+<li><a class="reference internal" href="#">vibrav.numerical.derivatives module</a><ul>
+<li><a class="reference internal" href="#vibrav.numerical.derivatives.arb_disps_1d"><code class="docutils literal notranslate"><span class="pre">arb_disps_1d()</span></code></a></li>
+<li><a class="reference internal" href="#vibrav.numerical.derivatives.eight_point_1d"><code class="docutils literal notranslate"><span class="pre">eight_point_1d()</span></code></a></li>
+<li><a class="reference internal" href="#vibrav.numerical.derivatives.eight_point_2d"><code class="docutils literal notranslate"><span class="pre">eight_point_2d()</span></code></a></li>
+<li><a class="reference internal" href="#vibrav.numerical.derivatives.four_point_1d"><code class="docutils literal notranslate"><span class="pre">four_point_1d()</span></code></a></li>
+<li><a class="reference internal" href="#vibrav.numerical.derivatives.four_point_2d"><code class="docutils literal notranslate"><span class="pre">four_point_2d()</span></code></a></li>
+<li><a class="reference internal" href="#vibrav.numerical.derivatives.get_pos_neg_gradients"><code class="docutils literal notranslate"><span class="pre">get_pos_neg_gradients()</span></code></a></li>
+<li><a class="reference internal" href="#vibrav.numerical.derivatives.six_point_1d"><code class="docutils literal notranslate"><span class="pre">six_point_1d()</span></code></a></li>
+<li><a class="reference internal" href="#vibrav.numerical.derivatives.six_point_2d"><code class="docutils literal notranslate"><span class="pre">six_point_2d()</span></code></a></li>
+<li><a class="reference internal" href="#vibrav.numerical.derivatives.two_point_1d"><code class="docutils literal notranslate"><span class="pre">two_point_1d()</span></code></a></li>
+<li><a class="reference internal" href="#vibrav.numerical.derivatives.two_point_2d"><code class="docutils literal notranslate"><span class="pre">two_point_2d()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</ul>
+</li>
+              
+            
+            
+              
+                
+  <li>
+    <a href="vibrav.numerical.degeneracy.html" title="Previous Chapter: vibrav.numerical.degeneracy module"><span class="glyphicon glyphicon-chevron-left visible-sm"></span><span class="hidden-sm hidden-tablet">&laquo; vibrav.numeri...</span>
+    </a>
+  </li>
+  <li>
+    <a href="vibrav.numerical.frequencies.html" title="Next Chapter: vibrav.numerical.frequencies module"><span class="glyphicon glyphicon-chevron-right visible-sm"></span><span class="hidden-sm hidden-tablet">vibrav.numeri... &raquo;</span>
+    </a>
+  </li>
+              
+            
+            
+            
+            
+              <li class="hidden-sm">
+<div id="sourcelink">
+  <a href="_sources/vibrav.numerical.derivatives.txt"
+     rel="nofollow">Source</a>
+</div></li>
+            
+          </ul>
+
+          
+            
+<form class="navbar-form navbar-right" action="search.html" method="get">
+ <div class="form-group">
+  <input type="text" name="q" class="form-control" placeholder="Search" />
+ </div>
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+          
+        </div>
+    </div>
+  </div>
+
+<div class="container">
+  <div class="row">
+    <div class="body col-md-12 content" role="main">
+      
+  <section id="module-vibrav.numerical.derivatives">
+<span id="vibrav-numerical-derivatives-module"></span><h1>vibrav.numerical.derivatives module<a class="headerlink" href="#module-vibrav.numerical.derivatives" title="Permalink to this heading">¶</a></h1>
+<dl class="py function">
+<dt class="sig sig-object py" id="vibrav.numerical.derivatives.arb_disps_1d">
+<span class="sig-prename descclassname"><span class="pre">vibrav.numerical.derivatives.</span></span><span class="sig-name descname"><span class="pre">arb_disps_1d</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">plus</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">minus</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">disp_steps</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">delta</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/vibrav/numerical/derivatives.html#arb_disps_1d"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#vibrav.numerical.derivatives.arb_disps_1d" title="Permalink to this definition">¶</a></dt>
+<dd><p>Unlike the functions
+<a class="reference internal" href="#vibrav.numerical.derivatives.four_point_1d" title="vibrav.numerical.derivatives.four_point_1d"><code class="xref py py-func docutils literal notranslate"><span class="pre">vibrav.numerical.derivatives.four_point_1d()</span></code></a>,
+<a class="reference internal" href="#vibrav.numerical.derivatives.six_point_1d" title="vibrav.numerical.derivatives.six_point_1d"><code class="xref py py-func docutils literal notranslate"><span class="pre">vibrav.numerical.derivatives.six_point_1d()</span></code></a>. This function
+serves to calculate a derivative when the displacements are not
+constant.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This requires that the steps are symmetric. Meaning, the
+steps that are taken in the positive direction must be the
+same as in the negative direction.</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>plus</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">numpy.ndarray</span></code>) – Array with the positive
+displacement data.</p></li>
+<li><p><strong>minus</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">numpy.ndarray</span></code>) – Array with the negative
+displacement data.</p></li>
+<li><p><strong>disp_steps</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">numpy.ndarray</span></code>) – Array with the displacement
+step size taken.</p></li>
+<li><p><strong>delta</strong> (<code class="xref py py-obj docutils literal notranslate"><span class="pre">float</span></code>) – Displacement taken for first diaplacement
+step.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>deriv (<code class="xref py py-obj docutils literal notranslate"><span class="pre">float</span></code>) – Numerical first derivative for given data.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="vibrav.numerical.derivatives.eight_point_1d">
+<span class="sig-prename descclassname"><span class="pre">vibrav.numerical.derivatives.</span></span><span class="sig-name descname"><span class="pre">eight_point_1d</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">plus</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">minus</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">delta</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/vibrav/numerical/derivatives.html#eight_point_1d"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#vibrav.numerical.derivatives.eight_point_1d" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="vibrav.numerical.derivatives.eight_point_2d">
+<span class="sig-prename descclassname"><span class="pre">vibrav.numerical.derivatives.</span></span><span class="sig-name descname"><span class="pre">eight_point_2d</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">plus</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">minus</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">equil</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">delta</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/vibrav/numerical/derivatives.html#eight_point_2d"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#vibrav.numerical.derivatives.eight_point_2d" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="vibrav.numerical.derivatives.four_point_1d">
+<span class="sig-prename descclassname"><span class="pre">vibrav.numerical.derivatives.</span></span><span class="sig-name descname"><span class="pre">four_point_1d</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">plus</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">minus</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">delta</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/vibrav/numerical/derivatives.html#four_point_1d"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#vibrav.numerical.derivatives.four_point_1d" title="Permalink to this definition">¶</a></dt>
+<dd><p>Four point central finite difference method to approximate the first
+derivative of the input data, also know as the five point stencil.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>plus</strong> (<code class="xref py py-obj docutils literal notranslate"><span class="pre">float</span></code>) – Data frame with the positive displacement
+data.</p></li>
+<li><p><strong>minus</strong> (<code class="xref py py-obj docutils literal notranslate"><span class="pre">float</span></code>) – Data frame with the negative displacement
+data.</p></li>
+<li><p><strong>delta</strong> (<code class="xref py py-obj docutils literal notranslate"><span class="pre">float</span></code>) – Displacement parameter used.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>deriv (<code class="xref py py-obj docutils literal notranslate"><span class="pre">float</span></code>) – Numerical first derivative for given data.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="vibrav.numerical.derivatives.four_point_2d">
+<span class="sig-prename descclassname"><span class="pre">vibrav.numerical.derivatives.</span></span><span class="sig-name descname"><span class="pre">four_point_2d</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">plus</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">minus</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">equil</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">delta</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/vibrav/numerical/derivatives.html#four_point_2d"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#vibrav.numerical.derivatives.four_point_2d" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="vibrav.numerical.derivatives.get_pos_neg_gradients">
+<span class="sig-prename descclassname"><span class="pre">vibrav.numerical.derivatives.</span></span><span class="sig-name descname"><span class="pre">get_pos_neg_gradients</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">grad</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">freq</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nmodes</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/vibrav/numerical/derivatives.html#get_pos_neg_gradients"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#vibrav.numerical.derivatives.get_pos_neg_gradients" title="Permalink to this definition">¶</a></dt>
+<dd><p>Here we get the gradients of the equilibrium, positive and negative
+displaced structures.  We extract them from the gradient dataframe
+and convert them into normal coordinates by multiplying them by the
+frequency normal mode displacement values.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>grad</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">exatomic.gradient.Gradient</span></code>) – DataFrame containing
+all of the gradient data</p></li>
+<li><p><strong>freq</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">exatomic.atom.Frquency</span></code>) – DataFrame containing all
+of the frequency data</p></li>
+<li><p><strong>nmodes</strong> (<em>int</em>) – Number of normal modes in the molecule.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><p><em>delfq_zero (pandas.DataFrame)</em> –</p>
+<dl class="simple">
+<dt>Normal mode converted gradients</dt><dd><p>of equilibrium structure</p>
+</dd>
+<dt>delfq_plus (pandas.DataFrame): Normal mode converted gradients</dt><dd><p>of positive displaced structure</p>
+</dd>
+<dt>delfq_minus (pandas.DataFrame): Normal mode converted gradients</dt><dd><p>of negative displaced structure</p>
+</dd>
+</dl>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="vibrav.numerical.derivatives.six_point_1d">
+<span class="sig-prename descclassname"><span class="pre">vibrav.numerical.derivatives.</span></span><span class="sig-name descname"><span class="pre">six_point_1d</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">plus</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">minus</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">delta</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/vibrav/numerical/derivatives.html#six_point_1d"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#vibrav.numerical.derivatives.six_point_1d" title="Permalink to this definition">¶</a></dt>
+<dd><p>Six point central finite difference method to approximate the first
+derivative of the input data.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>plus</strong> (<code class="xref py py-obj docutils literal notranslate"><span class="pre">float</span></code>) – Data frame with the positive displacement
+data.</p></li>
+<li><p><strong>minus</strong> (<code class="xref py py-obj docutils literal notranslate"><span class="pre">float</span></code>) – Data frame with the negative displacement
+data.</p></li>
+<li><p><strong>delta</strong> (<code class="xref py py-obj docutils literal notranslate"><span class="pre">float</span></code>) – Displacement parameter used.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>deriv (<code class="xref py py-obj docutils literal notranslate"><span class="pre">float</span></code>) – Numerical first derivative for given data.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="vibrav.numerical.derivatives.six_point_2d">
+<span class="sig-prename descclassname"><span class="pre">vibrav.numerical.derivatives.</span></span><span class="sig-name descname"><span class="pre">six_point_2d</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">plus</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">minus</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">equil</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">delta</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/vibrav/numerical/derivatives.html#six_point_2d"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#vibrav.numerical.derivatives.six_point_2d" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="vibrav.numerical.derivatives.two_point_1d">
+<span class="sig-prename descclassname"><span class="pre">vibrav.numerical.derivatives.</span></span><span class="sig-name descname"><span class="pre">two_point_1d</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">plus</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">minus</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">delta</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/vibrav/numerical/derivatives.html#two_point_1d"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#vibrav.numerical.derivatives.two_point_1d" title="Permalink to this definition">¶</a></dt>
+<dd><p>Two point central finite difference method to approximate the first
+derivative of the input data.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>plus</strong> (<code class="xref py py-obj docutils literal notranslate"><span class="pre">float</span></code>) – Data frame with the positive displacement
+data.</p></li>
+<li><p><strong>minus</strong> (<code class="xref py py-obj docutils literal notranslate"><span class="pre">float</span></code>) – Data frame with the negative displacement
+data.</p></li>
+<li><p><strong>delta</strong> (<code class="xref py py-obj docutils literal notranslate"><span class="pre">float</span></code>) – Displacement parameter used.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>deriv (<code class="xref py py-obj docutils literal notranslate"><span class="pre">float</span></code>) – Numerical first derivative for given data.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="vibrav.numerical.derivatives.two_point_2d">
+<span class="sig-prename descclassname"><span class="pre">vibrav.numerical.derivatives.</span></span><span class="sig-name descname"><span class="pre">two_point_2d</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">plus</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">minus</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">equil</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">delta</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/vibrav/numerical/derivatives.html#two_point_2d"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#vibrav.numerical.derivatives.two_point_2d" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</section>
+
+
+    </div>
+      
+  </div>
+</div>
+<footer class="footer">
+  <div class="container">
+    <p class="pull-right">
+      <a href="#">Back to top</a>
+      
+    </p>
+    <p>
+        &copy; Copyright 2023, Herbert D Ludowieg. Project structure based on the Computational Molecular Science Python Cookiecutter version 1.1.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 7.0.1.<br/>
+    </p>
+  </div>
+</footer>
+  </body>
+</html>

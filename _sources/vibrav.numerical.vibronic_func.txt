@@ -1,0 +1,7 @@
+vibrav.numerical.vibronic\_func module
+======================================
+
+.. automodule:: vibrav.numerical.vibronic_func
+   :members:
+   :undoc-members:
+   :show-inheritance:

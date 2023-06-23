@@ -1,0 +1,712 @@
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Running vibronic calculations from a Molcas RASSI set of calculations &#8212; vibrav  documentation</title>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/bootstrap-sphinx.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/nbsphinx-code-cells.css" />
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/sphinx_highlight.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="VROA intensities of hydrogen peroxide" href="vroa-h2o2.html" />
+    <link rel="prev" title="Using derivative module" href="numerical-diffs.html" />
+<meta charset='utf-8'>
+<meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
+<meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1'>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<script type="text/javascript" src="../_static/js/jquery-1.12.4.min.js"></script>
+<script type="text/javascript" src="../_static/js/jquery-fix.js"></script>
+<script type="text/javascript" src="../_static/bootstrap-3.4.1/js/bootstrap.min.js"></script>
+<script type="text/javascript" src="../_static/bootstrap-sphinx.js"></script>
+
+  </head><body>
+
+  <div id="navbar" class="navbar navbar-default navbar-fixed-top">
+    <div class="container">
+      <div class="navbar-header">
+        <!-- .btn-navbar is used as the toggle for collapsed navbar content -->
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".nav-collapse">
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        <a class="navbar-brand" href="../index.html">
+          vibrav</a>
+        <span class="navbar-text navbar-version pull-left"><b></b></span>
+      </div>
+
+        <div class="collapse navbar-collapse nav-collapse">
+          <ul class="nav navbar-nav">
+            
+            
+              <li class="dropdown globaltoc-container">
+  <a role="button"
+     id="dLabelGlobalToc"
+     data-toggle="dropdown"
+     data-target="#"
+     href="../index.html">Site <b class="caret"></b></a>
+  <ul class="dropdown-menu globaltoc"
+      role="menu"
+      aria-labelledby="dLabelGlobalToc"><ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="adf.html">ADF parser API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="gen-displaced.html">Generating the displaced structures from a Gaussian frequencies calculation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="molcas.html">Molcas parser API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="numerical-diffs.html">Using derivative module</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Running vibronic calculations from a Molcas RASSI set of calculations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="vroa-h2o2.html">VROA intensities of hydrogen peroxide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="vroa-methyloxirane.html">VROA intensities of methyloxirane</a></li>
+<li class="toctree-l1"><a class="reference internal" href="zpvc.html">Tutorial for using the ZPVC module in VIBRAV</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../vibrav.html">vibrav package</a></li>
+</ul>
+</ul>
+</li>
+              
+                <li class="dropdown">
+  <a role="button"
+     id="dLabelLocalToc"
+     data-toggle="dropdown"
+     data-target="#"
+     href="#">Page <b class="caret"></b></a>
+  <ul class="dropdown-menu localtoc"
+      role="menu"
+      aria-labelledby="dLabelLocalToc"><ul>
+<li><a class="reference internal" href="#">Running vibronic calculations from a Molcas RASSI set of calculations</a><ul>
+<li><a class="reference internal" href="#Begin-the-vibronic-coupling-calculations">Begin the vibronic coupling calculations</a><ul>
+<li><a class="reference internal" href="#Brief-rundown-of-the-most-important-input-arguments">Brief rundown of the most important input arguments</a></li>
+<li><a class="reference internal" href="#Reading-the-.txt-files-that-are-generated">Reading the <code class="docutils literal notranslate"><span class="pre">.txt</span></code> files that are generated</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</ul>
+</li>
+              
+            
+            
+              
+                
+  <li>
+    <a href="numerical-diffs.html" title="Previous Chapter: Using derivative module"><span class="glyphicon glyphicon-chevron-left visible-sm"></span><span class="hidden-sm hidden-tablet">&laquo; Using derivat...</span>
+    </a>
+  </li>
+  <li>
+    <a href="vroa-h2o2.html" title="Next Chapter: VROA intensities of hydrogen peroxide"><span class="glyphicon glyphicon-chevron-right visible-sm"></span><span class="hidden-sm hidden-tablet">VROA intensit... &raquo;</span>
+    </a>
+  </li>
+              
+            
+            
+            
+            
+              <li class="hidden-sm">
+<div id="sourcelink">
+  <a href="../_sources/examples/vibronic.ipynb.txt"
+     rel="nofollow">Source</a>
+</div></li>
+            
+          </ul>
+
+          
+            
+<form class="navbar-form navbar-right" action="../search.html" method="get">
+ <div class="form-group">
+  <input type="text" name="q" class="form-control" placeholder="Search" />
+ </div>
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+          
+        </div>
+    </div>
+  </div>
+
+<div class="container">
+  <div class="row">
+    <div class="body col-md-12 content" role="main">
+      
+  <section id="Running-vibronic-calculations-from-a-Molcas-RASSI-set-of-calculations">
+<h1>Running vibronic calculations from a Molcas RASSI set of calculations<a class="headerlink" href="#Running-vibronic-calculations-from-a-Molcas-RASSI-set-of-calculations" title="Permalink to this heading">¶</a></h1>
+<p>Requirements:</p>
+<ul class="simple">
+<li><p>Spin-free hamiltonian for every structure displaced along the normal modes for the numerical first derivative.</p></li>
+<li><p>Zero-order file with the following spin-free properties for each of the vibronic coupling calculations:</p></li>
+<li><p>Electric dipole moments (<code class="docutils literal notranslate"><span class="pre">'electric_dipole'</span></code>)</p></li>
+<li><p>Magnetic dipole moments (<code class="docutils literal notranslate"><span class="pre">'magnetic_dipole'</span></code>)</p></li>
+<li><p>Electric quadrupole moments (<code class="docutils literal notranslate"><span class="pre">'electric_quadrupole'</span></code>)</p></li>
+<li><p>Zero-order file with the spin-free and spin-orbit energies.</p></li>
+</ul>
+<p>The Zero-order file referenced above is the calculation at the equilibrium geometry with the <code class="docutils literal notranslate"><span class="pre">EJOB</span></code> option in the molcas input file.</p>
+<p>Some imports for the resource to deal with the data files for the purpose of this example.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">vibrav.base</span> <span class="kn">import</span> <span class="n">resource</span>
+<span class="kn">import</span> <span class="nn">tarfile</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">glob</span>
+<span class="kn">import</span> <span class="nn">shutil</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">tarball</span> <span class="o">=</span> <span class="n">resource</span><span class="p">(</span><span class="s1">&#39;molcas-ucl6-2minus-vibronic-coupling.tar.xz&#39;</span><span class="p">)</span>
+<span class="k">with</span> <span class="n">tarfile</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">tarball</span><span class="p">,</span> <span class="s1">&#39;r:xz&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">tar</span><span class="p">:</span>
+    <span class="n">tar</span><span class="o">.</span><span class="n">extractall</span><span class="p">()</span>
+<span class="n">parent</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">()</span>
+<span class="n">os</span><span class="o">.</span><span class="n">chdir</span><span class="p">(</span><span class="s1">&#39;molcas-ucl6-2minus-vibronic-coupling&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<section id="Begin-the-vibronic-coupling-calculations">
+<h2>Begin the vibronic coupling calculations<a class="headerlink" href="#Begin-the-vibronic-coupling-calculations" title="Permalink to this heading">¶</a></h2>
+<p>The configuration file must be give as it will tell the program where to look for all of the things it needs. Refer to the <code class="docutils literal notranslate"><span class="pre">vibrav.vibronic.vibronic.Vibronic</span></code> documentation for more information about the required and default arguments.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">vibrav.vibronic</span> <span class="kn">import</span> <span class="n">Vibronic</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">vib</span> <span class="o">=</span> <span class="n">Vibronic</span><span class="p">(</span><span class="n">config_file</span><span class="o">=</span><span class="s1">&#39;va.conf&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<section id="Brief-rundown-of-the-most-important-input-arguments">
+<h3>Brief rundown of the most important input arguments<a class="headerlink" href="#Brief-rundown-of-the-most-important-input-arguments" title="Permalink to this heading">¶</a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">property</span></code>: Tell the program which vibronic property to calculate.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">write_oscil</span></code>: If set to <code class="docutils literal notranslate"><span class="pre">True</span></code> the program will write the ocillator strengths for the x, y and z directions along with the averaged values in the <code class="docutils literal notranslate"><span class="pre">vibronic-outputs</span></code> directory under the filenames <code class="docutils literal notranslate"><span class="pre">oscillators-1.txt</span></code>, <code class="docutils literal notranslate"><span class="pre">oscillators-2.txt</span></code>, <code class="docutils literal notranslate"><span class="pre">oscillators-3.txt</span></code> and <code class="docutils literal notranslate"><span class="pre">oscillators-0.txt</span></code>, respectively.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">write_property</span></code>: If set to <code class="docutils literal notranslate"><span class="pre">True</span></code> the program will write the spin orbit vibronic properties that are calculated into the directories under the names <code class="docutils literal notranslate"><span class="pre">vib???</span></code> for the respective vibrational mode. It will then create two directories <code class="docutils literal notranslate"><span class="pre">plus</span></code> and <code class="docutils literal notranslate"><span class="pre">minus</span></code> referring to the transitions of <code class="docutils literal notranslate"><span class="pre">dE</span> <span class="pre">+</span> <span class="pre">E_vib</span></code> and <code class="docutils literal notranslate"><span class="pre">dE</span> <span class="pre">-</span> <span class="pre">E_vib</span></code>, respectively. Inside those directories it will write the spin-orbit property values for the three catrtesian directions.</p></li>
+</ul>
+<p>Refer to the <code class="docutils literal notranslate"><span class="pre">vibrav.vibronic.vibronic.Vibronic.vibronic_coupling</span></code> documentation for more information on the input parameters.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">vib</span><span class="o">.</span><span class="n">vibronic_coupling</span><span class="p">(</span><span class="nb">property</span><span class="o">=</span><span class="s1">&#39;electric-dipole&#39;</span><span class="p">,</span> <span class="n">print_stdout</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">temp</span><span class="o">=</span><span class="mi">298</span><span class="p">,</span>
+                      <span class="n">write_property</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">write_oscil</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">boltz_states</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+                      <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">eq_cont</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">select_fdx</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+/home/herbertl/github/vibrav/vibrav/numerical/boltzmann.py:114: Warning: Calculating only the first 2 states for the Boltzmann distribution.
+  warnings.warn(&#34;Calculating only the first {} &#34;.format(states) \
+</pre></div></div>
+</div>
+<p>Directory listing of the <code class="docutils literal notranslate"><span class="pre">vibronic-outputs</span></code> directory.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="s1">&#39;vibronic-outputs&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+[&#39;oscillators-0.txt&#39;,
+ &#39;oscillators-1.txt&#39;,
+ &#39;oscillators-3.txt&#39;,
+ &#39;boltzmann-populations.csv&#39;,
+ &#39;oscillators-2.txt&#39;,
+ &#39;alpha.txt&#39;]
+</pre></div></div>
+</div>
+<p>The different directories created for each vibrational mode. Note, this uses a one based index as we typically reserve 0 for the normal mode coordinate at the equilibrium structure.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="nb">sorted</span><span class="p">(</span><span class="n">glob</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="s1">&#39;vib???&#39;</span><span class="p">))</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+[&#39;vib001&#39;,
+ &#39;vib002&#39;,
+ &#39;vib003&#39;,
+ &#39;vib004&#39;,
+ &#39;vib005&#39;,
+ &#39;vib006&#39;,
+ &#39;vib007&#39;,
+ &#39;vib008&#39;,
+ &#39;vib009&#39;,
+ &#39;vib010&#39;,
+ &#39;vib011&#39;,
+ &#39;vib012&#39;,
+ &#39;vib013&#39;,
+ &#39;vib014&#39;,
+ &#39;vib015&#39;]
+</pre></div></div>
+</div>
+<p>Directory listing of one of the vibronic coupling property output directories.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s1">&#39;vib001&#39;</span><span class="p">,</span> <span class="s1">&#39;plus&#39;</span><span class="p">))</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+[&#39;dipole-1.txt&#39;, &#39;dipole-2.txt&#39;, &#39;dipole-3.txt&#39;, &#39;energies.txt&#39;]
+</pre></div></div>
+</div>
+</section>
+<section id="Reading-the-.txt-files-that-are-generated">
+<h3>Reading the <code class="docutils literal notranslate"><span class="pre">.txt</span></code> files that are generated<a class="headerlink" href="#Reading-the-.txt-files-that-are-generated" title="Permalink to this heading">¶</a></h3>
+<p>There is a utility in the vibrav code that allows the user to easily open and read the <code class="docutils literal notranslate"><span class="pre">.txt</span></code> files that are generated by both molcas and vibrav. You cna find more information in the documentation for <code class="docutils literal notranslate"><span class="pre">vibrav.util.io.open_txt</span></code>.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">vibrav.util.io</span> <span class="kn">import</span> <span class="n">open_txt</span>
+</pre></div>
+</div>
+</div>
+<p>Reading all of the oscillator files that are generated.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">iso_oscil</span> <span class="o">=</span> <span class="n">open_txt</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s1">&#39;vibronic-outputs&#39;</span><span class="p">,</span> <span class="s1">&#39;oscillators-0.txt&#39;</span><span class="p">),</span>
+                     <span class="n">rearrange</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="n">iso_oscil</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>nrow</th>
+      <th>ncol</th>
+      <th>oscil</th>
+      <th>energy</th>
+      <th>freqdx</th>
+      <th>sign</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>0</td>
+      <td>1</td>
+      <td>2.931277e-11</td>
+      <td>0.002609</td>
+      <td>0</td>
+      <td>minus</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>0</td>
+      <td>2</td>
+      <td>1.970756e-11</td>
+      <td>0.002609</td>
+      <td>0</td>
+      <td>minus</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>0</td>
+      <td>3</td>
+      <td>3.586465e-11</td>
+      <td>0.002609</td>
+      <td>0</td>
+      <td>minus</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>0</td>
+      <td>4</td>
+      <td>1.083229e-10</td>
+      <td>0.004795</td>
+      <td>0</td>
+      <td>minus</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>1</td>
+      <td>4</td>
+      <td>2.710447e-11</td>
+      <td>0.001807</td>
+      <td>0</td>
+      <td>minus</td>
+    </tr>
+  </tbody>
+</table>
+</div></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">x_oscil</span> <span class="o">=</span> <span class="n">open_txt</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s1">&#39;vibronic-outputs&#39;</span><span class="p">,</span> <span class="s1">&#39;oscillators-1.txt&#39;</span><span class="p">),</span>
+                   <span class="n">rearrange</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="n">x_oscil</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>nrow</th>
+      <th>ncol</th>
+      <th>oscil</th>
+      <th>energy</th>
+      <th>freqdx</th>
+      <th>sign</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>0</td>
+      <td>1</td>
+      <td>5.378963e-12</td>
+      <td>0.002609</td>
+      <td>0</td>
+      <td>minus</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>0</td>
+      <td>2</td>
+      <td>1.240604e-11</td>
+      <td>0.002609</td>
+      <td>0</td>
+      <td>minus</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>0</td>
+      <td>3</td>
+      <td>4.269799e-13</td>
+      <td>0.002609</td>
+      <td>0</td>
+      <td>minus</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>0</td>
+      <td>4</td>
+      <td>9.580531e-11</td>
+      <td>0.004795</td>
+      <td>0</td>
+      <td>minus</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>1</td>
+      <td>4</td>
+      <td>3.322260e-11</td>
+      <td>0.001807</td>
+      <td>0</td>
+      <td>minus</td>
+    </tr>
+  </tbody>
+</table>
+</div></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">y_oscil</span> <span class="o">=</span> <span class="n">open_txt</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s1">&#39;vibronic-outputs&#39;</span><span class="p">,</span> <span class="s1">&#39;oscillators-2.txt&#39;</span><span class="p">),</span>
+                   <span class="n">rearrange</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="n">y_oscil</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>nrow</th>
+      <th>ncol</th>
+      <th>oscil</th>
+      <th>energy</th>
+      <th>freqdx</th>
+      <th>sign</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>0</td>
+      <td>1</td>
+      <td>6.395906e-12</td>
+      <td>0.002609</td>
+      <td>0</td>
+      <td>minus</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>0</td>
+      <td>2</td>
+      <td>9.883249e-15</td>
+      <td>0.002609</td>
+      <td>0</td>
+      <td>minus</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>0</td>
+      <td>3</td>
+      <td>6.191645e-11</td>
+      <td>0.002609</td>
+      <td>0</td>
+      <td>minus</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>0</td>
+      <td>4</td>
+      <td>7.761667e-11</td>
+      <td>0.004795</td>
+      <td>0</td>
+      <td>minus</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>1</td>
+      <td>4</td>
+      <td>1.647976e-12</td>
+      <td>0.001807</td>
+      <td>0</td>
+      <td>minus</td>
+    </tr>
+  </tbody>
+</table>
+</div></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">z_oscil</span> <span class="o">=</span> <span class="n">open_txt</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s1">&#39;vibronic-outputs&#39;</span><span class="p">,</span> <span class="s1">&#39;oscillators-3.txt&#39;</span><span class="p">),</span>
+                   <span class="n">rearrange</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="n">z_oscil</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>nrow</th>
+      <th>ncol</th>
+      <th>oscil</th>
+      <th>energy</th>
+      <th>freqdx</th>
+      <th>sign</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>0</td>
+      <td>1</td>
+      <td>7.616344e-11</td>
+      <td>0.002609</td>
+      <td>0</td>
+      <td>minus</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>0</td>
+      <td>2</td>
+      <td>4.670676e-11</td>
+      <td>0.002609</td>
+      <td>0</td>
+      <td>minus</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>0</td>
+      <td>3</td>
+      <td>4.525051e-11</td>
+      <td>0.002609</td>
+      <td>0</td>
+      <td>minus</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>0</td>
+      <td>4</td>
+      <td>1.515468e-10</td>
+      <td>0.004795</td>
+      <td>0</td>
+      <td>minus</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>1</td>
+      <td>4</td>
+      <td>4.644282e-11</td>
+      <td>0.001807</td>
+      <td>0</td>
+      <td>minus</td>
+    </tr>
+  </tbody>
+</table>
+</div></div>
+</div>
+<p>Cleaning up for the purpose of the example</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">os</span><span class="o">.</span><span class="n">chdir</span><span class="p">(</span><span class="n">parent</span><span class="p">)</span>
+<span class="n">shutil</span><span class="o">.</span><span class="n">rmtree</span><span class="p">(</span><span class="s1">&#39;molcas-ucl6-2minus-vibronic-coupling&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>
+</pre></div>
+</div>
+</div>
+</section>
+</section>
+</section>
+
+
+    </div>
+      
+  </div>
+</div>
+<footer class="footer">
+  <div class="container">
+    <p class="pull-right">
+      <a href="#">Back to top</a>
+      
+    </p>
+    <p>
+        &copy; Copyright 2023, Herbert D Ludowieg. Project structure based on the Computational Molecular Science Python Cookiecutter version 1.1.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 7.0.1.<br/>
+    </p>
+  </div>
+</footer>
+  </body>
+</html>

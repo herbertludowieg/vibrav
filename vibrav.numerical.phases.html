@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>vibrav.numerical.phases module &#8212; vibrav  documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/bootstrap-sphinx.css" />
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/sphinx_highlight.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="vibrav.numerical.redmass module" href="vibrav.numerical.redmass.html" />
+    <link rel="prev" title="vibrav.numerical.frequencies module" href="vibrav.numerical.frequencies.html" />
+<meta charset='utf-8'>
+<meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
+<meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1'>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<script type="text/javascript" src="_static/js/jquery-1.12.4.min.js"></script>
+<script type="text/javascript" src="_static/js/jquery-fix.js"></script>
+<script type="text/javascript" src="_static/bootstrap-3.4.1/js/bootstrap.min.js"></script>
+<script type="text/javascript" src="_static/bootstrap-sphinx.js"></script>
+
+  </head><body>
+
+  <div id="navbar" class="navbar navbar-default navbar-fixed-top">
+    <div class="container">
+      <div class="navbar-header">
+        <!-- .btn-navbar is used as the toggle for collapsed navbar content -->
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".nav-collapse">
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        <a class="navbar-brand" href="index.html">
+          vibrav</a>
+        <span class="navbar-text navbar-version pull-left"><b></b></span>
+      </div>
+
+        <div class="collapse navbar-collapse nav-collapse">
+          <ul class="nav navbar-nav">
+            
+            
+              <li class="dropdown globaltoc-container">
+  <a role="button"
+     id="dLabelGlobalToc"
+     data-toggle="dropdown"
+     data-target="#"
+     href="index.html">Site <b class="caret"></b></a>
+  <ul class="dropdown-menu globaltoc"
+      role="menu"
+      aria-labelledby="dLabelGlobalToc"><ul>
+<li class="toctree-l1"><a class="reference internal" href="examples/adf.html">ADF parser API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples/gen-displaced.html">Generating the displaced structures from a Gaussian frequencies calculation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples/molcas.html">Molcas parser API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples/numerical-diffs.html">Using derivative module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples/vibronic.html">Running vibronic calculations from a Molcas RASSI set of calculations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples/vroa-h2o2.html">VROA intensities of hydrogen peroxide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples/vroa-methyloxirane.html">VROA intensities of methyloxirane</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples/zpvc.html">Tutorial for using the ZPVC module in VIBRAV</a></li>
+</ul>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="vibrav.html">vibrav package</a></li>
+</ul>
+</ul>
+</li>
+              
+                <li class="dropdown">
+  <a role="button"
+     id="dLabelLocalToc"
+     data-toggle="dropdown"
+     data-target="#"
+     href="#">Page <b class="caret"></b></a>
+  <ul class="dropdown-menu localtoc"
+      role="menu"
+      aria-labelledby="dLabelLocalToc"><ul>
+<li><a class="reference internal" href="#">vibrav.numerical.phases module</a><ul>
+<li><a class="reference internal" href="#vibrav.numerical.phases.correct_phase_angle"><code class="docutils literal notranslate"><span class="pre">correct_phase_angle()</span></code></a></li>
+<li><a class="reference internal" href="#vibrav.numerical.phases.get_theta"><code class="docutils literal notranslate"><span class="pre">get_theta()</span></code></a></li>
+<li><a class="reference internal" href="#vibrav.numerical.phases.perform_phase"><code class="docutils literal notranslate"><span class="pre">perform_phase()</span></code></a></li>
+<li><a class="reference internal" href="#vibrav.numerical.phases.transform_array_to_df"><code class="docutils literal notranslate"><span class="pre">transform_array_to_df()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</ul>
+</li>
+              
+            
+            
+              
+                
+  <li>
+    <a href="vibrav.numerical.frequencies.html" title="Previous Chapter: vibrav.numerical.frequencies module"><span class="glyphicon glyphicon-chevron-left visible-sm"></span><span class="hidden-sm hidden-tablet">&laquo; vibrav.numeri...</span>
+    </a>
+  </li>
+  <li>
+    <a href="vibrav.numerical.redmass.html" title="Next Chapter: vibrav.numerical.redmass module"><span class="glyphicon glyphicon-chevron-right visible-sm"></span><span class="hidden-sm hidden-tablet">vibrav.numeri... &raquo;</span>
+    </a>
+  </li>
+              
+            
+            
+            
+            
+              <li class="hidden-sm">
+<div id="sourcelink">
+  <a href="_sources/vibrav.numerical.phases.txt"
+     rel="nofollow">Source</a>
+</div></li>
+            
+          </ul>
+
+          
+            
+<form class="navbar-form navbar-right" action="search.html" method="get">
+ <div class="form-group">
+  <input type="text" name="q" class="form-control" placeholder="Search" />
+ </div>
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+          
+        </div>
+    </div>
+  </div>
+
+<div class="container">
+  <div class="row">
+    <div class="body col-md-12 content" role="main">
+      
+  <section id="module-vibrav.numerical.phases">
+<span id="vibrav-numerical-phases-module"></span><h1>vibrav.numerical.phases module<a class="headerlink" href="#module-vibrav.numerical.phases" title="Permalink to this heading">¶</a></h1>
+<dl class="py function">
+<dt class="sig sig-object py" id="vibrav.numerical.phases.correct_phase_angle">
+<span class="sig-prename descclassname"><span class="pre">vibrav.numerical.phases.</span></span><span class="sig-name descname"><span class="pre">correct_phase_angle</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data_df</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/vibrav/numerical/phases.html#correct_phase_angle"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#vibrav.numerical.phases.correct_phase_angle" title="Permalink to this definition">¶</a></dt>
+<dd><p>Here we analyze the phase angle of the input data and perform a
+“rotation” by the phase angle. We determine the phase angle by
+getting the highest absolute magnitude in each “transition”
+(<cite>nrow</cite> value) and determine the angle such that we minimize
+the imaginary value for that component in the “transition”.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This has been hard-coded for Molcas/OpenMolcas with the
+files printed from RASSI with the <cite>PRPRint</cite> keyword.</p>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="vibrav.numerical.phases.get_theta">
+<span class="sig-prename descclassname"><span class="pre">vibrav.numerical.phases.</span></span><span class="sig-name descname"><span class="pre">get_theta</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">real</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">imag</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">exc</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nexc</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ncomps</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tol</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/vibrav/numerical/phases.html#get_theta"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#vibrav.numerical.phases.get_theta" title="Permalink to this definition">¶</a></dt>
+<dd><p>Determine the theta angle to rotate the input data by. Here,
+we determine which component has the largest magnitude and
+use that to get what value of theta we need for the phase
+rotation.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>real</strong> (<em>numpy.ndarray</em>) – Array of the real values of the
+property of interest.</p></li>
+<li><p><strong>imag</strong> (<em>numpy.ndarray</em>) – Array of the imaginary values
+of the property of interest.</p></li>
+<li><p><strong>exc</strong> (<em>int</em>) – Integer of the excited state.</p></li>
+<li><p><strong>nexc</strong> (<em>int</em>) – Number of excited states.</p></li>
+<li><p><strong>ncomps</strong> (<em>int</em>) – Number of components for the property.</p></li>
+<li><p><strong>tol</strong> (<em>float</em>) – Tolerance for determining what a small
+values is.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><p><em>theta (float)</em> – Theta rotation angle value.
+imax (int): Integer of the component that we</p>
+<blockquote>
+<div><p>calculated the rotation angle at.</p>
+</div></blockquote>
+<p>rmax (float): Magnitude of the maximum component.</p>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="vibrav.numerical.phases.perform_phase">
+<span class="sig-prename descclassname"><span class="pre">vibrav.numerical.phases.</span></span><span class="sig-name descname"><span class="pre">perform_phase</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dip_real</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dip_imag</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mag_real</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mag_imag</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">quad_real</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">quad_imag</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nexc</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">state</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/vibrav/numerical/phases.html#perform_phase"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#vibrav.numerical.phases.perform_phase" title="Permalink to this definition">¶</a></dt>
+<dd><p>Do a phase rotation of the real and imaginary data for
+transitions from a particular ground state. This will
+determine which of the properties to use based on the
+magnitudes of them. This is to ensure that we are not
+doing this based on numercial artifacts in the data.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This function is hard-coded for the electric
+dipole, magnetic dipole, and electric quadrupole.
+In our testing this was enough. If more are needed
+then this code will have to be changed slightly.</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>dip_real</strong> (<em>numpy.ndarray</em>) – Real values of the electric
+dipole.</p></li>
+<li><p><strong>dip_imag</strong> (<em>numpy.ndarray</em>) – Imaginary  values of the
+electric dipole.</p></li>
+<li><p><strong>mag_real</strong> (<em>numpy.ndarray</em>) – Real values of the magnetic
+dipole.</p></li>
+<li><p><strong>mag_imag</strong> (<em>numpy.ndarray</em>) – Imaginary  values of the
+magnetic dipole.</p></li>
+<li><p><strong>quad_real</strong> (<em>numpy.ndarray</em>) – Real values of the electric
+quadrupole.</p></li>
+<li><p><strong>quad_imag</strong> (<em>numpy.ndarray</em>) – Imaginary  values of the
+electric quadrupole.</p></li>
+<li><p><strong>nexc</strong> (<em>int</em>) – Number of excited states.</p></li>
+<li><p><strong>state</strong> (<em>int</em>) – Ground state value for storage.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><p><em>dip_arr (numpy.ndarray)</em> –</p>
+<dl class="simple">
+<dt>Array containing the data of</dt><dd><p>electric dipoles after the phase angle rotation.</p>
+</dd>
+<dt>mag_arr (numpy.ndarray): Array containing the data of</dt><dd><p>magnetic dipoles after the phase angle rotation.</p>
+</dd>
+<dt>quad_arr (numpy.ndarray): Array containing the data of</dt><dd><p>electric quadrupoles after the phase angle rotation.</p>
+</dd>
+</dl>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="vibrav.numerical.phases.transform_array_to_df">
+<span class="sig-prename descclassname"><span class="pre">vibrav.numerical.phases.</span></span><span class="sig-name descname"><span class="pre">transform_array_to_df</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">arr</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cols</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">int_cols</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prop_map</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/vibrav/numerical/phases.html#transform_array_to_df"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#vibrav.numerical.phases.transform_array_to_df" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</section>
+
+
+    </div>
+      
+  </div>
+</div>
+<footer class="footer">
+  <div class="container">
+    <p class="pull-right">
+      <a href="#">Back to top</a>
+      
+    </p>
+    <p>
+        &copy; Copyright 2023, Herbert D Ludowieg. Project structure based on the Computational Molecular Science Python Cookiecutter version 1.1.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 7.0.1.<br/>
+    </p>
+  </div>
+</footer>
+  </body>
+</html>

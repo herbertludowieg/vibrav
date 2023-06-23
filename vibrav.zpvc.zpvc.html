@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>vibrav.zpvc.zpvc module &#8212; vibrav  documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/bootstrap-sphinx.css" />
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/sphinx_highlight.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="vibrav.base module" href="vibrav.base.html" />
+    <link rel="prev" title="vibrav.zpvc package" href="vibrav.zpvc.html" />
+<meta charset='utf-8'>
+<meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
+<meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1'>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<script type="text/javascript" src="_static/js/jquery-1.12.4.min.js"></script>
+<script type="text/javascript" src="_static/js/jquery-fix.js"></script>
+<script type="text/javascript" src="_static/bootstrap-3.4.1/js/bootstrap.min.js"></script>
+<script type="text/javascript" src="_static/bootstrap-sphinx.js"></script>
+
+  </head><body>
+
+  <div id="navbar" class="navbar navbar-default navbar-fixed-top">
+    <div class="container">
+      <div class="navbar-header">
+        <!-- .btn-navbar is used as the toggle for collapsed navbar content -->
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".nav-collapse">
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        <a class="navbar-brand" href="index.html">
+          vibrav</a>
+        <span class="navbar-text navbar-version pull-left"><b></b></span>
+      </div>
+
+        <div class="collapse navbar-collapse nav-collapse">
+          <ul class="nav navbar-nav">
+            
+            
+              <li class="dropdown globaltoc-container">
+  <a role="button"
+     id="dLabelGlobalToc"
+     data-toggle="dropdown"
+     data-target="#"
+     href="index.html">Site <b class="caret"></b></a>
+  <ul class="dropdown-menu globaltoc"
+      role="menu"
+      aria-labelledby="dLabelGlobalToc"><ul>
+<li class="toctree-l1"><a class="reference internal" href="examples/adf.html">ADF parser API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples/gen-displaced.html">Generating the displaced structures from a Gaussian frequencies calculation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples/molcas.html">Molcas parser API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples/numerical-diffs.html">Using derivative module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples/vibronic.html">Running vibronic calculations from a Molcas RASSI set of calculations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples/vroa-h2o2.html">VROA intensities of hydrogen peroxide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples/vroa-methyloxirane.html">VROA intensities of methyloxirane</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples/zpvc.html">Tutorial for using the ZPVC module in VIBRAV</a></li>
+</ul>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="vibrav.html">vibrav package</a></li>
+</ul>
+</ul>
+</li>
+              
+                <li class="dropdown">
+  <a role="button"
+     id="dLabelLocalToc"
+     data-toggle="dropdown"
+     data-target="#"
+     href="#">Page <b class="caret"></b></a>
+  <ul class="dropdown-menu localtoc"
+      role="menu"
+      aria-labelledby="dLabelLocalToc"><ul>
+<li><a class="reference internal" href="#">vibrav.zpvc.zpvc module</a><ul>
+<li><a class="reference internal" href="#vibrav.zpvc.zpvc.ZPVC"><code class="docutils literal notranslate"><span class="pre">ZPVC</span></code></a><ul>
+<li><a class="reference internal" href="#vibrav.zpvc.zpvc.ZPVC.zpvc"><code class="docutils literal notranslate"><span class="pre">ZPVC.zpvc()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</ul>
+</li>
+              
+            
+            
+              
+                
+  <li>
+    <a href="vibrav.zpvc.html" title="Previous Chapter: vibrav.zpvc package"><span class="glyphicon glyphicon-chevron-left visible-sm"></span><span class="hidden-sm hidden-tablet">&laquo; vibrav.zpvc package</span>
+    </a>
+  </li>
+  <li>
+    <a href="vibrav.base.html" title="Next Chapter: vibrav.base module"><span class="glyphicon glyphicon-chevron-right visible-sm"></span><span class="hidden-sm hidden-tablet">vibrav.base module &raquo;</span>
+    </a>
+  </li>
+              
+            
+            
+            
+            
+              <li class="hidden-sm">
+<div id="sourcelink">
+  <a href="_sources/vibrav.zpvc.zpvc.txt"
+     rel="nofollow">Source</a>
+</div></li>
+            
+          </ul>
+
+          
+            
+<form class="navbar-form navbar-right" action="search.html" method="get">
+ <div class="form-group">
+  <input type="text" name="q" class="form-control" placeholder="Search" />
+ </div>
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+          
+        </div>
+    </div>
+  </div>
+
+<div class="container">
+  <div class="row">
+    <div class="body col-md-12 content" role="main">
+      
+  <section id="module-vibrav.zpvc.zpvc">
+<span id="vibrav-zpvc-zpvc-module"></span><h1>vibrav.zpvc.zpvc module<a class="headerlink" href="#module-vibrav.zpvc.zpvc" title="Permalink to this heading">¶</a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="vibrav.zpvc.zpvc.ZPVC">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">vibrav.zpvc.zpvc.</span></span><span class="sig-name descname"><span class="pre">ZPVC</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config_file</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/vibrav/zpvc/zpvc.html#ZPVC"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#vibrav.zpvc.zpvc.ZPVC" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Class to calculate the Zero-point vibrational corrections of a certain property.</p>
+<p>Required inputs in configuration file.</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Attribute</p></th>
+<th class="head"><p>Description</p></th>
+<th class="head"><p>Data Type</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>number_of_modes</p></td>
+<td><p>Number of normal modes in the molecule.</p></td>
+<td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">int</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>number_of_nuclei</p></td>
+<td><p>Number of nuclei in the molecule.</p></td>
+<td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">int</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p>property_file</p></td>
+<td><p>Path to the CSV formatted file with the
+property information. Must have a
+header with the columns <cite>‘file’</cite>,
+<cite>‘atom’</cite> and the selected property
+column. In addition, it must have an
+index column.</p></td>
+<td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">str</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>gradient_file</p></td>
+<td><p>Path to the CSV formatted file with the
+gradient information. Must have a
+header with the columns
+<cite>[‘file’, ‘atom’, ‘fx’, ‘fy’, ‘fz’]</cite>.
+In addition, it must have an index
+column.</p></td>
+<td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">str</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p>property_atoms</p></td>
+<td><p>Atomic index of the atom/s of interest.
+Can be given as multiple space
+separated integers.</p></td>
+<td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">int</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>property_column</p></td>
+<td><p>Column name with the data of interest
+in the property file.</p></td>
+<td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">str</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p>temperature</p></td>
+<td><p>Temperature/s in Kelvin. Can be given
+as a space separated list of floats.</p></td>
+<td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">float</span></code></p></td>
+</tr>
+</tbody>
+</table>
+<p>Default inputs in the configuration file.</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Attribute</p></th>
+<th class="head"><p>Description</p></th>
+<th class="head"><p>Default Value</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>smatrix_file</p></td>
+<td><p>Filepath containing all of the
+information of the normal mode
+displacements.</p></td>
+<td><p>smatrix.dat</p></td>
+</tr>
+<tr class="row-odd"><td><p>eqcoord_file</p></td>
+<td><p>Filepath containing the coordinates of
+the equilibrium structure.</p></td>
+<td><p>eqcoord.dat</p></td>
+</tr>
+<tr class="row-even"><td><p>atom_order_file</p></td>
+<td><p>Filepath containing the atomic symbols
+and ordering of the nuclei.</p></td>
+<td><p>atom_order.dat</p></td>
+</tr>
+</tbody>
+</table>
+<p>We implement the equations as outlined in the paper
+<em>J. Phys. Chem. A</em> 2005, <strong>109</strong>, 8617-8623
+(doi:<a class="reference external" href="https://doi.org/10.1021/jp051685y">10.1021/jp051685y</a>).
+Where we can compute the Zero-Point Vibrational corrections with</p>
+<div class="math notranslate nohighlight">
+\[\text{ZPVC} = -\frac{1}{4}\sum_{i=1}^m\frac{1}{\omega_i^2\sqrt{\mu_i}}
+                \left(\frac{\partial P}{\partial Q_i}\right)
+                \sum_{j=1}^m\frac{k_{ijj}}{\omega_j\mu_j\sqrt{\mu_i}}
+               +\frac{1}{4}\sum_{i=1}^m\frac{1}{\omega_i\mu_i}
+                \left(\frac{\partial^2 P}{\partial Q_i^2}\right)\]</div>
+<p>Where, <span class="math notranslate nohighlight">\(m\)</span> represents the total number of normal modes,
+<span class="math notranslate nohighlight">\(\omega_i\)</span> is the frequency of the <span class="math notranslate nohighlight">\(i`th normal mode,
+and :math:\)</span>mu_i` is the reduced mass, in atomic units. The
+derivatives of the property (<span class="math notranslate nohighlight">\(P\)</span>) are taken with respect to
+the normal coordinates, <span class="math notranslate nohighlight">\(Q_i\)</span>, for a given normal mode
+<span class="math notranslate nohighlight">\(i\)</span>. The anharmonic cubic constant, <span class="math notranslate nohighlight">\(k_{ijj}\)</span>, is
+defined as the mixed third-energy derivative, and calculated as,</p>
+<div class="math notranslate nohighlight">
+\[k_{ijj} = \frac{\partial^3 E}{\partial Q_i \partial Q_j^2}\]</div>
+<p>The calculated energy gradients in terms of the normal modes can be
+obtained from the Cartesian gradients by,</p>
+<div class="math notranslate nohighlight">
+\[\frac{\partial E_{+/0/-}}{\partial Q_i} =
+    \sum_{\alpha=1}^{3n} \frac{\partial E_{+/0/-}}{\partial x_{\alpha}}
+        S_{\alpha j}\]</div>
+<dl class="py method">
+<dt class="sig sig-object py" id="vibrav.zpvc.zpvc.ZPVC.zpvc">
+<span class="sig-name descname"><span class="pre">zpvc</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">geometry</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">print_results</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">write_out_files</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">debug</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">deriv_method</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'two-point'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/vibrav/zpvc/zpvc.html#ZPVC.zpvc"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#vibrav.zpvc.zpvc.ZPVC.zpvc" title="Permalink to this definition">¶</a></dt>
+<dd><p>Method to compute the Zero-Point Vibrational Corrections.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>geometry</strong> (<code class="xref py py-obj docutils literal notranslate"><span class="pre">bool</span></code>, optional) – Bool value that tells the
+program to also calculate the effective geometry.
+Defaults to <code class="code docutils literal notranslate"><span class="pre">True</span></code>.</p></li>
+<li><p><strong>print_results</strong> (<code class="xref py py-obj docutils literal notranslate"><span class="pre">bool</span></code>, optional) – Bool value to print
+the results from the zpvc calcualtion to stdout.
+Defaults to <code class="code docutils literal notranslate"><span class="pre">False</span></code>.</p></li>
+<li><p><strong>write_out_files</strong> (<code class="xref py py-obj docutils literal notranslate"><span class="pre">bool</span></code>, optional) – Bool value to
+write files with the final results to a CSV formatted
+and txt file. Defaults to <code class="code docutils literal notranslate"><span class="pre">True</span></code>.</p></li>
+<li><p><strong>debug</strong> (<code class="xref py py-obj docutils literal notranslate"><span class="pre">bool</span></code>, optional) – Bool value to write extra
+matrices with debug information to a file including the
+gradients expressed in terms of the normal modes, and
+the first and second derivatives of the property.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+
+
+    </div>
+      
+  </div>
+</div>
+<footer class="footer">
+  <div class="container">
+    <p class="pull-right">
+      <a href="#">Back to top</a>
+      
+    </p>
+    <p>
+        &copy; Copyright 2023, Herbert D Ludowieg. Project structure based on the Computational Molecular Science Python Cookiecutter version 1.1.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 7.0.1.<br/>
+    </p>
+  </div>
+</footer>
+  </body>
+</html>

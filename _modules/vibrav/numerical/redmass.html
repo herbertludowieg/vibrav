@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>vibrav.numerical.redmass &#8212; vibrav  documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/bootstrap-sphinx.css" />
+    <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+    <script src="../../../_static/doctools.js"></script>
+    <script src="../../../_static/sphinx_highlight.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+<meta charset='utf-8'>
+<meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
+<meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1'>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<script type="text/javascript" src="../../../_static/js/jquery-1.12.4.min.js"></script>
+<script type="text/javascript" src="../../../_static/js/jquery-fix.js"></script>
+<script type="text/javascript" src="../../../_static/bootstrap-3.4.1/js/bootstrap.min.js"></script>
+<script type="text/javascript" src="../../../_static/bootstrap-sphinx.js"></script>
+
+  </head><body>
+
+  <div id="navbar" class="navbar navbar-default navbar-fixed-top">
+    <div class="container">
+      <div class="navbar-header">
+        <!-- .btn-navbar is used as the toggle for collapsed navbar content -->
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".nav-collapse">
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        <a class="navbar-brand" href="../../../index.html">
+          vibrav</a>
+        <span class="navbar-text navbar-version pull-left"><b></b></span>
+      </div>
+
+        <div class="collapse navbar-collapse nav-collapse">
+          <ul class="nav navbar-nav">
+            
+            
+              <li class="dropdown globaltoc-container">
+  <a role="button"
+     id="dLabelGlobalToc"
+     data-toggle="dropdown"
+     data-target="#"
+     href="../../../index.html">Site <b class="caret"></b></a>
+  <ul class="dropdown-menu globaltoc"
+      role="menu"
+      aria-labelledby="dLabelGlobalToc"><ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../examples/adf.html">ADF parser API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../examples/gen-displaced.html">Generating the displaced structures from a Gaussian frequencies calculation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../examples/molcas.html">Molcas parser API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../examples/numerical-diffs.html">Using derivative module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../examples/vibronic.html">Running vibronic calculations from a Molcas RASSI set of calculations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../examples/vroa-h2o2.html">VROA intensities of hydrogen peroxide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../examples/vroa-methyloxirane.html">VROA intensities of methyloxirane</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../examples/zpvc.html">Tutorial for using the ZPVC module in VIBRAV</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../vibrav.html">vibrav package</a></li>
+</ul>
+</ul>
+</li>
+              
+                <li class="dropdown">
+  <a role="button"
+     id="dLabelLocalToc"
+     data-toggle="dropdown"
+     data-target="#"
+     href="#">Page <b class="caret"></b></a>
+  <ul class="dropdown-menu localtoc"
+      role="menu"
+      aria-labelledby="dLabelLocalToc"></ul>
+</li>
+              
+            
+            
+              
+                
+              
+            
+            
+            
+            
+              <li class="hidden-sm"></li>
+            
+          </ul>
+
+          
+            
+<form class="navbar-form navbar-right" action="../../../search.html" method="get">
+ <div class="form-group">
+  <input type="text" name="q" class="form-control" placeholder="Search" />
+ </div>
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+          
+        </div>
+    </div>
+  </div>
+
+<div class="container">
+  <div class="row">
+    <div class="body col-md-12 content" role="main">
+      
+  <h1>Source code for vibrav.numerical.redmass</h1><div class="highlight"><pre>
+<span></span><span class="c1"># This file is part of vibrav.</span>
+<span class="c1">#</span>
+<span class="c1"># vibrav is free software: you can redistribute it and/or modify</span>
+<span class="c1"># it under the terms of the GNU General Public License as published by</span>
+<span class="c1"># the Free Software Foundation, either version 3 of the License, or</span>
+<span class="c1"># (at your option) any later version.</span>
+<span class="c1">#</span>
+<span class="c1"># vibrav is distributed in the hope that it will be useful,</span>
+<span class="c1"># but WITHOUT ANY WARRANTY; without even the implied warranty of</span>
+<span class="c1"># MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the</span>
+<span class="c1"># GNU General Public License for more details.</span>
+<span class="c1">#</span>
+<span class="c1"># You should have received a copy of the GNU General Public License</span>
+<span class="c1"># along with vibrav.  If not, see &lt;https://www.gnu.org/licenses/&gt;.</span>
+<span class="kn">from</span> <span class="nn">exatomic.base</span> <span class="kn">import</span> <span class="n">sym2isomass</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<span class="k">def</span> <span class="nf">_init_data</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">symbol</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Helper function to get the displacements and mass data</span>
+<span class="sd">    for calculating the reduced mass.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        data (:class:`pandas.DataFrame`): Data frame the has the</span>
+<span class="sd">                non-mass-weighted cartesian normal modes.</span>
+<span class="sd">        symbol (:obj:`list`): List-like object that has the atomic</span>
+<span class="sd">                symbols.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        disps (:class:`numpy.ndarray`): Array with the displacement data</span>
+<span class="sd">                from the input data.</span>
+<span class="sd">        mass (:class:`numpy.ndarray`): Array with the isotopic masses</span>
+<span class="sd">                based on the atomic symbols.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">cols</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;dx&#39;</span><span class="p">,</span> <span class="s1">&#39;dy&#39;</span><span class="p">,</span> <span class="s1">&#39;dz&#39;</span><span class="p">]</span>
+    <span class="c1"># get the isotopic masses of the unique atoms</span>
+    <span class="n">mapper</span> <span class="o">=</span> <span class="n">sym2isomass</span><span class="p">(</span><span class="n">symbol</span><span class="p">)</span>
+    <span class="c1"># get a list of the isotopic masses for the given symbols</span>
+    <span class="n">mass</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="n">mapper</span><span class="o">.</span><span class="n">get</span><span class="p">,</span> <span class="n">symbol</span><span class="p">))</span>
+    <span class="c1"># makes it easier to multiply into the normal modes later</span>
+    <span class="n">mass</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">repeat</span><span class="p">(</span><span class="n">mass</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span>
+    <span class="n">mass</span> <span class="o">=</span> <span class="n">mass</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="n">cols</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+    <span class="n">disps</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="n">cols</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+    <span class="k">return</span> <span class="n">disps</span><span class="p">,</span> <span class="n">mass</span>
+
+<div class="viewcode-block" id="rmass_mwc"><a class="viewcode-back" href="../../../vibrav.numerical.redmass.html#vibrav.numerical.redmass.rmass_mwc">[docs]</a><span class="k">def</span> <span class="nf">rmass_mwc</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">symbol</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Calculate the reduced masses from the mass-weighted normal modes. With</span>
+<span class="sd">    the equation,</span>
+
+<span class="sd">    .. math::</span>
+<span class="sd">        \\mu_i = \\left(\\sum_k^{3N} \\left(\\frac{l_{MWCk,i}}</span>
+<span class="sd">                                            {\\sqrt{m_k}}\\right)^2\\right)^{-1}</span>
+
+<span class="sd">    Note:</span>
+<span class="sd">        This assumes that the normal modes have already been placed in the</span>
+<span class="sd">        :code:`[&#39;dx&#39;, &#39;dy&#39;, &#39;dz&#39;]` columns.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        data (:class:`pandas.DataFrame`): Data frame the has the mass-weighted</span>
+<span class="sd">                                          normal modes.</span>
+<span class="sd">        symbol (:obj:`list`): List-like object that has the atomic symbols.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        r_mass (:class:`numpy.ndarray`): Array containing the calculated reduced</span>
+<span class="sd">                                         masses in Dalton or atomic mass units</span>
+<span class="sd">                                         not atomic units of mass.</span>
+
+<span class="sd">    Examples:</span>
+<span class="sd">        Usage of this method is as follows,</span>
+
+<span class="sd">        &gt;&gt;&gt; import pandas as pd</span>
+<span class="sd">        &gt;&gt;&gt; from vibrav.base import resource</span>
+<span class="sd">        &gt;&gt;&gt; res_file = &#39;adf-ubr-1minus-b3lyp-numeric-norm-modes-mwc.csv.xz&#39;</span>
+<span class="sd">        &gt;&gt;&gt; freqs = pd.read_csv(resource(res_file), compression=&#39;xz&#39;)</span>
+<span class="sd">        &gt;&gt;&gt; symbols = [&#39;U&#39;] + [&#39;Br&#39;]*6</span>
+<span class="sd">        &gt;&gt;&gt; freqs.groupby(&#39;freqdx&#39;).apply(rmass_mwc, symbols)</span>
+<span class="sd">        freqdx</span>
+<span class="sd">        0      78.918337</span>
+<span class="sd">        1      78.918337</span>
+<span class="sd">        2      78.918337</span>
+<span class="sd">        3      78.918337</span>
+<span class="sd">        4      78.918337</span>
+<span class="sd">        5      78.918337</span>
+<span class="sd">        6      93.006642</span>
+<span class="sd">        7      93.006642</span>
+<span class="sd">        8      93.006642</span>
+<span class="sd">        9      78.918337</span>
+<span class="sd">        10     78.918337</span>
+<span class="sd">        11     78.918337</span>
+<span class="sd">        12    111.682084</span>
+<span class="sd">        13    111.682084</span>
+<span class="sd">        14    111.682084</span>
+<span class="sd">        dtype: float64</span>
+
+<span class="sd">        It is also possible to use the method without the groupby/apply methods from a</span>
+<span class="sd">        pandas data frame. However, the pandas data frame that is passed into the</span>
+<span class="sd">        function **must** have the :code:`[&#39;dx&#39;, &#39;dy&#39;, &#39;dz&#39;]` columns present. In</span>
+<span class="sd">        addition the :code:`symbols` parameter must have all of the atomic symbols that</span>
+<span class="sd">        exists, including ones that are repeated.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">disps</span><span class="p">,</span> <span class="n">mass</span> <span class="o">=</span> <span class="n">_init_data</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">symbol</span><span class="p">)</span>
+    <span class="c1"># get the reduced masses</span>
+    <span class="n">r_mass</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">square</span><span class="p">(</span><span class="n">disps</span><span class="p">)</span><span class="o">/</span><span class="n">mass</span><span class="p">)</span>
+    <span class="n">r_mass</span> <span class="o">=</span> <span class="mi">1</span><span class="o">/</span><span class="n">r_mass</span>
+    <span class="k">return</span> <span class="n">r_mass</span></div>
+
+<div class="viewcode-block" id="rmass_cart"><a class="viewcode-back" href="../../../vibrav.numerical.redmass.html#vibrav.numerical.redmass.rmass_cart">[docs]</a><span class="k">def</span> <span class="nf">rmass_cart</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">symbol</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Calculate the reduced masses from the normalized non-mass-weighted cartesian</span>
+<span class="sd">    normal modes. With the equation,</span>
+
+<span class="sd">    .. math::</span>
+<span class="sd">        \\mu_i = \\left(\\sum_k^{3N} l_{CARTk,i}^2\\right)^{-1}</span>
+
+<span class="sd">    Note:</span>
+<span class="sd">        This assumes that the normal modes have already been placed in the</span>
+<span class="sd">        :code:`[&#39;dx&#39;, &#39;dy&#39;, &#39;dz&#39;]` columns.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        data (:class:`pandas.DataFrame`): Data frame the has the non-mass-weighted</span>
+<span class="sd">                                          cartesian normal modes.</span>
+<span class="sd">        symbol (:obj:`list`): List-like object that has the atomic symbols.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        r_mass (:class:`numpy.ndarray`): Array containing the calculated reduced</span>
+<span class="sd">                                         masses in Dalton or atomic mass units</span>
+<span class="sd">                                         not atomic units of mass.</span>
+
+<span class="sd">    Examples:</span>
+<span class="sd">        Usage of this method is as follows,</span>
+
+<span class="sd">        &gt;&gt;&gt; import pandas as pd</span>
+<span class="sd">        &gt;&gt;&gt; from vibrav.base import resource</span>
+<span class="sd">        &gt;&gt;&gt; res_file = &#39;adf-ubr-1minus-b3lyp-numeric-norm-modes-cart.csv.xz&#39;</span>
+<span class="sd">        &gt;&gt;&gt; freqs = pd.read_csv(resource(res_file), compression=&#39;xz&#39;)</span>
+<span class="sd">        &gt;&gt;&gt; symbols = [&#39;U&#39;] + [&#39;Br&#39;]*6</span>
+<span class="sd">        &gt;&gt;&gt; freqs.groupby(&#39;freqdx&#39;).apply(rmass_cart, symbols)</span>
+<span class="sd">        freqdx</span>
+<span class="sd">        0      78.918337</span>
+<span class="sd">        1      78.918337</span>
+<span class="sd">        2      78.918337</span>
+<span class="sd">        3      78.918337</span>
+<span class="sd">        4      78.918337</span>
+<span class="sd">        5      78.918337</span>
+<span class="sd">        6      93.006642</span>
+<span class="sd">        7      93.006642</span>
+<span class="sd">        8      93.006642</span>
+<span class="sd">        9      78.918337</span>
+<span class="sd">        10     78.918337</span>
+<span class="sd">        11     78.918337</span>
+<span class="sd">        12    111.682085</span>
+<span class="sd">        13    111.682085</span>
+<span class="sd">        14    111.682085</span>
+<span class="sd">        dtype: float64</span>
+
+<span class="sd">        It is also possible to use the method without the groupby/apply methods from a</span>
+<span class="sd">        pandas data frame. However, the pandas data frame that is passed into the</span>
+<span class="sd">        function **must** have the :code:`[&#39;dx&#39;, &#39;dy&#39;, &#39;dz&#39;]` columns present. In</span>
+<span class="sd">        addition the :code:`symbols` parameter must have all of the atomic symbols that</span>
+<span class="sd">        exists, including ones that are repeated.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">disps</span><span class="p">,</span> <span class="n">mass</span> <span class="o">=</span> <span class="n">_init_data</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">symbol</span><span class="p">)</span>
+    <span class="c1"># get the normalization constants</span>
+    <span class="n">norms</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">disps</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">mass</span><span class="p">))</span>
+    <span class="c1"># unormalize the normal modes</span>
+    <span class="n">disps</span> <span class="o">/=</span> <span class="n">norms</span>
+    <span class="c1"># get the reduced masses</span>
+    <span class="n">r_mass</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">square</span><span class="p">(</span><span class="n">disps</span><span class="p">))</span>
+    <span class="n">r_mass</span> <span class="o">=</span> <span class="mi">1</span><span class="o">/</span><span class="n">r_mass</span>
+    <span class="k">return</span> <span class="n">r_mass</span></div>
+
+</pre></div>
+
+    </div>
+      
+  </div>
+</div>
+<footer class="footer">
+  <div class="container">
+    <p class="pull-right">
+      <a href="#">Back to top</a>
+      
+    </p>
+    <p>
+        &copy; Copyright 2023, Herbert D Ludowieg. Project structure based on the Computational Molecular Science Python Cookiecutter version 1.1.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 7.0.1.<br/>
+    </p>
+  </div>
+</footer>
+  </body>
+</html>

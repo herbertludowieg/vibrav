@@ -1,0 +1,7 @@
+vibrav.numerical.frequencies module
+===================================
+
+.. automodule:: vibrav.numerical.frequencies
+   :members:
+   :undoc-members:
+   :show-inheritance:

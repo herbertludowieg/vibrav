@@ -1,0 +1,7 @@
+vibrav.numerical.derivatives module
+===================================
+
+.. automodule:: vibrav.numerical.derivatives
+   :members:
+   :undoc-members:
+   :show-inheritance:

@@ -1,0 +1,7 @@
+vibrav.base module
+==================
+
+.. automodule:: vibrav.base
+   :members:
+   :undoc-members:
+   :show-inheritance:

@@ -1,0 +1,7 @@
+vibrav.core.config module
+=========================
+
+.. automodule:: vibrav.core.config
+   :members:
+   :undoc-members:
+   :show-inheritance:

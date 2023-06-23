@@ -1,0 +1,7 @@
+vibrav.numerical.phases module
+==============================
+
+.. automodule:: vibrav.numerical.phases
+   :members:
+   :undoc-members:
+   :show-inheritance:

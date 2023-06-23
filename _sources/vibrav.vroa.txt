@@ -1,0 +1,15 @@
+vibrav.vroa package
+===================
+
+.. automodule:: vibrav.vroa
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+Submodules
+----------
+
+.. toctree::
+   :maxdepth: 3
+
+   vibrav.vroa.vroa

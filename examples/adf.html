@@ -1,0 +1,584 @@
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>ADF parser API &#8212; vibrav  documentation</title>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/bootstrap-sphinx.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/nbsphinx-code-cells.css" />
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/sphinx_highlight.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Generating the displaced structures from a Gaussian frequencies calculation" href="gen-displaced.html" />
+    <link rel="prev" title="Welcome to the VIBRational AVeraging (VIBRAV) documentation!" href="../index.html" />
+<meta charset='utf-8'>
+<meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
+<meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1'>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<script type="text/javascript" src="../_static/js/jquery-1.12.4.min.js"></script>
+<script type="text/javascript" src="../_static/js/jquery-fix.js"></script>
+<script type="text/javascript" src="../_static/bootstrap-3.4.1/js/bootstrap.min.js"></script>
+<script type="text/javascript" src="../_static/bootstrap-sphinx.js"></script>
+
+  </head><body>
+
+  <div id="navbar" class="navbar navbar-default navbar-fixed-top">
+    <div class="container">
+      <div class="navbar-header">
+        <!-- .btn-navbar is used as the toggle for collapsed navbar content -->
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".nav-collapse">
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        <a class="navbar-brand" href="../index.html">
+          vibrav</a>
+        <span class="navbar-text navbar-version pull-left"><b></b></span>
+      </div>
+
+        <div class="collapse navbar-collapse nav-collapse">
+          <ul class="nav navbar-nav">
+            
+            
+              <li class="dropdown globaltoc-container">
+  <a role="button"
+     id="dLabelGlobalToc"
+     data-toggle="dropdown"
+     data-target="#"
+     href="../index.html">Site <b class="caret"></b></a>
+  <ul class="dropdown-menu globaltoc"
+      role="menu"
+      aria-labelledby="dLabelGlobalToc"><ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">ADF parser API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="gen-displaced.html">Generating the displaced structures from a Gaussian frequencies calculation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="molcas.html">Molcas parser API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="numerical-diffs.html">Using derivative module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="vibronic.html">Running vibronic calculations from a Molcas RASSI set of calculations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="vroa-h2o2.html">VROA intensities of hydrogen peroxide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="vroa-methyloxirane.html">VROA intensities of methyloxirane</a></li>
+<li class="toctree-l1"><a class="reference internal" href="zpvc.html">Tutorial for using the ZPVC module in VIBRAV</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../vibrav.html">vibrav package</a></li>
+</ul>
+</ul>
+</li>
+              
+                <li class="dropdown">
+  <a role="button"
+     id="dLabelLocalToc"
+     data-toggle="dropdown"
+     data-target="#"
+     href="#">Page <b class="caret"></b></a>
+  <ul class="dropdown-menu localtoc"
+      role="menu"
+      aria-labelledby="dLabelLocalToc"><ul>
+<li><a class="reference internal" href="#">ADF parser API</a><ul>
+<li><a class="reference internal" href="#Imports-to-get-the-resource-files">Imports to get the resource files</a></li>
+<li><a class="reference internal" href="#Read-the-ASCII-formatted-ADF-TAPE21-file">Read the ASCII formatted ADF TAPE21 file</a><ul>
+<li><a class="reference internal" href="#Parse-the-frequency-data-frame">Parse the frequency data frame</a></li>
+<li><a class="reference internal" href="#Parse-the-atom-data-frame">Parse the atom data frame</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</ul>
+</li>
+              
+            
+            
+              
+                
+  <li>
+    <a href="../index.html" title="Previous Chapter: Welcome to the VIBRational AVeraging (VIBRAV) documentation!"><span class="glyphicon glyphicon-chevron-left visible-sm"></span><span class="hidden-sm hidden-tablet">&laquo; Welcome to th...</span>
+    </a>
+  </li>
+  <li>
+    <a href="gen-displaced.html" title="Next Chapter: Generating the displaced structures from a Gaussian frequencies calculation"><span class="glyphicon glyphicon-chevron-right visible-sm"></span><span class="hidden-sm hidden-tablet">Generating th... &raquo;</span>
+    </a>
+  </li>
+              
+            
+            
+            
+            
+              <li class="hidden-sm">
+<div id="sourcelink">
+  <a href="../_sources/examples/adf.ipynb.txt"
+     rel="nofollow">Source</a>
+</div></li>
+            
+          </ul>
+
+          
+            
+<form class="navbar-form navbar-right" action="../search.html" method="get">
+ <div class="form-group">
+  <input type="text" name="q" class="form-control" placeholder="Search" />
+ </div>
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+          
+        </div>
+    </div>
+  </div>
+
+<div class="container">
+  <div class="row">
+    <div class="body col-md-12 content" role="main">
+      
+  <section id="ADF-parser-API">
+<h1>ADF parser API<a class="headerlink" href="#ADF-parser-API" title="Permalink to this heading">¶</a></h1>
+<section id="Imports-to-get-the-resource-files">
+<h2>Imports to get the resource files<a class="headerlink" href="#Imports-to-get-the-resource-files" title="Permalink to this heading">¶</a></h2>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">vibrav.base</span> <span class="kn">import</span> <span class="n">resource</span>
+<span class="kn">from</span> <span class="nn">vibrav.util.open_files</span> <span class="kn">import</span> <span class="n">uncompress_file</span>
+<span class="kn">import</span> <span class="nn">os</span>
+</pre></div>
+</div>
+</div>
+<p>Uncompress the resource file to read.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">decomp</span> <span class="o">=</span> <span class="n">uncompress_file</span><span class="p">(</span><span class="n">resource</span><span class="p">(</span><span class="s1">&#39;adf-ethane-ts-freq.t21.ascii.xz&#39;</span><span class="p">))</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="Read-the-ASCII-formatted-ADF-TAPE21-file">
+<h2>Read the ASCII formatted ADF TAPE21 file<a class="headerlink" href="#Read-the-ASCII-formatted-ADF-TAPE21-file" title="Permalink to this heading">¶</a></h2>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">vibrav.adf</span> <span class="kn">import</span> <span class="n">Tape21</span>
+</pre></div>
+</div>
+</div>
+<p>Read the atom and frequency tables.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">ed</span> <span class="o">=</span> <span class="n">Tape21</span><span class="p">(</span><span class="n">decomp</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<section id="Parse-the-frequency-data-frame">
+<h3>Parse the frequency data frame<a class="headerlink" href="#Parse-the-frequency-data-frame" title="Permalink to this heading">¶</a></h3>
+<p>The <code class="docutils literal notranslate"><span class="pre">r_mass</span></code> column is calculated on the fly when parsing the mass-weighted normal modes with the formula,</p>
+<div class="math notranslate nohighlight">
+\[\mu_i = \left(\sum_k^{3N}l_{CARTk,i}^2\right)^{-1} = \left(\sum_k^{3N}\left(\frac{l_{MWC k,i}}{\sqrt{m_k}}\right)^2\right)^{-1} = N_i^2\]</div>
+<p>The reason that we must use the ASCII formatted TAPE21 file from ADF rather than the output is that ADF prints the non-mass-weighted normalized cartesians with three decimals of precision. Looking at the equation shown above the <span class="math notranslate nohighlight">\(l_{CARTk,i}\)</span> matrix elements are indeed non-mass-weighted cartesian normal modes. However, they are not normalized and the information of the reduced masses can still be extracted.</p>
+<p>To calculate the reduced masses the program will need the latest developers version of both the <a class="reference external" href="https://github.com/exa-analytics/exa">exa</a> and <a class="reference external" href="https://github.com/exa-analytics/exatomic">exatomic</a> packages.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">ed</span><span class="o">.</span><span class="n">parse_frequency</span><span class="p">(</span><span class="n">cart</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">ed</span><span class="o">.</span><span class="n">frequency</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>dx</th>
+      <th>dy</th>
+      <th>dz</th>
+      <th>frequency</th>
+      <th>freqdx</th>
+      <th>r_mass</th>
+      <th>symbol</th>
+      <th>label</th>
+      <th>ir_int</th>
+      <th>frame</th>
+    </tr>
+    <tr>
+      <th>frequency</th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>2.413489e-16</td>
+      <td>-1.291217e-15</td>
+      <td>-0.003898</td>
+      <td>-239.036547</td>
+      <td>0</td>
+      <td>1.008159</td>
+      <td>C</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>-6.154398e-16</td>
+      <td>2.740316e-16</td>
+      <td>0.003898</td>
+      <td>-239.036547</td>
+      <td>0</td>
+      <td>1.008159</td>
+      <td>C</td>
+      <td>1</td>
+      <td>0</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>-6.876806e-02</td>
+      <td>4.021443e-01</td>
+      <td>-0.014579</td>
+      <td>-239.036547</td>
+      <td>0</td>
+      <td>1.008159</td>
+      <td>H</td>
+      <td>2</td>
+      <td>0</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>3.826512e-01</td>
+      <td>-1.415172e-01</td>
+      <td>-0.014579</td>
+      <td>-239.036547</td>
+      <td>0</td>
+      <td>1.008159</td>
+      <td>H</td>
+      <td>3</td>
+      <td>0</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>-3.138831e-01</td>
+      <td>-2.606270e-01</td>
+      <td>-0.014579</td>
+      <td>-239.036547</td>
+      <td>0</td>
+      <td>1.008159</td>
+      <td>H</td>
+      <td>4</td>
+      <td>0</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>...</th>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+    </tr>
+    <tr>
+      <th>139</th>
+      <td>-2.142217e-02</td>
+      <td>1.661105e-04</td>
+      <td>0.002568</td>
+      <td>3044.853587</td>
+      <td>17</td>
+      <td>1.100672</td>
+      <td>H</td>
+      <td>3</td>
+      <td>0</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>140</th>
+      <td>2.947483e-01</td>
+      <td>-3.633216e-01</td>
+      <td>-0.180326</td>
+      <td>3044.853587</td>
+      <td>17</td>
+      <td>1.100672</td>
+      <td>H</td>
+      <td>4</td>
+      <td>0</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>141</th>
+      <td>8.272322e-02</td>
+      <td>-2.807390e-01</td>
+      <td>0.112829</td>
+      <td>3044.853587</td>
+      <td>17</td>
+      <td>1.100672</td>
+      <td>H</td>
+      <td>5</td>
+      <td>0</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>142</th>
+      <td>1.433751e-01</td>
+      <td>1.971820e-01</td>
+      <td>0.093630</td>
+      <td>3044.853587</td>
+      <td>17</td>
+      <td>1.100672</td>
+      <td>H</td>
+      <td>6</td>
+      <td>0</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>143</th>
+      <td>5.269408e-01</td>
+      <td>-9.430460e-02</td>
+      <td>-0.206459</td>
+      <td>3044.853587</td>
+      <td>17</td>
+      <td>1.100672</td>
+      <td>H</td>
+      <td>7</td>
+      <td>0</td>
+      <td>0</td>
+    </tr>
+  </tbody>
+</table>
+<p>144 rows × 10 columns</p>
+</div></div>
+</div>
+</section>
+<section id="Parse-the-atom-data-frame">
+<h3>Parse the atom data frame<a class="headerlink" href="#Parse-the-atom-data-frame" title="Permalink to this heading">¶</a></h3>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">ed</span><span class="o">.</span><span class="n">parse_atom</span><span class="p">()</span>
+<span class="n">ed</span><span class="o">.</span><span class="n">atom</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>symbol</th>
+      <th>set</th>
+      <th>label</th>
+      <th>x</th>
+      <th>y</th>
+      <th>z</th>
+      <th>Z</th>
+      <th>frame</th>
+    </tr>
+    <tr>
+      <th>atom</th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>C</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>1.450715</td>
+      <td>6.0</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>C</td>
+      <td>1</td>
+      <td>1</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>-1.450715</td>
+      <td>6.0</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>H</td>
+      <td>2</td>
+      <td>2</td>
+      <td>1.905940</td>
+      <td>0.346368</td>
+      <td>2.224450</td>
+      <td>1.0</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>H</td>
+      <td>3</td>
+      <td>3</td>
+      <td>-0.653007</td>
+      <td>-1.823777</td>
+      <td>2.224450</td>
+      <td>1.0</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>H</td>
+      <td>4</td>
+      <td>4</td>
+      <td>-1.252933</td>
+      <td>1.477409</td>
+      <td>2.224450</td>
+      <td>1.0</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>5</th>
+      <td>H</td>
+      <td>5</td>
+      <td>5</td>
+      <td>-0.653007</td>
+      <td>1.823777</td>
+      <td>-2.224450</td>
+      <td>1.0</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>6</th>
+      <td>H</td>
+      <td>6</td>
+      <td>6</td>
+      <td>-1.252933</td>
+      <td>-1.477409</td>
+      <td>-2.224450</td>
+      <td>1.0</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>7</th>
+      <td>H</td>
+      <td>7</td>
+      <td>7</td>
+      <td>1.905940</td>
+      <td>-0.346368</td>
+      <td>-2.224450</td>
+      <td>1.0</td>
+      <td>0</td>
+    </tr>
+  </tbody>
+</table>
+</div></div>
+</div>
+<p>Remove the uncompressed resource file</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">decomp</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>
+</pre></div>
+</div>
+</div>
+</section>
+</section>
+</section>
+
+
+    </div>
+      
+  </div>
+</div>
+<footer class="footer">
+  <div class="container">
+    <p class="pull-right">
+      <a href="#">Back to top</a>
+      
+    </p>
+    <p>
+        &copy; Copyright 2023, Herbert D Ludowieg. Project structure based on the Computational Molecular Science Python Cookiecutter version 1.1.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 7.0.1.<br/>
+    </p>
+  </div>
+</footer>
+  </body>
+</html>

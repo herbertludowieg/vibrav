@@ -1,0 +1,7 @@
+vibrav.util.gen\_displaced module
+=================================
+
+.. automodule:: vibrav.util.gen_displaced
+   :members:
+   :undoc-members:
+   :show-inheritance:

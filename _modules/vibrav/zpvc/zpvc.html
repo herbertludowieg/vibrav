@@ -1,0 +1,645 @@
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>vibrav.zpvc.zpvc &#8212; vibrav  documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/bootstrap-sphinx.css" />
+    <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+    <script src="../../../_static/doctools.js"></script>
+    <script src="../../../_static/sphinx_highlight.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+<meta charset='utf-8'>
+<meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
+<meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1'>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<script type="text/javascript" src="../../../_static/js/jquery-1.12.4.min.js"></script>
+<script type="text/javascript" src="../../../_static/js/jquery-fix.js"></script>
+<script type="text/javascript" src="../../../_static/bootstrap-3.4.1/js/bootstrap.min.js"></script>
+<script type="text/javascript" src="../../../_static/bootstrap-sphinx.js"></script>
+
+  </head><body>
+
+  <div id="navbar" class="navbar navbar-default navbar-fixed-top">
+    <div class="container">
+      <div class="navbar-header">
+        <!-- .btn-navbar is used as the toggle for collapsed navbar content -->
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".nav-collapse">
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        <a class="navbar-brand" href="../../../index.html">
+          vibrav</a>
+        <span class="navbar-text navbar-version pull-left"><b></b></span>
+      </div>
+
+        <div class="collapse navbar-collapse nav-collapse">
+          <ul class="nav navbar-nav">
+            
+            
+              <li class="dropdown globaltoc-container">
+  <a role="button"
+     id="dLabelGlobalToc"
+     data-toggle="dropdown"
+     data-target="#"
+     href="../../../index.html">Site <b class="caret"></b></a>
+  <ul class="dropdown-menu globaltoc"
+      role="menu"
+      aria-labelledby="dLabelGlobalToc"><ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../examples/adf.html">ADF parser API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../examples/gen-displaced.html">Generating the displaced structures from a Gaussian frequencies calculation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../examples/molcas.html">Molcas parser API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../examples/numerical-diffs.html">Using derivative module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../examples/vibronic.html">Running vibronic calculations from a Molcas RASSI set of calculations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../examples/vroa-h2o2.html">VROA intensities of hydrogen peroxide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../examples/vroa-methyloxirane.html">VROA intensities of methyloxirane</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../examples/zpvc.html">Tutorial for using the ZPVC module in VIBRAV</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../vibrav.html">vibrav package</a></li>
+</ul>
+</ul>
+</li>
+              
+                <li class="dropdown">
+  <a role="button"
+     id="dLabelLocalToc"
+     data-toggle="dropdown"
+     data-target="#"
+     href="#">Page <b class="caret"></b></a>
+  <ul class="dropdown-menu localtoc"
+      role="menu"
+      aria-labelledby="dLabelLocalToc"></ul>
+</li>
+              
+            
+            
+              
+                
+              
+            
+            
+            
+            
+              <li class="hidden-sm"></li>
+            
+          </ul>
+
+          
+            
+<form class="navbar-form navbar-right" action="../../../search.html" method="get">
+ <div class="form-group">
+  <input type="text" name="q" class="form-control" placeholder="Search" />
+ </div>
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+          
+        </div>
+    </div>
+  </div>
+
+<div class="container">
+  <div class="row">
+    <div class="body col-md-12 content" role="main">
+      
+  <h1>Source code for vibrav.zpvc.zpvc</h1><div class="highlight"><pre>
+<span></span><span class="c1"># This file is part of vibrav.</span>
+<span class="c1">#</span>
+<span class="c1"># vibrav is free software: you can redistribute it and/or modify</span>
+<span class="c1"># it under the terms of the GNU General Public License as published by</span>
+<span class="c1"># the Free Software Foundation, either version 3 of the License, or</span>
+<span class="c1"># (at your option) any later version.</span>
+<span class="c1">#</span>
+<span class="c1"># vibrav is distributed in the hope that it will be useful,</span>
+<span class="c1"># but WITHOUT ANY WARRANTY; without even the implied warranty of</span>
+<span class="c1"># MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the</span>
+<span class="c1"># GNU General Public License for more details.</span>
+<span class="c1">#</span>
+<span class="c1"># You should have received a copy of the GNU General Public License</span>
+<span class="c1"># along with vibrav.  If not, see &lt;https://www.gnu.org/licenses/&gt;.</span>
+<span class="kn">from</span> <span class="nn">vibrav.core</span> <span class="kn">import</span> <span class="n">Config</span>
+<span class="kn">from</span> <span class="nn">vibrav.util.print</span> <span class="kn">import</span> <span class="n">dataframe_to_txt</span>
+<span class="kn">from</span> <span class="nn">vibrav.util.io</span> <span class="kn">import</span> <span class="n">read_data_file</span>
+<span class="c1">#from vibrav.util.file_checking import _check_file_continuity, _check_file_continuity_mult_norms</span>
+<span class="kn">from</span> <span class="nn">vibrav.numerical.derivatives</span> <span class="kn">import</span> <span class="p">(</span><span class="n">get_pos_neg_gradients</span><span class="p">,</span> <span class="n">two_point_1d</span><span class="p">,</span> <span class="n">two_point_2d</span><span class="p">,</span>
+                                          <span class="n">four_point_1d</span><span class="p">,</span> <span class="n">four_point_2d</span><span class="p">,</span> <span class="n">six_point_1d</span><span class="p">,</span>
+                                          <span class="n">six_point_2d</span><span class="p">,</span> <span class="n">eight_point_1d</span><span class="p">,</span> <span class="n">eight_point_2d</span><span class="p">)</span>
+<span class="kn">from</span> <span class="nn">vibrav.numerical.frequencies</span> <span class="kn">import</span> <span class="n">numerical_frequencies</span>
+<span class="kn">from</span> <span class="nn">exatomic.util</span> <span class="kn">import</span> <span class="n">conversions</span> <span class="k">as</span> <span class="n">conv</span>
+<span class="kn">from</span> <span class="nn">exatomic.util.constants</span> <span class="kn">import</span> <span class="n">Boltzmann_constant</span> <span class="k">as</span> <span class="n">boltzmann</span>
+<span class="kn">from</span> <span class="nn">exatomic.core.atom</span> <span class="kn">import</span> <span class="n">Atom</span>
+<span class="kn">from</span> <span class="nn">exatomic.base</span> <span class="kn">import</span> <span class="n">sym2z</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">warnings</span>
+
+<span class="n">_zpvc_results</span> <span class="o">=</span> <span class="s1">&#39;&#39;&#39;</span><span class="se">\</span>
+<span class="s1">========Results from Vibrational Averaging at </span><span class="si">{temp:.2f}</span><span class="s1"> K==========</span>
+<span class="s1">----Result of ZPVC calculation for </span><span class="si">{snmodes:d}</span><span class="s1"> of </span><span class="si">{nmodes:d}</span><span class="s1"> frequencies</span>
+<span class="s1">    - Total Anharmonicity:   </span><span class="si">{anharm:+.6f}</span>
+<span class="s1">    - Total Curvature:       </span><span class="si">{curva:+.6f}</span>
+<span class="s1">    - Zero Point Vib. Corr.: </span><span class="si">{zpvc:+.6f}</span>
+<span class="s1">    - Zero Point Vib. Avg.:  </span><span class="si">{zpva:+.6f}</span>
+<span class="s1">&#39;&#39;&#39;</span>
+
+<span class="n">eff_geo</span> <span class="o">=</span> <span class="s1">&#39;&#39;&#39;</span><span class="se">\</span>
+<span class="s1">----Effective geometry in Angstroms for T=</span><span class="si">{:.2f}</span><span class="s1"> K</span>
+<span class="si">{}</span><span class="s1">&#39;&#39;&#39;</span>
+
+<div class="viewcode-block" id="ZPVC"><a class="viewcode-back" href="../../../vibrav.zpvc.zpvc.html#vibrav.zpvc.zpvc.ZPVC">[docs]</a><span class="k">class</span> <span class="nc">ZPVC</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Class to calculate the Zero-point vibrational corrections of a certain property.</span>
+
+<span class="sd">    Required inputs in configuration file.</span>
+
+<span class="sd">    +------------------+-----------------------------------------+--------------+</span>
+<span class="sd">    | Attribute        | Description                             | Data Type    |</span>
+<span class="sd">    +==================+=========================================+==============+</span>
+<span class="sd">    | number_of_modes  | Number of normal modes in the molecule. | :obj:`int`   |</span>
+<span class="sd">    +------------------+-----------------------------------------+--------------+</span>
+<span class="sd">    | number_of_nuclei | Number of nuclei in the molecule.       | :obj:`int`   |</span>
+<span class="sd">    +------------------+-----------------------------------------+--------------+</span>
+<span class="sd">    | property_file    | Path to the CSV formatted file with the | :obj:`str`   |</span>
+<span class="sd">    |                  | property information. Must have a       |              |</span>
+<span class="sd">    |                  | header with the columns `&#39;file&#39;`,       |              |</span>
+<span class="sd">    |                  | `&#39;atom&#39;` and the selected property      |              |</span>
+<span class="sd">    |                  | column. In addition, it must have an    |              |</span>
+<span class="sd">    |                  | index column.                           |              |</span>
+<span class="sd">    +------------------+-----------------------------------------+--------------+</span>
+<span class="sd">    | gradient_file    | Path to the CSV formatted file with the | :obj:`str`   |</span>
+<span class="sd">    |                  | gradient information. Must have a       |              |</span>
+<span class="sd">    |                  | header with the columns                 |              |</span>
+<span class="sd">    |                  | `[&#39;file&#39;, &#39;atom&#39;, &#39;fx&#39;, &#39;fy&#39;, &#39;fz&#39;]`.   |              |</span>
+<span class="sd">    |                  | In addition, it must have an index      |              |</span>
+<span class="sd">    |                  | column.                                 |              |</span>
+<span class="sd">    +------------------+-----------------------------------------+--------------+</span>
+<span class="sd">    | property_atoms   | Atomic index of the atom/s of interest. | :obj:`int`   |</span>
+<span class="sd">    |                  | Can be given as multiple space          |              |</span>
+<span class="sd">    |                  | separated integers.                     |              |</span>
+<span class="sd">    +------------------+-----------------------------------------+--------------+</span>
+<span class="sd">    | property_column  | Column name with the data of interest   | :obj:`str`   |</span>
+<span class="sd">    |                  | in the property file.                   |              |</span>
+<span class="sd">    +------------------+-----------------------------------------+--------------+</span>
+<span class="sd">    | temperature      | Temperature/s in Kelvin. Can be given   | :obj:`float` |</span>
+<span class="sd">    |                  | as a space separated list of floats.    |              |</span>
+<span class="sd">    +------------------+-----------------------------------------+--------------+</span>
+
+<span class="sd">    Default inputs in the configuration file.</span>
+
+<span class="sd">    +-----------------+------------------------------------------+----------------+</span>
+<span class="sd">    | Attribute       | Description                              | Default Value  |</span>
+<span class="sd">    +=================+==========================================+================+</span>
+<span class="sd">    | smatrix_file    | Filepath containing all of the           | smatrix.dat    |</span>
+<span class="sd">    |                 | information of the normal mode           |                |</span>
+<span class="sd">    |                 | displacements.                           |                |</span>
+<span class="sd">    +-----------------+------------------------------------------+----------------+</span>
+<span class="sd">    | eqcoord_file    | Filepath containing the coordinates of   | eqcoord.dat    |</span>
+<span class="sd">    |                 | the equilibrium structure.               |                |</span>
+<span class="sd">    +-----------------+------------------------------------------+----------------+</span>
+<span class="sd">    | atom_order_file | Filepath containing the atomic symbols   | atom_order.dat |</span>
+<span class="sd">    |                 | and ordering of the nuclei.              |                |</span>
+<span class="sd">    +-----------------+------------------------------------------+----------------+</span>
+
+<span class="sd">    We implement the equations as outlined in the paper</span>
+<span class="sd">    *J. Phys. Chem. A* 2005, **109**, 8617-8623</span>
+<span class="sd">    (doi:`10.1021/jp051685y &lt;https://doi.org/10.1021/jp051685y&gt;`_).</span>
+<span class="sd">    Where we can compute the Zero-Point Vibrational corrections with</span>
+
+<span class="sd">    .. math::</span>
+<span class="sd">        \\text{ZPVC} = -\\frac{1}{4}\\sum_{i=1}^m\\frac{1}{\\omega_i^2\\sqrt{\\mu_i}}</span>
+<span class="sd">                        \\left(\\frac{\\partial P}{\\partial Q_i}\\right)</span>
+<span class="sd">                        \\sum_{j=1}^m\\frac{k_{ijj}}{\\omega_j\\mu_j\\sqrt{\\mu_i}}</span>
+<span class="sd">                       +\\frac{1}{4}\sum_{i=1}^m\\frac{1}{\\omega_i\\mu_i}</span>
+<span class="sd">                        \\left(\\frac{\\partial^2 P}{\\partial Q_i^2}\\right)</span>
+
+<span class="sd">    Where, :math:`m` represents the total number of normal modes,</span>
+<span class="sd">    :math:`\\omega_i` is the frequency of the :math:`i`th normal mode,</span>
+<span class="sd">    and :math:`\\mu_i` is the reduced mass, in atomic units. The</span>
+<span class="sd">    derivatives of the property (:math:`P`) are taken with respect to</span>
+<span class="sd">    the normal coordinates, :math:`Q_i`, for a given normal mode</span>
+<span class="sd">    :math:`i`. The anharmonic cubic constant, :math:`k_{ijj}`, is</span>
+<span class="sd">    defined as the mixed third-energy derivative, and calculated as,</span>
+
+<span class="sd">    .. math::</span>
+<span class="sd">        k_{ijj} = \\frac{\\partial^3 E}{\\partial Q_i \\partial Q_j^2}</span>
+
+<span class="sd">    The calculated energy gradients in terms of the normal modes can be</span>
+<span class="sd">    obtained from the Cartesian gradients by,</span>
+
+<span class="sd">    .. math::</span>
+<span class="sd">        \\frac{\\partial E_{+/0/-}}{\\partial Q_i} =</span>
+<span class="sd">            \\sum_{\\alpha=1}^{3n} \\frac{\\partial E_{+/0/-}}{\\partial x_{\\alpha}}</span>
+<span class="sd">                S_{\\alpha j}</span>
+
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">_required_inputs</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;number_of_modes&#39;</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="s1">&#39;number_of_nuclei&#39;</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+                        <span class="s1">&#39;property_file&#39;</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="s1">&#39;gradient_file&#39;</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+                        <span class="s1">&#39;property_atoms&#39;</span><span class="p">:</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">int</span><span class="p">),</span> <span class="s1">&#39;property_column&#39;</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+                        <span class="s1">&#39;temperature&#39;</span><span class="p">:</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">float</span><span class="p">),</span> <span class="s1">&#39;number_of_norms&#39;</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+                        <span class="s1">&#39;norm_factors&#39;</span><span class="p">:</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">float</span><span class="p">)}</span>
+    <span class="n">_default_inputs</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;smatrix_file&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;smatrix.dat&#39;</span><span class="p">,</span> <span class="nb">str</span><span class="p">),</span>
+                       <span class="s1">&#39;eqcoord_file&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;eqcoord.dat&#39;</span><span class="p">,</span> <span class="nb">str</span><span class="p">),</span>
+                       <span class="s1">&#39;atom_order_file&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;atom_order.dat&#39;</span><span class="p">,</span> <span class="nb">str</span><span class="p">),</span>
+                       <span class="s1">&#39;index_col&#39;</span><span class="p">:</span> <span class="p">(</span><span class="kc">False</span><span class="p">,</span> <span class="nb">bool</span><span class="p">)}</span>
+    <span class="n">_deriv_map</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;two-point&#39;</span><span class="p">:</span> <span class="p">[</span><span class="n">two_point_1d</span><span class="p">,</span> <span class="n">two_point_2d</span><span class="p">],</span>
+                  <span class="s1">&#39;four-point&#39;</span><span class="p">:</span> <span class="p">[</span><span class="n">four_point_1d</span><span class="p">,</span> <span class="n">four_point_2d</span><span class="p">],</span>
+                  <span class="s1">&#39;six-point&#39;</span><span class="p">:</span> <span class="p">[</span><span class="n">six_point_1d</span><span class="p">,</span> <span class="n">six_point_2d</span><span class="p">],</span>
+                  <span class="s1">&#39;eight-point&#39;</span><span class="p">:</span> <span class="p">[</span><span class="n">eight_point_1d</span><span class="p">,</span> <span class="n">eight_point_2d</span><span class="p">]}</span>
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_get_temp_factor</span><span class="p">(</span><span class="n">temp</span><span class="p">,</span> <span class="n">freq</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">temp</span> <span class="o">&gt;</span> <span class="mf">1e-6</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">factor</span> <span class="o">=</span> <span class="n">freq</span><span class="o">*</span><span class="n">conv</span><span class="o">.</span><span class="n">Ha2J</span> <span class="o">/</span> <span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">boltzmann</span> <span class="o">*</span> <span class="n">temp</span><span class="p">)</span>
+                <span class="n">temp_fac</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">cosh</span><span class="p">(</span><span class="n">factor</span><span class="p">)</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">sinh</span><span class="p">(</span><span class="n">factor</span><span class="p">)</span>
+            <span class="c1"># this should be taken care of by the conditional but always good to</span>
+            <span class="c1"># take care of explicitly</span>
+            <span class="k">except</span> <span class="ne">ZeroDivisionError</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ZeroDivisionError</span><span class="p">(</span><span class="s2">&quot;Something seems to have gone wrong &quot;</span> \
+                                        <span class="o">+</span><span class="s2">&quot;with the sinh function&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">temp_fac</span> <span class="o">=</span> <span class="mf">1.</span>
+        <span class="k">return</span> <span class="n">temp_fac</span>
+
+    <span class="k">def</span> <span class="nf">_p1_inner_sum</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">kqijj</span><span class="p">,</span> <span class="n">freq</span><span class="p">,</span> <span class="n">rmass</span><span class="p">,</span> <span class="n">temp</span><span class="p">,</span> <span class="n">nmodes</span><span class="p">,</span> <span class="n">i</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Calculate the inner sum of the P1 equation.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            kqijj (:class:`numpy.ndarray`): Anharmonic cubic force</span>
+<span class="sd">                constant matrix.</span>
+<span class="sd">            freq (:class:`numpy.ndarray`): Harmonic frequencies in</span>
+<span class="sd">                Hartree.</span>
+<span class="sd">            rmass (:class:`numpy.ndarray`): Reduced masses in atomic unit</span>
+<span class="sd">                of mass.</span>
+<span class="sd">            temp (:obj:`float`): Temperature in Kelvin.</span>
+<span class="sd">            nmodes (:obj:`int`): Total number of normal modes.</span>
+<span class="sd">            i (:obj:`int`): Index of outer sum.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            in_sum (:obj:`float`): Final result of internal sum.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">in_sum</span> <span class="o">=</span> <span class="mf">0.0</span>
+        <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nmodes</span><span class="p">):</span>
+            <span class="c1"># calculate the contribution of each vibration</span>
+            <span class="n">temp_fac</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_temp_factor</span><span class="p">(</span><span class="n">temp</span><span class="p">,</span> <span class="n">freq</span><span class="p">[</span><span class="n">j</span><span class="p">])</span>
+            <span class="n">in_sum</span> <span class="o">+=</span> <span class="n">kqijj</span><span class="p">[</span><span class="n">j</span><span class="p">][</span><span class="n">i</span><span class="p">]</span><span class="o">/</span><span class="p">(</span><span class="n">freq</span><span class="p">[</span><span class="n">j</span><span class="p">]</span><span class="o">*</span><span class="n">rmass</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> \
+                                  <span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">rmass</span><span class="p">[</span><span class="n">i</span><span class="p">]))</span> \
+                        <span class="o">*</span> <span class="n">temp_fac</span>
+        <span class="k">return</span> <span class="n">in_sum</span>
+
+<div class="viewcode-block" id="ZPVC.zpvc"><a class="viewcode-back" href="../../../vibrav.zpvc.zpvc.html#vibrav.zpvc.zpvc.ZPVC.zpvc">[docs]</a>    <span class="k">def</span> <span class="nf">zpvc</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">geometry</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">print_results</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+             <span class="n">write_out_files</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">debug</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+             <span class="n">deriv_method</span><span class="o">=</span><span class="s1">&#39;two-point&#39;</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Method to compute the Zero-Point Vibrational Corrections.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            geometry (:obj:`bool`, optional): Bool value that tells the</span>
+<span class="sd">                program to also calculate the effective geometry.</span>
+<span class="sd">                Defaults to :code:`True`.</span>
+<span class="sd">            print_results (:obj:`bool`, optional): Bool value to print</span>
+<span class="sd">                the results from the zpvc calcualtion to stdout.</span>
+<span class="sd">                Defaults to :code:`False`.</span>
+<span class="sd">            write_out_files (:obj:`bool`, optional): Bool value to</span>
+<span class="sd">                write files with the final results to a CSV formatted</span>
+<span class="sd">                and txt file. Defaults to :code:`True`.</span>
+<span class="sd">            debug (:obj:`bool`, optional): Bool value to write extra</span>
+<span class="sd">                matrices with debug information to a file including the</span>
+<span class="sd">                gradients expressed in terms of the normal modes, and</span>
+<span class="sd">                the first and second derivatives of the property.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">zpvc_dir</span> <span class="o">=</span> <span class="s1">&#39;zpvc-outputs&#39;</span>
+        <span class="k">if</span> <span class="n">write_out_files</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">zpvc_dir</span><span class="p">):</span>
+                <span class="n">os</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">zpvc_dir</span><span class="p">)</span>
+        <span class="n">config</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span>
+        <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">index_col</span><span class="p">:</span>
+            <span class="n">gradient</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">gradient_file</span><span class="p">,</span> <span class="n">index_col</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span> \
+                                    <span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="n">by</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;file&#39;</span><span class="p">,</span> <span class="s1">&#39;atom&#39;</span><span class="p">])</span>
+            <span class="nb">property</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">property_file</span><span class="p">,</span> <span class="n">index_col</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span> \
+                                    <span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="n">by</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;file&#39;</span><span class="p">,</span> <span class="s1">&#39;atom&#39;</span><span class="p">])</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">gradient</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">gradient_file</span><span class="p">,</span> <span class="n">index_col</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span> \
+                                    <span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="n">by</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;file&#39;</span><span class="p">,</span> <span class="s1">&#39;atom&#39;</span><span class="p">])</span>
+            <span class="nb">property</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">property_file</span><span class="p">,</span> <span class="n">index_col</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span> \
+                                    <span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="n">by</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;file&#39;</span><span class="p">,</span> <span class="s1">&#39;atom&#39;</span><span class="p">])</span>
+        <span class="n">grouped</span> <span class="o">=</span> <span class="nb">property</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s1">&#39;atom&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">get_group</span>
+        <span class="n">temperature</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">temperature</span>
+        <span class="n">pcol</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">property_column</span>
+        <span class="n">nmodes</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">number_of_modes</span>
+        <span class="n">nat</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">number_of_nuclei</span>
+        <span class="n">nnorms</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">number_of_norms</span>
+        <span class="n">norms</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">norm_factors</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">norms</span><span class="p">)</span> <span class="o">!=</span> <span class="n">nnorms</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;There was an issue with the number of norm factors.&quot;</span><span class="p">)</span>
+        <span class="n">delta</span> <span class="o">=</span> <span class="n">read_data_file</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">delta_file</span><span class="p">,</span> <span class="n">nnorms</span><span class="o">*</span><span class="n">nmodes</span><span class="p">)</span>
+        <span class="n">rmass</span> <span class="o">=</span> <span class="n">read_data_file</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">reduced_mass_file</span><span class="p">,</span> <span class="n">nmodes</span><span class="p">)</span>
+        <span class="n">rmass</span> <span class="o">/=</span> <span class="n">conv</span><span class="o">.</span><span class="n">amu2u</span> <span class="c1"># atomic units of mass to dalton</span>
+        <span class="n">frequencies</span> <span class="o">=</span> <span class="n">read_data_file</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">frequency_file</span><span class="p">,</span> <span class="n">nmodes</span><span class="p">)</span>
+        <span class="n">frequencies</span> <span class="o">*=</span> <span class="n">conv</span><span class="o">.</span><span class="n">inv_cm2Ha</span>
+        <span class="n">smat</span> <span class="o">=</span> <span class="n">read_data_file</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">smatrix_file</span><span class="p">,</span> <span class="n">nmodes</span><span class="p">,</span> <span class="n">smat</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">nat</span><span class="o">=</span><span class="n">nat</span><span class="p">)</span>
+        <span class="n">atom_symbols</span> <span class="o">=</span> <span class="n">read_data_file</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">atom_order_file</span><span class="p">,</span> <span class="n">nat</span><span class="p">)</span>
+        <span class="n">eqcoord</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">eqcoord_file</span><span class="p">,</span> <span class="n">header</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,)</span>
+        <span class="n">eqcoord</span> <span class="o">=</span> <span class="n">eqcoord</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">nat</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+        <span class="n">eqcoord</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">eqcoord</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;x&#39;</span><span class="p">,</span> <span class="s1">&#39;y&#39;</span><span class="p">,</span> <span class="s1">&#39;z&#39;</span><span class="p">])</span>
+        <span class="n">eqcoord</span><span class="p">[</span><span class="s1">&#39;symbol&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">atom_symbols</span>
+        <span class="n">eqcoord</span><span class="p">[</span><span class="s1">&#39;frame&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">eqcoord</span> <span class="o">=</span> <span class="n">Atom</span><span class="p">(</span><span class="n">eqcoord</span><span class="p">)</span>
+        <span class="n">coor_dfs</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">zpvc_dfs</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">va_dfs</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">atom</span> <span class="ow">in</span> <span class="n">config</span><span class="o">.</span><span class="n">property_atoms</span><span class="p">:</span>
+            <span class="n">prop_vals</span> <span class="o">=</span> <span class="n">grouped</span><span class="p">(</span><span class="n">atom</span><span class="p">)[[</span><span class="n">pcol</span><span class="p">,</span> <span class="s1">&#39;file&#39;</span><span class="p">]]</span>
+            <span class="k">if</span> <span class="n">prop_vals</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">!=</span> <span class="mi">2</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Property dataframe must have a second dimension of 2 not &quot;</span> \
+                                 <span class="o">+</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">property</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span>
+            <span class="c1"># get the total number of normal modes</span>
+            <span class="k">if</span> <span class="n">prop_vals</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="mi">2</span><span class="o">*</span><span class="n">nnorms</span><span class="o">*</span><span class="n">nmodes</span><span class="o">+</span><span class="mi">1</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="n">prop_vals</span><span class="p">)</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;The number of entries in the property data frame must &quot;</span> \
+                                 <span class="o">+</span><span class="s2">&quot;be twice the number of normal modes plus one, currently &quot;</span> \
+                                 <span class="o">+</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">prop_vals</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
+            <span class="c1">#if False:</span>
+            <span class="c1">#    # check for any missing files and remove the respective counterpart</span>
+            <span class="c1">#    for ndx in range(nnorms):</span>
+            <span class="c1">#        files = pd.Series(range(2*nmodes*ndx+1, 2*ndx*nmodes+2*nmodes+1))</span>
+            <span class="c1">#        grad = _check_file_continuity_mult_norms(gradient.copy(), &#39;gradient&#39;, files, nmodes, error=True)</span>
+            <span class="c1">#        prop = _check_file_continuity_mult_norms(prop_vals.copy(), &#39;property&#39;, files, nmodes, error=True)</span>
+            <span class="c1">#else:</span>
+            <span class="n">grad</span> <span class="o">=</span> <span class="n">gradient</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+            <span class="n">prop</span> <span class="o">=</span> <span class="n">prop_vals</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="n">by</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;file&#39;</span><span class="p">])</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+            <span class="n">prop</span><span class="p">[</span><span class="s1">&#39;freqdx&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">+</span><span class="nb">list</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">tile</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">nmodes</span><span class="p">),</span> <span class="n">nnorms</span><span class="p">))</span>
+            <span class="n">prop</span><span class="p">[</span><span class="s1">&#39;norm_idx&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">+</span><span class="nb">list</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">repeat</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">nnorms</span><span class="p">),</span> <span class="mi">2</span><span class="o">*</span><span class="n">nmodes</span><span class="p">))</span>
+            <span class="c1"># check that the equlibrium coordinates are included</span>
+            <span class="c1"># these are required for the three point difference methods</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">_</span> <span class="o">=</span> <span class="n">grad</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s1">&#39;file&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">get_group</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="s2">&quot;Equilibrium coordinate gradients not found&quot;</span><span class="p">)</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">_</span> <span class="o">=</span> <span class="n">prop</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s1">&#39;file&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">get_group</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="s2">&quot;Equilibrium coordinate property not found&quot;</span><span class="p">)</span>
+            <span class="c1"># check that the gradient and property dataframe have the same length of data</span>
+            <span class="c1">#grad_files = grad[grad[&#39;file&#39;].isin(range(0,nmodes+1))][&#39;file&#39;].drop_duplicates()</span>
+            <span class="c1">#prop_files = prop[prop[&#39;file&#39;].isin(range(nmodes+1,2*nmodes+1))][&#39;file&#39;].drop_duplicates()</span>
+            <span class="c1">## compare lengths</span>
+            <span class="c1">## TODO: make sure the minus 1 is in the right place</span>
+            <span class="c1">##       we suppose that it is because we grab the file number 0 as an extra</span>
+            <span class="c1">#if grad_files.shape[0]-1 != prop_files.shape[0]:</span>
+            <span class="c1">#    print(&quot;Length mismatch of gradient and property arrays.&quot;)</span>
+            <span class="c1">#    # we create a dataframe to make use of the existing file continuity checker</span>
+            <span class="c1">#    df = pd.DataFrame(np.concatenate([grad_files, prop_files]), columns=[&#39;file&#39;])</span>
+            <span class="c1">#    df = _check_file_continuity(df, &#39;grad/prop&#39;, nmodes)</span>
+            <span class="c1">#    # overwrite the property and gradient dataframes</span>
+            <span class="c1">#    grad = grad[grad[&#39;file&#39;].isin(df[&#39;file&#39;])]</span>
+            <span class="c1">#    prop = prop[prop[&#39;file&#39;].isin(df[&#39;file&#39;])]</span>
+            <span class="c1"># get the selected frequencies</span>
+            <span class="n">select_freq</span> <span class="o">=</span> <span class="n">grad</span><span class="p">[</span><span class="n">grad</span><span class="p">[</span><span class="s1">&#39;file&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="n">nmodes</span><span class="o">+</span><span class="mi">1</span><span class="p">))]</span>
+            <span class="n">select_freq</span> <span class="o">=</span> <span class="n">select_freq</span><span class="p">[</span><span class="s1">&#39;file&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">drop_duplicates</span><span class="p">()</span><span class="o">.</span><span class="n">values</span> <span class="o">-</span> <span class="mi">1</span>
+            <span class="n">snmodes</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">select_freq</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">snmodes</span> <span class="o">&lt;</span> <span class="n">nmodes</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;We do not currently have support to handle missing frequencies&quot;</span><span class="p">)</span>
+            <span class="c1"># get the actual frequencies</span>
+            <span class="c1"># TODO: check if we should use the real or calculated frequencies</span>
+            <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="n">frequencies</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">):</span>
+                <span class="n">text</span> <span class="o">=</span> <span class="s2">&quot;Negative frequencies were found in </span><span class="si">{}</span><span class="s2">. Make sure that the geometry &quot;</span> \
+                       <span class="o">+</span><span class="s2">&quot;optimization and frequency calculations proceeded correctly.&quot;</span>
+                <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="n">text</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">frequency_file</span><span class="p">,</span> <span class="ne">Warning</span><span class="p">))</span>
+            <span class="n">delfq_zero</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="n">delfq_plus</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="n">delfq_minus</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">ndx</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nnorms</span><span class="p">):</span>
+                <span class="n">files</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">+</span><span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">nmodes</span><span class="o">*</span><span class="n">ndx</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="o">*</span><span class="n">ndx</span><span class="o">*</span><span class="n">nmodes</span><span class="o">+</span><span class="mi">2</span><span class="o">*</span><span class="n">nmodes</span><span class="o">+</span><span class="mi">1</span><span class="p">))</span>
+                <span class="n">g</span> <span class="o">=</span> <span class="n">grad</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s1">&#39;file&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="p">[</span><span class="s1">&#39;file&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">()</span> <span class="ow">in</span> <span class="n">files</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">files</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
+                    <span class="n">g</span><span class="p">[</span><span class="s1">&#39;file&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">repeat</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">nmodes</span><span class="o">+</span><span class="mi">1</span><span class="p">),</span> <span class="n">nat</span><span class="p">)</span>
+                <span class="c1"># get the gradients multiplied by the normal modes</span>
+                <span class="n">zero</span><span class="p">,</span> <span class="n">plus</span><span class="p">,</span> <span class="n">minus</span> <span class="o">=</span> <span class="n">get_pos_neg_gradients</span><span class="p">(</span><span class="n">g</span><span class="p">,</span> <span class="n">smat</span><span class="p">,</span> <span class="n">nmodes</span><span class="p">)</span>
+                <span class="c1"># check the gradients by calculating the freuqncies numerically</span>
+                <span class="n">num_freqs</span> <span class="o">=</span> <span class="n">numerical_frequencies</span><span class="p">(</span><span class="n">plus</span><span class="p">,</span> <span class="n">minus</span><span class="p">,</span> <span class="n">rmass</span><span class="p">,</span>
+                                                  <span class="n">nmodes</span><span class="p">,</span> <span class="n">delta</span><span class="p">)</span>
+                <span class="n">zero</span><span class="p">[</span><span class="s1">&#39;norm_idx&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">ndx</span>
+                <span class="n">zero</span><span class="p">[</span><span class="s1">&#39;freqdx&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">range</span><span class="p">(</span><span class="n">nmodes</span><span class="p">)</span>
+                <span class="n">plus</span><span class="p">[</span><span class="s1">&#39;norm_idx&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">ndx</span>
+                <span class="n">plus</span><span class="p">[</span><span class="s1">&#39;freqdx&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">range</span><span class="p">(</span><span class="n">nmodes</span><span class="p">)</span>
+                <span class="n">minus</span><span class="p">[</span><span class="s1">&#39;norm_idx&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">ndx</span>
+                <span class="n">minus</span><span class="p">[</span><span class="s1">&#39;freqdx&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">range</span><span class="p">(</span><span class="n">nmodes</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">ndx</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="n">delfq_zero</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">zero</span><span class="p">)</span>
+                <span class="n">delfq_plus</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">plus</span><span class="p">)</span>
+                <span class="n">delfq_minus</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">minus</span><span class="p">)</span>
+            <span class="n">delfq_zero</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">delfq_zero</span><span class="p">,</span> <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="n">delfq_plus</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">delfq_plus</span><span class="p">,</span> <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="n">delfq_minus</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">delfq_minus</span><span class="p">,</span> <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="c1"># calculate anharmonic cubic force constant</span>
+            <span class="c1"># this will have nmodes rows and nmodes cols</span>
+            <span class="n">kqijj</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nmodes</span><span class="p">):</span>
+                <span class="n">equil</span> <span class="o">=</span> <span class="n">delfq_zero</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s1">&#39;freqdx&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">get_group</span><span class="p">(</span><span class="n">i</span><span class="p">)[</span><span class="nb">range</span><span class="p">(</span><span class="n">nmodes</span><span class="p">)]</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                <span class="n">plus</span> <span class="o">=</span> <span class="n">delfq_plus</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s1">&#39;freqdx&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">get_group</span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s1">&#39;norm_idx&#39;</span><span class="p">)</span>
+                <span class="n">minus</span> <span class="o">=</span> <span class="n">delfq_minus</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s1">&#39;freqdx&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">get_group</span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s1">&#39;norm_idx&#39;</span><span class="p">)</span>
+                <span class="n">func</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_deriv_map</span><span class="p">[</span><span class="n">deriv_method</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span>
+                <span class="n">p</span> <span class="o">=</span> <span class="n">plus</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="p">)[</span><span class="nb">range</span><span class="p">(</span><span class="n">nmodes</span><span class="p">)]</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">T</span>
+                <span class="n">m</span> <span class="o">=</span> <span class="n">minus</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="p">)[</span><span class="nb">range</span><span class="p">(</span><span class="n">nmodes</span><span class="p">)]</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">T</span>
+                <span class="n">kqijj</span><span class="o">.</span><span class="n">append</span><span class="p">([])</span>
+                <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="n">m</span><span class="p">,</span> <span class="n">equil</span><span class="p">):</span>
+                    <span class="n">kqijj</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">func</span><span class="p">(</span><span class="n">a</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">a</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">a</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">delta</span><span class="p">[</span><span class="n">i</span><span class="p">]))</span>
+            <span class="n">kqijj</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">kqijj</span><span class="p">)</span>
+            <span class="c1"># get the cubic force constant</span>
+            <span class="n">kqiii</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">diagonal</span><span class="p">(</span><span class="n">kqijj</span><span class="p">)</span>
+            <span class="c1"># get property values</span>
+            <span class="n">prop_grouped</span> <span class="o">=</span> <span class="n">prop</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s1">&#39;file&#39;</span><span class="p">)</span>
+            <span class="c1"># get equil property</span>
+            <span class="n">prop_zero</span> <span class="o">=</span> <span class="n">prop_grouped</span><span class="o">.</span><span class="n">get_group</span><span class="p">(</span><span class="mi">0</span><span class="p">)[</span><span class="n">config</span><span class="o">.</span><span class="n">property_column</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+            <span class="n">dprop_dq</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="n">d2prop_dq2</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nmodes</span><span class="p">):</span>
+                <span class="n">plus</span> <span class="o">=</span> <span class="n">prop</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s1">&#39;freqdx&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">get_group</span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s1">&#39;norm_idx&#39;</span><span class="p">)</span>
+                <span class="n">minus</span> <span class="o">=</span> <span class="n">prop</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s1">&#39;freqdx&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">get_group</span><span class="p">(</span><span class="n">i</span><span class="o">+</span><span class="n">nmodes</span><span class="p">)</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s1">&#39;norm_idx&#39;</span><span class="p">)</span>
+                <span class="n">p</span> <span class="o">=</span> <span class="n">plus</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="p">)[</span><span class="n">config</span><span class="o">.</span><span class="n">property_column</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+                <span class="n">m</span> <span class="o">=</span> <span class="n">minus</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="p">)[</span><span class="n">config</span><span class="o">.</span><span class="n">property_column</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+                <span class="c1"># calculate derivatives</span>
+                <span class="n">func</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_deriv_map</span><span class="p">[</span><span class="n">deriv_method</span><span class="p">]</span>
+                <span class="n">dq</span> <span class="o">=</span> <span class="n">func</span><span class="p">[</span><span class="mi">0</span><span class="p">](</span><span class="n">p</span><span class="p">,</span> <span class="n">m</span><span class="p">,</span> <span class="n">delta</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+                <span class="n">dq2</span> <span class="o">=</span> <span class="n">func</span><span class="p">[</span><span class="mi">1</span><span class="p">](</span><span class="n">p</span><span class="p">,</span> <span class="n">m</span><span class="p">,</span> <span class="n">prop_zero</span><span class="p">,</span> <span class="n">delta</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+                <span class="n">dprop_dq</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">dq</span><span class="p">)</span>
+                <span class="n">d2prop_dq2</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">dq2</span><span class="p">)</span>
+            <span class="c1"># write output files for comparisons</span>
+            <span class="k">if</span> <span class="n">write_out_files</span><span class="p">:</span>
+                <span class="c1"># write the anharmonic cubic constant matrix</span>
+                <span class="n">fp</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">zpvc_dir</span><span class="p">,</span> <span class="s1">&#39;kqijj&#39;</span><span class="p">)</span>
+                <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">kqijj</span><span class="p">)</span>
+                <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s1">&#39;cols&#39;</span>
+                <span class="n">df</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s1">&#39;rows&#39;</span>
+                <span class="n">df</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">fp</span><span class="o">+</span><span class="s1">&#39;.csv&#39;</span><span class="p">)</span>
+                <span class="n">dataframe_to_txt</span><span class="p">(</span><span class="n">df</span><span class="o">=</span><span class="n">df</span><span class="p">,</span> <span class="n">ncols</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">fp</span><span class="o">=</span><span class="n">fp</span><span class="o">+</span><span class="s1">&#39;.txt&#39;</span><span class="p">)</span>
+                <span class="c1"># write the cubic force constant</span>
+                <span class="n">fp</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">zpvc_dir</span><span class="p">,</span> <span class="s1">&#39;kqiii&#39;</span><span class="p">)</span>
+                <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">kqiii</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="o">-</span><span class="mi">1</span><span class="p">))</span>
+                <span class="n">df</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">fp</span><span class="o">+</span><span class="s1">&#39;.csv&#39;</span><span class="p">)</span>
+                <span class="n">dataframe_to_txt</span><span class="p">(</span><span class="n">df</span><span class="o">=</span><span class="n">df</span><span class="p">,</span> <span class="n">ncols</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">fp</span><span class="o">=</span><span class="n">fp</span><span class="o">+</span><span class="s1">&#39;.txt&#39;</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">debug</span><span class="p">:</span>
+                    <span class="c1"># write the first derivative of the property</span>
+                    <span class="n">fp</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">zpvc_dir</span><span class="p">,</span> <span class="s1">&#39;dprop-dq&#39;</span><span class="p">)</span>
+                    <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">([</span><span class="n">dprop_dq</span><span class="p">])</span><span class="o">.</span><span class="n">T</span>
+                    <span class="n">df</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s1">&#39;freqdx&#39;</span>
+                    <span class="n">df</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">fp</span><span class="o">+</span><span class="s1">&#39;.csv&#39;</span><span class="p">)</span>
+                    <span class="n">dataframe_to_txt</span><span class="p">(</span><span class="n">df</span><span class="o">=</span><span class="n">df</span><span class="p">,</span> <span class="n">fp</span><span class="o">=</span><span class="n">fp</span><span class="o">+</span><span class="s1">&#39;.txt&#39;</span><span class="p">)</span>
+                    <span class="c1"># write the second derivative of the property</span>
+                    <span class="n">fp</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">zpvc_dir</span><span class="p">,</span> <span class="s1">&#39;d2prop-dq2&#39;</span><span class="p">)</span>
+                    <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">([</span><span class="n">d2prop_dq2</span><span class="p">])</span><span class="o">.</span><span class="n">T</span>
+                    <span class="n">df</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s1">&#39;freqdx&#39;</span>
+                    <span class="n">df</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">fp</span><span class="o">+</span><span class="s1">&#39;.csv&#39;</span><span class="p">)</span>
+                    <span class="n">dataframe_to_txt</span><span class="p">(</span><span class="n">df</span><span class="o">=</span><span class="n">df</span><span class="p">,</span> <span class="n">fp</span><span class="o">=</span><span class="n">fp</span><span class="o">+</span><span class="s1">&#39;.txt&#39;</span><span class="p">)</span>
+                    <span class="c1"># write the gradients in terms of the normal modes</span>
+                    <span class="c1"># equilibrium structure</span>
+                    <span class="n">fp</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">zpvc_dir</span><span class="p">,</span> <span class="s1">&#39;delfq-zero&#39;</span><span class="p">)</span>
+                    <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">delfq_zero</span><span class="p">)</span>
+                    <span class="n">df</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">fp</span><span class="o">+</span><span class="s1">&#39;.csv&#39;</span><span class="p">)</span>
+                    <span class="n">dataframe_to_txt</span><span class="p">(</span><span class="n">df</span><span class="o">=</span><span class="n">df</span><span class="p">,</span> <span class="n">fp</span><span class="o">=</span><span class="n">fp</span><span class="o">+</span><span class="s1">&#39;.txt&#39;</span><span class="p">)</span>
+                    <span class="c1"># positive displacments</span>
+                    <span class="n">fp</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">zpvc_dir</span><span class="p">,</span> <span class="s1">&#39;delfq-plus&#39;</span><span class="p">)</span>
+                    <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">delfq_plus</span><span class="p">)</span>
+                    <span class="n">df</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">fp</span><span class="o">+</span><span class="s1">&#39;.csv&#39;</span><span class="p">)</span>
+                    <span class="n">dataframe_to_txt</span><span class="p">(</span><span class="n">df</span><span class="o">=</span><span class="n">df</span><span class="p">,</span> <span class="n">fp</span><span class="o">=</span><span class="n">fp</span><span class="o">+</span><span class="s1">&#39;.txt&#39;</span><span class="p">)</span>
+                    <span class="c1"># negative displacements</span>
+                    <span class="n">fp</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">zpvc_dir</span><span class="p">,</span> <span class="s1">&#39;delfq-minus&#39;</span><span class="p">)</span>
+                    <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">delfq_minus</span><span class="p">)</span>
+                    <span class="n">df</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">fp</span><span class="o">+</span><span class="s1">&#39;.csv&#39;</span><span class="p">)</span>
+                    <span class="n">dataframe_to_txt</span><span class="p">(</span><span class="n">df</span><span class="o">=</span><span class="n">df</span><span class="p">,</span> <span class="n">fp</span><span class="o">=</span><span class="n">fp</span><span class="o">+</span><span class="s1">&#39;.txt&#39;</span><span class="p">)</span>
+            <span class="c1"># done with setting up everything</span>
+            <span class="c1"># moving on to the actual calculations</span>
+            <span class="n">atom_order</span> <span class="o">=</span> <span class="n">eqcoord</span><span class="p">[</span><span class="s1">&#39;symbol&#39;</span><span class="p">]</span>
+            <span class="c1"># calculate the ZPVC&#39;s at different temperatures by iterating over them</span>
+            <span class="k">for</span> <span class="n">tdx</span><span class="p">,</span> <span class="n">t</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">temperature</span><span class="p">):</span>
+                <span class="c1"># calculate anharmonicity in the potential energy surface</span>
+                <span class="n">anharm</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">snmodes</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nmodes</span><span class="p">):</span>
+                    <span class="n">temp1</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_p1_inner_sum</span><span class="p">(</span><span class="n">kqijj</span><span class="p">,</span> <span class="n">frequencies</span><span class="p">,</span> <span class="n">rmass</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n">nmodes</span><span class="p">,</span> <span class="n">i</span><span class="p">)</span>
+                    <span class="c1"># sum over the second index and set anharmonicity at</span>
+                    <span class="c1"># each vibrational mode</span>
+                    <span class="n">anharm</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="mf">0.25</span><span class="o">*</span><span class="n">dprop_dq</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">/</span><span class="p">(</span><span class="n">frequencies</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">**</span><span class="mi">2</span> \
+                                                    <span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">rmass</span><span class="p">[</span><span class="n">i</span><span class="p">]))</span><span class="o">*</span><span class="n">temp1</span>
+                <span class="c1"># calculate curvature of property</span>
+                <span class="n">curva</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">snmodes</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nmodes</span><span class="p">):</span>
+                    <span class="c1"># calculate the contribution of each vibration</span>
+                    <span class="n">temp_fac</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_temp_factor</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="n">frequencies</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+                    <span class="c1"># set the curvature at each vibrational mode</span>
+                    <span class="n">curva</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.25</span><span class="o">*</span><span class="n">d2prop_dq2</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">/</span><span class="p">(</span><span class="n">frequencies</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">*</span><span class="n">rmass</span><span class="p">[</span><span class="n">i</span><span class="p">])</span><span class="o">*</span><span class="n">temp_fac</span>
+                <span class="c1"># generate one of the zpvc dataframes</span>
+                <span class="n">dict_df</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">frequency</span><span class="o">=</span><span class="n">frequencies</span><span class="o">*</span><span class="n">conv</span><span class="o">.</span><span class="n">Ha2inv_cm</span><span class="p">,</span>
+                               <span class="n">num_frequency</span><span class="o">=</span><span class="n">num_freqs</span><span class="p">,</span> <span class="n">freqdx</span><span class="o">=</span><span class="nb">range</span><span class="p">(</span><span class="n">nmodes</span><span class="p">),</span>
+                               <span class="n">anharm</span><span class="o">=</span><span class="n">anharm</span><span class="p">,</span> <span class="n">curva</span><span class="o">=</span><span class="n">curva</span><span class="p">,</span> <span class="nb">sum</span><span class="o">=</span><span class="n">anharm</span><span class="o">+</span><span class="n">curva</span><span class="p">,</span>
+                               <span class="n">temp</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">repeat</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="n">nmodes</span><span class="p">),</span>
+                               <span class="n">atom</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">repeat</span><span class="p">(</span><span class="n">atom</span><span class="p">,</span> <span class="n">nmodes</span><span class="p">),</span>
+                               <span class="n">frame</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">repeat</span><span class="p">(</span><span class="n">tdx</span><span class="p">,</span> <span class="n">nmodes</span><span class="p">))</span>
+                <span class="n">va_dfs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">dict_df</span><span class="p">))</span>
+                <span class="n">zpvc</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">anharm</span><span class="o">+</span><span class="n">curva</span><span class="p">)</span>
+                <span class="n">tot_anharm</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">anharm</span><span class="p">)</span>
+                <span class="n">tot_curva</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">curva</span><span class="p">)</span>
+                <span class="n">zpvc_dfs</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">prop_zero</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">zpvc</span><span class="p">,</span> <span class="n">prop_zero</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">zpvc</span><span class="p">,</span> <span class="n">tot_anharm</span><span class="p">,</span>
+                                 <span class="n">tot_curva</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n">atom</span><span class="p">,</span> <span class="n">tdx</span><span class="p">])</span>
+                <span class="k">if</span> <span class="n">print_results</span><span class="p">:</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="n">_zpvc_results</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">temp</span><span class="o">=</span><span class="n">t</span><span class="p">,</span> <span class="n">snmodes</span><span class="o">=</span><span class="n">snmodes</span><span class="p">,</span> <span class="n">nmodes</span><span class="o">=</span><span class="n">nmodes</span><span class="p">,</span>
+                                               <span class="n">anharm</span><span class="o">=</span><span class="n">tot_anharm</span><span class="p">,</span> <span class="n">curva</span><span class="o">=</span><span class="n">tot_curva</span><span class="p">,</span>
+                                               <span class="n">zpvc</span><span class="o">=</span><span class="n">zpvc</span><span class="p">,</span> <span class="n">zpva</span><span class="o">=</span><span class="n">prop_zero</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">+</span><span class="n">zpvc</span><span class="p">))</span>
+        <span class="k">for</span> <span class="n">tdx</span><span class="p">,</span> <span class="n">t</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">temperature</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">geometry</span><span class="p">:</span>
+                <span class="c1"># calculate the effective geometry</span>
+                <span class="c1"># we do not check this at the beginning as it will not always be computed</span>
+                <span class="n">sum_to_eff_geo</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">eqcoord</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="mi">3</span><span class="p">))</span>
+                <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">snmodes</span><span class="p">):</span>
+                    <span class="n">temp1</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_p1_inner_sum</span><span class="p">(</span><span class="n">kqijj</span><span class="p">,</span> <span class="n">frequencies</span><span class="p">,</span> <span class="n">rmass</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n">nmodes</span><span class="p">,</span> <span class="n">i</span><span class="p">)</span>
+                    <span class="c1"># get the temperature correction to the geometry in Bohr</span>
+                    <span class="n">sum_to_eff_geo</span> <span class="o">+=</span> <span class="o">-</span><span class="mf">0.25</span> <span class="o">*</span> <span class="n">temp1</span> <span class="o">/</span> <span class="p">(</span><span class="n">frequencies</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">**</span><span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">rmass</span><span class="p">[</span><span class="n">i</span><span class="p">]))</span> <span class="o">*</span> \
+                                        <span class="n">smat</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s1">&#39;freqdx&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">get_group</span><span class="p">(</span><span class="n">i</span><span class="p">)[[</span><span class="s1">&#39;dx&#39;</span><span class="p">,</span><span class="s1">&#39;dy&#39;</span><span class="p">,</span><span class="s1">&#39;dz&#39;</span><span class="p">]]</span><span class="o">.</span><span class="n">values</span>
+                <span class="c1"># get the effective geometry</span>
+                <span class="n">tmp_coord</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="n">eqcoord</span><span class="p">[[</span><span class="s1">&#39;x&#39;</span><span class="p">,</span> <span class="s1">&#39;y&#39;</span><span class="p">,</span> <span class="s1">&#39;z&#39;</span><span class="p">]]</span><span class="o">.</span><span class="n">values</span> <span class="o">+</span> <span class="n">sum_to_eff_geo</span><span class="p">)</span>
+                <span class="c1"># generate one of the coordinate dataframes</span>
+                <span class="c1"># we write the frame to be the same as the temp column so that one can take</span>
+                <span class="c1"># advantage of the exatomic.core.atom.Atom.to_xyz method</span>
+                <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="o">.</span><span class="n">from_dict</span><span class="p">({</span><span class="s1">&#39;set&#39;</span><span class="p">:</span> <span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">eqcoord</span><span class="p">))),</span>
+                                             <span class="s1">&#39;Z&#39;</span><span class="p">:</span> <span class="n">atom_order</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">sym2z</span><span class="p">),</span> <span class="s1">&#39;x&#39;</span><span class="p">:</span> <span class="n">tmp_coord</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+                                             <span class="s1">&#39;y&#39;</span><span class="p">:</span> <span class="n">tmp_coord</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="s1">&#39;z&#39;</span><span class="p">:</span> <span class="n">tmp_coord</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span>
+                                             <span class="s1">&#39;symbol&#39;</span><span class="p">:</span> <span class="n">atom_order</span><span class="p">,</span>
+                                             <span class="s1">&#39;temp&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">repeat</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="n">eqcoord</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span>
+                                             <span class="s1">&#39;frame&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">repeat</span><span class="p">(</span><span class="n">tdx</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">eqcoord</span><span class="p">))})</span>
+                <span class="n">cols</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;x&#39;</span><span class="p">,</span> <span class="s1">&#39;y&#39;</span><span class="p">,</span> <span class="s1">&#39;z&#39;</span><span class="p">]</span>
+                <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">cols</span><span class="p">:</span>
+                    <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">df</span><span class="p">[</span><span class="n">col</span><span class="p">]</span><span class="o">.</span><span class="n">abs</span><span class="p">()</span> <span class="o">&lt;</span> <span class="mf">1e-6</span><span class="p">,</span> <span class="n">col</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+                <span class="n">df</span> <span class="o">=</span> <span class="n">Atom</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
+                <span class="n">coor_dfs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
+                <span class="c1"># print out the effective geometry in Angstroms</span>
+                <span class="k">if</span> <span class="n">print_results</span><span class="p">:</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="n">eff_geo</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="n">df</span><span class="o">.</span><span class="n">to_xyz</span><span class="p">()))</span>
+        <span class="k">if</span> <span class="n">geometry</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">eff_coord</span> <span class="o">=</span> <span class="n">Atom</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">coor_dfs</span><span class="p">,</span> <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>
+            <span class="k">if</span> <span class="n">write_out_files</span><span class="p">:</span>
+                <span class="n">fp_temp</span> <span class="o">=</span> <span class="s1">&#39;atomic-coords-</span><span class="si">{:03d}</span><span class="s1">.xyz&#39;</span>
+                <span class="k">for</span> <span class="n">frame</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">eff_coord</span><span class="o">.</span><span class="n">nframes</span><span class="p">):</span>
+                    <span class="n">fp</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">zpvc_dir</span><span class="p">,</span> <span class="n">fp_temp</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">frame</span><span class="p">))</span>
+                    <span class="n">comment</span> <span class="o">=</span> <span class="s1">&#39;Vibrational averaged positions for T=</span><span class="si">{:.2f}</span><span class="s1"> K&#39;</span>
+                    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">fp</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fn</span><span class="p">:</span>
+                        <span class="n">t</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">eff_coord</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s1">&#39;frame&#39;</span><span class="p">)</span> \
+                                <span class="o">.</span><span class="n">get_group</span><span class="p">(</span><span class="n">frame</span><span class="p">)[</span><span class="s1">&#39;temp&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span>
+                        <span class="n">kwargs</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">header</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">frame</span><span class="o">=</span><span class="n">frame</span><span class="p">,</span>
+                                      <span class="n">comments</span><span class="o">=</span><span class="n">comment</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">t</span><span class="p">))</span>
+                        <span class="n">text</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">eff_coord</span><span class="o">.</span><span class="n">to_xyz</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+                        <span class="n">fn</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
+        <span class="n">cols</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;property&#39;</span><span class="p">,</span> <span class="s1">&#39;zpvc&#39;</span><span class="p">,</span> <span class="s1">&#39;zpva&#39;</span><span class="p">,</span> <span class="s1">&#39;tot_anharm&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;tot_curva&#39;</span><span class="p">,</span> <span class="s1">&#39;temp&#39;</span><span class="p">,</span> <span class="s1">&#39;atom&#39;</span><span class="p">,</span> <span class="s1">&#39;frame&#39;</span><span class="p">]</span>
+        <span class="c1"># save data as class attributes</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">zpvc_results</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">zpvc_dfs</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="n">cols</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">vib_average</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">va_dfs</span><span class="p">,</span> <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">write_out_files</span><span class="p">:</span>
+            <span class="c1"># write the zpvc results to file</span>
+            <span class="n">formatters</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;</span><span class="si">{:12.5f}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">]</span> <span class="o">+</span> <span class="p">[</span><span class="s1">&#39;</span><span class="si">{:12.7f}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">]</span><span class="o">*</span><span class="mi">4</span> \
+                         <span class="o">+</span> <span class="p">[</span><span class="s1">&#39;</span><span class="si">{:9.3f}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">]</span> <span class="o">+</span> <span class="p">[</span><span class="s1">&#39;</span><span class="si">{:8d}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">,</span> <span class="s1">&#39;</span><span class="si">{:4d}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">]</span>
+            <span class="n">fp</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">zpvc_dir</span><span class="p">,</span> <span class="s1">&#39;results&#39;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">zpvc_results</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">fp</span><span class="o">+</span><span class="s1">&#39;.csv&#39;</span><span class="p">)</span>
+            <span class="n">dataframe_to_txt</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">zpvc_results</span><span class="p">,</span> <span class="n">ncols</span><span class="o">=</span><span class="mi">6</span><span class="p">,</span> <span class="n">fp</span><span class="o">=</span><span class="n">fp</span><span class="o">+</span><span class="s1">&#39;.txt&#39;</span><span class="p">,</span>
+                             <span class="n">float_format</span><span class="o">=</span><span class="n">formatters</span><span class="p">)</span>
+            <span class="c1"># write the full vibrational average table to file</span>
+            <span class="n">formatters</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;</span><span class="si">{:10.3f}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">]</span><span class="o">*</span><span class="mi">2</span><span class="o">+</span><span class="p">[</span><span class="s1">&#39;</span><span class="si">{:8d}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">]</span> \
+                         <span class="o">+</span> <span class="p">[</span><span class="s1">&#39;</span><span class="si">{:12.7f}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">]</span><span class="o">*</span><span class="mi">3</span> <span class="o">+</span> <span class="p">[</span><span class="s1">&#39;</span><span class="si">{:9.3f}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">]</span> \
+                         <span class="o">+</span> <span class="p">[</span><span class="s1">&#39;</span><span class="si">{:8d}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">,</span> <span class="s1">&#39;</span><span class="si">{:4d}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">]</span>
+            <span class="n">fp</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">zpvc_dir</span><span class="p">,</span> <span class="s1">&#39;vibrational-average&#39;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">vib_average</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">fp</span><span class="o">+</span><span class="s1">&#39;.csv&#39;</span><span class="p">)</span>
+            <span class="n">dataframe_to_txt</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">vib_average</span><span class="p">,</span> <span class="n">ncols</span><span class="o">=</span><span class="mi">6</span><span class="p">,</span> <span class="n">fp</span><span class="o">=</span><span class="n">fp</span><span class="o">+</span><span class="s1">&#39;.txt&#39;</span><span class="p">,</span>
+                             <span class="n">float_format</span><span class="o">=</span><span class="n">formatters</span><span class="p">)</span></div>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config_file</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="n">config</span> <span class="o">=</span> <span class="n">Config</span><span class="o">.</span><span class="n">open_config</span><span class="p">(</span><span class="n">config_file</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_required_inputs</span><span class="p">,</span>
+                                    <span class="n">defaults</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_default_inputs</span><span class="p">)</span>
+        <span class="n">config</span><span class="o">.</span><span class="n">temperature</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">temperature</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">config</span> <span class="o">=</span> <span class="n">config</span></div>
+
+</pre></div>
+
+    </div>
+      
+  </div>
+</div>
+<footer class="footer">
+  <div class="container">
+    <p class="pull-right">
+      <a href="#">Back to top</a>
+      
+    </p>
+    <p>
+        &copy; Copyright 2023, Herbert D Ludowieg. Project structure based on the Computational Molecular Science Python Cookiecutter version 1.1.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 7.0.1.<br/>
+    </p>
+  </div>
+</footer>
+  </body>
+</html>

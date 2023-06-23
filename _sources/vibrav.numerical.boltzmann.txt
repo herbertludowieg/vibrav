@@ -1,0 +1,7 @@
+vibrav.numerical.boltzmann module
+=================================
+
+.. automodule:: vibrav.numerical.boltzmann
+   :members:
+   :undoc-members:
+   :show-inheritance:

@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>vibrav.vibronic.vibronic module &#8212; vibrav  documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/bootstrap-sphinx.css" />
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/sphinx_highlight.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="vibrav.vroa package" href="vibrav.vroa.html" />
+    <link rel="prev" title="vibrav.vibronic.combine_ham module" href="vibrav.vibronic.combine_ham.html" />
+<meta charset='utf-8'>
+<meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
+<meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1'>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<script type="text/javascript" src="_static/js/jquery-1.12.4.min.js"></script>
+<script type="text/javascript" src="_static/js/jquery-fix.js"></script>
+<script type="text/javascript" src="_static/bootstrap-3.4.1/js/bootstrap.min.js"></script>
+<script type="text/javascript" src="_static/bootstrap-sphinx.js"></script>
+
+  </head><body>
+
+  <div id="navbar" class="navbar navbar-default navbar-fixed-top">
+    <div class="container">
+      <div class="navbar-header">
+        <!-- .btn-navbar is used as the toggle for collapsed navbar content -->
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".nav-collapse">
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        <a class="navbar-brand" href="index.html">
+          vibrav</a>
+        <span class="navbar-text navbar-version pull-left"><b></b></span>
+      </div>
+
+        <div class="collapse navbar-collapse nav-collapse">
+          <ul class="nav navbar-nav">
+            
+            
+              <li class="dropdown globaltoc-container">
+  <a role="button"
+     id="dLabelGlobalToc"
+     data-toggle="dropdown"
+     data-target="#"
+     href="index.html">Site <b class="caret"></b></a>
+  <ul class="dropdown-menu globaltoc"
+      role="menu"
+      aria-labelledby="dLabelGlobalToc"><ul>
+<li class="toctree-l1"><a class="reference internal" href="examples/adf.html">ADF parser API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples/gen-displaced.html">Generating the displaced structures from a Gaussian frequencies calculation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples/molcas.html">Molcas parser API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples/numerical-diffs.html">Using derivative module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples/vibronic.html">Running vibronic calculations from a Molcas RASSI set of calculations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples/vroa-h2o2.html">VROA intensities of hydrogen peroxide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples/vroa-methyloxirane.html">VROA intensities of methyloxirane</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples/zpvc.html">Tutorial for using the ZPVC module in VIBRAV</a></li>
+</ul>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="vibrav.html">vibrav package</a></li>
+</ul>
+</ul>
+</li>
+              
+                <li class="dropdown">
+  <a role="button"
+     id="dLabelLocalToc"
+     data-toggle="dropdown"
+     data-target="#"
+     href="#">Page <b class="caret"></b></a>
+  <ul class="dropdown-menu localtoc"
+      role="menu"
+      aria-labelledby="dLabelLocalToc"><ul>
+<li><a class="reference internal" href="#">vibrav.vibronic.vibronic module</a><ul>
+<li><a class="reference internal" href="#vibrav.vibronic.vibronic.Vibronic"><code class="docutils literal notranslate"><span class="pre">Vibronic</span></code></a><ul>
+<li><a class="reference internal" href="#vibrav.vibronic.vibronic.Vibronic.get_hamiltonian_deriv"><code class="docutils literal notranslate"><span class="pre">Vibronic.get_hamiltonian_deriv()</span></code></a></li>
+<li><a class="reference internal" href="#vibrav.vibronic.vibronic.Vibronic.vibronic_coupling"><code class="docutils literal notranslate"><span class="pre">Vibronic.vibronic_coupling()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</ul>
+</li>
+              
+            
+            
+              
+                
+  <li>
+    <a href="vibrav.vibronic.combine_ham.html" title="Previous Chapter: vibrav.vibronic.combine_ham module"><span class="glyphicon glyphicon-chevron-left visible-sm"></span><span class="hidden-sm hidden-tablet">&laquo; vibrav.vibron...</span>
+    </a>
+  </li>
+  <li>
+    <a href="vibrav.vroa.html" title="Next Chapter: vibrav.vroa package"><span class="glyphicon glyphicon-chevron-right visible-sm"></span><span class="hidden-sm hidden-tablet">vibrav.vroa package &raquo;</span>
+    </a>
+  </li>
+              
+            
+            
+            
+            
+              <li class="hidden-sm">
+<div id="sourcelink">
+  <a href="_sources/vibrav.vibronic.vibronic.txt"
+     rel="nofollow">Source</a>
+</div></li>
+            
+          </ul>
+
+          
+            
+<form class="navbar-form navbar-right" action="search.html" method="get">
+ <div class="form-group">
+  <input type="text" name="q" class="form-control" placeholder="Search" />
+ </div>
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+          
+        </div>
+    </div>
+  </div>
+
+<div class="container">
+  <div class="row">
+    <div class="body col-md-12 content" role="main">
+      
+  <section id="module-vibrav.vibronic.vibronic">
+<span id="vibrav-vibronic-vibronic-module"></span><h1>vibrav.vibronic.vibronic module<a class="headerlink" href="#module-vibrav.vibronic.vibronic" title="Permalink to this heading">¶</a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="vibrav.vibronic.vibronic.Vibronic">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">vibrav.vibronic.vibronic.</span></span><span class="sig-name descname"><span class="pre">Vibronic</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config_file</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/vibrav/vibronic/vibronic.html#Vibronic"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#vibrav.vibronic.vibronic.Vibronic" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Main class to run vibronic coupling calculations.</p>
+<p><strong>Required arguments in configuration file.</strong></p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Argument</p></th>
+<th class="head"><p>Description</p></th>
+<th class="head"><p>Data Type</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>number_of_multiplicity</p></td>
+<td><p>Number of multiplicities from calculation.</p></td>
+<td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">int</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>spin_multiplicity</p></td>
+<td><p>List of the ordering of the spin multiplicities.
+Must be in the same order as was done in the
+calculation.</p></td>
+<td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">tuple</span></code> of <code class="xref py py-obj docutils literal notranslate"><span class="pre">int</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p>number_of_states</p></td>
+<td><p>Number of states in each multiplicity.</p></td>
+<td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">tuple</span></code> of <code class="xref py py-obj docutils literal notranslate"><span class="pre">int</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>number_of_nuclei</p></td>
+<td><p>Number of nuclei in the system.</p></td>
+<td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">int</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p>number_of_modes</p></td>
+<td><p>Number of normal modes in the molecule.</p></td>
+<td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">int</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>zero_order_file</p></td>
+<td><p>Filepath of the calculation at the equilibrium
+coordinate. Must contain the spin-free property
+of interest.</p></td>
+<td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">str</span></code></p></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Default arguments in configuration file.</strong></p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Argument</p></th>
+<th class="head"><p>Description</p></th>
+<th class="head"><p>Default Value</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>sf_energies_file</p></td>
+<td><p>Filepath of the spin-free energies.</p></td>
+<td><p>‘’</p></td>
+</tr>
+<tr class="row-odd"><td><p>so_energies_file</p></td>
+<td><p>Filepath of the spin-orbit energies.</p></td>
+<td><p>‘’</p></td>
+</tr>
+<tr class="row-even"><td><p>angmom_file</p></td>
+<td><p>Starting string of the angular momentum spin-orbit files.</p></td>
+<td><p>angmom</p></td>
+</tr>
+<tr class="row-odd"><td><p>dipole_file</p></td>
+<td><p>Starting string of the transition dipole moment spin-orbit
+files.</p></td>
+<td><p>dipole</p></td>
+</tr>
+<tr class="row-even"><td><p>quadrupole_file</p></td>
+<td><p>Starting string of the transition quadrupole moment
+spin-orbit files.</p></td>
+<td><p>quadrupole</p></td>
+</tr>
+<tr class="row-odd"><td><p>degen_delta</p></td>
+<td><p>Cut-off parameter for the energy difference in the
+denominator for the pertubation theory.</p></td>
+<td><p>1e-7 Ha</p></td>
+</tr>
+<tr class="row-even"><td><p>eigvectors_file</p></td>
+<td><p>Filepath of the spin-orbit eigenvectors.</p></td>
+<td><p>eigvectors.txt</p></td>
+</tr>
+<tr class="row-odd"><td><p>so_cont_tol</p></td>
+<td><p>Cut-off parameter for the minimum spin-free contribution
+to each spin-orbit state.</p></td>
+<td><p>None</p></td>
+</tr>
+</tbody>
+</table>
+<p><strong>THEORY</strong></p>
+<p>Here, we present a brief account of the theory that is implemented in this
+module. The equations listed below are taken from <em>J. Phys. Chem. Lett.</em>
+<strong>2018</strong>, 9, 4, 887-994 (DOI: <a class="reference external" href="https://doi.org/10.1021/acs.jpclett.7b03441">10.1021/acs.jpclett.7b03441</a>) and <em>J. Chem. Theory
+Comput.</em> <strong>2020</strong>, 16, 8, 5189-5202 (DOI: <a class="reference external" href="https://doi.org/10.1021/acs.jctc.0c00386">10.1021/acs.jctc.0c00386</a>).</p>
+<p>The <cite>vibronic</cite> method in this class computes the Herzberg-Teller
+approximation in a via a Sum-over-states perturbation theory approach</p>
+<div class="math notranslate nohighlight">
+\[A = \sum_{k\neq 1}\left&lt;\psi_k^0|\Lambda^e|\psi_2^0\right&gt;
+    \frac{\partial\left&lt;\psi_1^0|H|\psi_k^0\right&gt;  / \partial
+    Q_p}{E_1^0 - E_k^0}\]</div>
+<div class="math notranslate nohighlight">
+\[B = \sum_{k\neq 2}\left&lt;\psi_1^0|\Lambda^e|\psi_k^0\right&gt;
+    \frac{\partial\left&lt;\psi_1^0|H|\psi_k^0\right&gt; / \partial
+    Q_p}{E_1^0 - E_k^0}\]</div>
+<div class="math notranslate nohighlight">
+\[\frac{\partial\Lambda_{1,2}^{e}\left(Q\right)}{\partial Q_p} = A+B\]</div>
+<p>Where, <span class="math notranslate nohighlight">\(\Lambda\)</span> can be the electric, magnetic, or quadrupolar
+transition moments between any two states, 1, and 2.  The equations above
+are computed by the
+<a class="reference internal" href="vibrav.numerical.vibronic_func.html#vibrav.numerical.vibronic_func.compute_d_dq_sf" title="vibrav.numerical.vibronic_func.compute_d_dq_sf"><code class="xref py py-func docutils literal notranslate"><span class="pre">vibrav.numerical.vibronic_func.compute_d_dq_sf()</span></code></a> function.</p>
+<p>And spin-orbit coupling is then applied via</p>
+<div class="math notranslate nohighlight">
+\[\left&lt;\psi_1^{SO}|\mu^e|\psi_2^{SO}\right&gt; =
+    \sum_{k,m}U_{k1}^{0*}U_{m2}^{0}
+    \left&lt;\psi_k|\mu_{1,2}^{e,SF}\left(Q\right)|\psi_m\right&gt;\]</div>
+<p>Where, <span class="math notranslate nohighlight">\(U_{ij}^{0}\)</span> is an element of the complex tranformation matrix
+from a set of spin-free to spin-orbit coupled states, and
+<span class="math notranslate nohighlight">\(\left&lt;\psi_k|\mu_{1,2}^{e,SF}\left(Q\right)|\psi_m\right&gt;\)</span> is
+the vibronic transition moment for a pair of spin-free states. This is, in
+practice, the transition moment derivative calculated by
+<a class="reference internal" href="vibrav.numerical.vibronic_func.html#vibrav.numerical.vibronic_func.compute_d_dq_sf" title="vibrav.numerical.vibronic_func.compute_d_dq_sf"><code class="xref py py-func docutils literal notranslate"><span class="pre">vibrav.numerical.vibronic_func.compute_d_dq_sf()</span></code></a>. The equation above
+is computed by the <code class="xref py py-func docutils literal notranslate"><span class="pre">vibrav.numerical.vibronic_func:compute_d_dq()</span></code>
+function.</p>
+<p>For an example on how to use this class please refer to the example that is
+available on the documentation under ‘Examples’.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="vibrav.vibronic.vibronic.Vibronic.get_hamiltonian_deriv">
+<span class="sig-name descname"><span class="pre">get_hamiltonian_deriv</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">delta</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">redmass</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nmodes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">select_fdx</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">-1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_sqrt_rmass</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sparse_hamiltonian</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">read_hamil</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hamil_file</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/vibrav/vibronic/vibronic.html#Vibronic.get_hamiltonian_deriv"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#vibrav.vibronic.vibronic.Vibronic.get_hamiltonian_deriv" title="Permalink to this definition">¶</a></dt>
+<dd><p>Find and read all of the Hamiltonian txt files in the different confg
+directories.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The path of confg is hardcoded along with the names of the SF
+Hamiltonian files as <cite>‘ham-sf.txt’</cite>.</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>delta</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">pd.DataFrame</span></code>) – Data frame with all the delta values
+used for each of the normal mode displacements.  Read from
+the given <cite>delta_file</cite> input in the configuration file.</p></li>
+<li><p><strong>redmass</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">pd.DataFrame</span></code>) – Data frame with all of the reduced
+masses for each of the normal modes. Read from the given
+<cite>redmass_file</cite> input in the configuration file.</p></li>
+<li><p><strong>nmodes</strong> (<em>int</em>) – The number of normal modes in the molecule.</p></li>
+<li><p><strong>select_fdx</strong> (<code class="xref py py-obj docutils literal notranslate"><span class="pre">list</span></code>, optional) – </p></li>
+<li><p><strong>use_sqrt_rmass</strong> (<code class="xref py py-obj docutils literal notranslate"><span class="pre">bool</span></code>, optional) – The calculations used
+mass-weighted normal modes for the displaced structures.
+This should always be the case. Defaults to <cite>True</cite>.</p></li>
+<li><p><strong>sparse_hamiltonian</strong> (<code class="xref py py-obj docutils literal notranslate"><span class="pre">bool</span></code>, optional) – Input Hamiltonian files
+are sparse matrices made up of block diagonal values.
+Defaults to <cite>False</cite>.</p></li>
+<li><p><strong>read_hamil</strong> (<code class="xref py py-obj docutils literal notranslate"><span class="pre">bool</span></code>, optional) – Read the Hamiltonians from a CSV
+file. Defaults to <cite>False</cite>.</p></li>
+<li><p><strong>hamil_file</strong> (<code class="xref py py-obj docutils literal notranslate"><span class="pre">str</span></code>, optional) – Path to the CSV file with the
+Hamiltonian data. It expects that there will be an index
+column and header row. In addition we expect there to be a
+column called <cite>freqdx</cite> which is an index spanning 0 to
+2*nmodes. Defaults to <cite>None</cite>.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><p><em>dham_dq (pd.DataFrame)</em> –</p>
+<dl class="simple">
+<dt>Data frame with the derivative of the</dt><dd><p>Hamiltonians with respect to the normal mode.</p>
+</dd>
+</dl>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="vibrav.vibronic.vibronic.Vibronic.vibronic_coupling">
+<span class="sig-name descname"><span class="pre">vibronic_coupling</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">prop_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">write_property</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">write_energy</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">write_oscil</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">print_stdout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">temp</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">298</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">eq_cont</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_sqrt_rmass</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">select_fdx</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">-1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">boltz_states</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">boltz_tol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-06</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">write_sf_oscil</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">write_sf_property</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">write_dham_dq</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">write_all_oscil</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/vibrav/vibronic/vibronic.html#Vibronic.vibronic_coupling"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#vibrav.vibronic.vibronic.Vibronic.vibronic_coupling" title="Permalink to this definition">¶</a></dt>
+<dd><p>Vibronic coupling method to calculate the vibronic coupling by the
+equations as given in reference <em>J. Phys. Chem. Lett.</em> <strong>2018</strong>, 9,
+887-894. This code follows a similar structure as that from a perl
+script written by Yonaton Heit and Jochen Autschbach, authors of the
+cited paper.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The script is able to calculate the vibronic contributions to the
+electric_dipole, magnetic_dipole and electric_quadrupole, currently.
+For more properties please reach out through github or via email.</p>
+<p>This will only work with data from Molcas/OpenMolcas.</p>
+</div>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>The value of the energy difference parameter (<cite>degen_delta</cite> in the
+configuration file) and the spin-free contribution to the spin-orbit
+states cutoff (<cite>so_cont_tol</cite> in the configuration file) can be very
+important in giving “reasonable” vibronic intensities. These values
+should be adjusted and tested accordingly on a per-system basis.
+<strong>We make no guarantees everything will work out of the box</strong>.</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>prop_name</strong> (<code class="xref py py-obj docutils literal notranslate"><span class="pre">str</span></code>) – Property of interest to calculate.</p></li>
+<li><p><strong>write_property</strong> (<code class="xref py py-obj docutils literal notranslate"><span class="pre">bool</span></code>, optional) – Write the calculated
+vibronic property values to file.  Defaults to <cite>True</cite>.</p></li>
+<li><p><strong>write_energy</strong> (<code class="xref py py-obj docutils literal notranslate"><span class="pre">bool</span></code>, optional) – Write the vibronic energies to
+file.  Defaults to <cite>True</cite>.</p></li>
+<li><p><strong>write_oscil</strong> (<code class="xref py py-obj docutils literal notranslate"><span class="pre">bool</span></code>, optional) – Write the vibronic oscillators
+to file.  Defaults to <cite>True</cite>.</p></li>
+<li><p><strong>print_stdout</strong> (<code class="xref py py-obj docutils literal notranslate"><span class="pre">bool</span></code>, optional) – Print the progress of the
+script to stdout.  Defaults to <cite>True</cite>.</p></li>
+<li><p><strong>temp</strong> (<code class="xref py py-obj docutils literal notranslate"><span class="pre">float</span></code>, optional) – Temperature for the boltzmann
+statistics. Defaults to 298.</p></li>
+<li><p><strong>verbose</strong> (<code class="xref py py-obj docutils literal notranslate"><span class="pre">bool</span></code>, optional) – Send all availble print statements
+listing where the program is in the calculation to stdout
+and timings. Recommended if you have a system with many
+spin-orbit states. Defaults to <cite>False</cite>.</p></li>
+<li><p><strong>use_sqrt_rmass</strong> (<code class="xref py py-obj docutils literal notranslate"><span class="pre">bool</span></code>, optional) – The calculations used
+mass-weighted normal modes for the displaced structures.
+This should always be the case. Defaults to <cite>True</cite>.</p></li>
+<li><p><strong>select_fdx</strong> (<code class="xref py py-obj docutils literal notranslate"><span class="pre">list</span></code>, optional) – Only use select normal modes in
+the vibronic coupling calculation. Defaults to <cite>-1</cite> (all
+normal modes).</p></li>
+<li><p><strong>boltz_states</strong> (<code class="xref py py-obj docutils literal notranslate"><span class="pre">int</span></code>, optional) – Boltzmann states to calculate
+in the distribution.  Defaults to <cite>None</cite> (all states with a
+distribution less than the <cite>boltz_tol</cite> value for the lowest
+frequency).</p></li>
+<li><p><strong>boltz_tol</strong> (<code class="xref py py-obj docutils literal notranslate"><span class="pre">float</span></code>, optional) – Tolerance value for the
+Boltzmann distribution cutoff.  Defaults to <cite>1e-5</cite>.</p></li>
+<li><p><strong>write_sf_oscil</strong> (<code class="xref py py-obj docutils literal notranslate"><span class="pre">bool</span></code>, optional) – Write the spin-free vibronic
+oscillators.  Defaults to <cite>False</cite>.</p></li>
+<li><p><strong>write_sf_property</strong> (<code class="xref py py-obj docutils literal notranslate"><span class="pre">bool</span></code>, optional) – Write the spin-free
+vibronic property values.  Defaults to <cite>False</cite>.</p></li>
+<li><p><strong>write_dham_dq</strong> (<code class="xref py py-obj docutils literal notranslate"><span class="pre">bool</span></code>, optional) – Write the hamiltonian
+derivatives for each normal mode. Defaults to <cite>False</cite>.</p></li>
+<li><p><strong>write_all_oscil</strong> (<code class="xref py py-obj docutils literal notranslate"><span class="pre">bool</span></code>, optional) – Write the entire matrix of
+the vibronic oscillator values instead of only those that
+are physically meaningful (positive energy and oscillator
+value).  Defaults to <cite>False</cite>.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>NotImplementedError</strong> – When the property requested with the <cite>property</cite>
+    parameter does not have any output parser or just has not
+    been coded yet.</p></li>
+<li><p><strong>ValueError</strong> – If the array that is expected to be Hermitian actually
+    is not.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+
+
+    </div>
+      
+  </div>
+</div>
+<footer class="footer">
+  <div class="container">
+    <p class="pull-right">
+      <a href="#">Back to top</a>
+      
+    </p>
+    <p>
+        &copy; Copyright 2023, Herbert D Ludowieg. Project structure based on the Computational Molecular Science Python Cookiecutter version 1.1.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 7.0.1.<br/>
+    </p>
+  </div>
+</footer>
+  </body>
+</html>

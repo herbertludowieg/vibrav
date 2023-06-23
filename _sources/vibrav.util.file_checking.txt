@@ -1,0 +1,7 @@
+vibrav.util.file\_checking module
+=================================
+
+.. automodule:: vibrav.util.file_checking
+   :members:
+   :undoc-members:
+   :show-inheritance:

@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>vibrav.numerical.redmass module &#8212; vibrav  documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/bootstrap-sphinx.css" />
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/sphinx_highlight.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="vibrav.numerical.vibronic_func module" href="vibrav.numerical.vibronic_func.html" />
+    <link rel="prev" title="vibrav.numerical.phases module" href="vibrav.numerical.phases.html" />
+<meta charset='utf-8'>
+<meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
+<meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1'>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<script type="text/javascript" src="_static/js/jquery-1.12.4.min.js"></script>
+<script type="text/javascript" src="_static/js/jquery-fix.js"></script>
+<script type="text/javascript" src="_static/bootstrap-3.4.1/js/bootstrap.min.js"></script>
+<script type="text/javascript" src="_static/bootstrap-sphinx.js"></script>
+
+  </head><body>
+
+  <div id="navbar" class="navbar navbar-default navbar-fixed-top">
+    <div class="container">
+      <div class="navbar-header">
+        <!-- .btn-navbar is used as the toggle for collapsed navbar content -->
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".nav-collapse">
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        <a class="navbar-brand" href="index.html">
+          vibrav</a>
+        <span class="navbar-text navbar-version pull-left"><b></b></span>
+      </div>
+
+        <div class="collapse navbar-collapse nav-collapse">
+          <ul class="nav navbar-nav">
+            
+            
+              <li class="dropdown globaltoc-container">
+  <a role="button"
+     id="dLabelGlobalToc"
+     data-toggle="dropdown"
+     data-target="#"
+     href="index.html">Site <b class="caret"></b></a>
+  <ul class="dropdown-menu globaltoc"
+      role="menu"
+      aria-labelledby="dLabelGlobalToc"><ul>
+<li class="toctree-l1"><a class="reference internal" href="examples/adf.html">ADF parser API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples/gen-displaced.html">Generating the displaced structures from a Gaussian frequencies calculation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples/molcas.html">Molcas parser API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples/numerical-diffs.html">Using derivative module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples/vibronic.html">Running vibronic calculations from a Molcas RASSI set of calculations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples/vroa-h2o2.html">VROA intensities of hydrogen peroxide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples/vroa-methyloxirane.html">VROA intensities of methyloxirane</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples/zpvc.html">Tutorial for using the ZPVC module in VIBRAV</a></li>
+</ul>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="vibrav.html">vibrav package</a></li>
+</ul>
+</ul>
+</li>
+              
+                <li class="dropdown">
+  <a role="button"
+     id="dLabelLocalToc"
+     data-toggle="dropdown"
+     data-target="#"
+     href="#">Page <b class="caret"></b></a>
+  <ul class="dropdown-menu localtoc"
+      role="menu"
+      aria-labelledby="dLabelLocalToc"><ul>
+<li><a class="reference internal" href="#">vibrav.numerical.redmass module</a><ul>
+<li><a class="reference internal" href="#vibrav.numerical.redmass.rmass_cart"><code class="docutils literal notranslate"><span class="pre">rmass_cart()</span></code></a></li>
+<li><a class="reference internal" href="#vibrav.numerical.redmass.rmass_mwc"><code class="docutils literal notranslate"><span class="pre">rmass_mwc()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</ul>
+</li>
+              
+            
+            
+              
+                
+  <li>
+    <a href="vibrav.numerical.phases.html" title="Previous Chapter: vibrav.numerical.phases module"><span class="glyphicon glyphicon-chevron-left visible-sm"></span><span class="hidden-sm hidden-tablet">&laquo; vibrav.numeri...</span>
+    </a>
+  </li>
+  <li>
+    <a href="vibrav.numerical.vibronic_func.html" title="Next Chapter: vibrav.numerical.vibronic_func module"><span class="glyphicon glyphicon-chevron-right visible-sm"></span><span class="hidden-sm hidden-tablet">vibrav.numeri... &raquo;</span>
+    </a>
+  </li>
+              
+            
+            
+            
+            
+              <li class="hidden-sm">
+<div id="sourcelink">
+  <a href="_sources/vibrav.numerical.redmass.txt"
+     rel="nofollow">Source</a>
+</div></li>
+            
+          </ul>
+
+          
+            
+<form class="navbar-form navbar-right" action="search.html" method="get">
+ <div class="form-group">
+  <input type="text" name="q" class="form-control" placeholder="Search" />
+ </div>
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+          
+        </div>
+    </div>
+  </div>
+
+<div class="container">
+  <div class="row">
+    <div class="body col-md-12 content" role="main">
+      
+  <section id="module-vibrav.numerical.redmass">
+<span id="vibrav-numerical-redmass-module"></span><h1>vibrav.numerical.redmass module<a class="headerlink" href="#module-vibrav.numerical.redmass" title="Permalink to this heading">¶</a></h1>
+<dl class="py function">
+<dt class="sig sig-object py" id="vibrav.numerical.redmass.rmass_cart">
+<span class="sig-prename descclassname"><span class="pre">vibrav.numerical.redmass.</span></span><span class="sig-name descname"><span class="pre">rmass_cart</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">symbol</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/vibrav/numerical/redmass.html#rmass_cart"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#vibrav.numerical.redmass.rmass_cart" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate the reduced masses from the normalized non-mass-weighted cartesian
+normal modes. With the equation,</p>
+<div class="math notranslate nohighlight">
+\[\mu_i = \left(\sum_k^{3N} l_{CARTk,i}^2\right)^{-1}\]</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This assumes that the normal modes have already been placed in the
+<code class="code docutils literal notranslate"><span class="pre">['dx',</span> <span class="pre">'dy',</span> <span class="pre">'dz']</span></code> columns.</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>data</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">pandas.DataFrame</span></code>) – Data frame the has the non-mass-weighted
+cartesian normal modes.</p></li>
+<li><p><strong>symbol</strong> (<code class="xref py py-obj docutils literal notranslate"><span class="pre">list</span></code>) – List-like object that has the atomic symbols.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><p>r_mass (<code class="xref py py-class docutils literal notranslate"><span class="pre">numpy.ndarray</span></code>) –</p>
+<dl class="simple">
+<dt>Array containing the calculated reduced</dt><dd><p>masses in Dalton or atomic mass units
+not atomic units of mass.</p>
+</dd>
+</dl>
+</p>
+</dd>
+</dl>
+<div class="admonition-examples admonition">
+<p class="admonition-title">Examples</p>
+<p>Usage of this method is as follows,</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">vibrav.base</span> <span class="kn">import</span> <span class="n">resource</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">res_file</span> <span class="o">=</span> <span class="s1">&#39;adf-ubr-1minus-b3lyp-numeric-norm-modes-cart.csv.xz&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">freqs</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">resource</span><span class="p">(</span><span class="n">res_file</span><span class="p">),</span> <span class="n">compression</span><span class="o">=</span><span class="s1">&#39;xz&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">symbols</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;U&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="p">[</span><span class="s1">&#39;Br&#39;</span><span class="p">]</span><span class="o">*</span><span class="mi">6</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">freqs</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s1">&#39;freqdx&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">rmass_cart</span><span class="p">,</span> <span class="n">symbols</span><span class="p">)</span>
+<span class="go">freqdx</span>
+<span class="go">0      78.918337</span>
+<span class="go">1      78.918337</span>
+<span class="go">2      78.918337</span>
+<span class="go">3      78.918337</span>
+<span class="go">4      78.918337</span>
+<span class="go">5      78.918337</span>
+<span class="go">6      93.006642</span>
+<span class="go">7      93.006642</span>
+<span class="go">8      93.006642</span>
+<span class="go">9      78.918337</span>
+<span class="go">10     78.918337</span>
+<span class="go">11     78.918337</span>
+<span class="go">12    111.682085</span>
+<span class="go">13    111.682085</span>
+<span class="go">14    111.682085</span>
+<span class="go">dtype: float64</span>
+</pre></div>
+</div>
+<p>It is also possible to use the method without the groupby/apply methods from a
+pandas data frame. However, the pandas data frame that is passed into the
+function <strong>must</strong> have the <code class="code docutils literal notranslate"><span class="pre">['dx',</span> <span class="pre">'dy',</span> <span class="pre">'dz']</span></code> columns present. In
+addition the <code class="code docutils literal notranslate"><span class="pre">symbols</span></code> parameter must have all of the atomic symbols that
+exists, including ones that are repeated.</p>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="vibrav.numerical.redmass.rmass_mwc">
+<span class="sig-prename descclassname"><span class="pre">vibrav.numerical.redmass.</span></span><span class="sig-name descname"><span class="pre">rmass_mwc</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">symbol</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/vibrav/numerical/redmass.html#rmass_mwc"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#vibrav.numerical.redmass.rmass_mwc" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate the reduced masses from the mass-weighted normal modes. With
+the equation,</p>
+<div class="math notranslate nohighlight">
+\[\mu_i = \left(\sum_k^{3N} \left(\frac{l_{MWCk,i}}
+                                    {\sqrt{m_k}}\right)^2\right)^{-1}\]</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This assumes that the normal modes have already been placed in the
+<code class="code docutils literal notranslate"><span class="pre">['dx',</span> <span class="pre">'dy',</span> <span class="pre">'dz']</span></code> columns.</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>data</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">pandas.DataFrame</span></code>) – Data frame the has the mass-weighted
+normal modes.</p></li>
+<li><p><strong>symbol</strong> (<code class="xref py py-obj docutils literal notranslate"><span class="pre">list</span></code>) – List-like object that has the atomic symbols.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><p>r_mass (<code class="xref py py-class docutils literal notranslate"><span class="pre">numpy.ndarray</span></code>) –</p>
+<dl class="simple">
+<dt>Array containing the calculated reduced</dt><dd><p>masses in Dalton or atomic mass units
+not atomic units of mass.</p>
+</dd>
+</dl>
+</p>
+</dd>
+</dl>
+<div class="admonition-examples admonition">
+<p class="admonition-title">Examples</p>
+<p>Usage of this method is as follows,</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">vibrav.base</span> <span class="kn">import</span> <span class="n">resource</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">res_file</span> <span class="o">=</span> <span class="s1">&#39;adf-ubr-1minus-b3lyp-numeric-norm-modes-mwc.csv.xz&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">freqs</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">resource</span><span class="p">(</span><span class="n">res_file</span><span class="p">),</span> <span class="n">compression</span><span class="o">=</span><span class="s1">&#39;xz&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">symbols</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;U&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="p">[</span><span class="s1">&#39;Br&#39;</span><span class="p">]</span><span class="o">*</span><span class="mi">6</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">freqs</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s1">&#39;freqdx&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">rmass_mwc</span><span class="p">,</span> <span class="n">symbols</span><span class="p">)</span>
+<span class="go">freqdx</span>
+<span class="go">0      78.918337</span>
+<span class="go">1      78.918337</span>
+<span class="go">2      78.918337</span>
+<span class="go">3      78.918337</span>
+<span class="go">4      78.918337</span>
+<span class="go">5      78.918337</span>
+<span class="go">6      93.006642</span>
+<span class="go">7      93.006642</span>
+<span class="go">8      93.006642</span>
+<span class="go">9      78.918337</span>
+<span class="go">10     78.918337</span>
+<span class="go">11     78.918337</span>
+<span class="go">12    111.682084</span>
+<span class="go">13    111.682084</span>
+<span class="go">14    111.682084</span>
+<span class="go">dtype: float64</span>
+</pre></div>
+</div>
+<p>It is also possible to use the method without the groupby/apply methods from a
+pandas data frame. However, the pandas data frame that is passed into the
+function <strong>must</strong> have the <code class="code docutils literal notranslate"><span class="pre">['dx',</span> <span class="pre">'dy',</span> <span class="pre">'dz']</span></code> columns present. In
+addition the <code class="code docutils literal notranslate"><span class="pre">symbols</span></code> parameter must have all of the atomic symbols that
+exists, including ones that are repeated.</p>
+</div>
+</dd></dl>
+
+</section>
+
+
+    </div>
+      
+  </div>
+</div>
+<footer class="footer">
+  <div class="container">
+    <p class="pull-right">
+      <a href="#">Back to top</a>
+      
+    </p>
+    <p>
+        &copy; Copyright 2023, Herbert D Ludowieg. Project structure based on the Computational Molecular Science Python Cookiecutter version 1.1.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 7.0.1.<br/>
+    </p>
+  </div>
+</footer>
+  </body>
+</html>

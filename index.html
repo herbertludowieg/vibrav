@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Welcome to the VIBRational AVeraging (VIBRAV) documentation! &#8212; vibrav  documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/bootstrap-sphinx.css" />
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/sphinx_highlight.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="ADF parser API" href="examples/adf.html" />
+<meta charset='utf-8'>
+<meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
+<meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1'>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<script type="text/javascript" src="_static/js/jquery-1.12.4.min.js"></script>
+<script type="text/javascript" src="_static/js/jquery-fix.js"></script>
+<script type="text/javascript" src="_static/bootstrap-3.4.1/js/bootstrap.min.js"></script>
+<script type="text/javascript" src="_static/bootstrap-sphinx.js"></script>
+
+  </head><body>
+
+  <div id="navbar" class="navbar navbar-default navbar-fixed-top">
+    <div class="container">
+      <div class="navbar-header">
+        <!-- .btn-navbar is used as the toggle for collapsed navbar content -->
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".nav-collapse">
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        <a class="navbar-brand" href="#">
+          vibrav</a>
+        <span class="navbar-text navbar-version pull-left"><b></b></span>
+      </div>
+
+        <div class="collapse navbar-collapse nav-collapse">
+          <ul class="nav navbar-nav">
+            
+            
+              <li class="dropdown globaltoc-container">
+  <a role="button"
+     id="dLabelGlobalToc"
+     data-toggle="dropdown"
+     data-target="#"
+     href="#">Site <b class="caret"></b></a>
+  <ul class="dropdown-menu globaltoc"
+      role="menu"
+      aria-labelledby="dLabelGlobalToc"><ul>
+<li class="toctree-l1"><a class="reference internal" href="examples/adf.html">ADF parser API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples/gen-displaced.html">Generating the displaced structures from a Gaussian frequencies calculation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples/molcas.html">Molcas parser API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples/numerical-diffs.html">Using derivative module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples/vibronic.html">Running vibronic calculations from a Molcas RASSI set of calculations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples/vroa-h2o2.html">VROA intensities of hydrogen peroxide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples/vroa-methyloxirane.html">VROA intensities of methyloxirane</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples/zpvc.html">Tutorial for using the ZPVC module in VIBRAV</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="vibrav.html">vibrav package</a></li>
+</ul>
+</ul>
+</li>
+              
+                <li class="dropdown">
+  <a role="button"
+     id="dLabelLocalToc"
+     data-toggle="dropdown"
+     data-target="#"
+     href="#">Page <b class="caret"></b></a>
+  <ul class="dropdown-menu localtoc"
+      role="menu"
+      aria-labelledby="dLabelLocalToc"><ul>
+<li><a class="reference internal" href="#">Welcome to the VIBRational AVeraging (VIBRAV) documentation!</a><ul>
+<li><a class="reference internal" href="#examples">Examples:</a></li>
+<li><a class="reference internal" href="#code-index">Code index:</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#vibrav">vibrav</a><ul>
+<li><a class="reference internal" href="#research-publications-using-code">Research Publications using code:</a></li>
+<li><a class="reference internal" href="#how-to-cite">How to cite:</a><ul>
+<li><a class="reference internal" href="#zero-point-vibrational-corrections">Zero-point vibrational corrections:</a></li>
+<li><a class="reference internal" href="#vibronic-coupling">Vibronic Coupling:</a></li>
+<li><a class="reference internal" href="#vibrational-raman-optical-activity">Vibrational Raman Optical Activity:</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#indices-and-tables">Indices and tables</a></li>
+</ul>
+</li>
+</ul>
+</ul>
+</li>
+              
+            
+            
+              
+                
+  <li>
+    <a href="examples/adf.html" title="Next Chapter: ADF parser API"><span class="glyphicon glyphicon-chevron-right visible-sm"></span><span class="hidden-sm hidden-tablet">ADF parser API &raquo;</span>
+    </a>
+  </li>
+              
+            
+            
+            
+            
+              <li class="hidden-sm">
+<div id="sourcelink">
+  <a href="_sources/index.rst.txt"
+     rel="nofollow">Source</a>
+</div></li>
+            
+          </ul>
+
+          
+            
+<form class="navbar-form navbar-right" action="search.html" method="get">
+ <div class="form-group">
+  <input type="text" name="q" class="form-control" placeholder="Search" />
+ </div>
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+          
+        </div>
+    </div>
+  </div>
+
+<div class="container">
+  <div class="row">
+    <div class="body col-md-12 content" role="main">
+      
+  <section id="welcome-to-the-vibrational-averaging-vibrav-documentation">
+<h1>Welcome to the VIBRational AVeraging (VIBRAV) documentation!<a class="headerlink" href="#welcome-to-the-vibrational-averaging-vibrav-documentation" title="Permalink to this heading">¶</a></h1>
+<section id="examples">
+<h2>Examples:<a class="headerlink" href="#examples" title="Permalink to this heading">¶</a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="examples/adf.html">ADF parser API</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="examples/adf.html#Imports-to-get-the-resource-files">Imports to get the resource files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="examples/adf.html#Read-the-ASCII-formatted-ADF-TAPE21-file">Read the ASCII formatted ADF TAPE21 file</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="examples/gen-displaced.html">Generating the displaced structures from a Gaussian frequencies calculation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="examples/gen-displaced.html#Generating-the-displaced-structures">Generating the displaced structures</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="examples/molcas.html">Molcas parser API</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="examples/molcas.html#Imports-to-get-the-resource-files">Imports to get the resource files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="examples/molcas.html#Read-the-output-file">Read the output file</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="examples/numerical-diffs.html">Using derivative module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="examples/numerical-diffs.html#Setting-x=7.8">Setting <span class="math notranslate nohighlight">\(x=7.8\)</span></a></li>
+<li class="toctree-l2"><a class="reference internal" href="examples/numerical-diffs.html#Setting-x=2.51">Setting <span class="math notranslate nohighlight">\(x=2.51\)</span></a></li>
+<li class="toctree-l2"><a class="reference internal" href="examples/numerical-diffs.html#Setting-x=0.51">Setting <span class="math notranslate nohighlight">\(x=0.51\)</span></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="examples/vibronic.html">Running vibronic calculations from a Molcas RASSI set of calculations</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="examples/vibronic.html#Begin-the-vibronic-coupling-calculations">Begin the vibronic coupling calculations</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="examples/vroa-h2o2.html">VROA intensities of hydrogen peroxide</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="examples/vroa-h2o2.html#Run-the-VROA-code">Run the VROA code</a></li>
+<li class="toctree-l2"><a class="reference internal" href="examples/vroa-h2o2.html#Plot-the-calculated-intensities">Plot the calculated intensities</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="examples/vroa-methyloxirane.html">VROA intensities of methyloxirane</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="examples/vroa-methyloxirane.html#Run-the-VROA-code">Run the VROA code</a></li>
+<li class="toctree-l2"><a class="reference internal" href="examples/vroa-methyloxirane.html#Plot-the-calculated-intensities">Plot the calculated intensities</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="examples/zpvc.html">Tutorial for using the ZPVC module in VIBRAV</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="examples/zpvc.html#Import-the-ZPVC-module-and-the-resource-function">Import the ZPVC module and the resource function</a></li>
+<li class="toctree-l2"><a class="reference internal" href="examples/zpvc.html#Start-load-the-ZPVC-class-and-initialize-the-configuration-file-options">Start load the ZPVC class and initialize the configuration file options</a></li>
+<li class="toctree-l2"><a class="reference internal" href="examples/zpvc.html#Contents-of-the-resource-configuration-file">Contents of the resource configuration file</a></li>
+<li class="toctree-l2"><a class="reference internal" href="examples/zpvc.html#Run-the-ZPVC-script">Run the ZPVC script</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</section>
+<section id="code-index">
+<h2>Code index:<a class="headerlink" href="#code-index" title="Permalink to this heading">¶</a></h2>
+</section>
+</section>
+<section id="vibrav">
+<h1>vibrav<a class="headerlink" href="#vibrav" title="Permalink to this heading">¶</a></h1>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="vibrav.html">vibrav package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="vibrav.html#subpackages">Subpackages</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="vibrav.adf.html">vibrav.adf package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="vibrav.core.html">vibrav.core package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="vibrav.molcas.html">vibrav.molcas package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="vibrav.numerical.html">vibrav.numerical package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="vibrav.util.html">vibrav.util package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="vibrav.vibronic.html">vibrav.vibronic package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="vibrav.vroa.html">vibrav.vroa package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="vibrav.zpvc.html">vibrav.zpvc package</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="vibrav.html#submodules">Submodules</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="vibrav.base.html">vibrav.base module</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+<section id="research-publications-using-code">
+<h2>Research Publications using code:<a class="headerlink" href="#research-publications-using-code" title="Permalink to this heading">¶</a></h2>
+<ul class="simple">
+<li><p>Morgante, P; Ludowieg, H D; Autschbach, J.
+“Comparative Study of Vibrational Raman Optical Activity with
+Different Time-Dependent Density Functional Approximations:
+The VROA36 Database”
+<em>J. Phys. Chem. A</em> <strong>2022</strong>, 126 (19), 2909-2927.
+DOI: <a class="reference external" href="https://doi.org/10.1021/acs.jpca.2c00951">10.1021/acs.jpca.2c00951</a></p></li>
+<li><p>Atzori, M; Ludowieg, H D; et. al.
+“Validation of microscopic magnetochiral dichroism theory”
+<em>Sci. Adv.</em> <strong>2021</strong>, 7, eabg2859.
+DOI: <a class="reference external" href="https://doi.org/10.1126/sciadv.abg2859">10.1126/sciadv.abg2859</a></p></li>
+<li><p>Ganguly, G; Ludowieg, H D; Autshbach, J.
+“Ab Initio Study of Vibronic and Magnetic 5f-to-5f and Dipole-Allowed
+5f-to-6d and Charge-Transfer Transitions in
+[UX<sub>6</sub>]<sup>n-</sup> (X = Cl, Br; n = 1, 2)”
+<em>J. Chem. Theory Comput.</em> <strong>2020</strong>, 16 (8), 5189-5202.
+DOI: <a class="reference external" href="https://doi.org/10.1021/acs.jctc.0c00386">10.1021/acs.jctc.0c00386</a></p></li>
+<li><p>Abella, L; Ludowieg, H D; Autschbach, J.
+“Theoretical study of the Raman optical activity spectra of
+[M(en)<sub>3</sub>]<sup>3+</sup> with M = Co, Rh”
+<em>Chirality</em> <strong>2020</strong>, 32 (6), 741-752.
+DOI: <a class="reference external" href="https://doi.org/10.1002/chir.23194">10.1002/chir.23194</a></p></li>
+</ul>
+</section>
+<section id="how-to-cite">
+<h2>How to cite:<a class="headerlink" href="#how-to-cite" title="Permalink to this heading">¶</a></h2>
+<ul class="simple">
+<li><p>Ludowieg, H D. “Vibrav: a tool for vibrational averaging”
+<a class="reference external" href="https://github.com/herbertludowieg/vibrav">https://github.com/herbertludowieg/vibrav</a></p></li>
+<li><p>Mort, B C; Autschbach, J.
+“Magnitude of Zero-Point Vibrational Corrections to Optical
+Rotation in Rigid Organic Molecules:  A Time-Dependent Density
+Functional Study”
+<em>J. Phys. Chem. A</em> <strong>2005</strong>, 109, 38, 8617-8623.
+DOI: <a class="reference external" href="https://doi.org/10.1021/jp051685y">10.1021/jp051685y</a></p></li>
+</ul>
+<section id="zero-point-vibrational-corrections">
+<h3>Zero-point vibrational corrections:<a class="headerlink" href="#zero-point-vibrational-corrections" title="Permalink to this heading">¶</a></h3>
+<ul class="simple">
+<li><p>Mort, B C; Autschbach, J.
+“Magnitude of Zero-Point Vibrational Corrections to Optical
+Rotation in Rigid Organic Molecules:  A Time-Dependent Density
+Functional Study”
+<em>J. Phys. Chem. A</em> <strong>2005</strong>, 109, 38, 8617-8623.
+DOI: <a class="reference external" href="https://doi.org/10.1021/jp051685y">10.1021/jp051685y</a></p></li>
+</ul>
+</section>
+<section id="vibronic-coupling">
+<h3>Vibronic Coupling:<a class="headerlink" href="#vibronic-coupling" title="Permalink to this heading">¶</a></h3>
+<ul class="simple">
+<li><p>Heit, Y N; Gendron, F; Autschbach, J.
+“Calculation of Dipole-Forbidden 5f Absorption Spectra of
+Uranium(V) Hexa-Halide Complexes”
+<em>J. Phys. Chem. Lett.</em> <strong>2018</strong>, 9, 4, 887-894.
+DOI: <a class="reference external" href="https://doi.org/10.1021/acs.jpclett.7b03441">10.1021/acs.jpclett.7b03441</a></p></li>
+<li><p>Ganguly, G; Ludowieg, H D; Autschbach, J.
+“Ab Initio Study of Vibronic and Magnetic 5f-to-5f and
+Dipole-Allowed 5f-to-6d and Charge-Transfer Transitions in
+[UX<sub>6</sub>]<sup>n-</sup> (X = Cl, Br; n = 1, 2)”
+<em>J. Chem. Theory Comput.</em> <strong>2020</strong>, 16, 8, 5189-5202.
+DOI: <a class="reference external" href="https://doi.org/10.1021/acs.jctc.0c00386">10.1021/acs.jctc.0c00386</a></p></li>
+</ul>
+</section>
+<section id="vibrational-raman-optical-activity">
+<h3>Vibrational Raman Optical Activity:<a class="headerlink" href="#vibrational-raman-optical-activity" title="Permalink to this heading">¶</a></h3>
+<ul class="simple">
+<li><p>Abella, L; Ludowieg, H D; Autschbach, J.
+“Theoretical study of the Raman optical activity spectra of
+[M(en)<sub>3</sub>]<sup>3+</sup> with M = Co, Rh”
+<em>Chirality</em> <strong>2020</strong>, 32 (6), 741-752.
+DOI: <a class="reference external" href="https://doi.org/10.1002/chir.23194">10.1002/chir.23194</a></p></li>
+<li><p>Krausbeck, F; Autschbach, J; Reiher, M.
+“Calculated Resonance Vibrational Raman Optical Activity
+Spectra of Naproxen and Ibuprofen”
+<em>J. Phys. Chem. A</em> <strong>2016</strong>, 120, 49, 9740-9748.
+DOI: <a class="reference external" href="https://doi.org/10.1021/acs.jpca.6b09975">10.1021/acs.jpca.6b09975</a></p></li>
+<li><p>Jensen, L; Autschbach, J; Krykunov, M.
+“Resonance vibrational Raman optical activity: A
+time-dependent density functional theory approach”
+<em>J. Chem. Phys.</em> <strong>2007</strong>, 127, 134101.
+DOI: <a class="reference external" href="https://doi.org/10.1063/1.2768533">10.1063/1.2768533</a></p></li>
+</ul>
+</section>
+</section>
+<section id="indices-and-tables">
+<h2>Indices and tables<a class="headerlink" href="#indices-and-tables" title="Permalink to this heading">¶</a></h2>
+<ul class="simple">
+<li><p><a class="reference internal" href="genindex.html"><span class="std std-ref">Index</span></a></p></li>
+<li><p><a class="reference internal" href="py-modindex.html"><span class="std std-ref">Module Index</span></a></p></li>
+<li><p><a class="reference internal" href="search.html"><span class="std std-ref">Search Page</span></a></p></li>
+</ul>
+</section>
+</section>
+
+
+    </div>
+      
+  </div>
+</div>
+<footer class="footer">
+  <div class="container">
+    <p class="pull-right">
+      <a href="#">Back to top</a>
+      
+    </p>
+    <p>
+        &copy; Copyright 2023, Herbert D Ludowieg. Project structure based on the Computational Molecular Science Python Cookiecutter version 1.1.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 7.0.1.<br/>
+    </p>
+  </div>
+</footer>
+  </body>
+</html>

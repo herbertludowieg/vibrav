@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>vibrav.adf.output module &#8212; vibrav  documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/bootstrap-sphinx.css" />
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/sphinx_highlight.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="vibrav.core package" href="vibrav.core.html" />
+    <link rel="prev" title="vibrav.adf package" href="vibrav.adf.html" />
+<meta charset='utf-8'>
+<meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
+<meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1'>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<script type="text/javascript" src="_static/js/jquery-1.12.4.min.js"></script>
+<script type="text/javascript" src="_static/js/jquery-fix.js"></script>
+<script type="text/javascript" src="_static/bootstrap-3.4.1/js/bootstrap.min.js"></script>
+<script type="text/javascript" src="_static/bootstrap-sphinx.js"></script>
+
+  </head><body>
+
+  <div id="navbar" class="navbar navbar-default navbar-fixed-top">
+    <div class="container">
+      <div class="navbar-header">
+        <!-- .btn-navbar is used as the toggle for collapsed navbar content -->
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".nav-collapse">
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        <a class="navbar-brand" href="index.html">
+          vibrav</a>
+        <span class="navbar-text navbar-version pull-left"><b></b></span>
+      </div>
+
+        <div class="collapse navbar-collapse nav-collapse">
+          <ul class="nav navbar-nav">
+            
+            
+              <li class="dropdown globaltoc-container">
+  <a role="button"
+     id="dLabelGlobalToc"
+     data-toggle="dropdown"
+     data-target="#"
+     href="index.html">Site <b class="caret"></b></a>
+  <ul class="dropdown-menu globaltoc"
+      role="menu"
+      aria-labelledby="dLabelGlobalToc"><ul>
+<li class="toctree-l1"><a class="reference internal" href="examples/adf.html">ADF parser API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples/gen-displaced.html">Generating the displaced structures from a Gaussian frequencies calculation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples/molcas.html">Molcas parser API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples/numerical-diffs.html">Using derivative module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples/vibronic.html">Running vibronic calculations from a Molcas RASSI set of calculations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples/vroa-h2o2.html">VROA intensities of hydrogen peroxide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples/vroa-methyloxirane.html">VROA intensities of methyloxirane</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples/zpvc.html">Tutorial for using the ZPVC module in VIBRAV</a></li>
+</ul>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="vibrav.html">vibrav package</a></li>
+</ul>
+</ul>
+</li>
+              
+                <li class="dropdown">
+  <a role="button"
+     id="dLabelLocalToc"
+     data-toggle="dropdown"
+     data-target="#"
+     href="#">Page <b class="caret"></b></a>
+  <ul class="dropdown-menu localtoc"
+      role="menu"
+      aria-labelledby="dLabelLocalToc"><ul>
+<li><a class="reference internal" href="#">vibrav.adf.output module</a><ul>
+<li><a class="reference internal" href="#vibrav.adf.output.Tape21"><code class="docutils literal notranslate"><span class="pre">Tape21</span></code></a><ul>
+<li><a class="reference internal" href="#vibrav.adf.output.Tape21.atom"><code class="docutils literal notranslate"><span class="pre">Tape21.atom</span></code></a></li>
+<li><a class="reference internal" href="#vibrav.adf.output.Tape21.frequency"><code class="docutils literal notranslate"><span class="pre">Tape21.frequency</span></code></a></li>
+<li><a class="reference internal" href="#vibrav.adf.output.Tape21.gradient"><code class="docutils literal notranslate"><span class="pre">Tape21.gradient</span></code></a></li>
+<li><a class="reference internal" href="#vibrav.adf.output.Tape21.j_coupling"><code class="docutils literal notranslate"><span class="pre">Tape21.j_coupling</span></code></a></li>
+<li><a class="reference internal" href="#vibrav.adf.output.Tape21.nmr_shielding"><code class="docutils literal notranslate"><span class="pre">Tape21.nmr_shielding</span></code></a></li>
+<li><a class="reference internal" href="#vibrav.adf.output.Tape21.parse_atom"><code class="docutils literal notranslate"><span class="pre">Tape21.parse_atom()</span></code></a></li>
+<li><a class="reference internal" href="#vibrav.adf.output.Tape21.parse_frequency"><code class="docutils literal notranslate"><span class="pre">Tape21.parse_frequency()</span></code></a></li>
+<li><a class="reference internal" href="#vibrav.adf.output.Tape21.parse_gradient"><code class="docutils literal notranslate"><span class="pre">Tape21.parse_gradient()</span></code></a></li>
+<li><a class="reference internal" href="#vibrav.adf.output.Tape21.parse_j_coupling"><code class="docutils literal notranslate"><span class="pre">Tape21.parse_j_coupling()</span></code></a></li>
+<li><a class="reference internal" href="#vibrav.adf.output.Tape21.parse_nmr_shielding"><code class="docutils literal notranslate"><span class="pre">Tape21.parse_nmr_shielding()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#vibrav.adf.output.Tape21Meta"><code class="docutils literal notranslate"><span class="pre">Tape21Meta</span></code></a><ul>
+<li><a class="reference internal" href="#vibrav.adf.output.Tape21Meta.atom"><code class="docutils literal notranslate"><span class="pre">Tape21Meta.atom</span></code></a></li>
+<li><a class="reference internal" href="#vibrav.adf.output.Tape21Meta.frequency"><code class="docutils literal notranslate"><span class="pre">Tape21Meta.frequency</span></code></a></li>
+<li><a class="reference internal" href="#vibrav.adf.output.Tape21Meta.gradient"><code class="docutils literal notranslate"><span class="pre">Tape21Meta.gradient</span></code></a></li>
+<li><a class="reference internal" href="#vibrav.adf.output.Tape21Meta.j_coupling"><code class="docutils literal notranslate"><span class="pre">Tape21Meta.j_coupling</span></code></a></li>
+<li><a class="reference internal" href="#vibrav.adf.output.Tape21Meta.nmr_shielding"><code class="docutils literal notranslate"><span class="pre">Tape21Meta.nmr_shielding</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</ul>
+</li>
+              
+            
+            
+              
+                
+  <li>
+    <a href="vibrav.adf.html" title="Previous Chapter: vibrav.adf package"><span class="glyphicon glyphicon-chevron-left visible-sm"></span><span class="hidden-sm hidden-tablet">&laquo; vibrav.adf package</span>
+    </a>
+  </li>
+  <li>
+    <a href="vibrav.core.html" title="Next Chapter: vibrav.core package"><span class="glyphicon glyphicon-chevron-right visible-sm"></span><span class="hidden-sm hidden-tablet">vibrav.core package &raquo;</span>
+    </a>
+  </li>
+              
+            
+            
+            
+            
+              <li class="hidden-sm">
+<div id="sourcelink">
+  <a href="_sources/vibrav.adf.output.txt"
+     rel="nofollow">Source</a>
+</div></li>
+            
+          </ul>
+
+          
+            
+<form class="navbar-form navbar-right" action="search.html" method="get">
+ <div class="form-group">
+  <input type="text" name="q" class="form-control" placeholder="Search" />
+ </div>
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+          
+        </div>
+    </div>
+  </div>
+
+<div class="container">
+  <div class="row">
+    <div class="body col-md-12 content" role="main">
+      
+  <section id="module-vibrav.adf.output">
+<span id="vibrav-adf-output-module"></span><h1>vibrav.adf.output module<a class="headerlink" href="#module-vibrav.adf.output" title="Permalink to this heading">¶</a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="vibrav.adf.output.Tape21">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">vibrav.adf.output.</span></span><span class="sig-name descname"><span class="pre">Tape21</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path_stream_or_string</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">as_interned</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nprint</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">30</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">description</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">meta</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">encoding</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ignore</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/vibrav/adf/output.html#Tape21"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#vibrav.adf.output.Tape21" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Editor</span></code></p>
+<p>Parser for ADF Tape21 that have been converted to an ASCII file with
+their dmpkf utility.</p>
+<p><strong>All properties are parsed based on the input order.</strong></p>
+<dl class="py property">
+<dt class="sig sig-object py" id="vibrav.adf.output.Tape21.atom">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">atom</span></span><a class="headerlink" href="#vibrav.adf.output.Tape21.atom" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="vibrav.adf.output.Tape21.frequency">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">frequency</span></span><a class="headerlink" href="#vibrav.adf.output.Tape21.frequency" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="vibrav.adf.output.Tape21.gradient">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">gradient</span></span><a class="headerlink" href="#vibrav.adf.output.Tape21.gradient" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="vibrav.adf.output.Tape21.j_coupling">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">j_coupling</span></span><a class="headerlink" href="#vibrav.adf.output.Tape21.j_coupling" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="vibrav.adf.output.Tape21.nmr_shielding">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">nmr_shielding</span></span><a class="headerlink" href="#vibrav.adf.output.Tape21.nmr_shielding" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="vibrav.adf.output.Tape21.parse_atom">
+<span class="sig-name descname"><span class="pre">parse_atom</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_order</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/vibrav/adf/output.html#Tape21.parse_atom"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#vibrav.adf.output.Tape21.parse_atom" title="Permalink to this definition">¶</a></dt>
+<dd><p>Parse the atom table.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>input_order</strong> (<code class="xref py py-obj docutils literal notranslate"><span class="pre">bool</span></code>, optional) – Parse the atom table in the input order format.
+Defaults to <code class="code docutils literal notranslate"><span class="pre">False</span></code>.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="vibrav.adf.output.Tape21.parse_frequency">
+<span class="sig-name descname"><span class="pre">parse_frequency</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cart</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/vibrav/adf/output.html#Tape21.parse_frequency"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#vibrav.adf.output.Tape21.parse_frequency" title="Permalink to this definition">¶</a></dt>
+<dd><p>ADF frequency parser.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This will toss a warning if it cannot find the mass-weighted normal modes
+which must be used to generate the displaced structures for vibrational
+averaging. Also, it will be unable to calculate the reduced masses as it will
+have normalized cartesian coordinates where it expects normalized
+mass-weighted cartesian normal modes.</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>cart</strong> (<code class="xref py py-obj docutils literal notranslate"><span class="pre">bool</span></code>, optional) – Parse the normalized cartesian coordinates or
+the mass-weighted normal modes. Defaults to
+<code class="code docutils literal notranslate"><span class="pre">True</span></code>.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="vibrav.adf.output.Tape21.parse_gradient">
+<span class="sig-name descname"><span class="pre">parse_gradient</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/vibrav/adf/output.html#Tape21.parse_gradient"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#vibrav.adf.output.Tape21.parse_gradient" title="Permalink to this definition">¶</a></dt>
+<dd><p>Parse the gradients in the input order.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="vibrav.adf.output.Tape21.parse_j_coupling">
+<span class="sig-name descname"><span class="pre">parse_j_coupling</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/vibrav/adf/output.html#Tape21.parse_j_coupling"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#vibrav.adf.output.Tape21.parse_j_coupling" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="vibrav.adf.output.Tape21.parse_nmr_shielding">
+<span class="sig-name descname"><span class="pre">parse_nmr_shielding</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/vibrav/adf/output.html#Tape21.parse_nmr_shielding"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#vibrav.adf.output.Tape21.parse_nmr_shielding" title="Permalink to this definition">¶</a></dt>
+<dd><p>Parse the NMR shielding tensors in the input order.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="vibrav.adf.output.Tape21Meta">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">vibrav.adf.output.</span></span><span class="sig-name descname"><span class="pre">Tape21Meta</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bases</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">clsdict</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/vibrav/adf/output.html#Tape21Meta"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#vibrav.adf.output.Tape21Meta" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">TypedMeta</span></code></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="vibrav.adf.output.Tape21Meta.atom">
+<span class="sig-name descname"><span class="pre">atom</span></span><a class="headerlink" href="#vibrav.adf.output.Tape21Meta.atom" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <code class="xref py py-class docutils literal notranslate"><span class="pre">Atom</span></code></p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="vibrav.adf.output.Tape21Meta.frequency">
+<span class="sig-name descname"><span class="pre">frequency</span></span><a class="headerlink" href="#vibrav.adf.output.Tape21Meta.frequency" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <code class="xref py py-class docutils literal notranslate"><span class="pre">Frequency</span></code></p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="vibrav.adf.output.Tape21Meta.gradient">
+<span class="sig-name descname"><span class="pre">gradient</span></span><a class="headerlink" href="#vibrav.adf.output.Tape21Meta.gradient" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <code class="xref py py-class docutils literal notranslate"><span class="pre">Gradient</span></code></p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="vibrav.adf.output.Tape21Meta.j_coupling">
+<span class="sig-name descname"><span class="pre">j_coupling</span></span><a class="headerlink" href="#vibrav.adf.output.Tape21Meta.j_coupling" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <code class="xref py py-class docutils literal notranslate"><span class="pre">JCoupling</span></code></p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="vibrav.adf.output.Tape21Meta.nmr_shielding">
+<span class="sig-name descname"><span class="pre">nmr_shielding</span></span><a class="headerlink" href="#vibrav.adf.output.Tape21Meta.nmr_shielding" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <code class="xref py py-class docutils literal notranslate"><span class="pre">NMRShielding</span></code></p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+
+
+    </div>
+      
+  </div>
+</div>
+<footer class="footer">
+  <div class="container">
+    <p class="pull-right">
+      <a href="#">Back to top</a>
+      
+    </p>
+    <p>
+        &copy; Copyright 2023, Herbert D Ludowieg. Project structure based on the Computational Molecular Science Python Cookiecutter version 1.1.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 7.0.1.<br/>
+    </p>
+  </div>
+</footer>
+  </body>
+</html>

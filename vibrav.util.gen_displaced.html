@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>vibrav.util.gen_displaced module &#8212; vibrav  documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/bootstrap-sphinx.css" />
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/sphinx_highlight.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="vibrav.util.io module" href="vibrav.util.io.html" />
+    <link rel="prev" title="vibrav.util.file_checking module" href="vibrav.util.file_checking.html" />
+<meta charset='utf-8'>
+<meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
+<meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1'>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<script type="text/javascript" src="_static/js/jquery-1.12.4.min.js"></script>
+<script type="text/javascript" src="_static/js/jquery-fix.js"></script>
+<script type="text/javascript" src="_static/bootstrap-3.4.1/js/bootstrap.min.js"></script>
+<script type="text/javascript" src="_static/bootstrap-sphinx.js"></script>
+
+  </head><body>
+
+  <div id="navbar" class="navbar navbar-default navbar-fixed-top">
+    <div class="container">
+      <div class="navbar-header">
+        <!-- .btn-navbar is used as the toggle for collapsed navbar content -->
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".nav-collapse">
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        <a class="navbar-brand" href="index.html">
+          vibrav</a>
+        <span class="navbar-text navbar-version pull-left"><b></b></span>
+      </div>
+
+        <div class="collapse navbar-collapse nav-collapse">
+          <ul class="nav navbar-nav">
+            
+            
+              <li class="dropdown globaltoc-container">
+  <a role="button"
+     id="dLabelGlobalToc"
+     data-toggle="dropdown"
+     data-target="#"
+     href="index.html">Site <b class="caret"></b></a>
+  <ul class="dropdown-menu globaltoc"
+      role="menu"
+      aria-labelledby="dLabelGlobalToc"><ul>
+<li class="toctree-l1"><a class="reference internal" href="examples/adf.html">ADF parser API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples/gen-displaced.html">Generating the displaced structures from a Gaussian frequencies calculation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples/molcas.html">Molcas parser API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples/numerical-diffs.html">Using derivative module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples/vibronic.html">Running vibronic calculations from a Molcas RASSI set of calculations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples/vroa-h2o2.html">VROA intensities of hydrogen peroxide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples/vroa-methyloxirane.html">VROA intensities of methyloxirane</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples/zpvc.html">Tutorial for using the ZPVC module in VIBRAV</a></li>
+</ul>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="vibrav.html">vibrav package</a></li>
+</ul>
+</ul>
+</li>
+              
+                <li class="dropdown">
+  <a role="button"
+     id="dLabelLocalToc"
+     data-toggle="dropdown"
+     data-target="#"
+     href="#">Page <b class="caret"></b></a>
+  <ul class="dropdown-menu localtoc"
+      role="menu"
+      aria-labelledby="dLabelLocalToc"><ul>
+<li><a class="reference internal" href="#">vibrav.util.gen_displaced module</a><ul>
+<li><a class="reference internal" href="#vibrav.util.gen_displaced.DispMeta"><code class="docutils literal notranslate"><span class="pre">DispMeta</span></code></a><ul>
+<li><a class="reference internal" href="#vibrav.util.gen_displaced.DispMeta.atom"><code class="docutils literal notranslate"><span class="pre">DispMeta.atom</span></code></a></li>
+<li><a class="reference internal" href="#vibrav.util.gen_displaced.DispMeta.delta"><code class="docutils literal notranslate"><span class="pre">DispMeta.delta</span></code></a></li>
+<li><a class="reference internal" href="#vibrav.util.gen_displaced.DispMeta.disp"><code class="docutils literal notranslate"><span class="pre">DispMeta.disp</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#vibrav.util.gen_displaced.Displace"><code class="docutils literal notranslate"><span class="pre">Displace</span></code></a><ul>
+<li><a class="reference internal" href="#vibrav.util.gen_displaced.Displace.atom"><code class="docutils literal notranslate"><span class="pre">Displace.atom</span></code></a></li>
+<li><a class="reference internal" href="#vibrav.util.gen_displaced.Displace.create_data_files"><code class="docutils literal notranslate"><span class="pre">Displace.create_data_files()</span></code></a></li>
+<li><a class="reference internal" href="#vibrav.util.gen_displaced.Displace.delta"><code class="docutils literal notranslate"><span class="pre">Displace.delta</span></code></a></li>
+<li><a class="reference internal" href="#vibrav.util.gen_displaced.Displace.disp"><code class="docutils literal notranslate"><span class="pre">Displace.disp</span></code></a></li>
+<li><a class="reference internal" href="#vibrav.util.gen_displaced.Displace.gen_displaced"><code class="docutils literal notranslate"><span class="pre">Displace.gen_displaced()</span></code></a></li>
+<li><a class="reference internal" href="#vibrav.util.gen_displaced.Displace.gen_displaced_cartesian"><code class="docutils literal notranslate"><span class="pre">Displace.gen_displaced_cartesian()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#vibrav.util.gen_displaced.gen_delta"><code class="docutils literal notranslate"><span class="pre">gen_delta()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</ul>
+</li>
+              
+            
+            
+              
+                
+  <li>
+    <a href="vibrav.util.file_checking.html" title="Previous Chapter: vibrav.util.file_checking module"><span class="glyphicon glyphicon-chevron-left visible-sm"></span><span class="hidden-sm hidden-tablet">&laquo; vibrav.util.f...</span>
+    </a>
+  </li>
+  <li>
+    <a href="vibrav.util.io.html" title="Next Chapter: vibrav.util.io module"><span class="glyphicon glyphicon-chevron-right visible-sm"></span><span class="hidden-sm hidden-tablet">vibrav.util.io module &raquo;</span>
+    </a>
+  </li>
+              
+            
+            
+            
+            
+              <li class="hidden-sm">
+<div id="sourcelink">
+  <a href="_sources/vibrav.util.gen_displaced.txt"
+     rel="nofollow">Source</a>
+</div></li>
+            
+          </ul>
+
+          
+            
+<form class="navbar-form navbar-right" action="search.html" method="get">
+ <div class="form-group">
+  <input type="text" name="q" class="form-control" placeholder="Search" />
+ </div>
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+          
+        </div>
+    </div>
+  </div>
+
+<div class="container">
+  <div class="row">
+    <div class="body col-md-12 content" role="main">
+      
+  <section id="module-vibrav.util.gen_displaced">
+<span id="vibrav-util-gen-displaced-module"></span><h1>vibrav.util.gen_displaced module<a class="headerlink" href="#module-vibrav.util.gen_displaced" title="Permalink to this heading">¶</a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="vibrav.util.gen_displaced.DispMeta">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">vibrav.util.gen_displaced.</span></span><span class="sig-name descname"><span class="pre">DispMeta</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bases</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">clsdict</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/vibrav/util/gen_displaced.html#DispMeta"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#vibrav.util.gen_displaced.DispMeta" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">TypedMeta</span></code></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="vibrav.util.gen_displaced.DispMeta.atom">
+<span class="sig-name descname"><span class="pre">atom</span></span><a class="headerlink" href="#vibrav.util.gen_displaced.DispMeta.atom" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <code class="xref py py-class docutils literal notranslate"><span class="pre">Atom</span></code></p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="vibrav.util.gen_displaced.DispMeta.delta">
+<span class="sig-name descname"><span class="pre">delta</span></span><a class="headerlink" href="#vibrav.util.gen_displaced.DispMeta.delta" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code></p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="vibrav.util.gen_displaced.DispMeta.disp">
+<span class="sig-name descname"><span class="pre">disp</span></span><a class="headerlink" href="#vibrav.util.gen_displaced.DispMeta.disp" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <code class="xref py py-class docutils literal notranslate"><span class="pre">Atom</span></code></p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="vibrav.util.gen_displaced.Displace">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">vibrav.util.gen_displaced.</span></span><span class="sig-name descname"><span class="pre">Displace</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/vibrav/util/gen_displaced.html#Displace"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#vibrav.util.gen_displaced.Displace" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Supporting class for Vibrational Averaging that will displace the input atomic
+coordinates along its normal modes (<code class="xref py py-func docutils literal notranslate"><span class="pre">gen_displaced()</span></code>).</p>
+<p>Computes displaced coordinates for all available normal modes from the equilibrium
+position by using the displacement vector components contained in the
+<code class="xref py py-class docutils literal notranslate"><span class="pre">Frequency</span></code> dataframe. It will scale these displacements to a
+desired type defined by the user with the delta_type keyword. For more information
+on this keyword see the documentation on the</p>
+<p>We can also define a specific normal mode or a list of normal modes that are of
+interest and generate displaced coordinates along those specific modes rather
+than all of the normal modes. This is highly recommended if applicable
+as it may reduce number of computations and memory usage significantly.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>cls</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Universe</span></code>) – Universe object containg pertinent data</p></li>
+<li><p><strong>delta_type</strong> (<em>int</em>) – Integer value to define the type of delta parameter to use</p></li>
+<li><p><strong>fdx</strong> (<em>int</em><em> or </em><em>list</em>) – Integer or list parameter to only displace along the
+selected normal modes</p></li>
+<li><p><strong>disp</strong> (<em>float</em>) – Floating point value to set a specific displacement delta
+parameter. Must be used with delta_type=3</p></li>
+<li><p><strong>mwc</strong> (<em>bool</em>) – Divide the normal modes by the reduced mass prior to calculating
+the delta parameter</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py property">
+<dt class="sig sig-object py" id="vibrav.util.gen_displaced.Displace.atom">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">atom</span></span><a class="headerlink" href="#vibrav.util.gen_displaced.Displace.atom" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="vibrav.util.gen_displaced.Displace.create_data_files">
+<span class="sig-name descname"><span class="pre">create_data_files</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">freq</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">atom</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">norm</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cart_disp</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">disp</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/vibrav/util/gen_displaced.html#Displace.create_data_files"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#vibrav.util.gen_displaced.Displace.create_data_files" title="Permalink to this definition">¶</a></dt>
+<dd><p>Method to create the .dat files that are needed to perform the calculations for
+vibrational averaging.</p>
+<p>This script will auto-generate the configuration file (<code class="code docutils literal notranslate"><span class="pre">'va.conf'</span></code> by default)
+given in the config parameter. It will create it with the following input options,</p>
+<ul class="simple">
+<li><p><strong>DELTA_FILE</strong>: delta.dat</p></li>
+<li><p><strong>SMATRIX_FILE</strong>: smatrix.dat</p></li>
+<li><p><strong>ATOM_ORDER_FILE</strong>: atom_order.dat</p></li>
+<li><p><strong>REDUCED_MASS_FILE</strong>: redmass.dat</p></li>
+<li><p><strong>FREQUENCY_FILE</strong>: freq.dat</p></li>
+<li><p><strong>EQCOORD_FILE</strong>: eqcoord.dat</p></li>
+</ul>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>cls</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">exatomic.Universe</span></code>) – Universe object that has the frequency and atom
+dataframes.</p></li>
+<li><p><strong>path</strong> (<code class="xref py py-obj docutils literal notranslate"><span class="pre">str</span></code>, optional) – Path to save the files to. Defaults to <cite>None</cite>.</p></li>
+<li><p><strong>config</strong> (<code class="xref py py-obj docutils literal notranslate"><span class="pre">str</span></code>, optional) – Path to base config file. Defaults to <cite>None</cite>.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="vibrav.util.gen_displaced.Displace.delta">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">delta</span></span><a class="headerlink" href="#vibrav.util.gen_displaced.Displace.delta" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="vibrav.util.gen_displaced.Displace.disp">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">disp</span></span><a class="headerlink" href="#vibrav.util.gen_displaced.Displace.disp" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="vibrav.util.gen_displaced.Displace.gen_displaced">
+<span class="sig-name descname"><span class="pre">gen_displaced</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">freq</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">atom_df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fdx</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/vibrav/util/gen_displaced.html#Displace.gen_displaced"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#vibrav.util.gen_displaced.Displace.gen_displaced" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function to generate displaced coordinates for each selected normal mode.
+We scale the displacements by the selected delta value in the positive and negative
+directions. We generate an array of coordinates that are put into a dataframe to
+write them to a file input for later evaluation.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The index 0 is reserved for the optimized coordinates, the equilibrium geometry.
+The displaced coordinates in the positive direction are given an index from
+1 to tnmodes (total number of normal modes).
+The displaced coordinates in the negative direction are given an index from
+tnmodes to 2*tnmodes.
+In an example with 39 normal modes 0 is the equilibrium geometry, 1-39 are the
+positive displacements and 40-78 are the negative displacements.
+nmodes are the number of normal modes that are selected. tnmodes are the total
+number of normal modes for the system.</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>freq</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">exatomic.atom.Frequency</span></code>) – Frequency dataframe</p></li>
+<li><p><strong>atom</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">exatomic.atom.Atom</span></code>) – Atom dataframe</p></li>
+<li><p><strong>fdx</strong> (<em>int</em><em> or </em><em>list</em>) – Integer or list parameter to only displace along the
+selected normal modes</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="vibrav.util.gen_displaced.Displace.gen_displaced_cartesian">
+<span class="sig-name descname"><span class="pre">gen_displaced_cartesian</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">atom_df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">delta</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.01</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">include_zeroth</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">exclude</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/vibrav/util/gen_displaced.html#Displace.gen_displaced_cartesian"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#vibrav.util.gen_displaced.Displace.gen_displaced_cartesian" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function to generate displaced coordinates in cartesian space. Will generate
+a total of 3N displacements with N being the number of atoms. If you desire
+the functionality to displace along the calculated normal modes please see
+<a class="reference internal" href="#vibrav.util.gen_displaced.Displace.gen_displaced" title="vibrav.util.gen_displaced.Displace.gen_displaced"><code class="xref py py-func docutils literal notranslate"><span class="pre">vibrav.util.gen_displaced.Displace.gen_displaced()</span></code></a>. We use the
+convention where nat*3 + j + nat*3*sign</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="vibrav.util.gen_displaced.gen_delta">
+<span class="sig-prename descclassname"><span class="pre">vibrav.util.gen_displaced.</span></span><span class="sig-name descname"><span class="pre">gen_delta</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">freq</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">delta_type</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">disp</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">norm</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/vibrav/util/gen_displaced.html#gen_delta"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#vibrav.util.gen_displaced.gen_delta" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function to compute the delta parameter to be used for the maximum distortion
+of the molecule along the normal mode.</p>
+<p>When <code class="code docutils literal notranslate"><span class="pre">delta_type</span> <span class="pre">=</span> <span class="pre">0</span></code> we normalize all atomic displacements along all normal modes
+to have a global average displacement given by the <code class="code docutils literal notranslate"><span class="pre">norm</span></code> parameter.</p>
+<p>When <code class="code docutils literal notranslate"><span class="pre">delta_type</span> <span class="pre">=</span> <span class="pre">1</span></code> we normalize the displacments to have a maximum given by the
+<code class="code docutils literal notranslate"><span class="pre">norm</span></code> parameter on each normal mode.</p>
+<p>When <code class="code docutils literal notranslate"><span class="pre">delta_type</span> <span class="pre">=</span> <span class="pre">2</span></code> we normalize each displacement so the maximum displacement
+vector of any atom in the normal mode is set to the <code class="code docutils literal notranslate"><span class="pre">norm</span></code> parameter.</p>
+<p>When <code class="code docutils literal notranslate"><span class="pre">delta_type</span> <span class="pre">=</span> <span class="pre">3</span></code> the user can select a constant delta parameter to use with the
+disp keyword this will displace all normal modes by that delta parameter.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>freq</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">exatomic.atom.Frequency</span></code>) – Frequency dataframe.</p></li>
+<li><p><strong>delta_type</strong> (<code class="xref py py-obj docutils literal notranslate"><span class="pre">int</span></code>) – Integer value to define the type of delta parameter to use.</p></li>
+<li><p><strong>disp</strong> (<code class="xref py py-obj docutils literal notranslate"><span class="pre">float</span></code>, optional) – Constant displacement parameter to use with
+<cite>delta_type=3</cite>. Defaults to <code class="code docutils literal notranslate"><span class="pre">None</span></code></p></li>
+<li><p><strong>norm</strong> (<code class="xref py py-obj docutils literal notranslate"><span class="pre">float</span></code>, optional) – Normalization parameter to use. Defaults to 0.04 au.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>delta (<code class="xref py py-obj docutils literal notranslate"><span class="pre">pandas.DataFrame</span></code>) – Delta parameters to multiply into each normal mode.</p>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>ValueError</strong> – When <code class="code docutils literal notranslate"><span class="pre">delta_type=3</span></code> and <code class="code docutils literal notranslate"><span class="pre">disp=None</span></code>.</p>
+</dd>
+</dl>
+<p>Examples:</p>
+</dd></dl>
+
+</section>
+
+
+    </div>
+      
+  </div>
+</div>
+<footer class="footer">
+  <div class="container">
+    <p class="pull-right">
+      <a href="#">Back to top</a>
+      
+    </p>
+    <p>
+        &copy; Copyright 2023, Herbert D Ludowieg. Project structure based on the Computational Molecular Science Python Cookiecutter version 1.1.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 7.0.1.<br/>
+    </p>
+  </div>
+</footer>
+  </body>
+</html>

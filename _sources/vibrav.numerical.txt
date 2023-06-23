@@ -1,0 +1,22 @@
+vibrav.numerical package
+========================
+
+.. automodule:: vibrav.numerical
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+Submodules
+----------
+
+.. toctree::
+   :maxdepth: 3
+
+   vibrav.numerical.boltzmann
+   vibrav.numerical.degeneracy
+   vibrav.numerical.derivatives
+   vibrav.numerical.frequencies
+   vibrav.numerical.phases
+   vibrav.numerical.redmass
+   vibrav.numerical.vibronic_func
+   vibrav.numerical.vroa_func
