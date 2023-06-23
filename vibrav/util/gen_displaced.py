@@ -59,7 +59,7 @@ def gen_delta(freq, delta_type, disp=None, norm=None):
     freqdx = data['freqdx'].unique()
     nmode = freqdx.shape[0]
     deltas = []
-    for n in norm:
+    for ndx, n in enumerate(norm):
         # global avrage displacement of 0.04 bohr for all atom displacements
         if delta_type == 0:
             d = np.sum(np.linalg.norm(
@@ -85,6 +85,7 @@ def gen_delta(freq, delta_type, disp=None, norm=None):
                                  +"delta_type = 3")
         delta = pd.DataFrame.from_dict({'delta': delta, 'freqdx': freqdx})
         delta['norm'] = n
+        delta['norm_idx'] = ndx
         deltas.append(delta)
     delta = pd.concat(deltas, ignore_index=True)
     return delta
@@ -125,7 +126,7 @@ class Displace(metaclass=DispMeta):
 
     @staticmethod
     def _insert_vals(df, znums, symbols, fdx, frame, freq,
-                     label, norm, delta):
+                     label, norm, delta, norm_idx):
         df['Z'] = znums
         df['symbol'] = symbols
         df['freqdx'] = fdx
@@ -134,6 +135,7 @@ class Displace(metaclass=DispMeta):
         df['label'] = label
         df['norm'] = norm
         df['delta'] = delta
+        df['norm_idx'] = norm_idx
 
     def gen_displaced(self, freq, atom_df, fdx):
         """
@@ -185,25 +187,27 @@ class Displace(metaclass=DispMeta):
         cols = ['dx', 'dy', 'dz']
         displaced = atom[['x', 'y', 'z']].copy()
         self._insert_vals(displaced, znums, symbols, 0, 0,
-                          0.0, range(nat), 0.0, 0.0)
+                          0.0, range(nat), 0.0, 0.0, -1)
         dfs = []
-        arr = enumerate(self.delta.groupby(['norm', 'freqdx']))
-        for idx, ((norm, fdx), delta_df) in arr:
+        arr = enumerate(self.delta.groupby(['norm_idx', 'freqdx']))
+        for idx, ((ndx, fdx), delta_df) in arr:
             delta = delta_df['delta'].values[0]
+            norm = delta_df.iloc[0]['norm']
             disp = grouped.get_group(fdx)[cols].values
             frame = int(idx/nmodes)*2*nmodes
             # create the positive displacement coordinates
             disp_pos = eqcoord + disp*delta
             df = pd.DataFrame(disp_pos, columns=['x', 'y', 'z'])
             self._insert_vals(df, znums, symbols, fdx+1, fdx+1+frame,
-                              modes[fdx], range(nat), norm, delta)
+                              modes[fdx], range(nat), norm, delta,
+                              ndx)
             dfs.append(df)
             # create the negative displacement coordinates
             disp_neg = eqcoord - disp*delta
             df = pd.DataFrame(disp_neg, columns=['x', 'y', 'z'])
             self._insert_vals(df, znums, symbols, fdx+nmodes+1,
                               fdx+nmodes+1+frame, modes[fdx],
-                              range(nat), norm, delta)
+                              range(nat), norm, delta, ndx)
             dfs.append(df)
         displaced = pd.concat([displaced]+dfs, ignore_index=True)
         displaced.sort_values(by=['frame', 'label'], inplace=True)
@@ -359,7 +363,7 @@ class Displace(metaclass=DispMeta):
         #        for idx in range(n):
         #            f.write("{} {}\t{}\n".format(idx+1, fdx+1, disp[fdx*nat+idx]))
         # construct initial configuration file
-        template = "{:<20s}          {}\n".format
+        template = "{:<32s}{}\n".format
         text = ''
         text += template("DELTA_FILE", "delta.dat")
         text += template("SMATRIX_FILE", "smatrix.dat")
@@ -385,7 +389,8 @@ class Displace(metaclass=DispMeta):
             with open(os.path.join(path, config), 'a') as fn:
                 fn.write(text)
 
-    def __init__(self, cls, *args, **kwargs):
+    def __init__(self, *args, **kwargs):
+        cls = kwargs.pop("cls", None)
         delta_type = kwargs.pop("delta_type", 0)
         fdx = kwargs.pop("fdx", -1)
         disp = kwargs.pop("disp", None)

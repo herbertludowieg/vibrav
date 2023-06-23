@@ -15,8 +15,10 @@
 from vibrav.core import Config
 from vibrav.util.print import dataframe_to_txt
 from vibrav.util.io import read_data_file
-from vibrav.util.file_checking import _check_file_continuity
-from vibrav.numerical.derivatives import get_pos_neg_gradients
+#from vibrav.util.file_checking import _check_file_continuity, _check_file_continuity_mult_norms
+from vibrav.numerical.derivatives import (get_pos_neg_gradients, two_point_1d, two_point_2d,
+                                          four_point_1d, four_point_2d, six_point_1d,
+                                          six_point_2d, eight_point_1d, eight_point_2d)
 from vibrav.numerical.frequencies import numerical_frequencies
 from exatomic.util import conversions as conv
 from exatomic.util.constants import Boltzmann_constant as boltzmann
@@ -129,12 +131,16 @@ class ZPVC:
     _required_inputs = {'number_of_modes': int, 'number_of_nuclei': int,
                         'property_file': str, 'gradient_file': str,
                         'property_atoms': (list, int), 'property_column': str,
-                        'temperature': (list, float)}
+                        'temperature': (list, float), 'number_of_norms': int,
+                        'norm_factors': (list, float)}
     _default_inputs = {'smatrix_file': ('smatrix.dat', str),
                        'eqcoord_file': ('eqcoord.dat', str),
                        'atom_order_file': ('atom_order.dat', str),
-                       'index_col': (True, bool)}
-
+                       'index_col': (False, bool)}
+    _deriv_map = {'two-point': [two_point_1d, two_point_2d],
+                  'four-point': [four_point_1d, four_point_2d],
+                  'six-point': [six_point_1d, six_point_2d],
+                  'eight-point': [eight_point_1d, eight_point_2d]}
     @staticmethod
     def _get_temp_factor(temp, freq):
         if temp > 1e-6:
@@ -178,7 +184,8 @@ class ZPVC:
         return in_sum
 
     def zpvc(self, geometry=True, print_results=False,
-             write_out_files=True, debug=False):
+             write_out_files=True, debug=False,
+             deriv_method='two-point'):
         '''
         Method to compute the Zero-Point Vibrational Corrections.
 
@@ -217,9 +224,13 @@ class ZPVC:
         pcol = config.property_column
         nmodes = config.number_of_modes
         nat = config.number_of_nuclei
-        delta = read_data_file(config.delta_file, nmodes)
+        nnorms = config.number_of_norms
+        norms = config.norm_factors
+        if len(norms) != nnorms:
+            raise ValueError("There was an issue with the number of norm factors.")
+        delta = read_data_file(config.delta_file, nnorms*nmodes)
         rmass = read_data_file(config.reduced_mass_file, nmodes)
-        rmass /= conv.amu2u
+        rmass /= conv.amu2u # atomic units of mass to dalton
         frequencies = read_data_file(config.frequency_file, nmodes)
         frequencies *= conv.inv_cm2Ha
         smat = read_data_file(config.smatrix_file, nmodes, smat=True, nat=nat)
@@ -239,13 +250,22 @@ class ZPVC:
                 raise ValueError("Property dataframe must have a second dimension of 2 not " \
                                  +"{}".format(property.shape[1]))
             # get the total number of normal modes
-            if prop_vals.shape[0] != 2*nmodes+1:
+            if prop_vals.shape[0] != 2*nnorms*nmodes+1:
+                print(prop_vals)
                 raise ValueError("The number of entries in the property data frame must " \
                                  +"be twice the number of normal modes plus one, currently " \
-                                 +"{}".format(property.shape[0]))
-            # check for any missing files and remove the respective counterpart
-            grad = _check_file_continuity(gradient.copy(), 'gradient', nmodes)
-            prop = _check_file_continuity(prop_vals.copy(), 'property', nmodes)
+                                 +"{}".format(prop_vals.shape[0]))
+            #if False:
+            #    # check for any missing files and remove the respective counterpart
+            #    for ndx in range(nnorms):
+            #        files = pd.Series(range(2*nmodes*ndx+1, 2*ndx*nmodes+2*nmodes+1))
+            #        grad = _check_file_continuity_mult_norms(gradient.copy(), 'gradient', files, nmodes, error=True)
+            #        prop = _check_file_continuity_mult_norms(prop_vals.copy(), 'property', files, nmodes, error=True)
+            #else:
+            grad = gradient.copy()
+            prop = prop_vals.sort_values(by=['file']).copy()
+            prop['freqdx'] = [-1]+list(np.tile(range(2*nmodes), nnorms))
+            prop['norm_idx'] = [-1]+list(np.repeat(range(nnorms), 2*nmodes))
             # check that the equlibrium coordinates are included
             # these are required for the three point difference methods
             try:
@@ -257,19 +277,19 @@ class ZPVC:
             except KeyError:
                 raise KeyError("Equilibrium coordinate property not found")
             # check that the gradient and property dataframe have the same length of data
-            grad_files = grad[grad['file'].isin(range(0,nmodes+1))]['file'].drop_duplicates()
-            prop_files = prop[prop['file'].isin(range(nmodes+1,2*nmodes+1))]['file'].drop_duplicates()
-            # compare lengths
-            # TODO: make sure the minus 1 is in the right place
-            #       we suppose that it is because we grab the file number 0 as an extra
-            if grad_files.shape[0]-1 != prop_files.shape[0]:
-                print("Length mismatch of gradient and property arrays.")
-                # we create a dataframe to make use of the existing file continuity checker
-                df = pd.DataFrame(np.concatenate([grad_files, prop_files]), columns=['file'])
-                df = _check_file_continuity(df, 'grad/prop', nmodes)
-                # overwrite the property and gradient dataframes
-                grad = grad[grad['file'].isin(df['file'])]
-                prop = prop[prop['file'].isin(df['file'])]
+            #grad_files = grad[grad['file'].isin(range(0,nmodes+1))]['file'].drop_duplicates()
+            #prop_files = prop[prop['file'].isin(range(nmodes+1,2*nmodes+1))]['file'].drop_duplicates()
+            ## compare lengths
+            ## TODO: make sure the minus 1 is in the right place
+            ##       we suppose that it is because we grab the file number 0 as an extra
+            #if grad_files.shape[0]-1 != prop_files.shape[0]:
+            #    print("Length mismatch of gradient and property arrays.")
+            #    # we create a dataframe to make use of the existing file continuity checker
+            #    df = pd.DataFrame(np.concatenate([grad_files, prop_files]), columns=['file'])
+            #    df = _check_file_continuity(df, 'grad/prop', nmodes)
+            #    # overwrite the property and gradient dataframes
+            #    grad = grad[grad['file'].isin(df['file'])]
+            #    prop = prop[prop['file'].isin(df['file'])]
             # get the selected frequencies
             select_freq = grad[grad['file'].isin(range(1,nmodes+1))]
             select_freq = select_freq['file'].drop_duplicates().values - 1
@@ -282,16 +302,45 @@ class ZPVC:
                 text = "Negative frequencies were found in {}. Make sure that the geometry " \
                        +"optimization and frequency calculations proceeded correctly."
                 warnings.warn(text.format(config.frequency_file, Warning))
-            # get the gradients multiplied by the normal modes
-            delfq_zero, delfq_plus, delfq_minus = get_pos_neg_gradients(grad, smat, nmodes)
-            # check the gradients by calculating the freuqncies numerically
-            num_freqs = numerical_frequencies(delfq_plus, delfq_minus, rmass,
-                                              nmodes, delta)
+            delfq_zero = []
+            delfq_plus = []
+            delfq_minus = []
+            for ndx in range(nnorms):
+                files = [0]+list(range(2*nmodes*ndx+1, 2*ndx*nmodes+2*nmodes+1))
+                g = grad.groupby('file').filter(lambda x: x['file'].unique() in files)
+                if files[1] != 1:
+                    g['file'] = np.repeat(range(2*nmodes+1), nat)
+                # get the gradients multiplied by the normal modes
+                zero, plus, minus = get_pos_neg_gradients(g, smat, nmodes)
+                # check the gradients by calculating the freuqncies numerically
+                num_freqs = numerical_frequencies(plus, minus, rmass,
+                                                  nmodes, delta)
+                zero['norm_idx'] = ndx
+                zero['freqdx'] = range(nmodes)
+                plus['norm_idx'] = ndx
+                plus['freqdx'] = range(nmodes)
+                minus['norm_idx'] = ndx
+                minus['freqdx'] = range(nmodes)
+                if ndx == 0:
+                    delfq_zero.append(zero)
+                delfq_plus.append(plus)
+                delfq_minus.append(minus)
+            delfq_zero = pd.concat(delfq_zero, ignore_index=True)
+            delfq_plus = pd.concat(delfq_plus, ignore_index=True)
+            delfq_minus = pd.concat(delfq_minus, ignore_index=True)
             # calculate anharmonic cubic force constant
             # this will have nmodes rows and nmodes cols
             kqijj = []
             for i in range(nmodes):
-                kqijj.append((delfq_plus[i] - 2.0*delfq_zero[i] + delfq_minus[i]) / delta[i]**2)
+                equil = delfq_zero.groupby('freqdx').get_group(i)[range(nmodes)].values[0]
+                plus = delfq_plus.groupby('freqdx').get_group(i).groupby('norm_idx')
+                minus = delfq_minus.groupby('freqdx').get_group(i).groupby('norm_idx')
+                func = self._deriv_map[deriv_method][1]
+                p = plus.apply(lambda x: x)[range(nmodes)].values.T
+                m = minus.apply(lambda x: x)[range(nmodes)].values.T
+                kqijj.append([])
+                for a in zip(p, m, equil):
+                    kqijj[-1].append(func(a[0], a[1], a[2], delta[i]))
             kqijj = np.array(kqijj)
             # get the cubic force constant
             kqiii = np.diagonal(kqijj)
@@ -299,16 +348,19 @@ class ZPVC:
             prop_grouped = prop.groupby('file')
             # get equil property
             prop_zero = prop_grouped.get_group(0)[config.property_column].values
-            prop_zero = np.repeat(prop_zero, nmodes)
-            # positive displacement
-            prop_plus = prop_grouped.filter(lambda x: x['file'].unique() in range(1, nmodes+1))
-            prop_plus = prop_plus.sort_values(by=['file'])[config.property_column].values.flatten()
-            # negative displacement
-            prop_minus = prop_grouped.filter(lambda x: x['file'].unique() in range(nmodes+1, 2*nmodes+1))
-            prop_minus = prop_minus.sort_values(by=['file'])[config.property_column].values.flatten()
-            # calculate derivatives
-            dprop_dq = (prop_plus - prop_minus) / (2*delta)
-            d2prop_dq2 = (prop_plus - 2*prop_zero + prop_minus) / (delta**2)
+            dprop_dq = []
+            d2prop_dq2 = []
+            for i in range(nmodes):
+                plus = prop.groupby('freqdx').get_group(i).groupby('norm_idx')
+                minus = prop.groupby('freqdx').get_group(i+nmodes).groupby('norm_idx')
+                p = plus.apply(lambda x: x)[config.property_column].values
+                m = minus.apply(lambda x: x)[config.property_column].values
+                # calculate derivatives
+                func = self._deriv_map[deriv_method]
+                dq = func[0](p, m, delta[i])
+                dq2 = func[1](p, m, prop_zero, delta[i])
+                dprop_dq.append(dq)
+                d2prop_dq2.append(dq2)
             # write output files for comparisons
             if write_out_files:
                 # write the anharmonic cubic constant matrix

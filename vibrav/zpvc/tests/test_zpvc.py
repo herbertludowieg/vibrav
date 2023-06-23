@@ -31,8 +31,8 @@ def zpvc_results():
 @pytest.fixture
 def zpvc_geometry():
     df = pd.read_csv(resource('nitromal-zpvc-geometry.csv.xz'), compression='xz',
-                     index_col=False)
-    zpvc_geometry = df.groupby('temp')
+                     index_col=0, header=0)
+    zpvc_geometry = df.groupby('frame')
     yield zpvc_geometry
 
 def test_zpvc(zpvc_results, zpvc_geometry):
@@ -41,7 +41,22 @@ def test_zpvc(zpvc_results, zpvc_geometry):
     cols = ['tot_anharm', 'tot_curva', 'zpvc', 'zpva']
     assert np.allclose(zpvc_results[cols].values, zpvc.zpvc_results[cols].values)
     cols = ['x', 'y', 'z']
-    for t in zpvc.config.temperature:
-        assert np.allclose(zpvc_geometry.get_group(t)[cols],
-                           zpvc.eff_coord.groupby('temp').get_group(t)[cols])
+    for tdx, _ in enumerate(zpvc.config.temperature):
+        assert np.allclose(zpvc_geometry.get_group(tdx)[cols],
+                           zpvc.eff_coord.groupby('frame').get_group(tdx)[cols])
+
+def test_zpvc_eight_point():
+    base = 'nitromal-zpvc-eight-point-{}'
+    zpvc = ZPVC(config_file=resource(base.format('va.conf')))
+    zpvc.zpvc(write_out_files=False, deriv_method='eight-point')
+    cols = ['tot_anharm', 'tot_curva', 'zpvc', 'zpva']
+    zpvc_results = pd.read_csv(resource(base.format('results.csv.xz')), compression='xz',
+                               index_col=0, header=0)
+    assert np.allclose(zpvc_results[cols].values, zpvc.zpvc_results[cols].values)
+    zpvc_geometry = pd.read_csv(resource(base.format('geometry.csv.xz')), compression='xz',
+                                index_col=0, header=0)
+    cols = ['x', 'y', 'z']
+    for tdx, _ in enumerate(zpvc.config.temperature):
+        assert np.allclose(zpvc_geometry.groupby('frame').get_group(tdx)[cols],
+                           zpvc.eff_coord.groupby('frame').get_group(tdx)[cols])
 
