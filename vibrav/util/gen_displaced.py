@@ -363,7 +363,7 @@ class Displace(metaclass=DispMeta):
         #        for idx in range(n):
         #            f.write("{} {}\t{}\n".format(idx+1, fdx+1, disp[fdx*nat+idx]))
         # construct initial configuration file
-        template = "{:<20s}          {}\n".format
+        template = "{:<32s}{}\n".format
         text = ''
         text += template("DELTA_FILE", "delta.dat")
         text += template("SMATRIX_FILE", "smatrix.dat")

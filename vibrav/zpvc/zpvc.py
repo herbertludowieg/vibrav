@@ -226,6 +226,8 @@ class ZPVC:
         nat = config.number_of_nuclei
         nnorms = config.number_of_norms
         norms = config.norm_factors
+        if len(norms) != nnorms:
+            raise ValueError("There was an issue with the number of norm factors.")
         delta = read_data_file(config.delta_file, nnorms*nmodes)
         rmass = read_data_file(config.reduced_mass_file, nmodes)
         rmass /= conv.amu2u # atomic units of mass to dalton
